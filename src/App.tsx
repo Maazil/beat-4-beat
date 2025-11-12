@@ -23,7 +23,7 @@ const App: Component = () => {
         <section class="flex w-full max-w-3xl flex-col items-center gap-12 text-center">
           <div class="beat-circle w-72 max-w-[80vw] sm:w-80">
             <div class="beat-circle-inner flex aspect-square w-full items-center justify-center">
-              <span class="text-5xl font-semibold leading-[1.05] tracking-[0.4em] uppercase text-red-500 sm:text-6xl">
+              <span class="text-4xl font-semibold leading-[1.2] tracking-[0.4em] uppercase text-red-500 sm:text-5xl">
                 Beat
                 <br />4
                 <br />beat
@@ -38,7 +38,7 @@ const App: Component = () => {
 
           <button
             type="button"
-            class="group relative inline-flex items-center gap-3 overflow-hidden rounded-full border border-red-500/60 bg-red-500/10 px-9 py-3 text-sm font-semibold uppercase tracking-[0.5em] text-red-300 transition duration-300 hover:border-red-400/80 hover:bg-red-500/15 hover:text-red-200 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-red-500"
+            class="group relative inline-flex items-center gap-3 overflow-hidden rounded-full border border-red-500/60 bg-red-500/10 px-9 py-3 text-sm font-semibold uppercase tracking-[0.5em] text-red-300 transition duration-300 hover:border-red-400/80 hover:bg-red-500/15 hover:text-red-200 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-red-500 hover:cursor-pointer"
           >
             <span>Start spillet</span>
             <span class="relative flex h-6 w-6 items-center justify-center rounded-full bg-red-500/60 text-neutral-950 transition duration-300 group-hover:bg-red-400/90">

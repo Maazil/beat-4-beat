@@ -13,7 +13,7 @@ const Logo = (props: JSX.SvgSVGAttributes<SVGSVGElement>) => (
     <defs>
       <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="0%">
         <stop offset="0%" stop-color="#ff1e46" />
-        <stop offset="50%" stop-color="#4d0f1a" />
+        <stop offset="50%" stop-color="#ff1e46" />
         <stop offset="100%" stop-color="#ff3b5c" />
       </linearGradient>
     </defs>
