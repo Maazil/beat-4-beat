@@ -5,7 +5,7 @@ import { render } from "solid-js/web";
 import "./index.css";
 
 import App from "./routes/App";
-import Dashboard from "./routes/Dashboard";
+import Dashboard from "./routes/Dashboard/Dashboard";
 
 const root = document.getElementById("root");
 

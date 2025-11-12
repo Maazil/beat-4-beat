@@ -1,8 +1,12 @@
+import { useNavigate } from "@solidjs/router";
 import type { Component } from "solid-js";
 import Logo from "../components/Logo";
 import RandomVisualizer from "../components/RandomVisualizer";
 
 const App: Component = () => {
+
+    const navigate = useNavigate();
+
   return (
     <main class="relative min-h-screen overflow-hidden bg-ambient text-neutral-100">
       <div class="pointer-events-none absolute inset-0">
@@ -43,6 +47,7 @@ const App: Component = () => {
           <button
             type="button"
             class="group relative inline-flex items-center gap-3 overflow-hidden rounded-full border border-red-500/60 bg-red-500/10 px-9 py-3 text-sm font-semibold uppercase tracking-[0.5em] text-red-300 transition duration-300 hover:border-red-400/80 hover:bg-red-500/15 hover:text-red-200 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-red-500 hover:cursor-pointer"
+            onClick={() => navigate("/dashboard")}
           >
             <span>Start spillet</span>
             <span class="relative flex h-6 w-6 items-center justify-center rounded-full bg-red-500/60 text-neutral-950 transition duration-300 group-hover:bg-red-400/90">
