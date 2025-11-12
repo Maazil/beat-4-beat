@@ -1,6 +1,6 @@
 import type { Component } from 'solid-js';
-import Logo from './components/Logo';
-import RandomVisualizer from './components/RandomVisualizer';
+import Logo from '../components/Logo';
+import RandomVisualizer from '../components/RandomVisualizer';
 
 const App: Component = () => {
   return (
