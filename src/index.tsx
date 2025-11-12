@@ -2,6 +2,7 @@
 import './index.css';
 import { render } from 'solid-js/web';
 import 'solid-devtools';
+import { Route, Router } from '@solidjs/router';
 
 import App from './App';
 
@@ -13,4 +14,11 @@ if (import.meta.env.DEV && !(root instanceof HTMLElement)) {
   );
 }
 
-render(() => <App />, root!);
+render(
+  () => (
+    <Router>
+      <Route path="/" component={App} />
+    </Router>
+  ),
+  root!,
+);
