@@ -1,0 +1,31 @@
+{
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "typescript.preferences.importModuleSpecifier": "non-relative",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit",
+    "source.fixAll.format": "explicit",
+    "source.organizeImports": "explicit"
+  },
+  "prettier.configPath": "",
+  "tailwindCSS.experimental.classRegex": [
+    "cntl`([^`]*)", // cntl`...`
+    "clsx\\(([^)]*)\\)" // clsx(...)
+  ],
+  "launch": {
+    "configurations": [],
+    "compounds": []
+  },
+  "files.eol": "\n",
+  "[typescriptreact]": {
+    "files.eol": "\n"
+  },
+  "[javascriptreact]": {
+    "files.eol": "\n"
+  },
+  "svg.preview.background": "transparent",
+  "[xml]": {
+    "editor.defaultFormatter": "mikeburgh.xml-format"
+  }
+}
