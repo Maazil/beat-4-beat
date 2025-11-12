@@ -2,7 +2,7 @@ import type { Component } from "solid-js";
 
 const Dashboard: Component = () => {
   return (
-    <main class="relative min-h-screen overflow-hidden bg-ambient text-neutral-100">
+    <main class="relative min-h-screen bg-white text-blue-950 overflow-hidden bg-ambient ">
       <div>hello dashboard</div>
     </main>
   );
