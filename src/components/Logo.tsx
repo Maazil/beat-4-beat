@@ -1,4 +1,4 @@
-import type { JSX } from 'solid-js';
+import type { JSX } from "solid-js";
 
 const Logo = (props: JSX.SvgSVGAttributes<SVGSVGElement>) => (
   <svg
@@ -17,7 +17,14 @@ const Logo = (props: JSX.SvgSVGAttributes<SVGSVGElement>) => (
         <stop offset="100%" stop-color="#ff3b5c" />
       </linearGradient>
     </defs>
-    <circle cx="16" cy="16" r="14" stroke="url(#logoGradient)" stroke-width="2.4" fill="#050507" />
+    <circle
+      cx="16"
+      cy="16"
+      r="14"
+      stroke="url(#logoGradient)"
+      stroke-width="2.4"
+      fill="#050507"
+    />
     <path
       d="M6 16h4l3-6 4 12 4-8 3 6h4"
       stroke="url(#logoGradient)"
@@ -30,9 +37,9 @@ const Logo = (props: JSX.SvgSVGAttributes<SVGSVGElement>) => (
       y="21"
       fill="url(#logoGradient)"
       style={{
-        'font-family': "'JetBrains Mono', 'Inter', sans-serif",
-        'font-size': '15px',
-        'letter-spacing': '6px',
+        "font-family": "'JetBrains Mono', 'Inter', sans-serif",
+        "font-size": "15px",
+        "letter-spacing": "6px",
       }}
     >
       Beat 4 Beat

@@ -1,5 +1,5 @@
-import type { Component } from 'solid-js';
-import { For, createEffect, createSignal, onCleanup, onMount } from 'solid-js';
+import type { Component } from "solid-js";
+import { For, createEffect, createSignal, onCleanup, onMount } from "solid-js";
 
 type RandomVisualizerProps = {
   barCount?: number;
@@ -8,7 +8,8 @@ type RandomVisualizerProps = {
 
 const RandomVisualizer: Component<RandomVisualizerProps> = (props) => {
   const count = () => props.barCount ?? 48;
-  const createLevels = () => Array.from({ length: count() }, () => Math.random());
+  const createLevels = () =>
+    Array.from({ length: count() }, () => Math.random());
 
   const [levels, setLevels] = createSignal<number[]>(createLevels());
 
@@ -25,7 +26,8 @@ const RandomVisualizer: Component<RandomVisualizerProps> = (props) => {
     stop();
     intervalId = window.setInterval(() => {
       setLevels((previous) => {
-        const snapshot = previous.length === count() ? previous : createLevels();
+        const snapshot =
+          previous.length === count() ? previous : createLevels();
         return snapshot.map((value) => {
           const target = Math.random();
           const eased = value + (target - value) * 0.55;
@@ -45,7 +47,8 @@ const RandomVisualizer: Component<RandomVisualizerProps> = (props) => {
 
   onCleanup(stop);
 
-  const combinedClass = () => (props.class ? `random-visualizer ${props.class}` : 'random-visualizer');
+  const combinedClass = () =>
+    props.class ? `random-visualizer ${props.class}` : "random-visualizer";
 
   return (
     <div class={combinedClass()} role="presentation" aria-hidden="true">
@@ -56,7 +59,7 @@ const RandomVisualizer: Component<RandomVisualizerProps> = (props) => {
             class="random-visualizer__bar"
             style={{
               height: `${35 + level * 65}%`,
-              'transition-delay': `${(index() % 6) * 18}ms`,
+              "transition-delay": `${(index() % 6) * 18}ms`,
             }}
           />
         )}
