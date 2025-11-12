@@ -1,5 +1,6 @@
 import type { Component } from 'solid-js';
 import Logo from './components/Logo';
+import RandomVisualizer from './components/RandomVisualizer';
 
 const App: Component = () => {
   return (
@@ -30,6 +31,8 @@ const App: Component = () => {
               </div>
             </div>
           </div>
+
+          <RandomVisualizer class="mt-4" />
 
           <p class="max-w-[46ch] text-pretty text-base text-neutral-400 sm:text-lg">
             Hvor rytme møter reaksjon. Beat 4 Beat er den sosiale lydlege, hvor du dyster i takt,
