@@ -12,12 +12,12 @@ const App: Component = () => {
   <div class="absolute left-0 top-0 h-full w-full bg-[linear-gradient(rgba(255,255,255,0.04)_1px,transparent_1px)] bg-size-[0.5px_32px] opacity-30" />
       </div>
 
-      <div class="relative z-10 mx-auto flex min-h-screen w-full max-w-6xl flex-col items-center justify-center px-6 py-20">
+      <div class="relative z-10 mx-auto flex min-h-screen w-full max-w-6xl flex-col items-center justify-center px-6 py-20 pt-7 sm:pt-20">
         <header class="mb-16 flex items-center gap-4 text-neutral-300 sm:gap-6">
           <Logo class="h-10 w-auto text-red-400" />
-          <span class="text-xs uppercase tracking-[0.55em] text-neutral-500 sm:text-sm">
+          {/* <span class="text-xs uppercase tracking-[0.55em] text-neutral-500 sm:text-sm">
             Beat 4 Beat
-          </span>
+          </span> */}
         </header>
 
         <section class="flex w-full max-w-3xl flex-col items-center gap-12 text-center">
@@ -32,8 +32,8 @@ const App: Component = () => {
           </div>
 
           <p class="max-w-[46ch] text-pretty text-base text-neutral-400 sm:text-lg">
-            Hvor rytme møder reaktion. Beat 4 Beat er den sociale lydlege, hvor du dyster i takt,
-            timing og nerves styrke. Træd ind i pulsen, og mærk slagene før alle andre.
+            Hvor rytme møter reaksjon. Beat 4 Beat er den sosiale lydlege, hvor du dyster i takt,
+            timing og nerves styrke. Trådd inn i pulsen, og merk slagene før alle andre.
           </p>
 
           <button

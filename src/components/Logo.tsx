@@ -2,7 +2,7 @@ import type { JSX } from 'solid-js';
 
 const Logo = (props: JSX.SvgSVGAttributes<SVGSVGElement>) => (
   <svg
-    viewBox="0 0 120 32"
+    viewBox="0 0 200 32"
     role="img"
     aria-labelledby="beat4beat-logo"
     fill="none"
@@ -35,7 +35,7 @@ const Logo = (props: JSX.SvgSVGAttributes<SVGSVGElement>) => (
         'letter-spacing': '6px',
       }}
     >
-      B4B
+      Beat 4 Beat
     </text>
   </svg>
 );
