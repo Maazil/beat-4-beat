@@ -39,7 +39,7 @@ const Logo = (props: JSX.SvgSVGAttributes<SVGSVGElement>) => (
       style={{
         "font-family": "'JetBrains Mono', 'Inter', sans-serif",
         "font-size": "15px",
-        "letter-spacing": "6px",
+        "letter-spacing": "4px",
       }}
     >
       Beat 4 Beat
