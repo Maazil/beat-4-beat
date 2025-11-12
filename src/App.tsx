@@ -9,7 +9,7 @@ const App: Component = () => {
         <div class="animate-ambient-float absolute -right-24 bottom-24 h-80 w-80 rounded-full bg-red-700/15 blur-[140px]" />
         <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,48,64,0.12)_0,rgba(10,10,14,0)_70%)]" />
         <div class="absolute inset-0 bg-[linear-gradient(115deg,rgba(255,25,70,0.08)_0%,rgba(9,9,13,0)_40%,rgba(255,25,70,0.06)_75%,rgba(9,9,13,0)_100%)]" />
-  <div class="absolute left-0 top-0 h-full w-full bg-[linear-gradient(rgba(255,255,255,0.04)_1px,transparent_1px)] bg-size-[0.5px_32px] opacity-30" />
+        <div class="absolute left-0 top-0 h-full w-full bg-[linear-gradient(rgba(255,255,255,0.04)_1px,transparent_1px)] bg-size-[0.5px_32px] opacity-30" />
       </div>
 
       <div class="relative z-10 mx-auto flex min-h-screen w-full max-w-6xl flex-col items-center justify-center px-6 py-20 pt-7 sm:pt-20">
@@ -23,17 +23,17 @@ const App: Component = () => {
         <section class="flex w-full max-w-3xl flex-col items-center gap-12 text-center">
           <div class="beat-circle w-72 max-w-[80vw] sm:w-80">
             <div class="beat-circle-inner flex aspect-square w-full items-center justify-center">
-              <span class="text-4xl font-semibold leading-[1.2] tracking-[0.4em] uppercase text-red-500 sm:text-5xl">
-                Beat
-                <br />4
-                <br />beat
-              </span>
+              <div class="flex flex-col items-center gap-4 text-4xl font-semibold uppercase tracking-[0.35em] text-red-400 sm:text-5xl">
+                <span class="beat-word">Beat</span>
+                <span class="beat-word">4</span>
+                <span class="beat-word">Beat</span>
+              </div>
             </div>
           </div>
 
           <p class="max-w-[46ch] text-pretty text-base text-neutral-400 sm:text-lg">
             Hvor rytme møter reaksjon. Beat 4 Beat er den sosiale lydlege, hvor du dyster i takt,
-            timing og nerves styrke. Trådd inn i pulsen, og merk slagene før alle andre.
+            timing og nerves styrke. Trå inn i pulsen, og merk slagene før alle andre.
           </p>
 
           <button
