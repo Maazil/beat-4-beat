@@ -6,7 +6,7 @@ const Logo = (props: JSX.SvgSVGAttributes<SVGSVGElement>) => (
     role="img"
     aria-labelledby="beat4beat-logo"
     fill="none"
-    xmlns="http://www.w3.org/2000/svg"
+    xmlns="http://www.w3.org/2000/svg" 
     {...props}
   >
     <title id="beat4beat-logo">Beat 4 Beat</title>
