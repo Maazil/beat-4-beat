@@ -1,5 +1,5 @@
 import { useParams } from "@solidjs/router";
-import { Component, For, Show, createMemo, createSignal } from "solid-js";
+import { Component, For, createMemo, createSignal } from "solid-js";
 import { rooms } from "../../../../../store/roomsStore";
 
 const categoryColors = [
@@ -24,20 +24,41 @@ const Play: Component = () => {
   };
 
   return (
-    <div class="min-h-screen bg-[#f4f6f8] px-6 py-12">
-      <Show when={currentRoom()} keyed>
-        {(room) => (
-          <div class="mx-auto w-full max-w-7xl">
-            <div class="mb-12 text-center">
-              <h1 class="text-4xl font-bold text-neutral-900">{room.name}</h1>
-              <p class="mt-2 text-sm text-neutral-500">
-                Klikk på en boks for å spille sangen
-              </p>
-            </div>
+    <div class="min-h-screen bg-white p-6">
+      <div class="mx-auto max-w-7xl">
+        <button
+          type="button"
+          onClick={() => window.history.back()}
+          class="mb-6 flex items-center gap-2 text-neutral-600 hover:text-neutral-900 transition"
+        >
+          <svg
+            class="h-5 w-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M10 19l-7-7m0 0l7-7m-7 7h18"
+            />
+          </svg>
+          <span class="font-medium">Tilbake</span>
+        </button>
 
-            <div class="grid gap-8 lg:grid-cols-5 md:grid-cols-3 sm:grid-cols-2">
-              <For each={room.categories}>
-                {(category, index) => {
+        <div class="mb-8">
+          <h1 class="text-3xl font-bold text-neutral-900">
+            {currentRoom()?.name}
+          </h1>
+          <p class="mt-2 text-neutral-600">
+            Klikk på en rute for å velge sang
+          </p>
+        </div>
+
+        <div class="grid gap-8 lg:grid-cols-5 md:grid-cols-3 sm:grid-cols-2">
+          <For each={currentRoom()?.categories}>
+            {(category, index) => {
                   const colorScheme = categoryColors[index() % categoryColors.length];
                   return (
                     <div class="flex flex-col gap-4">
@@ -79,11 +100,9 @@ const Play: Component = () => {
                     </div>
                   );
                 }}
-              </For>
-            </div>
-          </div>
-        )}
-      </Show>
+          </For>
+        </div>
+      </div>
     </div>
   );
 };
