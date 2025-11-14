@@ -7,6 +7,7 @@ const CreateRoom: Component = () => {
   const navigate = useNavigate();
   const [roomName, setRoomName] = createSignal("");
   const [hostName, setHostName] = createSignal("");
+  const [isPublic, setIsPublic] = createSignal(false);
   const [categories, setCategories] = createSignal<Category[]>([]);
   const [newCategoryName, setNewCategoryName] = createSignal("");
   const [itemCounts, setItemCounts] = createSignal<Record<string, number>>({});
@@ -68,7 +69,7 @@ const CreateRoom: Component = () => {
       hostName: host,
       categories: categoriesWithItems,
       isActive: true,
-      isPublic: false,
+      isPublic: isPublic(),
       createdAt: Date.now(),
       status: "scheduled",
       participants: 0,
@@ -130,7 +131,7 @@ const CreateRoom: Component = () => {
             placeholder="F.eks. DJ Ola"
             class="w-full rounded-lg border border-neutral-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
           />
-        </div>
+        </div>        
 
         {/* Categories */}
         <div>
@@ -187,6 +188,30 @@ const CreateRoom: Component = () => {
               Legg til
             </button>
           </div>
+        </div>
+
+        <div class="flex items-center justify-between p-4 rounded-lg border border-neutral-200 bg-neutral-50 max-w-sm">
+          <div>
+            <label class="block text-sm font-medium text-neutral-900 mb-1">
+              Rommet ditt er {  isPublic() ? "offentlig" : "privat"}
+            </label>
+            <p class="text-sm text-neutral-600">
+              Gjør rommet synlig for alle brukere på plattformen.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setIsPublic(!isPublic())}
+            class={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+              isPublic() ? "bg-blue-600" : "bg-neutral-300"
+            }`}
+          >
+            <span
+              class={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                isPublic() ? "translate-x-6" : "translate-x-1"
+              }`}
+            />
+          </button>
         </div>
 
         {/* Create Button */}
