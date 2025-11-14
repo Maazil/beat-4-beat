@@ -10,7 +10,7 @@ export interface Room {
   scores?: Score[];       // Optional: team score tracking
   isActive: boolean;      // Game running state
   createdAt: number;      // Timestamp
-  isPublic?: boolean;     // Optional: public visibility
+  isPublic: boolean;     
 }
 
 export interface CreateRoomData {
@@ -18,7 +18,7 @@ export interface CreateRoomData {
   hostId: string;               // Firebase user ID of the creator
   categories: Category[];       // Categories created by the host
   isActive?: boolean;           // Optional - starts false
-  isPublic?: boolean;           // Optional - starts false
+  isPublic: boolean;
 }
 
 export const defaultRoomData = (overrides?: Partial<CreateRoomData>): CreateRoomData => ({

@@ -68,6 +68,7 @@ const CreateRoom: Component = () => {
       hostName: host,
       categories: categoriesWithItems,
       isActive: true,
+      isPublic: false,
       createdAt: Date.now(),
       status: "scheduled",
       participants: 0,

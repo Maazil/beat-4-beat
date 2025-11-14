@@ -45,6 +45,7 @@ export const [rooms, setRooms] = createStore<RoomSnapshot[]>([
     startsAt: new Date(Date.now() - 1000 * 60 * 18).toISOString(),
     participants: 12,
     isActive: false,
+    isPublic: true,
     createdAt: Date.now() - 1000 * 60 * 60,
   },
   {
@@ -68,6 +69,7 @@ export const [rooms, setRooms] = createStore<RoomSnapshot[]>([
     startsAt: new Date(Date.now() + 1000 * 60 * 60 * 24).toISOString(),
     participants: 8,
     isActive: false,
+    isPublic: true,
     createdAt: Date.now() - 1000 * 60 * 45,
   },
   {
@@ -100,6 +102,7 @@ export const [rooms, setRooms] = createStore<RoomSnapshot[]>([
     status: "live",
     participants: 16,
     isActive: true,
+    isPublic: true,
     createdAt: Date.now() - 1000 * 60 * 15,
   },
 ]);
