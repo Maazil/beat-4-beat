@@ -5,6 +5,7 @@ export interface Room {
   id: string;             // Unique room ID (e.g. nanoid)
   name: string;           // Room/game name
   hostId: string;         // User ID of host
+  hostName: string;      // Optional: Host display name
   categories: Category[]; // Music categories (Pop, 80s, etc.)
   scores?: Score[];       // Optional: team score tracking
   isActive: boolean;      // Game running state
@@ -33,6 +34,7 @@ export const demoRoom = {
   id: "demo-room-001",
   name: "Demo Beat Room",
   hostId: "demo-host-123",
+  hostName: "DJ Demo",
   categories: [
     { id: "category-001", name: "Pop Hits", items: [
       { id: "song-001", level: 1, isRevealed: false },

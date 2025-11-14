@@ -69,13 +69,13 @@ const Room: Component = () => {
                   Rominformasjon
                 </h2>
                 <dl class="space-y-3 text-sm">
-                  <div>
+                  {/* <div>
                     <dt class="font-medium text-neutral-700">Rom ID</dt>
                     <dd class="text-neutral-500 mt-1">{room.id}</dd>
-                  </div>
+                  </div> */}
                   <div>
                     <dt class="font-medium text-neutral-700">Vertskap</dt>
-                    <dd class="text-neutral-500 mt-1">{room.hostId}</dd>
+                    <dd class="text-neutral-500 mt-1">{room.hostName}</dd>
                   </div>
                   <div>
                     <dt class="font-medium text-neutral-700">
@@ -85,10 +85,10 @@ const Room: Component = () => {
                       {room.categories.length}
                     </dd>
                   </div>
-                  <div>
+                  {/* <div>
                     <dt class="font-medium text-neutral-700">Deltakere</dt>
                     <dd class="text-neutral-500 mt-1">{room.participants}</dd>
-                  </div>
+                  </div> */}
                   {room.startsAt && (
                     <div>
                       <dt class="font-medium text-neutral-700">
@@ -97,7 +97,6 @@ const Room: Component = () => {
                       <dd class="text-neutral-500 mt-1">
                         {new Date(room.startsAt).toLocaleString("no-NO", {
                           dateStyle: "full",
-                          timeStyle: "short",
                         })}
                       </dd>
                     </div>
@@ -107,7 +106,6 @@ const Room: Component = () => {
                     <dd class="text-neutral-500 mt-1">
                       {new Date(room.createdAt).toLocaleString("no-NO", {
                         dateStyle: "short",
-                        timeStyle: "short",
                       })}
                     </dd>
                   </div>
