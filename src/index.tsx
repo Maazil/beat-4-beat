@@ -1,11 +1,15 @@
 /* @refresh reload */
-import { Router } from "@solidjs/router";
+import { Route, Router } from "@solidjs/router";
 import "solid-devtools";
 import { render } from "solid-js/web";
 import "./index.css";
 
 import App from "./routes/App";
+import CreateRoom from "./routes/Dashboard/CreateRoom/CreateRoom";
 import Dashboard from "./routes/Dashboard/Dashboard";
+import PageWrapper from "./routes/Dashboard/PageWrapper";
+import Room from "./routes/Dashboard/Room/Room";
+import NotFound from "./routes/NotFound/NotFound";
 import Profile from "./routes/Profile/Profile";
 
 const root = document.getElementById("root");
@@ -16,11 +20,23 @@ if (import.meta.env.DEV && !(root instanceof HTMLElement)) {
   );
 }
 
-const routes = [
-  { path: "/", component: App },
-  { path: "/dashboard", component: Dashboard },
-  { path: "/profile", component: Profile },
-  { path: "*", component: () => <div>Not Found</div> },
-];
 
-render(() => <Router>{routes}</Router>, root!);
+
+render(
+  () => (
+    <Router>
+      <Route path="/" component={App} />
+      <Route path="/dashboard" component={PageWrapper}>
+        <Route path="/" component={Dashboard} />
+        <Route path="room">
+          <Route path="/" component={Room} />
+          <Route path=":id" component={Room} />
+        </Route>
+        <Route path="profile" component={Profile} />
+        <Route path="create" component={CreateRoom} />
+      </Route>
+      <Route path="*" component={NotFound} />
+    </Router>
+  ),
+  root!
+);

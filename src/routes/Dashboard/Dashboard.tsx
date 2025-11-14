@@ -1,28 +1,10 @@
+import { useNavigate } from "@solidjs/router";
 import type { Component } from "solid-js";
-import Logo from "../../components/Logo";
 
 const Dashboard: Component = () => {
+  const navigate = useNavigate();
   return (
-    <div class="min-h-screen bg-[#f4f6f8] text-neutral-900">
-      <header class="sticky top-0 z-20 border-b border-neutral-200 bg-white/90 backdrop-blur">
-        <div class="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-6">
-          <div class="flex items-center gap-3">
-            <Logo class="h-8 w-auto" />
-          </div>
-          <nav class="flex items-center gap-5 text-sm font-medium text-neutral-600">
-            <a class="hover:text-neutral-900" href="#overview">
-              Oversikt
-            </a>
-            <a class="hover:text-neutral-900" href="#rooms">
-              Rom
-            </a>
-            <a class="hover:text-neutral-900" href="#profile">
-              Profile
-            </a>
-          </nav>
-        </div>
-      </header>
-
+    <>
       <main class="mx-auto w-full max-w-6xl px-6 py-12">
         <section id="overview" class="mb-12 flex sm:flex-row flex-col sm:items-center items-start justify-between gap-4">
           <div>
@@ -33,7 +15,9 @@ const Dashboard: Component = () => {
           </p>
           </div>
 
-          <button type="button" class="inline-flex items-center justify-center rounded-full bg-neutral-900 px-5 py-2 text-sm font-semibold text-white transition hover:bg-neutral-700">
+          <button type="button" class="inline-flex items-center justify-center rounded-full bg-neutral-900 px-5 py-2 text-sm font-semibold text-white transition hover:bg-neutral-700"
+          onClick={() => navigate("create")}
+          >
             Lag et nytt rom +
           </button>
         </section>
@@ -47,22 +31,24 @@ const Dashboard: Component = () => {
             <p class="mt-2 text-sm text-neutral-500">Følg levende sesjoner og deltakere.</p>
             <button
               type="button"
-              class="mt-6 inline-flex items-center justify-center rounded-full bg-neutral-900 px-5 py-2 text-sm font-semibold text-white transition hover:bg-neutral-700"
+              class="hover:cursor-pointer mt-6 inline-flex items-center justify-center rounded-full bg-neutral-900 px-5 py-2 text-sm font-semibold text-white transition hover:bg-neutral-700"
+            onClick={() => navigate("room")}
             >
               Se mine rom
             </button>
           </article>
 
           <article class="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
-            <h2 class="text-lg font-semibold text-neutral-900">Planlagte arrangementer</h2>
+            <h2 class="text-lg font-semibold text-neutral-900">Lag nytt rom</h2>
             <p class="mt-2 text-sm text-neutral-500">
-              Planlegg kommende runder, og inviter nye deltakere.
+              Lag ett nytt rom fra bunnen av for din neste Beat 4 Beat økt.
             </p>
             <button
               type="button"
               class="mt-6 inline-flex items-center justify-center rounded-full border border-neutral-900/30 px-5 py-2 text-sm font-semibold text-neutral-800 transition hover:border-neutral-900 hover:text-neutral-900"
+              onClick={() => navigate("create")}
             >
-              Opret nyt event
+              Opprett et nytt rom
             </button>
           </article>
 
@@ -89,7 +75,7 @@ const Dashboard: Component = () => {
           </ul>
         </section>
       </main>
-    </div>
+    </>
   );
 };
 
