@@ -24,7 +24,7 @@ const Play: Component = () => {
   };
 
   return (
-    <div class="min-h-screen bg-white p-6">
+    <div class="min-h-screen bg-[#f4f6f8] p-6">
       <div class="mx-auto max-w-7xl">
         <button
           type="button"
