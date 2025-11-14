@@ -52,26 +52,27 @@ const Play: Component = () => {
                       <div class="flex flex-col gap-3">
                         <For each={category.items}>
                           {(item) => (
-                            <Show
-                              when={!revealedItems().has(item.id)}
-                              fallback={
-                                <div class="h-16 sm:h-20 rounded-lg border-2 border-dashed border-neutral-300 bg-neutral-100/50" />
+                            <button
+                              type="button"
+                              class={`group h-16 sm:h-20 w-full rounded-lg border-2 transition hover:scale-105 hover:shadow-lg active:scale-95 cursor-pointer flex items-center justify-center ${
+                                revealedItems().has(item.id)
+                                  ? "border-dashed border-neutral-300 bg-neutral-100/50"
+                                  : `${colorScheme.border} ${colorScheme.bg}`
+                              }`}
+                              onClick={() =>
+                                handleItemClick(item.id, item.songUrl)
                               }
                             >
-                              <button
-                                type="button"
-                                class={`group h-16 sm:h-20 w-full rounded-lg border-2 ${colorScheme.border} ${colorScheme.bg} transition hover:scale-105 hover:shadow-lg active:scale-95 cursor-pointer flex items-center justify-center`}
-                                onClick={() =>
-                                  handleItemClick(item.id, item.songUrl)
-                                }
+                              <span
+                                class={`text-2xl font-bold ${
+                                  revealedItems().has(item.id)
+                                    ? "text-neutral-400"
+                                    : colorScheme.text
+                                } group-hover:scale-110 transition`}
                               >
-                                <span
-                                  class={`text-2xl font-bold ${colorScheme.text} group-hover:scale-110 transition`}
-                                >
-                                  {item.level}
-                                </span>
-                              </button>
-                            </Show>
+                                {item.level}
+                              </span>
+                            </button>
                           )}
                         </For>
                       </div>
