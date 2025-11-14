@@ -10,8 +10,8 @@ export type RoomSnapshot = Room & {
 export const [rooms, setRooms] = createStore<RoomSnapshot[]>([
     {
         ...drakeRoom,
-        status: "scheduled",
-        startsAt: new Date(Date.now() + 1000 * 60 * 60 * 2).toISOString(),
+        status: "live",
+        startsAt: new Date(Date.now()).toISOString(),
         participants: 30,
     },
   {
