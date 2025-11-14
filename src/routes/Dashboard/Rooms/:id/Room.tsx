@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from "@solidjs/router";
-import { Component, Show, createMemo } from "solid-js";
+import { Show, createMemo, type Component } from "solid-js";
 import { rooms } from "../../../../store/roomsStore";
 
 const Room: Component = () => {
@@ -117,8 +117,10 @@ const Room: Component = () => {
                   Handlinger
                 </h2>
                 <div class="flex flex-col gap-3">
-                  <button class="w-full rounded-lg bg-neutral-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-neutral-700">
-                    Start rom
+                  <button class="w-full rounded-lg bg-neutral-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-neutral-700"
+                  onClick={() => navigate("play")}
+                  >
+                    Start spillet
                   </button>
                   <button class="w-full rounded-lg border border-neutral-300 px-4 py-2.5 text-sm font-semibold text-neutral-700 transition hover:border-neutral-400">
                     Rediger innstillinger

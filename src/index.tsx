@@ -8,6 +8,7 @@ import App from "./routes/App";
 import CreateRoom from "./routes/Dashboard/CreateRoom/CreateRoom";
 import Dashboard from "./routes/Dashboard/Dashboard";
 import PageWrapper from "./routes/Dashboard/PageWrapper";
+import Play from "./routes/Dashboard/Rooms/:id/play/Play";
 import Room from "./routes/Dashboard/Rooms/:id/Room";
 import Rooms from "./routes/Dashboard/Rooms/Rooms";
 import NotFound from "./routes/NotFound/NotFound";
@@ -30,6 +31,7 @@ render(
         <Route path="rooms">
           <Route path="/" component={Rooms} />
           <Route path=":id" component={Room} />
+          <Route path=":id/play" component={Play} />
         </Route>
         <Route path="profile" component={Profile} />
         <Route path="create" component={CreateRoom} />
