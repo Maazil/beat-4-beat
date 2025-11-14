@@ -16,8 +16,8 @@ const Dashboard: Component = () => {
             <a class="hover:text-neutral-900" href="#rooms">
               Rom
             </a>
-            <a class="hover:text-neutral-900" href="#analytics">
-              Analyse
+            <a class="hover:text-neutral-900" href="#profile">
+              Profile
             </a>
           </nav>
         </div>
@@ -43,13 +43,13 @@ const Dashboard: Component = () => {
           class="grid gap-6 lg:grid-cols-[repeat(auto-fit,minmax(240px,1fr))]"
         >
           <article class="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
-            <h2 class="text-lg font-semibold text-neutral-900">Aktive rom</h2>
+            <h2 class="text-lg font-semibold text-neutral-900">Mine rom</h2>
             <p class="mt-2 text-sm text-neutral-500">Følg levende sesjoner og deltakere.</p>
             <button
               type="button"
               class="mt-6 inline-flex items-center justify-center rounded-full bg-neutral-900 px-5 py-2 text-sm font-semibold text-white transition hover:bg-neutral-700"
             >
-              Administrer rom
+              Se mine rom
             </button>
           </article>
 

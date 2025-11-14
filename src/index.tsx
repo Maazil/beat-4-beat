@@ -6,6 +6,7 @@ import "./index.css";
 
 import App from "./routes/App";
 import Dashboard from "./routes/Dashboard/Dashboard";
+import Profile from "./routes/Profile/Profile";
 
 const root = document.getElementById("root");
 
@@ -18,6 +19,7 @@ if (import.meta.env.DEV && !(root instanceof HTMLElement)) {
 const routes = [
   { path: "/", component: App },
   { path: "/dashboard", component: Dashboard },
+  { path: "/profile", component: Profile },
   { path: "*", component: () => <div>Not Found</div> },
 ];
 
