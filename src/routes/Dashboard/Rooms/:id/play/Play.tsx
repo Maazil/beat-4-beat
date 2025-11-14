@@ -3,12 +3,12 @@ import { Component, For, createMemo, createSignal } from "solid-js";
 import { rooms } from "../../../../../store/roomsStore";
 
 const categoryColors = [
-  { bg: "bg-blue-500/10", border: "border-blue-500", text: "text-blue-700" },
-  { bg: "bg-purple-500/10", border: "border-purple-500", text: "text-purple-700" },
-  { bg: "bg-green-500/10", border: "border-green-500", text: "text-green-700" },
-  { bg: "bg-orange-500/10", border: "border-orange-500", text: "text-orange-700" },
-  { bg: "bg-pink-500/10", border: "border-pink-500", text: "text-pink-700" },
-  { bg: "bg-teal-500/10", border: "border-teal-500", text: "text-teal-700" },
+  { titleBg: "bg-gradient-to-r from-blue-600 to-blue-700", itemBg: "bg-blue-500/10", border: "border-blue-200", titleText: "text-white", itemText: "text-blue-700", shadow: "shadow-sm" },
+  { titleBg: "bg-gradient-to-r from-purple-600 to-purple-700", itemBg: "bg-purple-500/10", border: "border-purple-200", titleText: "text-white", itemText: "text-purple-700", shadow: "shadow-sm" },
+  { titleBg: "bg-gradient-to-r from-green-600 to-green-700", itemBg: "bg-green-500/10", border: "border-green-200", titleText: "text-white", itemText: "text-green-700", shadow: "shadow-sm" },
+  { titleBg: "bg-gradient-to-r from-orange-600 to-orange-700", itemBg: "bg-orange-500/10", border: "border-orange-200", titleText: "text-white", itemText: "text-orange-700", shadow: "shadow-sm" },
+  { titleBg: "bg-gradient-to-r from-pink-600 to-pink-700", itemBg: "bg-pink-500/10", border: "border-pink-200", titleText: "text-white", itemText: "text-pink-700", shadow: "shadow-sm" },
+  { titleBg: "bg-gradient-to-r from-teal-600 to-teal-700", itemBg: "bg-teal-500/10", border: "border-teal-200", titleText: "text-white", itemText: "text-teal-700", shadow: "shadow-sm" },
 ];
 
 const Play: Component = () => {
@@ -63,9 +63,9 @@ const Play: Component = () => {
                   return (
                     <div class="flex flex-col gap-4">
                       <div
-                        class={`rounded-lg ${colorScheme.bg} border-2 ${colorScheme.border} p-4 text-center`}
+                        class={`rounded-lg ${colorScheme.titleBg} border ${colorScheme.border} py-3 px-4 text-center ${colorScheme.shadow}`}
                       >
-                        <h2 class={`text-lg font-semibold ${colorScheme.text}`}>
+                        <h2 class={`text-lg font-semibold ${colorScheme.titleText} tracking-tight`}>
                           {category.name}
                         </h2>
                       </div>
@@ -78,7 +78,7 @@ const Play: Component = () => {
                               class={`group h-16 sm:h-20 w-full rounded-lg border-2 transition hover:scale-105 hover:shadow-lg active:scale-95 cursor-pointer flex items-center justify-center ${
                                 revealedItems().has(item.id)
                                   ? "border-dashed border-neutral-300 bg-neutral-100/50"
-                                  : `${colorScheme.border} ${colorScheme.bg}`
+                                  : `${colorScheme.border} ${colorScheme.itemBg}`
                               }`}
                               onClick={() =>
                                 handleItemClick(item.id, item.songUrl)
@@ -88,7 +88,7 @@ const Play: Component = () => {
                                 class={`text-2xl font-bold ${
                                   revealedItems().has(item.id)
                                     ? "text-neutral-400"
-                                    : colorScheme.text
+                                    : colorScheme.itemText
                                 } group-hover:scale-110 transition`}
                               >
                                 {item.level}
