@@ -100,6 +100,13 @@ export const drakeRoom = {
       { id: "song-404", level: 4, songUrl: "https://open.spotify.com/track/7JXZq0JgG2zTrSOAgY8VMC?si=bc4f592ad1924fef", isRevealed: false },
       { id: "song-405", level: 5, songUrl: "https://open.spotify.com/track/5mCPDVBb16L4XQwDdbRUpz?si=a5c060e15e544875", isRevealed: false },
     ] },
+    { id: "category-005", name: "Oldies", items: [
+      { id: "song-401", level: 1, songUrl: "https://open.spotify.com/track/6DCZcSspjsKoFjzjrWoCdn?si=281f5ccce86a40be", isRevealed: false },
+      { id: "song-402", level: 2, songUrl: "https://open.spotify.com/track/4wVOKKEHUJxHCFFNUWDn0B?si=8e322b2e5de94c68", isRevealed: false },
+      { id: "song-403", level: 3, songUrl: "https://open.spotify.com/track/3dgQqOiQ9fCKVhNOedd2lf?si=93797b66e3594a3d", isRevealed: false },
+      { id: "song-404", level: 4, songUrl: "https://open.spotify.com/track/7JXZq0JgG2zTrSOAgY8VMC?si=bc4f592ad1924fef", isRevealed: false },
+      { id: "song-405", level: 5, songUrl: "https://open.spotify.com/track/5mCPDVBb16L4XQwDdbRUpz?si=a5c060e15e544875", isRevealed: false },
+    ] },
   ],
   isActive: true,
   createdAt: Date.now(),
