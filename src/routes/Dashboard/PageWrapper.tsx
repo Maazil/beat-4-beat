@@ -13,7 +13,7 @@ const PageWrapper: ParentComponent = (props) => {
             <a class="hover:text-neutral-900" href="/dashboard">
               Hjem
             </a>
-            <a class="hover:text-neutral-900" href="/dashboard/room">
+            <a class="hover:text-neutral-900" href="/dashboard/rooms">
               Rom
             </a>
             <a class="hover:text-neutral-900" href="/dashboard/profile">

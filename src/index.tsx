@@ -8,7 +8,8 @@ import App from "./routes/App";
 import CreateRoom from "./routes/Dashboard/CreateRoom/CreateRoom";
 import Dashboard from "./routes/Dashboard/Dashboard";
 import PageWrapper from "./routes/Dashboard/PageWrapper";
-import Room from "./routes/Dashboard/Room/Room";
+import Room from "./routes/Dashboard/Rooms/:id/Room";
+import Rooms from "./routes/Dashboard/Rooms/Rooms";
 import NotFound from "./routes/NotFound/NotFound";
 import Profile from "./routes/Profile/Profile";
 
@@ -28,8 +29,8 @@ render(
       <Route path="/" component={App} />
       <Route path="/dashboard" component={PageWrapper}>
         <Route path="/" component={Dashboard} />
-        <Route path="room">
-          <Route path="/" component={Room} />
+        <Route path="rooms">
+          <Route path="/" component={Rooms} />
           <Route path=":id" component={Room} />
         </Route>
         <Route path="profile" component={Profile} />

@@ -1,5 +1,5 @@
 import { createStore } from "solid-js/store";
-import type { Room } from "../model/room";
+import { demoRoom, type Room } from "../model/room";
 
 export type RoomSnapshot = Room & {
   status: "scheduled" | "live" | "completed";
@@ -8,6 +8,11 @@ export type RoomSnapshot = Room & {
 };
 
 export const [rooms, setRooms] = createStore<RoomSnapshot[]>([
+  {
+    ...demoRoom,
+    status: "live",
+    participants: 24,
+  },
   {
     id: "1",
     name: "Nord Pulse",
