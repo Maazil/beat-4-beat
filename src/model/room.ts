@@ -32,7 +32,7 @@ export const defaultRoomData = (overrides?: Partial<CreateRoomData>): CreateRoom
 
 export const demoRoom = {
   id: "demo-room-001",
-  name: "Demo Beat Room",
+  name: "First room",
   hostId: "demo-host-123",
   hostName: "DJ Demo",
   categories: [
