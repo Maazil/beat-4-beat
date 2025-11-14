@@ -26,7 +26,7 @@ const App: Component = () => {
         </header>
 
         <section class="flex w-full max-w-3xl flex-col items-center gap-12 text-center">
-          <div class="beat-circle w-72 max-w-[80vw] sm:w-80">
+          {/* <div class="beat-circle w-72 max-w-[80vw] sm:w-80">
             <div class="beat-circle-inner flex aspect-square w-full items-center justify-center">
               <div class="flex flex-col items-center gap-4 text-4xl font-semibold uppercase tracking-[0.35em] text-red-400 sm:text-5xl">
                 <span class="beat-word">Beat</span>
@@ -34,7 +34,7 @@ const App: Component = () => {
                 <span class="beat-word">Beat</span>
               </div>
             </div>
-          </div>
+          </div> */}
 
           <RandomVisualizer class="mt-4" />
 
