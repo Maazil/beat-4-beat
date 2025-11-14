@@ -9,7 +9,7 @@ export type RoomSnapshot = Room & {
 
 export const [rooms, setRooms] = createStore<RoomSnapshot[]>([
   {
-    id: "nord-pulse",
+    id: "1",
     name: "Nord Pulse",
     hostId: "demo-host-001",
     categories: [],
@@ -20,7 +20,7 @@ export const [rooms, setRooms] = createStore<RoomSnapshot[]>([
     createdAt: Date.now() - 1000 * 60 * 60,
   },
   {
-    id: "fjell-takt",
+    id: "2",
     name: "Fjell Takt",
     hostId: "demo-host-002",
     categories: [],
@@ -31,7 +31,7 @@ export const [rooms, setRooms] = createStore<RoomSnapshot[]>([
     createdAt: Date.now() - 1000 * 60 * 45,
   },
   {
-    id: "fjord-echo",
+    id: "3",
     name: "Fjord Echo",
     hostId: "demo-host-003",
     categories: [],
