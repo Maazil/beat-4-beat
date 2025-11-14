@@ -33,6 +33,27 @@ const Rooms: Component = () => {
 
   return (
     <div class="mx-auto w-full max-w-6xl px-6 py-12">
+      <button
+        type="button"
+        onClick={() => navigate("/dashboard")}
+        class="mb-6 flex items-center gap-2 text-neutral-600 hover:text-neutral-900 transition hover:cursor-pointer"
+      >
+        <svg
+          class="h-5 w-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M10 19l-7-7m0 0l7-7m-7 7h18"
+          />
+        </svg>
+        <span class="font-medium">Tilbake til Dashboard</span>
+      </button>
+
       <h1 class="text-3xl font-semibold text-neutral-900 mb-8">Alle rom</h1>
       <div class="grid gap-6 lg:grid-cols-[repeat(auto-fit,minmax(280px,1fr))]">
         <For each={rooms}>
