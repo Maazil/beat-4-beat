@@ -3,15 +3,21 @@ import { For, createEffect, createSignal, onCleanup, onMount } from "solid-js";
 
 type RandomVisualizerProps = {
   barCount?: number;
+  bpm?: number;
   class?: string;
 };
 
 const RandomVisualizer: Component<RandomVisualizerProps> = (props) => {
+  const clamp = (value: number, min: number, max: number) =>
+    Math.min(max, Math.max(min, value));
   const count = () => props.barCount ?? 48;
-  const createLevels = () =>
-    Array.from({ length: count() }, () => Math.random());
+  const tempo = () => clamp(props.bpm ?? 150, 120, 200);
+  const stepInterval = () =>
+    Math.max(60, Math.round(60000 / tempo() / 4));
+  const createLevels = (bars: number) =>
+    Array.from({ length: bars }, () => Math.random());
 
-  const [levels, setLevels] = createSignal<number[]>(createLevels());
+  const [levels, setLevels] = createSignal<number[]>(createLevels(count()));
 
   let intervalId: number | undefined;
 
@@ -22,27 +28,28 @@ const RandomVisualizer: Component<RandomVisualizerProps> = (props) => {
     }
   };
 
-  const start = () => {
+  const start = (delay: number, bars: number) => {
     stop();
     intervalId = window.setInterval(() => {
       setLevels((previous) => {
         const snapshot =
-          previous.length === count() ? previous : createLevels();
+          previous.length === bars ? previous : createLevels(bars);
         return snapshot.map((value) => {
           const target = Math.random();
           const eased = value + (target - value) * 0.55;
           return Math.max(0, Math.min(1, eased));
         });
       });
-    }, 140);
+    }, delay);
   };
 
-  onMount(start);
+  onMount(() => start(stepInterval(), count()));
 
   createEffect(() => {
-    count();
-    setLevels(createLevels());
-    start();
+    const bars = count();
+    const delay = stepInterval();
+    setLevels(createLevels(bars));
+    start(delay, bars);
   });
 
   onCleanup(stop);
@@ -58,8 +65,9 @@ const RandomVisualizer: Component<RandomVisualizerProps> = (props) => {
           <span
             class="random-visualizer__bar"
             style={{
-              height: `${35 + level * 65}%`,
-              "transition-delay": `${(index() % 6) * 18}ms`,
+              transform: `translateZ(0) scaleY(${(0.45 + level * 0.55).toFixed(3)})`,
+              opacity: `${(0.6 + level * 0.35).toFixed(3)}`,
+              'transition-delay': `${(index() % 6) * 18}ms`,
             }}
           />
         )}

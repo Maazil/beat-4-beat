@@ -164,12 +164,15 @@ body {
 .random-visualizer__bar {
 	position: relative;
 	width: clamp(0.22rem, 0.7vw, 0.38rem);
+	height: 100%;
 	border-radius: 9999px 9999px 0 0;
 	background: linear-gradient(180deg, rgba(255, 72, 104, 0.92), rgba(62, 0, 24, 0.85));
 	box-shadow: 0 0 16px rgba(255, 54, 90, 0.45);
 	opacity: 0.78;
-	transform: translateZ(0);
-	transition: height 0.34s ease, opacity 0.34s ease;
+	transform: translateZ(0) scaleY(0.4);
+	transform-origin: bottom center;
+	transition: transform 0.34s ease, opacity 0.34s ease;
+	will-change: transform, opacity;
 	z-index: 1;
 }
 
