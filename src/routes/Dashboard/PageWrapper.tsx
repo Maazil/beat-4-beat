@@ -1,10 +1,29 @@
-import type { ParentComponent } from "solid-js";
+import { createSignal, onCleanup, onMount, type ParentComponent } from "solid-js";
 import Logo from "../../components/Logo";
 
 const PageWrapper: ParentComponent = (props) => {
+  const [isAtTop, setIsAtTop] = createSignal(true);
+
+  const handleScroll = () => {
+    setIsAtTop(window.scrollY < 50);
+  };
+
+  onMount(() => {
+    window.addEventListener("scroll", handleScroll, { passive: true });
+  });
+
+  onCleanup(() => {
+    window.removeEventListener("scroll", handleScroll);
+  });
+
   return (
     <div class="min-h-screen bg-[#f4f6f8] text-neutral-900">
-      <header class="sticky top-0 z-20 border-b border-neutral-200 bg-white/90 backdrop-blur">
+      <header
+        class="sticky top-0 z-20 border-b border-neutral-200 bg-white/90 backdrop-blur transition-transform duration-300"
+        style={{
+          transform: isAtTop() ? "translateY(0)" : "translateY(-100%)",
+        }}
+      >
         <div class="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-6">
           <div class="flex items-center gap-3">
             <Logo class="h-8 w-auto" />
