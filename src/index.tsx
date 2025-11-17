@@ -6,16 +6,16 @@ import "./index.css";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthProvider } from "./context/AuthContext";
-import App from "./routes/App";
-import CreateRoom from "./routes/Dashboard/CreateRoom/CreateRoom";
-import Dashboard from "./routes/Dashboard/Dashboard";
-import PageWrapper from "./routes/Dashboard/PageWrapper";
-import Host from "./routes/Dashboard/Rooms/:id/play/Host";
-import Room from "./routes/Dashboard/Rooms/:id/Room";
-import Rooms from "./routes/Dashboard/Rooms/Rooms";
-import NotFound from "./routes/NotFound/NotFound";
-import Play from "./routes/Play/Play";
-import Profile from "./routes/Profile/Profile";
+import App from "./pages/App";
+import CreateRoom from "./pages/Dashboard/CreateRoom/CreateRoom";
+import Dashboard from "./pages/Dashboard/Dashboard";
+import PageWrapper from "./pages/Dashboard/PageWrapper";
+import Host from "./pages/Dashboard/Rooms/:id/play/Host";
+import Room from "./pages/Dashboard/Rooms/:id/Room";
+import Rooms from "./pages/Dashboard/Rooms/Rooms";
+import NotFound from "./pages/NotFound/NotFound";
+import Play from "./pages/Play/Play";
+import Profile from "./pages/Profile/Profile";
 
 const root = document.getElementById("root");
 
