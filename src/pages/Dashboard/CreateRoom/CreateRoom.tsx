@@ -35,7 +35,10 @@ const CreateRoom: Component = () => {
   };
 
   const updateItemCount = (categoryId: string, count: number) => {
-    setItemCounts({ ...itemCounts(), [categoryId]: Math.max(1, Math.min(10, count)) });
+    setItemCounts({
+      ...itemCounts(),
+      [categoryId]: Math.max(1, Math.min(10, count)),
+    });
   };
 
   const createRoom = () => {
@@ -76,15 +79,15 @@ const CreateRoom: Component = () => {
     };
 
     addRoom(newRoom);
-    navigate("/dashboard/rooms");
+    navigate("/");
   };
 
   return (
     <div class="mx-auto w-full max-w-4xl px-6 py-12">
       <button
         type="button"
-        onClick={() => navigate("/dashboard")}
-        class="mb-6 flex items-center gap-2 text-neutral-600 hover:text-neutral-900 transition"
+        onClick={() => navigate("/")}
+        class="mb-6 flex items-center gap-2 text-neutral-600 transition hover:text-neutral-900"
       >
         <svg
           class="h-5 w-5"
@@ -99,15 +102,15 @@ const CreateRoom: Component = () => {
             d="M10 19l-7-7m0 0l7-7m-7 7h18"
           />
         </svg>
-        <span class="font-medium">Tilbake til Dashboard</span>
+        <span class="font-medium">Tilbake</span>
       </button>
 
-      <h1 class="text-3xl font-bold text-neutral-900 mb-8">Opprett nytt rom</h1>
+      <h1 class="mb-8 text-3xl font-bold text-neutral-900">Opprett nytt rom</h1>
 
       <div class="space-y-6">
         {/* Room Name */}
         <div>
-          <label class="block text-sm font-medium text-neutral-700 mb-2">
+          <label class="mb-2 block text-sm font-medium text-neutral-700">
             Romnavn
           </label>
           <input
@@ -115,13 +118,13 @@ const CreateRoom: Component = () => {
             value={roomName()}
             onInput={(e) => setRoomName(e.currentTarget.value)}
             placeholder="F.eks. Fredagskveld Beat Battle"
-            class="w-full rounded-lg border border-neutral-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+            class="w-full rounded-lg border border-neutral-300 px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
           />
         </div>
 
         {/* Host Name */}
         <div>
-          <label class="block text-sm font-medium text-neutral-700 mb-2">
+          <label class="mb-2 block text-sm font-medium text-neutral-700">
             Vertsnavn
           </label>
           <input
@@ -129,31 +132,40 @@ const CreateRoom: Component = () => {
             value={hostName()}
             onInput={(e) => setHostName(e.currentTarget.value)}
             placeholder="F.eks. DJ Ola"
-            class="w-full rounded-lg border border-neutral-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+            class="w-full rounded-lg border border-neutral-300 px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
           />
-        </div>        
+        </div>
 
         {/* Categories */}
         <div>
-          <label class="block text-sm font-medium text-neutral-700 mb-2">
+          <label class="mb-2 block text-sm font-medium text-neutral-700">
             Kategorier
           </label>
 
-          <div class="space-y-3 mb-4">
+          <div class="mb-4 space-y-3">
             <For each={categories()}>
               {(category) => (
-                <div class="flex items-center gap-3 p-4 rounded-lg border border-neutral-200 bg-neutral-50">
+                <div class="flex items-center gap-3 rounded-lg border border-neutral-200 bg-neutral-50 p-4">
                   <div class="flex-1">
-                    <span class="font-medium text-neutral-900">{category.name}</span>
+                    <span class="font-medium text-neutral-900">
+                      {category.name}
+                    </span>
                   </div>
                   <div class="flex items-center gap-2">
-                    <label class="text-sm text-neutral-600">Antall sanger:</label>
+                    <label class="text-sm text-neutral-600">
+                      Antall sanger:
+                    </label>
                     <input
                       type="number"
                       min="1"
                       max="10"
                       value={itemCounts()[category.id] || 3}
-                      onInput={(e) => updateItemCount(category.id, parseInt(e.currentTarget.value) || 3)}
+                      onInput={(e) =>
+                        updateItemCount(
+                          category.id,
+                          parseInt(e.currentTarget.value) || 3
+                        )
+                      }
                       class="w-16 rounded border border-neutral-300 px-2 py-1 text-center"
                     />
                   </div>
@@ -162,8 +174,18 @@ const CreateRoom: Component = () => {
                     onClick={() => removeCategory(category.id)}
                     class="text-red-600 hover:text-red-700"
                   >
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    <svg
+                      class="h-5 w-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M6 18L18 6M6 6l12 12"
+                      />
                     </svg>
                   </button>
                 </div>
@@ -178,22 +200,22 @@ const CreateRoom: Component = () => {
               onInput={(e) => setNewCategoryName(e.currentTarget.value)}
               onKeyPress={(e) => e.key === "Enter" && addCategory()}
               placeholder="F.eks. Pop Hits"
-              class="flex-1 rounded-lg border border-neutral-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              class="flex-1 rounded-lg border border-neutral-300 px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
             />
             <button
               type="button"
               onClick={addCategory}
-              class="px-6 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition"
+              class="rounded-lg bg-blue-600 px-6 py-2 font-medium text-white transition hover:bg-blue-700"
             >
               Legg til
             </button>
           </div>
         </div>
 
-        <div class="flex items-center justify-between p-4 rounded-lg border border-neutral-200 bg-neutral-50 max-w-sm">
+        <div class="flex max-w-sm items-center justify-between rounded-lg border border-neutral-200 bg-neutral-50 p-4">
           <div>
-            <label class="block text-sm font-medium text-neutral-900 mb-1">
-              Rommet ditt er {  isPublic() ? "offentlig" : "privat"}
+            <label class="mb-1 block text-sm font-medium text-neutral-900">
+              Rommet ditt er {isPublic() ? "offentlig" : "privat"}
             </label>
             <p class="text-sm text-neutral-600">
               Gjør rommet synlig for alle brukere på plattformen.
@@ -219,14 +241,14 @@ const CreateRoom: Component = () => {
           <button
             type="button"
             onClick={createRoom}
-            class="flex-1 px-6 py-3 rounded-lg bg-linear-to-r from-blue-600 to-blue-700 text-white font-semibold hover:from-blue-700 hover:to-blue-800 transition shadow-sm"
+            class="flex-1 rounded-lg bg-linear-to-r from-blue-600 to-blue-700 px-6 py-3 font-semibold text-white shadow-sm transition hover:from-blue-700 hover:to-blue-800"
           >
             Opprett rom
           </button>
           <button
             type="button"
-            onClick={() => navigate("/dashboard")}
-            class="px-6 py-3 rounded-lg border border-neutral-300 text-neutral-700 font-medium hover:bg-neutral-50 transition"
+            onClick={() => navigate("/")}
+            class="rounded-lg border border-neutral-300 px-6 py-3 font-medium text-neutral-700 transition hover:bg-neutral-50"
           >
             Avbryt
           </button>

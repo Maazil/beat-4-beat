@@ -1,35 +1,39 @@
 import {
   Accessor,
   createContext,
-  createSignal,
+  onMount,
   ParentComponent,
   useContext,
 } from "solid-js";
 import { createStore } from "solid-js/store";
 
-export type UserRole = "guest" | "authenticated" | null;
-
-export interface User {
-  id: string;
-  name: string;
-  email?: string;
-  role: UserRole;
+export interface FirebaseUser {
+  uid: string;
+  email?: string | null;
+  displayName?: string | null;
+  isAnonymous: boolean;
 }
 
 export interface AuthState {
-  user: User | null;
-  isGuest: boolean;
-  isAuthenticated: boolean;
+  user: FirebaseUser | null;
   isLoading: boolean;
 }
 
 interface AuthContextValue {
   state: AuthState;
-  loginAsGuest: (guestName?: string) => void;
-  login: (email: string, password: string) => Promise<void>;
-  logout: () => void;
+  signInAnonymously: () => Promise<void>;
+  signInWithEmail: (email: string, password: string) => Promise<void>;
+  signUpWithEmail: (
+    email: string,
+    password: string,
+    name?: string
+  ) => Promise<void>;
+  signOut: () => Promise<void>;
   isGuest: Accessor<boolean>;
   isAuthenticated: Accessor<boolean>;
+  isFullUser: Accessor<boolean>;
+  canCreateRooms: Accessor<boolean>;
+  isRoomHost: (roomHostId?: string) => boolean;
 }
 
 const AuthContext = createContext<AuthContextValue>();
@@ -37,106 +41,162 @@ const AuthContext = createContext<AuthContextValue>();
 export const AuthProvider: ParentComponent = (props) => {
   const [state, setState] = createStore<AuthState>({
     user: null,
-    isGuest: false,
-    isAuthenticated: false,
-    isLoading: false,
+    isLoading: true,
   });
 
-  const [isGuest, setIsGuest] = createSignal(false);
-  const [isAuthenticated, setIsAuthenticated] = createSignal(false);
+  // Computed signals based on user state
+  const isGuest = () => state.user?.isAnonymous === true;
+  const isAuthenticated = () => state.user !== null;
+  const isFullUser = () =>
+    state.user !== null && state.user.isAnonymous === false;
+  const canCreateRooms = () => isFullUser();
 
-  const loginAsGuest = (guestName?: string) => {
-    const guestUser: User = {
-      id: `guest-${Date.now()}`,
-      name: guestName || `Gjest ${Math.floor(Math.random() * 1000)}`,
-      role: "guest",
-    };
-
-    setState({
-      user: guestUser,
-      isGuest: true,
-      isAuthenticated: false,
-      isLoading: false,
-    });
-    setIsGuest(true);
-    setIsAuthenticated(false);
-
-    // Store guest session in localStorage
-    localStorage.setItem("guestUser", JSON.stringify(guestUser));
+  // Check if current user is the host of a room
+  const isRoomHost = (roomHostId?: string) => {
+    if (!state.user || !roomHostId) return false;
+    return state.user.uid === roomHostId;
   };
 
-  const login = async (email: string, password: string) => {
+  // Firebase Anonymous Sign In
+  const signInAnonymously = async () => {
     setState("isLoading", true);
-
     try {
-      // TODO: Implement Firebase authentication
-      // For now, mock authentication
-      const user: User = {
-        id: `user-${Date.now()}`,
-        name: email.split("@")[0],
-        email,
-        role: "authenticated",
+      // TODO: Replace with Firebase signInAnonymously()
+      // const userCredential = await signInAnonymously(auth);
+      // Mock for now:
+      const mockUser: FirebaseUser = {
+        uid: `anon-${Date.now()}`,
+        isAnonymous: true,
+        displayName: `Gjest ${Math.floor(Math.random() * 1000)}`,
       };
 
       setState({
-        user,
-        isGuest: false,
-        isAuthenticated: true,
+        user: mockUser,
         isLoading: false,
       });
-      setIsGuest(false);
-      setIsAuthenticated(true);
-
-      // Remove guest session if exists
-      localStorage.removeItem("guestUser");
-
-      // TODO: Store auth token in localStorage/sessionStorage
     } catch (error) {
-      console.error("Login failed:", error);
+      console.error("Anonymous sign in failed:", error);
       setState("isLoading", false);
       throw error;
     }
   };
 
-  const logout = () => {
-    setState({
-      user: null,
-      isGuest: false,
-      isAuthenticated: false,
-      isLoading: false,
-    });
-    setIsGuest(false);
-    setIsAuthenticated(false);
-
-    // Clear all sessions
-    localStorage.removeItem("guestUser");
-    // TODO: Clear Firebase auth token
-  };
-
-  // Check for existing guest session on mount
-  const storedGuest = localStorage.getItem("guestUser");
-  if (storedGuest) {
+  // Firebase Email/Password Sign In
+  const signInWithEmail = async (email: string, password: string) => {
+    setState("isLoading", true);
     try {
-      const guestUser = JSON.parse(storedGuest);
+      // TODO: Replace with Firebase signInWithEmailAndPassword()
+      // const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      // Mock for now:
+      const mockUser: FirebaseUser = {
+        uid: `user-${Date.now()}`,
+        email,
+        displayName: email.split("@")[0],
+        isAnonymous: false,
+      };
+
       setState({
-        user: guestUser,
-        isGuest: true,
-        isAuthenticated: false,
+        user: mockUser,
         isLoading: false,
       });
-      setIsGuest(true);
-    } catch (e) {
-      localStorage.removeItem("guestUser");
+    } catch (error) {
+      console.error("Sign in failed:", error);
+      setState("isLoading", false);
+      throw error;
     }
-  }
+  };
+
+  // Firebase Email/Password Sign Up
+  const signUpWithEmail = async (
+    email: string,
+    password: string,
+    name?: string
+  ) => {
+    setState("isLoading", true);
+    try {
+      // TODO: Replace with Firebase createUserWithEmailAndPassword()
+      // const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      // if (name) await updateProfile(userCredential.user, { displayName: name });
+      // Mock for now:
+      const mockUser: FirebaseUser = {
+        uid: `user-${Date.now()}`,
+        email,
+        displayName: name || email.split("@")[0],
+        isAnonymous: false,
+      };
+
+      setState({
+        user: mockUser,
+        isLoading: false,
+      });
+    } catch (error) {
+      console.error("Sign up failed:", error);
+      setState("isLoading", false);
+      throw error;
+    }
+  };
+
+  // Firebase Sign Out
+  const signOut = async () => {
+    try {
+      // TODO: Replace with Firebase signOut()
+      // await signOut(auth);
+      setState({
+        user: null,
+        isLoading: false,
+      });
+    } catch (error) {
+      console.error("Sign out failed:", error);
+      throw error;
+    }
+  };
+
+  // Initialize auth state listener
+  onMount(() => {
+    // TODO: Replace with Firebase onAuthStateChanged()
+    // const unsubscribe = onAuthStateChanged(auth, (user) => {
+    //   if (user) {
+    //     setState({
+    //       user: {
+    //         uid: user.uid,
+    //         email: user.email,
+    //         displayName: user.displayName,
+    //         isAnonymous: user.isAnonymous,
+    //       },
+    //       isLoading: false,
+    //     });
+    //   } else {
+    //     setState({ user: null, isLoading: false });
+    //   }
+    // });
+    // return unsubscribe;
+
+    // Mock: Check for stored session
+    const storedUser = localStorage.getItem("mockUser");
+    if (storedUser) {
+      try {
+        const user = JSON.parse(storedUser);
+        setState({ user, isLoading: false });
+      } catch (e) {
+        localStorage.removeItem("mockUser");
+        setState("isLoading", false);
+      }
+    } else {
+      setState("isLoading", false);
+    }
+  });
 
   const value: AuthContextValue = {
     state,
-    loginAsGuest,
-    login,
-    logout,
+    signInAnonymously,
+    signInWithEmail,
+    signUpWithEmail,
+    signOut,
     isGuest,
     isAuthenticated,
+    isFullUser,
+    canCreateRooms,
+    isRoomHost,
   };
 
   return (
