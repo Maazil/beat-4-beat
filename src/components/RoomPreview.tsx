@@ -79,7 +79,6 @@ const RoomPreview: Component<RoomPreviewProps> = (props) => {
             <span class="font-medium text-neutral-700">Opprettet:</span>{" "}
             {new Date(props.room.createdAt).toLocaleString("no-NO", {
               dateStyle: "short",
-              timeStyle: "short",
             })}
           </p>
         )}
