@@ -84,7 +84,7 @@ const RoomPreview: Component<RoomPreviewProps> = (props) => {
           </p>
         )}
       </div>
-      {props.room.categories.length > 0 && (
+      {props.room.categories.length > 0 && props.room.showCategories && (
         <div class="mt-3 flex flex-wrap gap-1.5">
           <For each={props.room.categories.slice(0, 6)}>
             {(category, index) => (
