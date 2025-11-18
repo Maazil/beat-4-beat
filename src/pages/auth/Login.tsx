@@ -23,7 +23,7 @@ const Login: Component = () => {
       } else {
         await auth.signInWithEmail(email(), password());
       }
-      navigate("/");
+      navigate("/dashboard");
     } catch (err: any) {
       setError(err.message || "En feil oppstod");
     } finally {
@@ -54,7 +54,7 @@ const Login: Component = () => {
                 value={name()}
                 onInput={(e) => setName(e.currentTarget.value)}
                 placeholder="Ditt navn"
-                class="w-full rounded-lg border border-neutral-300 px-4 py-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
+                class="w-full rounded-lg border border-neutral-300 px-4 py-3 text-neutral-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
                 required={isSignUp()}
               />
             </div>
@@ -69,7 +69,7 @@ const Login: Component = () => {
               value={email()}
               onInput={(e) => setEmail(e.currentTarget.value)}
               placeholder="din@epost.no"
-              class="w-full rounded-lg border border-neutral-300 px-4 py-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
+              class="w-full rounded-lg border border-neutral-300 px-4 py-3 text-neutral-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
               required
             />
           </div>
@@ -82,8 +82,7 @@ const Login: Component = () => {
               type="password"
               value={password()}
               onInput={(e) => setPassword(e.currentTarget.value)}
-              placeholder="••••••••"
-              class="w-full rounded-lg border border-neutral-300 px-4 py-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
+              class="w-full rounded-lg border border-neutral-300 px-4 py-3 text-neutral-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
               required
             />
           </div>
