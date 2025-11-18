@@ -1,6 +1,6 @@
 import { useNavigate, useParams } from "@solidjs/router";
 import { Show, createMemo, type Component } from "solid-js";
-import { rooms } from "../../../../store/roomsStore";
+import { rooms } from "../../store/roomsStore";
 
 const Room: Component = () => {
   const params = useParams();
@@ -41,7 +41,7 @@ const Room: Component = () => {
           <div class="flex w-full flex-col">
             <button
               class="mb-6 inline-flex items-center gap-2 self-start text-sm font-medium text-neutral-600 hover:text-neutral-900"
-              onClick={() => navigate("/dashboard/rooms")}
+              onClick={() => navigate("/rooms")}
             >
               ← Tilbake til alle rom
             </button>

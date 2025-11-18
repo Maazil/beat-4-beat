@@ -47,7 +47,7 @@ const RoomPreview: Component<RoomPreviewProps> = (props) => {
   return (
     <article
       class="group cursor-pointer rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm transition hover:border-neutral-300 hover:shadow-md"
-      onClick={() => navigate(`/r/${props.room.id}`)}
+      onClick={() => navigate(`/rooms/${props.room.id}`)}
     >
       <div class="mb-3 flex items-start justify-between">
         <h2 class="text-lg font-semibold text-neutral-900 group-hover:text-neutral-700">

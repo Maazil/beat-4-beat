@@ -1,6 +1,6 @@
 import { useParams } from "@solidjs/router";
-import { Component, For, createMemo, createSignal } from "solid-js";
-import { rooms } from "../../../../../store/roomsStore";
+import { Component, createMemo, createSignal } from "solid-js";
+import { rooms } from "../../store/roomsStore";
 
 const categoryColors = [
   {

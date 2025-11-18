@@ -5,6 +5,7 @@ import { lazy } from "solid-js";
 import App from "./pages/App";
 
 export const routes: RouteDefinition[] = [
+  // Public routes
   {
     path: "/",
     component: App,
@@ -12,6 +13,10 @@ export const routes: RouteDefinition[] = [
   {
     path: "/login",
     component: lazy(() => import("./pages/auth/Login")),
+  },
+  {
+    path: "/guest",
+    component: lazy(() => import("./pages/auth/Guest")),
   },
   {
     path: "/market",
@@ -23,6 +28,22 @@ export const routes: RouteDefinition[] = [
       },
     ],
   },
+
+  // Room routes (public/guest accessible)
+  {
+    path: "/rooms",
+    component: lazy(() => import("./pages/rooms/RoomsList")),
+  },
+  {
+    path: "/rooms/:id",
+    component: lazy(() => import("./pages/rooms/RoomView")),
+  },
+  {
+    path: "/rooms/:id/play",
+    component: lazy(() => import("./pages/rooms/RoomPlay")),
+  },
+
+  // Protected routes (require authentication)
   {
     path: "/dashboard",
     component: lazy(() => import("./pages/dashboard/PageWrapper")),
@@ -34,46 +55,11 @@ export const routes: RouteDefinition[] = [
       {
         path: "/create",
         component: lazy(
-          () => import("./pages/dashboard/createRoom/CreateRoomWrapper")
+          () => import("./pages/dashboard/create/CreateRoomWrapper")
         ),
       },
-      {
-        path: "/rooms",
-        component: lazy(() => import("./pages/dashboard/rooms/Rooms")),
-      },
-      {
-        path: "/rooms/:id",
-        component: lazy(() => import("./pages/dashboard/rooms/:id/Room")),
-      },
-      {
-        path: "/rooms/:id/play",
-        component: lazy(() => import("./pages/dashboard/rooms/:id/play/Play")),
-      },
     ],
   },
-  {
-    path: "/guest",
-    component: lazy(() => import("./pages/auth/Guest")),
-  },
-  {
-    path: "/rooms",
-    component: lazy(() => import("./pages/dashboard/PageWrapper")),
-    children: [
-      {
-        path: "/",
-        component: lazy(() => import("./pages/dashboard/rooms/Rooms")),
-      },
-    ],
-  },
-  {
-    path: "/r/:id",
-    component: lazy(() => import("./pages/dashboard/rooms/:id/Room")),
-  },
-  {
-    path: "/r/:id/play",
-    component: lazy(() => import("./pages/dashboard/rooms/:id/play/Play")),
-  },
-
   {
     path: "/profile",
     component: lazy(() => import("./pages/profile/ProfileWrapper")),
@@ -82,12 +68,10 @@ export const routes: RouteDefinition[] = [
         path: "/",
         component: lazy(() => import("./pages/profile/profile")),
       },
-      // {
-      //   path: "/settings",
-      //   component: lazy(() => import("./pages/profile/settings")),
-      // },
     ],
   },
+
+  // Fallback
   {
     path: "**",
     component: lazy(() => import("./pages/notfound/NotFound")),

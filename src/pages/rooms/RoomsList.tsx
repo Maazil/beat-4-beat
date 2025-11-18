@@ -1,6 +1,6 @@
 import { useNavigate } from "@solidjs/router";
 import { Component, For } from "solid-js";
-import { rooms } from "../../../store/roomsStore";
+import { rooms } from "../../store/roomsStore";
 
 const Rooms: Component = () => {
   const navigate = useNavigate();
@@ -35,8 +35,8 @@ const Rooms: Component = () => {
     <div class="mx-auto w-full max-w-6xl px-6 py-12">
       <button
         type="button"
-        onClick={() => navigate("/dashboard")}
-        class="mb-6 flex items-center gap-2 text-neutral-600 hover:text-neutral-900 transition hover:cursor-pointer"
+        onClick={() => navigate("/")}
+        class="mb-6 flex items-center gap-2 text-neutral-600 transition hover:cursor-pointer hover:text-neutral-900"
       >
         <svg
           class="h-5 w-5"
@@ -54,13 +54,13 @@ const Rooms: Component = () => {
         <span class="font-medium">Tilbake til Dashboard</span>
       </button>
 
-      <h1 class="text-3xl font-semibold text-neutral-900 mb-8">Alle rom</h1>
+      <h1 class="mb-8 text-3xl font-semibold text-neutral-900">Alle rom</h1>
       <div class="grid gap-6 lg:grid-cols-[repeat(auto-fit,minmax(280px,1fr))]">
         <For each={rooms}>
           {(room) => (
             <article
-              class="group rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm transition hover:border-neutral-300 hover:shadow-md cursor-pointer"
-              onClick={() => navigate(`/dashboard/rooms/${room.id}`)}
+              class="group cursor-pointer rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm transition hover:border-neutral-300 hover:shadow-md"
+              onClick={() => navigate(`/rooms/${room.id}`)}
             >
               <div class="mb-3 flex items-start justify-between">
                 <h2 class="text-lg font-semibold text-neutral-900 group-hover:text-neutral-700">
