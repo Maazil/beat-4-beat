@@ -32,15 +32,21 @@ export const routes: RouteDefinition[] = [
   // Room routes (public/guest accessible)
   {
     path: "/rooms",
-    component: lazy(() => import("./pages/rooms/RoomsList")),
-  },
-  {
-    path: "/rooms/:id",
-    component: lazy(() => import("./pages/rooms/RoomView")),
-  },
-  {
-    path: "/rooms/:id/play",
-    component: lazy(() => import("./pages/rooms/RoomPlay")),
+    component: lazy(() => import("./pages/rooms/RoomsWrapper")),
+    children: [
+      {
+        path: "/",
+        component: lazy(() => import("./pages/rooms/RoomsList")),
+      },
+      {
+        path: "/:id",
+        component: lazy(() => import("./pages/rooms/RoomView")),
+      },
+      {
+        path: "/:id/play",
+        component: lazy(() => import("./pages/rooms/RoomPlay")),
+      },
+    ],
   },
 
   // Protected routes (require authentication)
