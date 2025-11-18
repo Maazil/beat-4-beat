@@ -123,9 +123,9 @@ const Room: Component = () => {
                 <div class="flex flex-col gap-3">
                   <button
                     class="w-full rounded-lg bg-neutral-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-neutral-700"
-                    onClick={() => navigate("host")}
+                    onClick={() => navigate("play")}
                   >
-                    Start som vert
+                    Start
                   </button>
                   <button
                     class="w-full rounded-lg border-2 border-blue-600 px-4 py-2.5 text-sm font-semibold text-blue-600 transition hover:bg-blue-50"

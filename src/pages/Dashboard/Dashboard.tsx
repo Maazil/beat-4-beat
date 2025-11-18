@@ -6,17 +6,22 @@ const Dashboard: Component = () => {
   return (
     <>
       <main class="mx-auto w-full max-w-6xl px-6 py-12">
-        <section id="overview" class="mb-12 flex sm:flex-row flex-col sm:items-center items-start justify-between gap-4">
+        <section
+          id="overview"
+          class="mb-12 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center"
+        >
           <div>
-          <h1 class="text-3xl font-semibold text-neutral-900">Dashbord</h1>
-          <p class="mt-2 max-w-2xl text-sm text-neutral-500">
-            Administrer spillets rom, hold styr på deltakere, og finjuster pulsen for
-            din neste økt.
-          </p>
+            <h1 class="text-3xl font-semibold text-neutral-900">Dashbord</h1>
+            <p class="mt-2 max-w-2xl text-sm text-neutral-500">
+              Administrer spillets rom, hold styr på deltakere, og finjuster
+              pulsen for din neste økt.
+            </p>
           </div>
 
-          <button type="button" class="inline-flex items-center justify-center rounded-full bg-neutral-900 px-5 py-2 text-sm font-semibold text-white transition hover:bg-neutral-700"
-          onClick={() => navigate("create")}
+          <button
+            type="button"
+            class="inline-flex items-center justify-center rounded-full bg-neutral-900 px-5 py-2 text-sm font-semibold text-white transition hover:bg-neutral-700"
+            onClick={() => navigate("create")}
           >
             Lag et nytt rom +
           </button>
@@ -28,11 +33,13 @@ const Dashboard: Component = () => {
         >
           <article class="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
             <h2 class="text-lg font-semibold text-neutral-900">Mine rom</h2>
-            <p class="mt-2 text-sm text-neutral-500">Følg levende sesjoner og deltakere.</p>
+            <p class="mt-2 text-sm text-neutral-500">
+              Følg levende sesjoner og deltakere.
+            </p>
             <button
               type="button"
-              class="hover:cursor-pointer mt-6 inline-flex items-center justify-center rounded-full bg-neutral-900 px-5 py-2 text-sm font-semibold text-white transition hover:bg-neutral-700"
-            onClick={() => navigate("rooms")}
+              class="mt-6 inline-flex items-center justify-center rounded-full bg-neutral-900 px-5 py-2 text-sm font-semibold text-white transition hover:cursor-pointer hover:bg-neutral-700"
+              onClick={() => navigate("rooms")}
             >
               Se mine rom
             </button>
@@ -66,10 +73,17 @@ const Dashboard: Component = () => {
           </article>
         </section>
 
-        <section id="analytics" class="mt-12 rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
-          <h2 class="text-lg font-semibold text-neutral-900">Seneste aktivitet</h2>
+        <section
+          id="analytics"
+          class="mt-12 rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm"
+        >
+          <h2 class="text-lg font-semibold text-neutral-900">
+            Seneste aktivitet
+          </h2>
           <ul class="mt-4 space-y-3 text-sm text-neutral-600">
-            <li>• Beat Battle «Nord Pulse» ble avsluttet for 18 minutter siden.</li>
+            <li>
+              • Beat Battle «Nord Pulse» ble avsluttet for 18 minutter siden.
+            </li>
             <li>• «Team Echo» planla en ny sesjon til fredag kl. 20:00.</li>
             <li>• 4 nye spillere sluttet seg til fellesskapet i dag.</li>
           </ul>

@@ -53,7 +53,7 @@ const categoryColors = [
   },
 ];
 
-const Host: Component = () => {
+const Play: Component = () => {
   const params = useParams();
   const currentRoom = createMemo(() => rooms.find((r) => r.id === params.id));
   const [revealedItems, setRevealedItems] = createSignal<Set<string>>(
@@ -150,4 +150,4 @@ const Host: Component = () => {
   );
 };
 
-export default Host;
+export default Play;

@@ -1,4 +1,9 @@
-import { createSignal, onCleanup, onMount, type ParentComponent } from "solid-js";
+import {
+  createSignal,
+  onCleanup,
+  onMount,
+  type ParentComponent,
+} from "solid-js";
 import Logo from "../../components/Logo";
 
 const PageWrapper: ParentComponent = (props) => {
@@ -32,16 +37,16 @@ const PageWrapper: ParentComponent = (props) => {
             <a class="hover:text-neutral-900" href="/dashboard">
               Hjem
             </a>
-            <a class="hover:text-neutral-900" href="/dashboard/rooms">
+            <a class="hover:text-neutral-900" href="/rooms">
               Rom
             </a>
-            <a class="hover:text-neutral-900" href="/dashboard/profile">
+            <a class="hover:text-neutral-900" href="/profile">
               Profile
             </a>
           </nav>
         </div>
       </header>
-      
+
       {props.children}
     </div>
   );

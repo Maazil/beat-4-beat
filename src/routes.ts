@@ -14,26 +14,79 @@ export const routes: RouteDefinition[] = [
     component: lazy(() => import("./pages/auth/Login")),
   },
   {
+    path: "/market",
+    component: lazy(() => import("./pages/market/MarketWrapper")),
+    children: [
+      {
+        path: "/",
+        component: lazy(() => import("./pages/market/market")),
+      },
+    ],
+  },
+  {
+    path: "/dashboard",
+    component: lazy(() => import("./pages/dashboard/PageWrapper")),
+    children: [
+      {
+        path: "/",
+        component: lazy(() => import("./pages/dashboard/dashboard")),
+      },
+      {
+        path: "/create",
+        component: lazy(
+          () => import("./pages/dashboard/createRoom/CreateRoomWrapper")
+        ),
+      },
+      {
+        path: "/rooms",
+        component: lazy(() => import("./pages/dashboard/rooms/Rooms")),
+      },
+      {
+        path: "/rooms/:id",
+        component: lazy(() => import("./pages/dashboard/rooms/:id/Room")),
+      },
+      {
+        path: "/rooms/:id/play",
+        component: lazy(() => import("./pages/dashboard/rooms/:id/play/Play")),
+      },
+    ],
+  },
+  {
     path: "/guest",
     component: lazy(() => import("./pages/auth/Guest")),
   },
   {
-    path: "/room/:id",
-    component: lazy(() => import("./pages/room/Room")),
+    path: "/rooms",
+    component: lazy(() => import("./pages/dashboard/PageWrapper")),
+    children: [
+      {
+        path: "/",
+        component: lazy(() => import("./pages/dashboard/rooms/Rooms")),
+      },
+    ],
   },
   {
-    path: "/room/:id/host",
-    component: lazy(() => import("./pages/room/HostWrapper")),
+    path: "/r/:id",
+    component: lazy(() => import("./pages/dashboard/rooms/:id/Room")),
   },
   {
-    path: "/create",
-    component: lazy(
-      () => import("./pages/dashboard/createRoom/CreateRoomWrapper")
-    ),
+    path: "/r/:id/play",
+    component: lazy(() => import("./pages/dashboard/rooms/:id/play/Play")),
   },
+
   {
     path: "/profile",
-    component: lazy(() => import("./pages/Profile/ProfileWrapper")),
+    component: lazy(() => import("./pages/profile/ProfileWrapper")),
+    children: [
+      {
+        path: "/",
+        component: lazy(() => import("./pages/profile/profile")),
+      },
+      // {
+      //   path: "/settings",
+      //   component: lazy(() => import("./pages/profile/settings")),
+      // },
+    ],
   },
   {
     path: "**",

@@ -11,7 +11,7 @@ const Guest: Component = () => {
     setLoading(true);
     try {
       await auth.signInAnonymously();
-      navigate("/");
+      navigate("/market");
     } catch (error) {
       console.error("Failed to sign in as guest:", error);
       alert("Kunne ikke logge inn som gjest");

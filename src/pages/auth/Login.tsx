@@ -121,7 +121,9 @@ const Login: Component = () => {
         <div class="mt-6 border-t border-neutral-200 pt-6">
           <button
             type="button"
-            onClick={() => navigate("/guest")}
+            onClick={() =>
+              auth.signInAnonymously().then(() => navigate("/market"))
+            }
             class="w-full rounded-lg border-2 border-neutral-300 px-6 py-3 font-medium text-neutral-700 transition hover:bg-neutral-50"
           >
             Fortsett som gjest

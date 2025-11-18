@@ -45,7 +45,7 @@ const App: Component = () => {
 
           <button
             type="button"
-            onClick={() => navigate("/create")}
+            onClick={() => navigate("/login")}
             class="group relative inline-flex items-center gap-3 overflow-hidden rounded-full border border-red-500/60 bg-red-500/10 px-9 py-3 text-sm font-semibold tracking-[0.5em] text-red-300 uppercase transition duration-300 hover:cursor-pointer hover:border-red-400/80 hover:bg-red-500/15 hover:text-red-200 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-red-500"
           >
             <span>Start spillet</span>

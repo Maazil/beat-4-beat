@@ -1,5 +1,5 @@
 import RequireFullUser from "../../components/RequireFullUser";
-import Profile from "./Profile";
+import Profile from "./profile";
 
 export default function ProfileWrapper() {
   return (
