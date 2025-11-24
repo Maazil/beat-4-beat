@@ -163,7 +163,7 @@ const CreateRoom: Component = () => {
                       onInput={(e) =>
                         updateItemCount(
                           category.id,
-                          parseInt(e.currentTarget.value) || 3
+                          parseInt(e.currentTarget.value) || 3,
                         )
                       }
                       class="w-16 rounded border border-neutral-300 px-2 py-1 text-center"

@@ -1,7 +1,7 @@
 export interface User {
-  id: string;              // Firebase UID or generated id
+  id: string; // Firebase UID or generated id
   displayName: string;
   email?: string;
   photoURL?: string;
-  createdAt: number;       // Unix timestamp
+  createdAt: number; // Unix timestamp
 }

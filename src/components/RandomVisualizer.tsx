@@ -12,8 +12,7 @@ const RandomVisualizer: Component<RandomVisualizerProps> = (props) => {
     Math.min(max, Math.max(min, value));
   const count = () => props.barCount ?? 48;
   const tempo = () => clamp(props.bpm ?? 150, 120, 200);
-  const stepInterval = () =>
-    Math.max(60, Math.round(60000 / tempo() / 4));
+  const stepInterval = () => Math.max(60, Math.round(60000 / tempo() / 4));
   const createLevels = (bars: number) =>
     Array.from({ length: bars }, () => Math.random());
 
@@ -67,7 +66,7 @@ const RandomVisualizer: Component<RandomVisualizerProps> = (props) => {
             style={{
               transform: `translateZ(0) scaleY(${(0.45 + level * 0.55).toFixed(3)})`,
               opacity: `${(0.6 + level * 0.35).toFixed(3)}`,
-              'transition-delay': `${(index() % 6) * 18}ms`,
+              "transition-delay": `${(index() % 6) * 18}ms`,
             }}
           />
         )}

@@ -5,134 +5,80 @@ import { useAuth } from "../../context/AuthContext";
 const Login: Component = () => {
   const navigate = useNavigate();
   const auth = useAuth();
-  const [email, setEmail] = createSignal("");
-  const [password, setPassword] = createSignal("");
-  const [name, setName] = createSignal("");
-  const [isSignUp, setIsSignUp] = createSignal(false);
   const [error, setError] = createSignal("");
-  const [loading, setLoading] = createSignal(false);
+  const [loadingProvider, setLoadingProvider] = createSignal<
+    "google" | "guest" | null
+  >(null);
 
-  const handleSubmit = async (e: Event) => {
-    e.preventDefault();
+  const handleGoogleSignIn = async () => {
     setError("");
-    setLoading(true);
-
+    setLoadingProvider("google");
     try {
-      if (isSignUp()) {
-        await auth.signUpWithEmail(email(), password(), name());
-      } else {
-        await auth.signInWithEmail(email(), password());
-      }
+      await auth.signInWithGoogle();
       navigate("/dashboard");
     } catch (err: any) {
-      setError(err.message || "En feil oppstod");
+      setError(err?.message || "Kunne ikke logge inn med Google");
     } finally {
-      setLoading(false);
+      setLoadingProvider(null);
+    }
+  };
+
+  const handleGuestSignIn = async () => {
+    setError("");
+    setLoadingProvider("guest");
+    try {
+      await auth.signInAnonymously();
+      navigate("/market");
+    } catch (err: any) {
+      setError(err?.message || "Kunne ikke logge inn som gjest");
+    } finally {
+      setLoadingProvider(null);
     }
   };
 
   return (
     <div class="flex min-h-screen items-center justify-center bg-[#f4f6f8] p-6">
       <div class="w-full max-w-md rounded-xl bg-white p-8 shadow-lg">
-        <h1 class="mb-2 text-3xl font-bold text-neutral-900">
-          {isSignUp() ? "Opprett konto" : "Logg inn"}
-        </h1>
+        <h1 class="mb-2 text-3xl font-bold text-neutral-900">Logg inn</h1>
         <p class="mb-6 text-neutral-600">
-          {isSignUp()
-            ? "Få full tilgang til å lage og administrere rom"
-            : "Velkommen tilbake til Beat 4 Beat"}
+          Velg hvordan du vil fortsette. Google-kontoer får full tilgang til å
+          opprette og administrere rom.
         </p>
 
-        <form onSubmit={handleSubmit} class="space-y-4">
-          {isSignUp() && (
-            <div>
-              <label class="mb-2 block text-sm font-medium text-neutral-700">
-                Navn
-              </label>
-              <input
-                type="text"
-                value={name()}
-                onInput={(e) => setName(e.currentTarget.value)}
-                placeholder="Ditt navn"
-                class="w-full rounded-lg border border-neutral-300 px-4 py-3 text-neutral-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
-                required={isSignUp()}
-              />
-            </div>
-          )}
-
-          <div>
-            <label class="mb-2 block text-sm font-medium text-neutral-700">
-              E-post
-            </label>
-            <input
-              type="email"
-              value={email()}
-              onInput={(e) => setEmail(e.currentTarget.value)}
-              placeholder="din@epost.no"
-              class="w-full rounded-lg border border-neutral-300 px-4 py-3 text-neutral-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
-              required
-            />
+        {error() && (
+          <div class="mb-6 rounded-lg border border-red-200 bg-red-50 p-3">
+            <p class="text-sm text-red-700">{error()}</p>
           </div>
+        )}
 
-          <div>
-            <label class="mb-2 block text-sm font-medium text-neutral-700">
-              Passord
-            </label>
-            <input
-              type="password"
-              value={password()}
-              onInput={(e) => setPassword(e.currentTarget.value)}
-              class="w-full rounded-lg border border-neutral-300 px-4 py-3 text-neutral-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
-              required
-            />
-          </div>
-
-          {error() && (
-            <div class="rounded-lg border border-red-200 bg-red-50 p-3">
-              <p class="text-sm text-red-700">{error()}</p>
-            </div>
-          )}
-
-          <button
-            type="submit"
-            disabled={loading()}
-            class="w-full rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {loading() ? "Vent..." : isSignUp() ? "Opprett konto" : "Logg inn"}
-          </button>
-        </form>
-
-        <div class="mt-6 text-center">
+        <div class="space-y-4">
           <button
             type="button"
-            onClick={() => {
-              setIsSignUp(!isSignUp());
-              setError("");
-            }}
-            class="text-sm font-medium text-blue-600 hover:text-blue-700"
+            onClick={handleGoogleSignIn}
+            disabled={loadingProvider() !== null}
+            class="flex w-full items-center justify-center gap-3 rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {isSignUp()
-              ? "Har du allerede en konto? Logg inn"
-              : "Har du ikke konto? Registrer deg"}
+            {loadingProvider() === "google"
+              ? "Logger inn..."
+              : "Logg inn med Google"}
           </button>
-        </div>
 
-        <div class="mt-6 border-t border-neutral-200 pt-6">
           <button
             type="button"
-            onClick={() =>
-              auth.signInAnonymously().then(() => navigate("/market"))
-            }
-            class="w-full rounded-lg border-2 border-neutral-300 px-6 py-3 font-medium text-neutral-700 transition hover:bg-neutral-50"
+            onClick={handleGuestSignIn}
+            disabled={loadingProvider() !== null}
+            class="w-full rounded-lg border-2 border-neutral-300 px-6 py-3 font-medium text-neutral-700 transition hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            Fortsett som gjest
+            {loadingProvider() === "guest"
+              ? "Logger inn som gjest..."
+              : "Fortsett som gjest"}
           </button>
         </div>
 
         <button
           type="button"
           onClick={() => navigate("/")}
-          class="mx-auto mt-4 block text-sm text-neutral-600 hover:text-neutral-900"
+          class="mx-auto mt-6 block text-sm text-neutral-600 hover:text-neutral-900"
         >
           ← Tilbake til forsiden
         </button>

@@ -133,7 +133,7 @@ const Room: Component = () => {
                       const shareUrl = `${window.location.origin}/play/${room.id}`;
                       navigator.clipboard.writeText(shareUrl);
                       alert(
-                        "Lenke kopiert! Del denne med spillere: " + shareUrl
+                        "Lenke kopiert! Del denne med spillere: " + shareUrl,
                       );
                     }}
                   >
