@@ -21,7 +21,7 @@ const ProtectedRoute: ParentComponent<ProtectedRouteProps> = (props) => {
 
     // Check if full user is required (not guest)
     if (props.requireFullUser && !auth.isFullUser()) {
-      navigate("/login", { replace: true });
+      navigate("/dashboard", { replace: true });
       return;
     }
 

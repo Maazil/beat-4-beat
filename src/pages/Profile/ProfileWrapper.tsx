@@ -1,10 +1,13 @@
+import { ParentComponent } from "solid-js";
 import RequireFullUser from "../../components/RequireFullUser";
-import Profile from "./profile";
+import PageWrapper from "../dashboard/PageWrapper";
 
-export default function ProfileWrapper() {
+const ProfileWrapper: ParentComponent = (props) => {
   return (
     <RequireFullUser>
-      <Profile />
+      <PageWrapper>{props.children}</PageWrapper>
     </RequireFullUser>
   );
-}
+};
+
+export default ProfileWrapper;

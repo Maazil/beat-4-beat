@@ -33,6 +33,7 @@ interface AuthContextValue {
   isFullUser: Accessor<boolean>;
   canCreateRooms: Accessor<boolean>;
   isRoomHost: (roomHostId?: string) => boolean;
+  userNameSplit: () => string;
 }
 
 const AuthContext = createContext<AuthContextValue>();
@@ -49,6 +50,11 @@ export const AuthProvider: ParentComponent = (props) => {
   const isFullUser = () =>
     state.user !== null && state.user.isAnonymous === false;
   const canCreateRooms = () => isFullUser();
+  const userNameSplit = () => {
+    return state.user !== null && isFullUser()
+      ? state.user?.displayName?.split(" ").slice(0, -1).join(" ") || "Bruker"
+      : "Bruker";
+  };
 
   // Check if current user is the host of a room
   const isRoomHost = (roomHostId?: string) => {
@@ -122,6 +128,7 @@ export const AuthProvider: ParentComponent = (props) => {
     isFullUser,
     canCreateRooms,
     isRoomHost,
+    userNameSplit,
   };
 
   return (
