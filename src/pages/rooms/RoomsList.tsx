@@ -35,7 +35,7 @@ const Rooms: Component = () => {
     <div class="mx-auto w-full max-w-6xl px-6 py-12">
       <button
         type="button"
-        onClick={() => navigate("/")}
+        onClick={() => navigate("/dashboard")}
         class="mb-6 flex items-center gap-2 text-neutral-600 transition hover:cursor-pointer hover:text-neutral-900"
       >
         <svg

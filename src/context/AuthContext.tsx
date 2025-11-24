@@ -18,15 +18,8 @@ import {
 import { createStore } from "solid-js/store";
 import { auth } from "../lib/firebase";
 
-export interface FirebaseUser {
-  uid: string;
-  email?: string | null;
-  displayName?: string | null;
-  isAnonymous: boolean;
-}
-
 export interface AuthState {
-  user: FirebaseUser | null;
+  user: User | null;
   isLoading: boolean;
 }
 
@@ -43,13 +36,6 @@ interface AuthContextValue {
 }
 
 const AuthContext = createContext<AuthContextValue>();
-
-const mapFirebaseUser = (user: User): FirebaseUser => ({
-  uid: user.uid,
-  email: user.email,
-  displayName: user.displayName,
-  isAnonymous: user.isAnonymous,
-});
 
 export const AuthProvider: ParentComponent = (props) => {
   const [state, setState] = createStore<AuthState>({
@@ -118,11 +104,7 @@ export const AuthProvider: ParentComponent = (props) => {
   onMount(() => {
     setState("isLoading", true);
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setState({ user: mapFirebaseUser(user), isLoading: false });
-      } else {
-        setState({ user: null, isLoading: false });
-      }
+      setState({ user, isLoading: false });
     });
 
     onCleanup(() => {
