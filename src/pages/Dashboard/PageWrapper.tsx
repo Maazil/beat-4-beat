@@ -5,8 +5,10 @@ import {
   type ParentComponent,
 } from "solid-js";
 import Logo from "../../components/Logo";
+import { useAuth } from "../../context/AuthContext";
 
 const PageWrapper: ParentComponent = (props) => {
+  const auth = useAuth();
   const [isAtTop, setIsAtTop] = createSignal(true);
 
   const handleScroll = () => {
@@ -42,6 +44,13 @@ const PageWrapper: ParentComponent = (props) => {
             </a>
             <a class="hover:text-neutral-900" href="/profile">
               Profile
+            </a>
+            <a
+              class="hover:text-neutral-900"
+              href="/"
+              onClick={() => auth.signOut()}
+            >
+              Logg ut
             </a>
           </nav>
         </div>
