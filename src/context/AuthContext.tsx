@@ -17,6 +17,7 @@ import {
 } from "solid-js";
 import { createStore } from "solid-js/store";
 import { auth } from "../lib/firebase";
+import { upsertUserProfile } from "../services/usersService";
 
 export interface AuthState {
   user: User | null;
@@ -109,7 +110,15 @@ export const AuthProvider: ParentComponent = (props) => {
   // Initialize auth state listener
   onMount(() => {
     setState("isLoading", true);
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        // Upsert user profile to Firestore (create if new, update if exists)
+        try {
+          await upsertUserProfile(user);
+        } catch (error) {
+          console.error("Failed to sync user profile:", error);
+        }
+      }
       setState({ user, isLoading: false });
     });
 

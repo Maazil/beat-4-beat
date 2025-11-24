@@ -86,7 +86,7 @@ const CreateRoom: Component = () => {
     <div class="mx-auto w-full max-w-4xl px-6 py-12">
       <button
         type="button"
-        onClick={() => navigate("/")}
+        onClick={() => navigate("/dashboard")}
         class="mb-6 flex items-center gap-2 text-neutral-600 transition hover:text-neutral-900"
       >
         <svg
@@ -163,7 +163,7 @@ const CreateRoom: Component = () => {
                       onInput={(e) =>
                         updateItemCount(
                           category.id,
-                          parseInt(e.currentTarget.value) || 3,
+                          parseInt(e.currentTarget.value) || 3
                         )
                       }
                       class="w-16 rounded border border-neutral-300 px-2 py-1 text-center"
