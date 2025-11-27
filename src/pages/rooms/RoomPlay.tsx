@@ -1,6 +1,14 @@
 import { useParams } from "@solidjs/router";
-import { Component, createMemo, createSignal, For } from "solid-js";
-import { rooms } from "../../store/roomsStore";
+import {
+  Component,
+  createEffect,
+  createSignal,
+  For,
+  onCleanup,
+  Show,
+} from "solid-js";
+import type { Room } from "../../model/room";
+import { subscribeToRoom } from "../../services/roomsService";
 
 const categoryColors = [
   {
@@ -55,10 +63,24 @@ const categoryColors = [
 
 const Play: Component = () => {
   const params = useParams();
-  const currentRoom = createMemo(() => rooms.find((r) => r.id === params.id));
+  const [currentRoom, setCurrentRoom] = createSignal<Room | null>(null);
+  const [isLoading, setIsLoading] = createSignal(true);
   const [revealedItems, setRevealedItems] = createSignal<Set<string>>(
     new Set()
   );
+
+  // Subscribe to room data from Firestore
+  createEffect(() => {
+    const roomId = params.id;
+    if (!roomId) return;
+
+    const unsubscribe = subscribeToRoom(roomId, (room) => {
+      setCurrentRoom(room);
+      setIsLoading(false);
+    });
+
+    onCleanup(() => unsubscribe());
+  });
 
   const handleItemClick = (itemId: string, songUrl?: string) => {
     setRevealedItems((prev) => new Set(prev).add(itemId));
@@ -91,60 +113,78 @@ const Play: Component = () => {
           <span class="font-medium">Tilbake</span>
         </button>
 
-        <div class="mb-8">
-          <h1 class="text-3xl font-bold text-neutral-900">
-            {currentRoom()?.roomName}
-          </h1>
-          <p class="mt-2 text-neutral-600">Klikk på en rute for å velge sang</p>
-        </div>
+        <Show when={isLoading()}>
+          <div class="flex items-center justify-center py-24">
+            <div class="h-8 w-8 animate-spin rounded-full border-4 border-neutral-300 border-t-neutral-900" />
+          </div>
+        </Show>
 
-        <div class="grid gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
-          <For each={currentRoom()?.categories}>
-            {(category, index) => {
-              const colorScheme =
-                categoryColors[index() % categoryColors.length];
-              return (
-                <div class="flex flex-col gap-4">
-                  <div
-                    class={`rounded-lg ${colorScheme.titleBg} border ${colorScheme.border} px-4 py-3 text-center ${colorScheme.shadow}`}
-                  >
-                    <h2
-                      class={`text-lg font-semibold ${colorScheme.titleText} tracking-tight`}
+        <Show when={!isLoading() && !currentRoom()}>
+          <div class="rounded-lg border border-red-200 bg-red-50 p-8 text-center">
+            <p class="text-red-700">Rom ikke funnet</p>
+          </div>
+        </Show>
+
+        <Show when={!isLoading() && currentRoom()}>
+          <div class="mb-8">
+            <h1 class="text-3xl font-bold text-neutral-900">
+              {currentRoom()?.roomName}
+            </h1>
+            <p class="mt-2 text-neutral-600">
+              Klikk på en rute for å velge sang
+            </p>
+          </div>
+
+          <div class="grid gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
+            <For each={currentRoom()?.categories}>
+              {(category, index) => {
+                const colorScheme =
+                  categoryColors[index() % categoryColors.length];
+                return (
+                  <div class="flex flex-col gap-4">
+                    <div
+                      class={`rounded-lg ${colorScheme.titleBg} border ${colorScheme.border} px-4 py-3 text-center ${colorScheme.shadow}`}
                     >
-                      {category.name}
-                    </h2>
-                  </div>
+                      <h2
+                        class={`text-lg font-semibold ${colorScheme.titleText} tracking-tight`}
+                      >
+                        {category.name}
+                      </h2>
+                    </div>
 
-                  <div class="flex flex-col gap-3">
-                    <For each={category.items}>
-                      {(item) => (
-                        <button
-                          type="button"
-                          class={`group flex h-16 w-full cursor-pointer items-center justify-center rounded-lg border-2 transition hover:scale-105 hover:shadow-lg active:scale-95 sm:h-20 ${
-                            revealedItems().has(item.id)
-                              ? "border-dashed border-neutral-300 bg-neutral-100/50"
-                              : `${colorScheme.border} ${colorScheme.itemBg}`
-                          }`}
-                          onClick={() => handleItemClick(item.id, item.songUrl)}
-                        >
-                          <span
-                            class={`text-2xl font-bold ${
+                    <div class="flex flex-col gap-3">
+                      <For each={category.items}>
+                        {(item) => (
+                          <button
+                            type="button"
+                            class={`group flex h-16 w-full cursor-pointer items-center justify-center rounded-lg border-2 transition hover:scale-105 hover:shadow-lg active:scale-95 sm:h-20 ${
                               revealedItems().has(item.id)
-                                ? "text-neutral-400"
-                                : colorScheme.itemText
-                            } transition group-hover:scale-110`}
+                                ? "border-dashed border-neutral-300 bg-neutral-100/50"
+                                : `${colorScheme.border} ${colorScheme.itemBg}`
+                            }`}
+                            onClick={() =>
+                              handleItemClick(item.id, item.songUrl)
+                            }
                           >
-                            {item.level}
-                          </span>
-                        </button>
-                      )}
-                    </For>
+                            <span
+                              class={`text-2xl font-bold ${
+                                revealedItems().has(item.id)
+                                  ? "text-neutral-400"
+                                  : colorScheme.itemText
+                              } transition group-hover:scale-110`}
+                            >
+                              {item.level}
+                            </span>
+                          </button>
+                        )}
+                      </For>
+                    </div>
                   </div>
-                </div>
-              );
-            }}
-          </For>
-        </div>
+                );
+              }}
+            </For>
+          </div>
+        </Show>
       </div>
     </div>
   );
