@@ -1,8 +1,33 @@
 import { useNavigate } from "@solidjs/router";
-import type { Component } from "solid-js";
+import { createSignal, type Component } from "solid-js";
+import { useAuth } from "../../context/AuthContext";
 
 const Dashboard: Component = () => {
   const navigate = useNavigate();
+  const auth = useAuth();
+
+  const [isCreating, setIsCreating] = createSignal(false);
+  const [finished, setFinished] = createSignal(false);
+
+  const createUser = async () => {
+    setIsCreating(true);
+    // try {
+    //   const docRef = await addDoc(collection(db, "users"), {
+    //     first: "Matt",
+    //     last: "Lee",
+    //     born: 1998,
+    //   });
+    //   console.log("Document written with ID: ", docRef.id);
+
+    //   setFinished(true);
+    //   setIsCreating(false);
+    // } catch (e) {
+    //   console.error("Error adding document: ", e);
+    //   setIsCreating(false);
+    //   setFinished(false);
+    // }
+  };
+
   return (
     <>
       <main class="mx-auto w-full max-w-6xl px-6 py-12">
@@ -32,6 +57,25 @@ const Dashboard: Component = () => {
           class="grid gap-6 lg:grid-cols-[repeat(auto-fit,minmax(240px,1fr))]"
         >
           <article class="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+            <h2 class="text-lg font-semibold text-neutral-900">Lag bruker</h2>
+            <p class="mt-2 text-sm text-neutral-500">
+              Lag en bruker collection for databasen.
+            </p>
+            <button
+              type="button"
+              class="mt-6 inline-flex items-center justify-center rounded-full bg-neutral-900 px-5 py-2 text-sm font-semibold text-white transition hover:cursor-pointer hover:bg-neutral-700"
+              onClick={createUser}
+              disabled={isCreating()}
+            >
+              {isCreating()
+                ? "Oppretter..."
+                : finished()
+                  ? "Bruker opprettet!"
+                  : "Lag en bruker"}
+            </button>
+          </article>
+
+          <article class="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
             <h2 class="text-lg font-semibold text-neutral-900">Mine rom</h2>
             <p class="mt-2 text-sm text-neutral-500">
               Følg levende sesjoner og deltakere.
@@ -39,7 +83,7 @@ const Dashboard: Component = () => {
             <button
               type="button"
               class="mt-6 inline-flex items-center justify-center rounded-full bg-neutral-900 px-5 py-2 text-sm font-semibold text-white transition hover:cursor-pointer hover:bg-neutral-700"
-              onClick={() => navigate("rooms")}
+              onClick={() => navigate("/rooms")}
             >
               Se mine rom
             </button>

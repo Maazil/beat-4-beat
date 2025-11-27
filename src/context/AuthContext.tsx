@@ -1,39 +1,40 @@
 import {
+  signInAnonymously as firebaseSignInAnonymously,
+  signOut as firebaseSignOut,
+  GoogleAuthProvider,
+  onAuthStateChanged,
+  signInWithPopup,
+  updateProfile,
+  type User,
+} from "firebase/auth";
+import {
   Accessor,
   createContext,
+  onCleanup,
   onMount,
   ParentComponent,
   useContext,
 } from "solid-js";
 import { createStore } from "solid-js/store";
-
-export interface FirebaseUser {
-  uid: string;
-  email?: string | null;
-  displayName?: string | null;
-  isAnonymous: boolean;
-}
+import { auth } from "../lib/firebase";
+import { upsertUserProfile } from "../services/usersService";
 
 export interface AuthState {
-  user: FirebaseUser | null;
+  user: User | null;
   isLoading: boolean;
 }
 
 interface AuthContextValue {
   state: AuthState;
   signInAnonymously: () => Promise<void>;
-  signInWithEmail: (email: string, password: string) => Promise<void>;
-  signUpWithEmail: (
-    email: string,
-    password: string,
-    name?: string
-  ) => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
   isGuest: Accessor<boolean>;
   isAuthenticated: Accessor<boolean>;
   isFullUser: Accessor<boolean>;
   canCreateRooms: Accessor<boolean>;
   isRoomHost: (roomHostId?: string) => boolean;
+  userNameSplit: () => string;
 }
 
 const AuthContext = createContext<AuthContextValue>();
@@ -50,6 +51,11 @@ export const AuthProvider: ParentComponent = (props) => {
   const isFullUser = () =>
     state.user !== null && state.user.isAnonymous === false;
   const canCreateRooms = () => isFullUser();
+  const userNameSplit = () => {
+    return state.user !== null && isFullUser()
+      ? state.user?.displayName?.split(" ").slice(0, -1).join(" ") || "Bruker"
+      : "Bruker";
+  };
 
   // Check if current user is the host of a room
   const isRoomHost = (roomHostId?: string) => {
@@ -61,90 +67,40 @@ export const AuthProvider: ParentComponent = (props) => {
   const signInAnonymously = async () => {
     setState("isLoading", true);
     try {
-      // TODO: Replace with Firebase signInAnonymously()
-      // const userCredential = await signInAnonymously(auth);
-      // Mock for now:
-      const mockUser: FirebaseUser = {
-        uid: `anon-${Date.now()}`,
-        isAnonymous: true,
-        displayName: `Gjest ${Math.floor(Math.random() * 1000)}`,
-      };
-
-      setState({
-        user: mockUser,
-        isLoading: false,
-      });
+      const credential = await firebaseSignInAnonymously(auth);
+      if (!credential.user.displayName) {
+        const randomName = `Guest ${Math.floor(Math.random() * 1000)}`;
+        try {
+          await updateProfile(credential.user, { displayName: randomName });
+        } catch (profileError) {
+          console.warn("Failed to set guest display name", profileError);
+        }
+      }
     } catch (error) {
       console.error("Anonymous sign in failed:", error);
-      setState("isLoading", false);
       throw error;
+    } finally {
+      setState("isLoading", false);
     }
   };
 
-  // Firebase Email/Password Sign In
-  const signInWithEmail = async (email: string, password: string) => {
+  const signInWithGoogle = async () => {
     setState("isLoading", true);
     try {
-      // TODO: Replace with Firebase signInWithEmailAndPassword()
-      // const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      // Mock for now:
-      const mockUser: FirebaseUser = {
-        uid: `user-${Date.now()}`,
-        email,
-        displayName: email.split("@")[0],
-        isAnonymous: false,
-      };
-
-      setState({
-        user: mockUser,
-        isLoading: false,
-      });
+      const provider = new GoogleAuthProvider();
+      await signInWithPopup(auth, provider);
     } catch (error) {
-      console.error("Sign in failed:", error);
-      setState("isLoading", false);
+      console.error("Google sign in failed:", error);
       throw error;
-    }
-  };
-
-  // Firebase Email/Password Sign Up
-  const signUpWithEmail = async (
-    email: string,
-    password: string,
-    name?: string
-  ) => {
-    setState("isLoading", true);
-    try {
-      // TODO: Replace with Firebase createUserWithEmailAndPassword()
-      // const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      // if (name) await updateProfile(userCredential.user, { displayName: name });
-      // Mock for now:
-      const mockUser: FirebaseUser = {
-        uid: `user-${Date.now()}`,
-        email,
-        displayName: name || email.split("@")[0],
-        isAnonymous: false,
-      };
-
-      setState({
-        user: mockUser,
-        isLoading: false,
-      });
-    } catch (error) {
-      console.error("Sign up failed:", error);
+    } finally {
       setState("isLoading", false);
-      throw error;
     }
   };
 
   // Firebase Sign Out
   const signOut = async () => {
     try {
-      // TODO: Replace with Firebase signOut()
-      // await signOut(auth);
-      setState({
-        user: null,
-        isLoading: false,
-      });
+      await firebaseSignOut(auth);
     } catch (error) {
       console.error("Sign out failed:", error);
       throw error;
@@ -153,50 +109,35 @@ export const AuthProvider: ParentComponent = (props) => {
 
   // Initialize auth state listener
   onMount(() => {
-    // TODO: Replace with Firebase onAuthStateChanged()
-    // const unsubscribe = onAuthStateChanged(auth, (user) => {
-    //   if (user) {
-    //     setState({
-    //       user: {
-    //         uid: user.uid,
-    //         email: user.email,
-    //         displayName: user.displayName,
-    //         isAnonymous: user.isAnonymous,
-    //       },
-    //       isLoading: false,
-    //     });
-    //   } else {
-    //     setState({ user: null, isLoading: false });
-    //   }
-    // });
-    // return unsubscribe;
-
-    // Mock: Check for stored session
-    const storedUser = localStorage.getItem("mockUser");
-    if (storedUser) {
-      try {
-        const user = JSON.parse(storedUser);
-        setState({ user, isLoading: false });
-      } catch (e) {
-        localStorage.removeItem("mockUser");
-        setState("isLoading", false);
+    setState("isLoading", true);
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        // Upsert user profile to Firestore (create if new, update if exists)
+        try {
+          await upsertUserProfile(user);
+        } catch (error) {
+          console.error("Failed to sync user profile:", error);
+        }
       }
-    } else {
-      setState("isLoading", false);
-    }
+      setState({ user, isLoading: false });
+    });
+
+    onCleanup(() => {
+      unsubscribe();
+    });
   });
 
   const value: AuthContextValue = {
     state,
     signInAnonymously,
-    signInWithEmail,
-    signUpWithEmail,
+    signInWithGoogle,
     signOut,
     isGuest,
     isAuthenticated,
     isFullUser,
     canCreateRooms,
     isRoomHost,
+    userNameSplit,
   };
 
   return (

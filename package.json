@@ -5,10 +5,11 @@
   "type": "module",
   "scripts": {
     "start": "vite",
-    "dev": "vite",
+    "dev": " tsc --noEmit & vite",
     "build": "vite build",
     "serve": "vite preview",
-    "ts": "tsc --noEmit"
+    "ts": "tsc --noEmit",
+    "format": "oxfmt src"
   },
   "license": "MIT",
   "devDependencies": {

@@ -1,6 +1,6 @@
 export interface Score {
   teamName: string;
-  points: number;         // e.g., 0–3 depending on correct guesses/performance
+  points: number; // e.g., 0–3 depending on correct guesses/performance
 }
 
 export const defaultScore = (overrides?: Partial<Score>): Score => ({

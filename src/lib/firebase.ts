@@ -22,6 +22,9 @@ const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+// Apply the default browser preference instead of explicitly setting it.
+auth.useDeviceLanguage();
+
 let analytics: Analytics | undefined;
 
 if (typeof window !== "undefined") {

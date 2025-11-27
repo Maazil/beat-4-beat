@@ -24,7 +24,7 @@ export interface CreateRoomData {
 }
 
 export const defaultRoomData = (
-  overrides?: Partial<CreateRoomData>
+  overrides?: Partial<CreateRoomData>,
 ): CreateRoomData => ({
   name: "My Beat Room",
   hostId: "Maazil",

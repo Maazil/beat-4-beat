@@ -5,8 +5,10 @@ import {
   type ParentComponent,
 } from "solid-js";
 import Logo from "../../components/Logo";
+import { useAuth } from "../../context/AuthContext";
 
 const PageWrapper: ParentComponent = (props) => {
+  const auth = useAuth();
   const [isAtTop, setIsAtTop] = createSignal(true);
 
   const handleScroll = () => {
@@ -30,18 +32,20 @@ const PageWrapper: ParentComponent = (props) => {
         }}
       >
         <div class="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-6">
-          <div class="flex items-center gap-3">
+          <a class="flex items-center gap-3" href="/dashboard">
             <Logo class="h-8 w-auto" />
-          </div>
+          </a>
           <nav class="flex items-center gap-5 text-sm font-medium text-neutral-600">
-            <a class="hover:text-neutral-900" href="/dashboard">
-              Hjem
-            </a>
-            <a class="hover:text-neutral-900" href="/rooms">
-              Rom
-            </a>
-            <a class="hover:text-neutral-900" href="/profile">
-              Profile
+            <a
+              class="flex items-center gap-2 hover:text-neutral-900"
+              href="/profile"
+            >
+              <p>Hei {auth.userNameSplit()}</p>
+              <img
+                src={auth.state.user?.photoURL || "/default-avatar.png"}
+                class="h-8 w-8 rounded-full"
+                alt="Solid logo"
+              />
             </a>
           </nav>
         </div>
