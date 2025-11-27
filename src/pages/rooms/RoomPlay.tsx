@@ -93,7 +93,7 @@ const Play: Component = () => {
 
         <div class="mb-8">
           <h1 class="text-3xl font-bold text-neutral-900">
-            {currentRoom()?.name}
+            {currentRoom()?.roomName}
           </h1>
           <p class="mt-2 text-neutral-600">Klikk på en rute for å velge sang</p>
         </div>

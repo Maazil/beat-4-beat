@@ -7,6 +7,12 @@ const Profile: Component = () => {
   const name = auth.state.user?.displayName?.split(" ")[0] || "Bruker";
 
   const navigate = useNavigate();
+
+  const logoutAndRedirect = async () => {
+    await auth.signOut();
+    navigate("/");
+  };
+
   return (
     <main class="mx-auto w-full max-w-6xl px-6 py-12">
       <div class="mb-12 flex w-full flex-col items-center justify-between gap-4">
@@ -26,7 +32,7 @@ const Profile: Component = () => {
           <button
             type="button"
             class="inline-flex w-full items-center justify-center rounded-full bg-neutral-900 px-5 py-2 text-sm font-semibold text-white transition hover:bg-neutral-700"
-            onClick={() => auth.signOut()}
+            onClick={logoutAndRedirect}
           >
             Logg ut
           </button>

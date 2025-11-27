@@ -64,7 +64,7 @@ const Rooms: Component = () => {
             >
               <div class="mb-3 flex items-start justify-between">
                 <h2 class="text-lg font-semibold text-neutral-900 group-hover:text-neutral-700">
-                  {room.name}
+                  {room.roomName}
                 </h2>
                 <span
                   class={`rounded-full px-2.5 py-0.5 text-xs font-medium ${getStatusBadge(room.status)}`}

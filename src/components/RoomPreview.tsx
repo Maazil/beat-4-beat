@@ -50,14 +50,14 @@ const RoomPreview: Component<RoomPreviewProps> = (props) => {
       <div class="pointer-events-none absolute -inset-2 rounded-3xl bg-red-500/40 opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-60" />
       <article
         class="relative z-10 cursor-pointer rounded-2xl border border-neutral-600/60 bg-neutral-900/80 p-6 shadow-sm backdrop-blur-sm transition-all duration-300 group-hover:border-red-500/30 group-hover:shadow-lg"
-        onClick={() => navigate(`/rooms/${props.room.id}`)}
+        onClick={() => navigate(`/rooms/${props.room.id}/play`)}
       >
         {/* Subtle gradient overlay on hover */}
         <div class="pointer-events-none absolute inset-0 rounded-2xl bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.03),transparent_50%)] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
         <div class="relative">
           <div class="mb-3 flex items-start justify-between">
             <h2 class="text-lg font-semibold text-neutral-100">
-              {props.room.name}
+              {props.room.roomName}
             </h2>
             <span
               class={`rounded-full px-2.5 py-0.5 text-xs font-medium ${getStatusBadge(props.room.status)}`}

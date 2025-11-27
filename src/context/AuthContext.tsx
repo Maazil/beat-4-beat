@@ -53,8 +53,8 @@ export const AuthProvider: ParentComponent = (props) => {
   const canCreateRooms = () => isFullUser();
   const userNameSplit = () => {
     return state.user !== null && isFullUser()
-      ? state.user?.displayName?.split(" ").slice(0, -1).join(" ") || "Bruker"
-      : "Bruker";
+      ? state.user?.displayName?.split(" ").slice(0, -1).join(" ") || ""
+      : "";
   };
 
   // Check if current user is the host of a room

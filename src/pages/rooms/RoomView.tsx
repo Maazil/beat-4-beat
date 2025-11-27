@@ -48,7 +48,7 @@ const Room: Component = () => {
             <div class="mb-8 flex items-start justify-between">
               <div>
                 <h1 class="text-3xl font-semibold text-neutral-900">
-                  {room.name}
+                  {room.roomName}
                 </h1>
                 <p class="mt-2 text-sm text-neutral-500">
                   Administrer rominnstillinger og deltakere.
