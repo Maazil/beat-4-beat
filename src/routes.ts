@@ -85,6 +85,12 @@ export const routes: RouteDefinition[] = [
     ],
   },
 
+  // UI Preview (development only)
+  {
+    path: "/ui-preview",
+    component: lazy(() => import("./pages/ui-preview/UIPreview")),
+  },
+
   // Fallback
   {
     path: "**",
