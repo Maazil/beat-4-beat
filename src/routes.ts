@@ -32,7 +32,7 @@ export const routes: RouteDefinition[] = [
   // Room routes (public/guest accessible)
   {
     path: "/rooms",
-    component: lazy(() => import("./pages/rooms/RoomsWrapper")),
+    component: lazy(() => import("./pages/dashboard/PageWrapper")),
     children: [
       {
         path: "/",

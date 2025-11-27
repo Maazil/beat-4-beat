@@ -213,9 +213,11 @@ const CreateRoom: Component = () => {
         </div>
 
         <div class="flex max-w-sm items-center justify-between rounded-lg border border-neutral-200 bg-neutral-50 p-4">
-          <div>
-            <label class="mb-1 block text-sm font-medium text-neutral-900">
-              Rommet ditt er {isPublic() ? "offentlig" : "privat"}
+          <div class="flex flex-col gap-2">
+            <label
+              class={`mb-1 block w-fit rounded-2xl border px-3 py-0.5 text-sm font-medium text-neutral-900/90 ${isPublic() ? "border-green-400/80 bg-green-400/10" : "border-red-400/50 bg-red-400/10"}`}
+            >
+              {isPublic() ? "Offentlig" : "Privat"}
             </label>
             <p class="text-sm text-neutral-600">
               Gjør rommet synlig for alle brukere på plattformen.

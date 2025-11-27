@@ -1,21 +1,22 @@
 import { useNavigate } from "@solidjs/router";
 import { Component, For } from "solid-js";
-import type { RoomSnapshot } from "../store/roomsStore";
+import type { Room } from "../model/room";
 
 interface RoomPreviewProps {
-  room: RoomSnapshot;
+  room: Room;
 }
 
 const RoomPreview: Component<RoomPreviewProps> = (props) => {
   const navigate = useNavigate();
 
+  // Derive status from isActive
+  const getStatus = () => (props.room.isActive ? "live" : "inactive");
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "live":
         return "bg-green-500/20 text-green-400 border border-green-500/30";
-      case "scheduled":
-        return "bg-red-500/20 text-red-400 border border-red-500/30";
-      case "completed":
+      case "inactive":
         return "bg-neutral-700/50 text-neutral-400 border border-neutral-600";
       default:
         return "bg-neutral-700/50 text-neutral-400 border border-neutral-600";
@@ -26,10 +27,8 @@ const RoomPreview: Component<RoomPreviewProps> = (props) => {
     switch (status) {
       case "live":
         return "Live";
-      case "scheduled":
-        return "Planlagt";
-      case "completed":
-        return "Fullført";
+      case "inactive":
+        return "Ikke aktiv";
       default:
         return status;
     }
@@ -60,9 +59,9 @@ const RoomPreview: Component<RoomPreviewProps> = (props) => {
               {props.room.roomName}
             </h2>
             <span
-              class={`rounded-full px-2.5 py-0.5 text-xs font-medium ${getStatusBadge(props.room.status)}`}
+              class={`rounded-full px-2.5 py-0.5 text-xs font-medium ${getStatusBadge(getStatus())}`}
             >
-              {getStatusLabel(props.room.status)}
+              {getStatusLabel(getStatus())}
             </span>
           </div>
           <div class="space-y-2 text-sm text-neutral-400">

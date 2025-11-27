@@ -1,54 +1,20 @@
 import { useNavigate } from "@solidjs/router";
-import {
-  createEffect,
-  createSignal,
-  For,
-  onCleanup,
-  type Component,
-} from "solid-js";
+import { For, type Component } from "solid-js";
 import RoomManageCard from "../../components/RoomManageCard";
-import { useAuth } from "../../context/AuthContext";
+import { useMyRooms } from "../../hooks/useMyRooms";
 import type { Room } from "../../model/room";
-import { deleteRoom, subscribeToMyRooms } from "../../services/roomsService";
+import { deleteRoom } from "../../services/roomsService";
 import type { RoomSnapshot } from "../../store/roomsStore";
 
 const Dashboard: Component = () => {
   const navigate = useNavigate();
-  const auth = useAuth();
-  const [myRooms, setMyRooms] = createSignal<RoomSnapshot[]>([]);
-  const [isLoading, setIsLoading] = createSignal(true);
-  const [error, setError] = createSignal<string | null>(null);
+  const { rooms: myRooms, isLoading, error } = useMyRooms();
 
   // Convert Room from Firestore to RoomSnapshot for the UI
   const roomToSnapshot = (room: Room): RoomSnapshot => ({
     ...room,
     status: room.isActive ? "live" : "scheduled",
     participants: 0, // Could be fetched from a subcollection later
-  });
-
-  // Wait for auth to be ready, then subscribe to rooms
-  createEffect(() => {
-    // Don't do anything while auth is still loading
-    if (auth.state.isLoading) return;
-
-    // If not authenticated, don't try to fetch
-    if (!auth.isAuthenticated()) {
-      setIsLoading(false);
-      return;
-    }
-
-    try {
-      const unsubscribe = subscribeToMyRooms((rooms) => {
-        setMyRooms(rooms.map(roomToSnapshot));
-        setIsLoading(false);
-        setError(null);
-      });
-
-      onCleanup(() => unsubscribe());
-    } catch (_err) {
-      setError("Kunne ikke hente rom. Prøv igjen senere.");
-      setIsLoading(false);
-    }
   });
 
   const handleDeleteRoom = async (roomId: string) => {
@@ -95,14 +61,14 @@ const Dashboard: Component = () => {
             </div>
           )}
 
-          {isLoading() || auth.state.isLoading ? (
+          {isLoading() ? (
             <div class="flex items-center justify-center py-12">
               <div class="h-8 w-8 animate-spin rounded-full border-4 border-neutral-300 border-t-neutral-900" />
             </div>
           ) : (
             <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               <For
-                each={myRooms()}
+                each={myRooms().map(roomToSnapshot)}
                 fallback={
                   <div class="col-span-full rounded-2xl border border-dashed border-neutral-300 bg-neutral-50 p-8 text-center">
                     <p class="text-neutral-500">
