@@ -116,6 +116,33 @@ const palettes = {
     success: "#16A34A",
     info: "#2563EB",
   },
+
+  // Option E: nx.dev Inspired (Clean whites with modern blue accent)
+  nxStyle: {
+    name: "nx.dev Clean",
+    description:
+      "Inspired by nx.dev's clean aesthetic. Pure white backgrounds with modern blue accents. Professional and inviting.",
+    bg: {
+      primary: "#FFFFFF", // Pure white
+      secondary: "#F8FAFC", // Slate 50
+      card: "#FFFFFF", // Pure white cards
+      elevated: "#F1F5F9", // Slate 100 for elevated
+    },
+    text: {
+      primary: "#0F172A", // Slate 900
+      secondary: "#475569", // Slate 600
+      muted: "#94A3B8", // Slate 400
+    },
+    accent: {
+      primary: "#0EA5E9", // Sky 500 (nx.dev blue)
+      primaryHover: "#0284C7", // Sky 600
+      secondary: "#38BDF8", // Sky 400
+      tertiary: "#E0F2FE", // Sky 100
+    },
+    border: "#E2E8F0", // Slate 200
+    success: "#22C55E",
+    info: "#0EA5E9",
+  },
 };
 
 // CTA Button Variations for each palette
@@ -178,6 +205,21 @@ const ctaVariations = {
     {
       name: "Dark Contrast",
       class: "bg-[#1A1A1A] hover:bg-[#0a0a0a] text-white",
+    },
+  ],
+  nxStyle: [
+    {
+      name: "Sky Solid",
+      class: "bg-[#0EA5E9] hover:bg-[#0284C7] text-white",
+    },
+    {
+      name: "Sky Outline",
+      class:
+        "border-2 border-[#0EA5E9] text-[#0EA5E9] hover:bg-[#0EA5E9] hover:text-white",
+    },
+    {
+      name: "Dark Contrast",
+      class: "bg-[#0F172A] hover:bg-[#1E293B] text-white",
     },
   ],
 };
@@ -845,6 +887,215 @@ const UIPreview: Component = () => {
                 </div>
               )}
             </For>
+          </div>
+        </div>
+
+        {/* nx.dev-inspired Audio Wave Stats Section */}
+        <div
+          class="mt-8 overflow-hidden rounded-2xl border"
+          style={{
+            "background-color": currentPalette().bg.card,
+            "border-color": currentPalette().border,
+          }}
+        >
+          <div class="relative px-6 py-12">
+            {/* Audio Wave SVG Background */}
+            <div class="pointer-events-none absolute inset-0 overflow-hidden opacity-30">
+              <svg
+                class="absolute top-0 left-0 h-full w-full"
+                viewBox="0 0 1200 400"
+                preserveAspectRatio="xMidYMid slice"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                {/* Wave Line 1 - Top flowing curve */}
+                <path
+                  d="M0,80 C200,120 400,40 600,100 C800,160 1000,80 1200,120"
+                  stroke={currentPalette().accent.primary}
+                  stroke-width="2"
+                  fill="none"
+                  stroke-linecap="round"
+                >
+                  <animate
+                    attributeName="d"
+                    dur="8s"
+                    repeatCount="indefinite"
+                    values="
+                      M0,80 C200,120 400,40 600,100 C800,160 1000,80 1200,120;
+                      M0,100 C200,60 400,140 600,80 C800,20 1000,100 1200,60;
+                      M0,80 C200,120 400,40 600,100 C800,160 1000,80 1200,120
+                    "
+                  />
+                </path>
+
+                {/* Wave Line 2 - Middle beat wave */}
+                <path
+                  d="M0,200 C150,150 300,250 450,200 C600,150 750,250 900,200 C1050,150 1200,200 1200,200"
+                  stroke={currentPalette().accent.secondary}
+                  stroke-width="3"
+                  fill="none"
+                  stroke-linecap="round"
+                >
+                  <animate
+                    attributeName="d"
+                    dur="6s"
+                    repeatCount="indefinite"
+                    values="
+                      M0,200 C150,150 300,250 450,200 C600,150 750,250 900,200 C1050,150 1200,200 1200,200;
+                      M0,200 C150,250 300,150 450,200 C600,250 750,150 900,200 C1050,250 1200,200 1200,200;
+                      M0,200 C150,150 300,250 450,200 C600,150 750,250 900,200 C1050,150 1200,200 1200,200
+                    "
+                  />
+                </path>
+
+                {/* Wave Line 3 - Audio waveform style */}
+                <path
+                  d="M0,300 Q100,280 200,300 T400,300 T600,300 T800,300 T1000,300 T1200,300"
+                  stroke={currentPalette().accent.primary}
+                  stroke-width="2"
+                  fill="none"
+                  stroke-linecap="round"
+                  opacity="0.6"
+                >
+                  <animate
+                    attributeName="d"
+                    dur="4s"
+                    repeatCount="indefinite"
+                    values="
+                      M0,300 Q100,280 200,300 T400,300 T600,300 T800,300 T1000,300 T1200,300;
+                      M0,300 Q100,320 200,300 T400,300 T600,300 T800,300 T1000,300 T1200,300;
+                      M0,300 Q100,280 200,300 T400,300 T600,300 T800,300 T1000,300 T1200,300
+                    "
+                  />
+                </path>
+
+                {/* Beat dots along the wave */}
+                <circle
+                  cx="200"
+                  cy="200"
+                  r="4"
+                  fill={currentPalette().accent.primary}
+                >
+                  <animate
+                    attributeName="r"
+                    dur="2s"
+                    repeatCount="indefinite"
+                    values="4;8;4"
+                  />
+                  <animate
+                    attributeName="opacity"
+                    dur="2s"
+                    repeatCount="indefinite"
+                    values="1;0.5;1"
+                  />
+                </circle>
+                <circle
+                  cx="600"
+                  cy="200"
+                  r="4"
+                  fill={currentPalette().accent.secondary}
+                >
+                  <animate
+                    attributeName="r"
+                    dur="2s"
+                    repeatCount="indefinite"
+                    values="4;8;4"
+                    begin="0.5s"
+                  />
+                  <animate
+                    attributeName="opacity"
+                    dur="2s"
+                    repeatCount="indefinite"
+                    values="1;0.5;1"
+                    begin="0.5s"
+                  />
+                </circle>
+                <circle
+                  cx="1000"
+                  cy="200"
+                  r="4"
+                  fill={currentPalette().accent.primary}
+                >
+                  <animate
+                    attributeName="r"
+                    dur="2s"
+                    repeatCount="indefinite"
+                    values="4;8;4"
+                    begin="1s"
+                  />
+                  <animate
+                    attributeName="opacity"
+                    dur="2s"
+                    repeatCount="indefinite"
+                    values="1;0.5;1"
+                    begin="1s"
+                  />
+                </circle>
+              </svg>
+            </div>
+
+            {/* Content */}
+            <div class="relative z-10 text-center">
+              <h3
+                class="mb-3 text-3xl font-bold md:text-4xl"
+                style={{ color: currentPalette().text.primary }}
+              >
+                Drop the beat in record time
+              </h3>
+              <p
+                class="mx-auto mb-10 max-w-2xl text-lg"
+                style={{ color: currentPalette().text.secondary }}
+              >
+                Beat 4 Beat makes music gaming social, competitive, and fun.
+                Create rooms, challenge friends, and prove your musical prowess.
+              </p>
+
+              {/* Stats Grid */}
+              <div class="grid gap-8 md:grid-cols-4">
+                <For
+                  each={[
+                    { value: "2x", label: "More Fun", subtext: "vs solo play" },
+                    {
+                      value: "500+",
+                      label: "Songs Available",
+                      subtext: "across genres",
+                    },
+                    {
+                      value: "10s",
+                      label: "Setup Time",
+                      subtext: "to start playing",
+                    },
+                    {
+                      value: "∞",
+                      label: "Replay Value",
+                      subtext: "always fresh",
+                    },
+                  ]}
+                >
+                  {(stat) => (
+                    <div class="group">
+                      <div
+                        class="mb-1 text-4xl font-bold transition-transform duration-300 group-hover:scale-110 md:text-5xl"
+                        style={{ color: currentPalette().accent.primary }}
+                      >
+                        {stat.value}
+                      </div>
+                      <div
+                        class="text-base font-semibold"
+                        style={{ color: currentPalette().text.primary }}
+                      >
+                        {stat.label}
+                      </div>
+                      <div
+                        class="text-sm"
+                        style={{ color: currentPalette().text.muted }}
+                      >
+                        {stat.subtext}
+                      </div>
+                    </div>
+                  )}
+                </For>
+              </div>
+            </div>
           </div>
         </div>
 
