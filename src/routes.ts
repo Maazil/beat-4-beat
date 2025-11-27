@@ -56,7 +56,7 @@ export const routes: RouteDefinition[] = [
     children: [
       {
         path: "/",
-        component: lazy(() => import("./pages/dashboard/dashboard")),
+        component: lazy(() => import("./pages/dashboard/Dashboard")),
       },
       {
         path: "/create",
@@ -80,7 +80,7 @@ export const routes: RouteDefinition[] = [
     children: [
       {
         path: "/",
-        component: lazy(() => import("./pages/profile/profile")),
+        component: lazy(() => import("./pages/profile/Profile")),
       },
     ],
   },

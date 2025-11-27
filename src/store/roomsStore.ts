@@ -148,7 +148,7 @@ export const addRoom = (room: RoomSnapshot) =>
 
 export const updateRoom = (roomId: string, updater: Partial<RoomSnapshot>) =>
   setRooms((list) =>
-    list.map((room) => (room.id === roomId ? { ...room, ...updater } : room)),
+    list.map((room) => (room.id === roomId ? { ...room, ...updater } : room))
   );
 
 export const removeRoom = (roomId: string) =>
