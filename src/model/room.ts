@@ -3,41 +3,43 @@ import type { Score } from "./score";
 
 export interface Room {
   id: string; // Unique room ID (e.g. nanoid)
-  name: string; // Room/game name
+  roomName: string; // Room/game name
   hostId: string; // User ID of host
   hostName: string; // Optional: Host display name
   categories: Category[]; // Music categories (Pop, 80s, etc.)
   showCategories?: boolean; // Optional: whether categories are shown
   scores?: Score[]; // Optional: team score tracking
   isActive: boolean; // Game running state
-  createdAt: number; // Timestamp
+  createdAt: Date | number; // Timestamp
   isPublic: boolean;
 }
 
 export interface CreateRoomData {
-  name: string; // Name of the game room (set by host)
-  hostId: string; // Firebase user ID of the creator
+  roomName: string; // Name of the game room (set by host)
+  hostName: string; // Host display name
   categories: Category[]; // Categories created by the host
   showCategories?: boolean; // Optional - defaults to true
   isActive?: boolean; // Optional - starts false
   isPublic: boolean;
+  createdAt: Date | number; // Timestamp
 }
 
 export const defaultRoomData = (
   overrides?: Partial<CreateRoomData>
 ): CreateRoomData => ({
-  name: "My Beat Room",
-  hostId: "Maazil",
+  roomName: "My Beat Room",
+  hostName: "Maazil",
   categories: [],
   showCategories: true,
   isActive: false,
   isPublic: false,
+  createdAt: Date.now(),
   ...overrides,
 });
 
 export const demoRoom = {
   id: "demo-room-001",
-  name: "First room",
+  roomName: "First room",
   hostId: "demo-host-123",
   hostName: "DJ Demo",
   categories: [
@@ -93,10 +95,8 @@ export const demoRoom = {
   isPublic: true,
 };
 
-export const drakeRoom = {
-  id: "marvins-room",
-  name: "Drakes catalogue",
-  hostId: "drizzy-drake",
+export const drakeRoom: CreateRoomData = {
+  roomName: "Drakes catalogue",
   hostName: "Drizzy drake",
   categories: [
     {

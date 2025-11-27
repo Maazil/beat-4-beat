@@ -67,7 +67,7 @@ const CreateRoom: Component = () => {
 
     const newRoom: RoomSnapshot = {
       id: `room-${Date.now()}`,
-      name,
+      roomName: name, // Cant have roomName due to signal being named same
       hostId: `host-${Date.now()}`,
       hostName: host,
       categories: categoriesWithItems,

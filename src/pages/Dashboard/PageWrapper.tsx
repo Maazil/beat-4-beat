@@ -1,3 +1,4 @@
+import { A } from "@solidjs/router";
 import {
   createSignal,
   onCleanup,
@@ -32,21 +33,24 @@ const PageWrapper: ParentComponent = (props) => {
         }}
       >
         <div class="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-6">
-          <a class="flex items-center gap-3" href="/dashboard">
+          <A class="flex items-center gap-3" href="/dashboard">
             <Logo class="h-8 w-auto" />
-          </a>
+          </A>
           <nav class="flex items-center gap-5 text-sm font-medium text-neutral-600">
-            <a
+            <A
               class="flex items-center gap-2 hover:text-neutral-900"
               href="/profile"
             >
-              <p>Hei {auth.userNameSplit()}</p>
+              <p>
+                Hei{" "}
+                {auth.userNameSplit() !== "" ? auth.userNameSplit() : "Gjest"}
+              </p>
               <img
-                src={auth.state.user?.photoURL || "/default-avatar.png"}
+                src={auth.state.user?.photoURL || "/images/guest.png"}
                 class="h-8 w-8 rounded-full"
-                alt="Solid logo"
+                alt="User image"
               />
-            </a>
+            </A>
           </nav>
         </div>
       </header>

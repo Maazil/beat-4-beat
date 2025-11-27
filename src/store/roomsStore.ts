@@ -1,5 +1,5 @@
 import { createStore } from "solid-js/store";
-import { demoRoom, drakeRoom, type Room } from "../model/room";
+import { demoRoom, type Room } from "../model/room";
 
 export type RoomSnapshot = Room & {
   status: "scheduled" | "live" | "completed";
@@ -8,12 +8,12 @@ export type RoomSnapshot = Room & {
 };
 
 export const [rooms, setRooms] = createStore<RoomSnapshot[]>([
-  {
-    ...drakeRoom,
-    status: "live",
-    startsAt: new Date(Date.now()).toISOString(),
-    participants: 30,
-  },
+  // {
+  //   ...drakeRoom,
+  //   status: "live",
+  //   startsAt: new Date(Date.now()).toISOString(),
+  //   participants: 30,
+  // },
   {
     ...demoRoom,
     status: "live",
@@ -21,7 +21,7 @@ export const [rooms, setRooms] = createStore<RoomSnapshot[]>([
   },
   {
     id: "1",
-    name: "Nord Pulse",
+    roomName: "Nord Pulse",
     hostId: "demo-host-001",
     hostName: "DJ Nord",
     categories: [
@@ -62,7 +62,7 @@ export const [rooms, setRooms] = createStore<RoomSnapshot[]>([
   },
   {
     id: "2",
-    name: "Fjell Takt",
+    roomName: "Fjell Takt",
     hostId: "demo-host-002",
     hostName: "DJ Fjell",
     categories: [
@@ -94,7 +94,7 @@ export const [rooms, setRooms] = createStore<RoomSnapshot[]>([
   },
   {
     id: "3",
-    name: "Fjord Echo",
+    roomName: "Fjord Echo",
     hostId: "demo-host-003",
     hostName: "DJ Fjord",
     categories: [

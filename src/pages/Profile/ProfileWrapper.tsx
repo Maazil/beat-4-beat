@@ -1,12 +1,12 @@
 import { ParentComponent } from "solid-js";
-import RequireFullUser from "../../components/RequireFullUser";
+import ProtectedRoute from "../../components/ProtectedRoute";
 import PageWrapper from "../dashboard/PageWrapper";
 
 const ProfileWrapper: ParentComponent = (props) => {
   return (
-    <RequireFullUser>
+    <ProtectedRoute requireFullUser={false}>
       <PageWrapper>{props.children}</PageWrapper>
-    </RequireFullUser>
+    </ProtectedRoute>
   );
 };
 
