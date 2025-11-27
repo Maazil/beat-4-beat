@@ -1,4 +1,5 @@
 /* @refresh reload */
+import { MetaProvider } from "@solidjs/meta";
 import { Router } from "@solidjs/router";
 import "solid-devtools";
 import { render } from "solid-js/web";
@@ -17,9 +18,11 @@ if (import.meta.env.DEV && !(root instanceof HTMLElement)) {
 
 render(
   () => (
-    <AuthProvider>
-      <Router>{routes}</Router>
-    </AuthProvider>
+    <MetaProvider>
+      <AuthProvider>
+        <Router>{routes}</Router>
+      </AuthProvider>
+    </MetaProvider>
   ),
   root!
 );
