@@ -1,14 +1,6 @@
 import { useParams } from "@solidjs/router";
-import {
-  Component,
-  createEffect,
-  createSignal,
-  For,
-  onCleanup,
-  Show,
-} from "solid-js";
-import type { Room } from "../../model/room";
-import { subscribeToRoom } from "../../services/roomsService";
+import { Component, createSignal, For, Show } from "solid-js";
+import { useRoom } from "../../hooks/useRoom";
 
 const categoryColors = [
   {
@@ -63,24 +55,10 @@ const categoryColors = [
 
 const Play: Component = () => {
   const params = useParams();
-  const [currentRoom, setCurrentRoom] = createSignal<Room | null>(null);
-  const [isLoading, setIsLoading] = createSignal(true);
+  const { room: currentRoom, isLoading } = useRoom(() => params.id);
   const [revealedItems, setRevealedItems] = createSignal<Set<string>>(
     new Set()
   );
-
-  // Subscribe to room data from Firestore
-  createEffect(() => {
-    const roomId = params.id;
-    if (!roomId) return;
-
-    const unsubscribe = subscribeToRoom(roomId, (room) => {
-      setCurrentRoom(room);
-      setIsLoading(false);
-    });
-
-    onCleanup(() => unsubscribe());
-  });
 
   const handleItemClick = (itemId: string, songUrl?: string) => {
     setRevealedItems((prev) => new Set(prev).add(itemId));
