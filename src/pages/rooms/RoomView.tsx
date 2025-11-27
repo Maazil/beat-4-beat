@@ -42,9 +42,9 @@ const RoomView: Component = () => {
           <div class="flex w-full flex-col">
             <button
               class="mb-6 inline-flex items-center gap-2 self-start text-sm font-medium text-neutral-600 hover:text-neutral-900"
-              onClick={() => navigate("/rooms")}
+              onClick={() => navigate("/dashboard")}
             >
-              ← Tilbake til alle rom
+              ← Tilbake til dashboard
             </button>
             <div class="mb-8 flex items-start justify-between">
               <div>
@@ -69,7 +69,7 @@ const RoomView: Component = () => {
                 </h2>
                 <dl class="space-y-3 text-sm">
                   <div>
-                    <dt class="font-medium text-neutral-700">Vertskap</dt>
+                    <dt class="font-medium text-neutral-700">Host</dt>
                     <dd class="mt-1 text-neutral-500">{room.hostName}</dd>
                   </div>
                   <div>
