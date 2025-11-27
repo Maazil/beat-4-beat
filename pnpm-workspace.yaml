@@ -1,0 +1,18 @@
+# pnpm workspace configuration
+# See: https://pnpm.io/pnpm-workspace_yaml
+
+# Packages in the workspace (none for single-package project)
+packages: []
+
+# Supply chain security settings
+# See: https://pnpm.io/supply-chain-security
+
+# Enforce minimum release age of 14 days (1440 minutes) to reduce risk of compromised packages
+minimumReleaseAge: 20160
+
+# Exclude well-known dev tools from minimum release age check
+minimumReleaseAgeExclude:
+  - typescript-eslint
+  - globals
+  - eslint
+  - "@typescript-eslint/*"
