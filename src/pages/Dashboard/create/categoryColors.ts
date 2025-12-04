@@ -9,21 +9,53 @@ export interface CategoryColorScheme {
   textDark: string;
 }
 
+// Store assigned hues to avoid duplicates
+const assignedHues: Map<string, number> = new Map();
+let nextHueIndex = 0;
+
+// Base hues evenly distributed around the color wheel (360 / 6 = 60° apart)
+// Starting positions chosen for visually distinct, appealing colors
+const baseHues = [210, 270, 150, 45, 330, 180]; // blue, purple, green, orange, pink, teal
+
 /**
- * Generate a unique hue (0-360) based on a category ID.
- * Uses a simple hash function to distribute colors across the spectrum.
+ * Get or assign a unique hue for a category.
+ * Each new category gets the next available hue from a predefined set,
+ * ensuring maximum visual distinction between categories.
  */
-function hashToHue(id: string): number {
-  let hash = 0;
-  for (let i = 0; i < id.length; i++) {
-    const char = id.charCodeAt(i);
-    hash = (hash << 5) - hash + char;
-    hash = hash & hash; // Convert to 32bit integer
+function getHueForCategory(categoryId: string): number {
+  // Return existing hue if already assigned
+  if (assignedHues.has(categoryId)) {
+    return assignedHues.get(categoryId)!;
   }
-  // Use golden ratio to spread hues evenly
-  const goldenRatio = 0.618033988749895;
-  const hue = ((Math.abs(hash) * goldenRatio) % 1) * 360;
-  return Math.round(hue);
+
+  // Assign next available hue
+  const hue = baseHues[nextHueIndex % baseHues.length];
+
+  // Add slight variation if we've cycled through all base hues
+  const cycle = Math.floor(nextHueIndex / baseHues.length);
+  const adjustedHue = (hue + cycle * 15) % 360; // Shift by 15° each cycle
+
+  assignedHues.set(categoryId, adjustedHue);
+  nextHueIndex++;
+
+  return adjustedHue;
+}
+
+/**
+ * Clear a category's assigned hue when it's deleted.
+ * This doesn't reassign hues - deleted category's hue stays "used"
+ * to maintain color stability for remaining categories.
+ */
+export function clearCategoryHue(categoryId: string): void {
+  assignedHues.delete(categoryId);
+}
+
+/**
+ * Reset all hue assignments (useful for testing or creating a new room).
+ */
+export function resetHueAssignments(): void {
+  assignedHues.clear();
+  nextHueIndex = 0;
 }
 
 /**
@@ -31,20 +63,26 @@ function hashToHue(id: string): number {
  * All colors share the same saturation and lightness for visual consistency.
  */
 export function generateColorScheme(categoryId: string): CategoryColorScheme {
-  const hue = hashToHue(categoryId);
+  const hue = getHueForCategory(categoryId);
+
+  // Orange/warm hues (20-50) need higher saturation and lightness to not look brown
+  const isWarmHue = hue >= 20 && hue <= 50;
+  const saturation = isWarmHue ? 85 : 65;
+  const lightness = isWarmHue ? 52 : 45;
+  const lightnessHover = isWarmHue ? 47 : 40;
 
   return {
     hue,
     // Title background: saturated, medium-dark
-    titleBg: `hsl(${hue}, 65%, 45%)`,
-    titleBgHover: `hsl(${hue}, 65%, 40%)`,
+    titleBg: `hsl(${hue}, ${saturation}%, ${lightness}%)`,
+    titleBgHover: `hsl(${hue}, ${saturation}%, ${lightnessHover}%)`,
     // Item background: very light tint
-    itemBg: `hsla(${hue}, 60%, 50%, 0.1)`,
-    itemBgHover: `hsla(${hue}, 60%, 50%, 0.2)`,
+    itemBg: `hsla(${hue}, ${saturation - 5}%, 50%, 0.1)`,
+    itemBgHover: `hsla(${hue}, ${saturation - 5}%, 50%, 0.2)`,
     // Border: light version
     border: `hsl(${hue}, 50%, 80%)`,
     // Text: dark version for readability
-    textDark: `hsl(${hue}, 60%, 35%)`,
+    textDark: `hsl(${hue}, ${saturation - 5}%, 35%)`,
   };
 }
 

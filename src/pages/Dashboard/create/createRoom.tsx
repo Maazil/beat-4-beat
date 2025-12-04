@@ -1,11 +1,15 @@
 import { useNavigate } from "@solidjs/router";
-import { Component, createSignal, For, Show } from "solid-js";
+import { Component, createSignal, For, onMount, Show } from "solid-js";
 import { useAuth } from "../../../context/AuthContext";
 import type { Category } from "../../../model/category";
 import type { SongItem } from "../../../model/songItem";
 import { createRoom as createRoomInFirestore } from "../../../services/roomsService";
 import AddCategoryButton from "./AddCategoryButton";
-import { generateColorScheme, MAX_CATEGORIES } from "./categoryColors";
+import {
+  generateColorScheme,
+  MAX_CATEGORIES,
+  resetHueAssignments,
+} from "./categoryColors";
 import CategoryColumn from "./CategoryColumn";
 
 const CreateRoom: Component = () => {
@@ -19,6 +23,11 @@ const CreateRoom: Component = () => {
   );
   const [editingItem, setEditingItem] = createSignal<string | null>(null);
   const [isSubmitting, setIsSubmitting] = createSignal(false);
+
+  // Reset hue assignments when component mounts (fresh room creation)
+  onMount(() => {
+    resetHueAssignments();
+  });
 
   // Check if we've reached the maximum categories
   const canAddCategory = () => categories().length < MAX_CATEGORIES;
