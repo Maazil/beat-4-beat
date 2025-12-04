@@ -104,63 +104,71 @@ const Play: Component = () => {
         </Show>
 
         <Show when={!isLoading() && currentRoom()}>
-          <div class="mb-8">
-            <h1 class="text-3xl font-bold text-neutral-900">
-              {currentRoom()?.roomName}
-            </h1>
-            <p class="mt-2 text-neutral-600">
-              Klikk på en rute for å velge sang
-            </p>
-          </div>
+          <div class="flex flex-col gap-8">
+            <div class="flex flex-col gap-4">
+              <div class="flex flex-col gap-2">
+                <h1 class="text-3xl font-bold text-neutral-900">
+                  {currentRoom()?.roomName}
+                </h1>
+                <h2 class="font-medium">
+                  Laget av{" "}
+                  <span class="rounded-full border bg-yellow-200 px-3 py-0.5 text-sm text-neutral-700">
+                    {currentRoom()?.hostName}
+                  </span>
+                </h2>
+              </div>
+              <p class="text-neutral-600">Klikk på en rute for å velge sang</p>
+            </div>
 
-          <div class="grid gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
-            <For each={currentRoom()?.categories}>
-              {(category, index) => {
-                const colorScheme =
-                  categoryColors[index() % categoryColors.length];
-                return (
-                  <div class="flex flex-col gap-4">
-                    <div
-                      class={`rounded-lg ${colorScheme.titleBg} border ${colorScheme.border} px-4 py-3 text-center ${colorScheme.shadow}`}
-                    >
-                      <h2
-                        class={`text-lg font-semibold ${colorScheme.titleText} tracking-tight`}
+            <div class="grid gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
+              <For each={currentRoom()?.categories}>
+                {(category, index) => {
+                  const colorScheme =
+                    categoryColors[index() % categoryColors.length];
+                  return (
+                    <div class="flex flex-col gap-4">
+                      <div
+                        class={`rounded-lg ${colorScheme.titleBg} border ${colorScheme.border} px-4 py-3 text-center ${colorScheme.shadow}`}
                       >
-                        {category.name}
-                      </h2>
-                    </div>
+                        <h2
+                          class={`text-lg font-semibold ${colorScheme.titleText} tracking-tight`}
+                        >
+                          {category.name}
+                        </h2>
+                      </div>
 
-                    <div class="flex flex-col gap-3">
-                      <For each={category.items}>
-                        {(item) => (
-                          <button
-                            type="button"
-                            class={`group flex h-16 w-full cursor-pointer items-center justify-center rounded-lg border-2 transition hover:scale-105 hover:shadow-lg active:scale-95 sm:h-20 ${
-                              revealedItems().has(item.id)
-                                ? "border-dashed border-neutral-300 bg-neutral-100/50"
-                                : `${colorScheme.border} ${colorScheme.itemBg}`
-                            }`}
-                            onClick={() =>
-                              handleItemClick(item.id, item.songUrl)
-                            }
-                          >
-                            <span
-                              class={`text-2xl font-bold ${
+                      <div class="flex flex-col gap-3">
+                        <For each={category.items}>
+                          {(item) => (
+                            <button
+                              type="button"
+                              class={`group flex h-16 w-full cursor-pointer items-center justify-center rounded-lg border-2 transition hover:scale-105 hover:shadow-lg active:scale-95 sm:h-20 ${
                                 revealedItems().has(item.id)
-                                  ? "text-neutral-400"
-                                  : colorScheme.itemText
-                              } transition group-hover:scale-110`}
+                                  ? "border-dashed border-neutral-300 bg-neutral-100/50"
+                                  : `${colorScheme.border} ${colorScheme.itemBg}`
+                              }`}
+                              onClick={() =>
+                                handleItemClick(item.id, item.songUrl)
+                              }
                             >
-                              {item.level}
-                            </span>
-                          </button>
-                        )}
-                      </For>
+                              <span
+                                class={`text-2xl font-bold ${
+                                  revealedItems().has(item.id)
+                                    ? "text-neutral-400"
+                                    : colorScheme.itemText
+                                } transition group-hover:scale-110`}
+                              >
+                                {item.level}
+                              </span>
+                            </button>
+                          )}
+                        </For>
+                      </div>
                     </div>
-                  </div>
-                );
-              }}
-            </For>
+                  );
+                }}
+              </For>
+            </div>
           </div>
         </Show>
       </div>
