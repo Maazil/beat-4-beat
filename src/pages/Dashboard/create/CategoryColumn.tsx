@@ -1,4 +1,4 @@
-import { Component, createEffect, createSignal, For } from "solid-js";
+import { Component, createEffect, createSignal, For, Show } from "solid-js";
 import Input from "../../../components/forms/Input";
 import type { Category } from "../../../model/category";
 import AddItemButton from "./AddItemButton";
@@ -10,6 +10,7 @@ interface CategoryColumnProps {
   colorScheme: CategoryColorScheme;
   isEditingName: boolean;
   editingItemId: string | null;
+  maxItems?: number; // Max items allowed (5 for create, 10 for db)
   onEditName: () => void;
   onUpdateName: (name: string) => void;
   onBlurName: () => void;
@@ -112,11 +113,13 @@ const CategoryColumn: Component<CategoryColumnProps> = (props) => {
           )}
         </For>
 
-        {/* Add item button */}
-        <AddItemButton
-          colorScheme={props.colorScheme}
-          onClick={() => props.onAddItem()}
-        />
+        {/* Add item button - only show if under limit */}
+        <Show when={props.category.items.length < (props.maxItems ?? 5)}>
+          <AddItemButton
+            colorScheme={props.colorScheme}
+            onClick={() => props.onAddItem()}
+          />
+        </Show>
       </div>
     </div>
   );

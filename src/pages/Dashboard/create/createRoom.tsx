@@ -8,6 +8,7 @@ import AddCategoryButton from "./AddCategoryButton";
 import {
   generateColorScheme,
   MAX_CATEGORIES,
+  MAX_ITEMS_CREATE,
   resetHueAssignments,
 } from "./categoryColors";
 import CategoryColumn from "./CategoryColumn";
@@ -263,6 +264,7 @@ const CreateRoom: Component = () => {
                 <CategoryColumn
                   category={category}
                   colorScheme={colorScheme}
+                  maxItems={MAX_ITEMS_CREATE}
                   isEditingName={editingCategory() === category.id}
                   editingItemId={editingItem()}
                   onEditName={() => setEditingCategory(category.id)}

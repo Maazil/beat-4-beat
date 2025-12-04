@@ -87,3 +87,5 @@ export function generateColorScheme(categoryId: string): CategoryColorScheme {
 }
 
 export const MAX_CATEGORIES = 6;
+export const MAX_ITEMS_CREATE = 5;
+export const MAX_ITEMS_DB = 10;

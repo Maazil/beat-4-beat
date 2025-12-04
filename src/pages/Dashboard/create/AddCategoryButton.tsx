@@ -11,7 +11,7 @@ const AddCategoryButton: Component<AddCategoryButtonProps> = (props) => {
       type="button"
       onClick={() => props.onClick()}
       disabled={props.disabled}
-      class="flex h-48 w-40 shrink-0 flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-neutral-300 bg-neutral-100/50 text-neutral-500 transition hover:border-neutral-400 hover:bg-neutral-100 hover:text-neutral-700 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-neutral-300 disabled:hover:bg-neutral-100/50 disabled:hover:text-neutral-500"
+      class="flex h-24 w-40 shrink-0 flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-neutral-300 bg-neutral-100/50 text-neutral-500 transition hover:border-neutral-400 hover:bg-neutral-100 hover:text-neutral-700 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-neutral-300 disabled:hover:bg-neutral-100/50 disabled:hover:text-neutral-500 md:h-38 md:w-56"
     >
       <svg
         class="h-10 w-10"
