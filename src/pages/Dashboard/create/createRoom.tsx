@@ -252,8 +252,8 @@ const CreateRoom: Component = () => {
           </p>
         </div>
 
-        {/* Game board style grid */}
-        <div class="flex gap-8 overflow-x-auto pt-4 pb-4">
+        {/* Game board style grid - wraps to next row if needed */}
+        <div class="flex flex-wrap gap-6 pt-4 pb-4">
           {/* Existing categories */}
           <For each={categories()}>
             {(category) => {

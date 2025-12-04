@@ -1,4 +1,5 @@
-import { Component, For, Show } from "solid-js";
+import { Component, createEffect, createSignal, For } from "solid-js";
+import Input from "../../../components/forms/Input";
 import type { Category } from "../../../model/category";
 import AddItemButton from "./AddItemButton";
 import type { CategoryColorScheme } from "./categoryColors";
@@ -21,37 +22,57 @@ interface CategoryColumnProps {
 }
 
 const CategoryColumn: Component<CategoryColumnProps> = (props) => {
+  // Local state for editing to avoid re-renders on every keystroke
+  const [localName, setLocalName] = createSignal(props.category.name);
+
+  // Sync local state when category name changes externally
+  createEffect(() => {
+    setLocalName(props.category.name);
+  });
+
+  const handleBlur = () => {
+    props.onUpdateName(localName());
+    props.onBlurName();
+  };
+
+  // Calculate dynamic width based on text length (min 8rem, max 14rem)
+  const dynamicWidth = () => {
+    const textLength = localName().length;
+    const minRem = 8;
+    const maxRem = 14;
+    // Roughly 0.6rem per character for the font size used
+    const calculatedRem = Math.max(minRem, textLength * 0.65 + 2);
+    return `${Math.min(calculatedRem, maxRem)}rem`;
+  };
+
   return (
-    <div class="flex w-40 shrink-0 flex-col gap-4">
-      {/* Category header */}
+    <div
+      class="flex shrink-0 grow-0 flex-col gap-4"
+      style={{
+        width: dynamicWidth(),
+        "min-width": "8rem",
+        "max-width": "14rem",
+      }}
+    >
+      {/* Category header - always show input in edit mode */}
       <div
-        class="group relative rounded-lg border px-4 py-3 text-center shadow-sm"
+        class="group relative min-h-13 rounded-lg border px-4 py-3 text-center shadow-sm"
         style={{
           background: `linear-gradient(to right, ${props.colorScheme.titleBg}, ${props.colorScheme.titleBgHover})`,
           "border-color": props.colorScheme.border,
         }}
       >
-        <Show
-          when={props.isEditingName}
-          fallback={
-            <h2
-              class="cursor-pointer text-lg font-semibold tracking-tight text-white"
-              onClick={props.onEditName}
-            >
-              {props.category.name}
-            </h2>
-          }
-        >
-          <input
-            type="text"
-            value={props.category.name}
-            onInput={(e) => props.onUpdateName(e.currentTarget.value)}
-            onBlur={() => props.onBlurName()}
-            onKeyPress={(e) => e.key === "Enter" && props.onBlurName()}
-            class="w-full bg-transparent text-center text-lg font-semibold text-white outline-none"
-            autofocus
-          />
-        </Show>
+        <Input
+          type="text"
+          variant="ghost"
+          value={localName()}
+          placeholder="Kategori navn"
+          maxLength={22}
+          onInput={(e) => setLocalName(e.currentTarget.value)}
+          onBlur={handleBlur}
+          onKeyPress={(e) => e.key === "Enter" && e.currentTarget.blur()}
+          class="text-center text-lg font-semibold tracking-tight text-white caret-white"
+        />
 
         {/* Delete category button */}
         <button
