@@ -4,57 +4,9 @@ import { useAuth } from "../../../context/AuthContext";
 import type { Category } from "../../../model/category";
 import type { SongItem } from "../../../model/songItem";
 import { createRoom as createRoomInFirestore } from "../../../services/roomsService";
-
-const categoryColors = [
-  {
-    titleBg: "bg-gradient-to-r from-blue-600 to-blue-700",
-    itemBg: "bg-blue-500/10",
-    border: "border-blue-200",
-    titleText: "text-white",
-    itemText: "text-blue-700",
-    hoverBg: "hover:bg-blue-500/20",
-  },
-  {
-    titleBg: "bg-gradient-to-r from-purple-600 to-purple-700",
-    itemBg: "bg-purple-500/10",
-    border: "border-purple-200",
-    titleText: "text-white",
-    itemText: "text-purple-700",
-    hoverBg: "hover:bg-purple-500/20",
-  },
-  {
-    titleBg: "bg-gradient-to-r from-green-600 to-green-700",
-    itemBg: "bg-green-500/10",
-    border: "border-green-200",
-    titleText: "text-white",
-    itemText: "text-green-700",
-    hoverBg: "hover:bg-green-500/20",
-  },
-  {
-    titleBg: "bg-gradient-to-r from-orange-600 to-orange-700",
-    itemBg: "bg-orange-500/10",
-    border: "border-orange-200",
-    titleText: "text-white",
-    itemText: "text-orange-700",
-    hoverBg: "hover:bg-orange-500/20",
-  },
-  {
-    titleBg: "bg-gradient-to-r from-pink-600 to-pink-700",
-    itemBg: "bg-pink-500/10",
-    border: "border-pink-200",
-    titleText: "text-white",
-    itemText: "text-pink-700",
-    hoverBg: "hover:bg-pink-500/20",
-  },
-  {
-    titleBg: "bg-gradient-to-r from-teal-600 to-teal-700",
-    itemBg: "bg-teal-500/10",
-    border: "border-teal-200",
-    titleText: "text-white",
-    itemText: "text-teal-700",
-    hoverBg: "hover:bg-teal-500/20",
-  },
-];
+import AddCategoryButton from "./AddCategoryButton";
+import { generateColorScheme, MAX_CATEGORIES } from "./categoryColors";
+import CategoryColumn from "./CategoryColumn";
 
 const CreateRoom: Component = () => {
   const navigate = useNavigate();
@@ -68,8 +20,13 @@ const CreateRoom: Component = () => {
   const [editingItem, setEditingItem] = createSignal<string | null>(null);
   const [isSubmitting, setIsSubmitting] = createSignal(false);
 
+  // Check if we've reached the maximum categories
+  const canAddCategory = () => categories().length < MAX_CATEGORIES;
+
   // Add a new category
   const addCategory = () => {
+    if (!canAddCategory()) return;
+
     const newCategory: Category = {
       id: `cat-${Date.now()}`,
       name: "Ny kategori",
@@ -210,7 +167,7 @@ const CreateRoom: Component = () => {
           </button>
 
           <div class="flex items-center gap-3">
-            {/* Public toggle */}
+            {/* Public toggle with lock icons */}
             <button
               type="button"
               onClick={() => setIsPublic(!isPublic())}
@@ -220,10 +177,39 @@ const CreateRoom: Component = () => {
                   : "bg-neutral-200 text-neutral-600"
               }`}
             >
-              <span
-                class={`h-2 w-2 rounded-full ${isPublic() ? "bg-green-500" : "bg-neutral-400"}`}
-              />
-              {isPublic() ? "Offentlig" : "Privat"}
+              <Show
+                when={isPublic()}
+                fallback={
+                  <svg
+                    class="h-4 w-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                    />
+                  </svg>
+                }
+              >
+                <svg
+                  class="h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"
+                  />
+                </svg>
+              </Show>
+              {isPublic() ? "Offentlig rom" : "Privat rom"}
             </button>
 
             {/* Create button */}
@@ -249,6 +235,11 @@ const CreateRoom: Component = () => {
           />
           <p class="mt-2 text-neutral-500">
             Klikk på + for å legge til kategorier og sanger
+            <Show when={categories().length > 0}>
+              <span class="ml-2 text-neutral-400">
+                ({categories().length}/{MAX_CATEGORIES} kategorier)
+              </span>
+            </Show>
           </p>
         </div>
 
@@ -256,192 +247,38 @@ const CreateRoom: Component = () => {
         <div class="flex gap-8 overflow-x-auto pt-4 pb-4">
           {/* Existing categories */}
           <For each={categories()}>
-            {(category, index) => {
-              const colorScheme =
-                categoryColors[index() % categoryColors.length];
+            {(category) => {
+              // Generate color based on category ID for consistent, unique colors
+              const colorScheme = generateColorScheme(category.id);
               return (
-                <div class="flex w-40 shrink-0 flex-col gap-4">
-                  {/* Category header */}
-                  <div
-                    class={`group relative rounded-lg ${colorScheme.titleBg} border ${colorScheme.border} px-4 py-3 text-center shadow-sm`}
-                  >
-                    <Show
-                      when={editingCategory() === category.id}
-                      fallback={
-                        <h2
-                          class={`cursor-pointer text-lg font-semibold ${colorScheme.titleText} tracking-tight`}
-                          onClick={() => setEditingCategory(category.id)}
-                        >
-                          {category.name}
-                        </h2>
-                      }
-                    >
-                      <input
-                        type="text"
-                        value={category.name}
-                        onInput={(e) =>
-                          updateCategoryName(category.id, e.currentTarget.value)
-                        }
-                        onBlur={() => setEditingCategory(null)}
-                        onKeyPress={(e) =>
-                          e.key === "Enter" && setEditingCategory(null)
-                        }
-                        class="w-full bg-transparent text-center text-lg font-semibold text-white outline-none"
-                        autofocus
-                      />
-                    </Show>
-
-                    {/* Delete category button */}
-                    <button
-                      type="button"
-                      onClick={() => removeCategory(category.id)}
-                      class="absolute -top-2 -right-2 hidden h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white shadow-md transition group-hover:flex hover:bg-red-600"
-                    >
-                      <svg
-                        class="h-4 w-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M6 18L18 6M6 6l12 12"
-                        />
-                      </svg>
-                    </button>
-                  </div>
-
-                  {/* Items */}
-                  <div class="flex flex-col gap-3">
-                    <For each={category.items}>
-                      {(item) => (
-                        <div
-                          class={`group relative flex h-16 w-full items-center justify-center rounded-lg border-2 ${colorScheme.border} ${colorScheme.itemBg} sm:h-20`}
-                        >
-                          <Show
-                            when={editingItem() === item.id}
-                            fallback={
-                              <button
-                                type="button"
-                                class="flex h-full w-full items-center justify-center"
-                                onClick={() => setEditingItem(item.id)}
-                              >
-                                <span
-                                  class={`text-2xl font-bold ${colorScheme.itemText}`}
-                                >
-                                  {item.level}
-                                </span>
-                              </button>
-                            }
-                          >
-                            <input
-                              type="text"
-                              value={item.songUrl || ""}
-                              onInput={(e) =>
-                                updateItemUrl(
-                                  category.id,
-                                  item.id,
-                                  e.currentTarget.value
-                                )
-                              }
-                              onBlur={() => setEditingItem(null)}
-                              onKeyPress={(e) =>
-                                e.key === "Enter" && setEditingItem(null)
-                              }
-                              placeholder="Lim inn URL..."
-                              class="w-full bg-transparent px-2 text-center text-sm outline-none"
-                              autofocus
-                            />
-                          </Show>
-
-                          {/* Song URL indicator */}
-                          <Show
-                            when={item.songUrl && editingItem() !== item.id}
-                          >
-                            <div class="absolute right-1 bottom-1">
-                              <svg
-                                class="h-4 w-4 text-green-500"
-                                fill="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
-                              </svg>
-                            </div>
-                          </Show>
-
-                          {/* Delete item button */}
-                          <button
-                            type="button"
-                            onClick={() => removeItem(category.id, item.id)}
-                            class="absolute -top-2 -right-2 hidden h-5 w-5 items-center justify-center rounded-full bg-red-500 text-white shadow-md transition group-hover:flex hover:bg-red-600"
-                          >
-                            <svg
-                              class="h-3 w-3"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M6 18L18 6M6 6l12 12"
-                              />
-                            </svg>
-                          </button>
-                        </div>
-                      )}
-                    </For>
-
-                    {/* Add item button */}
-                    <button
-                      type="button"
-                      onClick={() => addItem(category.id)}
-                      class={`flex h-16 w-full items-center justify-center rounded-lg border-2 border-dashed ${colorScheme.border} ${colorScheme.hoverBg} transition sm:h-20`}
-                    >
-                      <svg
-                        class={`h-8 w-8 ${colorScheme.itemText} opacity-50`}
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M12 4v16m8-8H4"
-                        />
-                      </svg>
-                    </button>
-                  </div>
-                </div>
+                <CategoryColumn
+                  category={category}
+                  colorScheme={colorScheme}
+                  isEditingName={editingCategory() === category.id}
+                  editingItemId={editingItem()}
+                  onEditName={() => setEditingCategory(category.id)}
+                  onUpdateName={(name) => updateCategoryName(category.id, name)}
+                  onBlurName={() => setEditingCategory(null)}
+                  onRemove={() => removeCategory(category.id)}
+                  onAddItem={() => addItem(category.id)}
+                  onEditItem={(itemId) => setEditingItem(itemId)}
+                  onUpdateItem={(itemId, songUrl) =>
+                    updateItemUrl(category.id, itemId, songUrl)
+                  }
+                  onBlurItem={() => setEditingItem(null)}
+                  onRemoveItem={(itemId) => removeItem(category.id, itemId)}
+                />
               );
             }}
           </For>
 
-          {/* Add category button */}
-          <button
-            type="button"
-            onClick={addCategory}
-            class="flex h-48 w-40 flex-shrink-0 flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-neutral-300 bg-neutral-100/50 text-neutral-500 transition hover:border-neutral-400 hover:bg-neutral-100 hover:text-neutral-700"
-          >
-            <svg
-              class="h-10 w-10"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M12 4v16m8-8H4"
-              />
-            </svg>
-            <span class="text-sm font-medium">Legg til kategori</span>
-          </button>
+          {/* Add category button, only show if user can add more categories */}
+          {canAddCategory() && (
+            <AddCategoryButton
+              onClick={addCategory}
+              disabled={!canAddCategory()}
+            />
+          )}
         </div>
 
         {/* Help text */}
