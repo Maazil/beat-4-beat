@@ -1,260 +1,457 @@
 import { useNavigate } from "@solidjs/router";
-import { Component, createSignal, For } from "solid-js";
+import { Component, createSignal, For, Show } from "solid-js";
+import { useAuth } from "../../../context/AuthContext";
 import type { Category } from "../../../model/category";
-import { addRoom, type RoomSnapshot } from "../../../store/roomsStore";
+import type { SongItem } from "../../../model/songItem";
+import { createRoom as createRoomInFirestore } from "../../../services/roomsService";
+
+const categoryColors = [
+  {
+    titleBg: "bg-gradient-to-r from-blue-600 to-blue-700",
+    itemBg: "bg-blue-500/10",
+    border: "border-blue-200",
+    titleText: "text-white",
+    itemText: "text-blue-700",
+    hoverBg: "hover:bg-blue-500/20",
+  },
+  {
+    titleBg: "bg-gradient-to-r from-purple-600 to-purple-700",
+    itemBg: "bg-purple-500/10",
+    border: "border-purple-200",
+    titleText: "text-white",
+    itemText: "text-purple-700",
+    hoverBg: "hover:bg-purple-500/20",
+  },
+  {
+    titleBg: "bg-gradient-to-r from-green-600 to-green-700",
+    itemBg: "bg-green-500/10",
+    border: "border-green-200",
+    titleText: "text-white",
+    itemText: "text-green-700",
+    hoverBg: "hover:bg-green-500/20",
+  },
+  {
+    titleBg: "bg-gradient-to-r from-orange-600 to-orange-700",
+    itemBg: "bg-orange-500/10",
+    border: "border-orange-200",
+    titleText: "text-white",
+    itemText: "text-orange-700",
+    hoverBg: "hover:bg-orange-500/20",
+  },
+  {
+    titleBg: "bg-gradient-to-r from-pink-600 to-pink-700",
+    itemBg: "bg-pink-500/10",
+    border: "border-pink-200",
+    titleText: "text-white",
+    itemText: "text-pink-700",
+    hoverBg: "hover:bg-pink-500/20",
+  },
+  {
+    titleBg: "bg-gradient-to-r from-teal-600 to-teal-700",
+    itemBg: "bg-teal-500/10",
+    border: "border-teal-200",
+    titleText: "text-white",
+    itemText: "text-teal-700",
+    hoverBg: "hover:bg-teal-500/20",
+  },
+];
 
 const CreateRoom: Component = () => {
   const navigate = useNavigate();
+  const auth = useAuth();
   const [roomName, setRoomName] = createSignal("");
-  const [hostName, setHostName] = createSignal("");
   const [isPublic, setIsPublic] = createSignal(false);
   const [categories, setCategories] = createSignal<Category[]>([]);
-  const [newCategoryName, setNewCategoryName] = createSignal("");
-  const [itemCounts, setItemCounts] = createSignal<Record<string, number>>({});
+  const [editingCategory, setEditingCategory] = createSignal<string | null>(
+    null
+  );
+  const [editingItem, setEditingItem] = createSignal<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = createSignal(false);
 
+  // Add a new category
   const addCategory = () => {
-    const categoryName = newCategoryName().trim();
-    if (!categoryName) return;
-
     const newCategory: Category = {
       id: `cat-${Date.now()}`,
-      name: categoryName,
+      name: "Ny kategori",
       items: [],
     };
-
     setCategories([...categories(), newCategory]);
-    setItemCounts({ ...itemCounts(), [newCategory.id]: 3 });
-    setNewCategoryName("");
+    setEditingCategory(newCategory.id);
   };
 
+  // Update category name
+  const updateCategoryName = (categoryId: string, name: string) => {
+    setCategories(
+      categories().map((c) => (c.id === categoryId ? { ...c, name } : c))
+    );
+  };
+
+  // Remove a category
   const removeCategory = (categoryId: string) => {
     setCategories(categories().filter((c) => c.id !== categoryId));
-    const newCounts = { ...itemCounts() };
-    delete newCounts[categoryId];
-    setItemCounts(newCounts);
   };
 
-  const updateItemCount = (categoryId: string, count: number) => {
-    setItemCounts({
-      ...itemCounts(),
-      [categoryId]: Math.max(1, Math.min(10, count)),
-    });
+  // Add item to a category
+  const addItem = (categoryId: string) => {
+    setCategories(
+      categories().map((c) => {
+        if (c.id !== categoryId) return c;
+        const newItem: SongItem = {
+          id: `item-${Date.now()}`,
+          level: c.items.length + 1,
+          isRevealed: false,
+          songUrl: "",
+        };
+        return { ...c, items: [...c.items, newItem] };
+      })
+    );
   };
 
-  const createRoom = () => {
+  // Update item song URL
+  const updateItemUrl = (
+    categoryId: string,
+    itemId: string,
+    songUrl: string
+  ) => {
+    setCategories(
+      categories().map((c) => {
+        if (c.id !== categoryId) return c;
+        return {
+          ...c,
+          items: c.items.map((item) =>
+            item.id === itemId ? { ...item, songUrl } : item
+          ),
+        };
+      })
+    );
+  };
+
+  // Remove item from category
+  const removeItem = (categoryId: string, itemId: string) => {
+    setCategories(
+      categories().map((c) => {
+        if (c.id !== categoryId) return c;
+        const filteredItems = c.items.filter((item) => item.id !== itemId);
+        // Re-number levels
+        return {
+          ...c,
+          items: filteredItems.map((item, index) => ({
+            ...item,
+            level: index + 1,
+          })),
+        };
+      })
+    );
+  };
+
+  // Submit the room
+  const handleCreateRoom = async () => {
     const name = roomName().trim();
-    const host = hostName().trim();
 
-    if (!name || !host || categories().length === 0) {
-      alert("Vennligst fyll ut alle felter og legg til minst én kategori");
+    if (!name) {
+      alert("Vennligst skriv inn et romnavn");
       return;
     }
 
-    const categoriesWithItems = categories().map((category) => {
-      const count = itemCounts()[category.id] || 3;
-      const items = Array.from({ length: count }, (_, i) => ({
-        id: `item-${category.id}-${i + 1}`,
-        level: i + 1,
-        isRevealed: false,
-        songUrl: undefined,
-      }));
+    if (categories().length === 0) {
+      alert("Legg til minst én kategori");
+      return;
+    }
 
-      return {
-        ...category,
-        items,
-      };
-    });
+    const hasEmptyCategories = categories().some((c) => c.items.length === 0);
+    if (hasEmptyCategories) {
+      alert("Alle kategorier må ha minst én sang");
+      return;
+    }
 
-    const newRoom: RoomSnapshot = {
-      id: `room-${Date.now()}`,
-      roomName: name, // Cant have roomName due to signal being named same
-      hostId: `host-${Date.now()}`,
-      hostName: host,
-      categories: categoriesWithItems,
-      isActive: true,
-      isPublic: isPublic(),
-      createdAt: Date.now(),
-      status: "scheduled",
-      participants: 0,
-    };
+    setIsSubmitting(true);
 
-    addRoom(newRoom);
-    navigate("/");
+    try {
+      await createRoomInFirestore({
+        roomName: name,
+        hostName: auth.state.user?.displayName || "Anonym",
+        categories: categories(),
+        isPublic: isPublic(),
+        createdAt: Date.now(),
+      });
+      navigate("/dashboard");
+    } catch (error) {
+      console.error("Failed to create room:", error);
+      alert("Kunne ikke opprette rom. Prøv igjen.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <div class="mx-auto w-full max-w-4xl px-6 py-12">
-      <button
-        type="button"
-        onClick={() => navigate("/dashboard")}
-        class="mb-6 flex items-center gap-2 text-neutral-600 transition hover:text-neutral-900"
-      >
-        <svg
-          class="h-5 w-5"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M10 19l-7-7m0 0l7-7m-7 7h18"
-          />
-        </svg>
-        <span class="font-medium">Tilbake</span>
-      </button>
+    <div class="min-h-screen bg-[#f4f6f8] p-6">
+      <div class="mx-auto max-w-7xl">
+        {/* Header */}
+        <div class="mb-6 flex items-center justify-between">
+          <button
+            type="button"
+            onClick={() => navigate("/dashboard")}
+            class="flex items-center gap-2 text-neutral-600 transition hover:text-neutral-900"
+          >
+            <svg
+              class="h-5 w-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M10 19l-7-7m0 0l7-7m-7 7h18"
+              />
+            </svg>
+            <span class="font-medium">Tilbake</span>
+          </button>
 
-      <h1 class="mb-8 text-3xl font-bold text-neutral-900">Opprett nytt rom</h1>
-
-      <div class="space-y-6">
-        {/* Room Name */}
-        <div>
-          <label class="mb-2 block text-sm font-medium text-neutral-700">
-            Romnavn
-          </label>
-          <input
-            type="text"
-            value={roomName()}
-            onInput={(e) => setRoomName(e.currentTarget.value)}
-            placeholder="F.eks. Fredagskveld Beat Battle"
-            class="w-full rounded-lg border border-neutral-300 px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
-          />
-        </div>
-
-        {/* Host Name */}
-        <div>
-          <label class="mb-2 block text-sm font-medium text-neutral-700">
-            Vertsnavn
-          </label>
-          <input
-            type="text"
-            value={hostName()}
-            onInput={(e) => setHostName(e.currentTarget.value)}
-            placeholder="F.eks. DJ Ola"
-            class="w-full rounded-lg border border-neutral-300 px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
-          />
-        </div>
-
-        {/* Categories */}
-        <div>
-          <label class="mb-2 block text-sm font-medium text-neutral-700">
-            Kategorier
-          </label>
-
-          <div class="mb-4 space-y-3">
-            <For each={categories()}>
-              {(category) => (
-                <div class="flex items-center gap-3 rounded-lg border border-neutral-200 bg-neutral-50 p-4">
-                  <div class="flex-1">
-                    <span class="font-medium text-neutral-900">
-                      {category.name}
-                    </span>
-                  </div>
-                  <div class="flex items-center gap-2">
-                    <label class="text-sm text-neutral-600">
-                      Antall sanger:
-                    </label>
-                    <input
-                      type="number"
-                      min="1"
-                      max="10"
-                      value={itemCounts()[category.id] || 3}
-                      onInput={(e) =>
-                        updateItemCount(
-                          category.id,
-                          parseInt(e.currentTarget.value) || 3
-                        )
-                      }
-                      class="w-16 rounded border border-neutral-300 px-2 py-1 text-center"
-                    />
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => removeCategory(category.id)}
-                    class="text-red-600 hover:text-red-700"
-                  >
-                    <svg
-                      class="h-5 w-5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M6 18L18 6M6 6l12 12"
-                      />
-                    </svg>
-                  </button>
-                </div>
-              )}
-            </For>
-          </div>
-
-          <div class="flex gap-2">
-            <input
-              type="text"
-              value={newCategoryName()}
-              onInput={(e) => setNewCategoryName(e.currentTarget.value)}
-              onKeyPress={(e) => e.key === "Enter" && addCategory()}
-              placeholder="F.eks. Pop Hits"
-              class="flex-1 rounded-lg border border-neutral-300 px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
-            />
+          <div class="flex items-center gap-3">
+            {/* Public toggle */}
             <button
               type="button"
-              onClick={addCategory}
-              class="rounded-lg bg-blue-600 px-6 py-2 font-medium text-white transition hover:bg-blue-700"
+              onClick={() => setIsPublic(!isPublic())}
+              class={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition ${
+                isPublic()
+                  ? "bg-green-100 text-green-700"
+                  : "bg-neutral-200 text-neutral-600"
+              }`}
             >
-              Legg til
+              <span
+                class={`h-2 w-2 rounded-full ${isPublic() ? "bg-green-500" : "bg-neutral-400"}`}
+              />
+              {isPublic() ? "Offentlig" : "Privat"}
+            </button>
+
+            {/* Create button */}
+            <button
+              type="button"
+              onClick={handleCreateRoom}
+              disabled={isSubmitting()}
+              class="rounded-lg bg-neutral-900 px-6 py-2 font-semibold text-white transition hover:bg-neutral-700 disabled:opacity-50"
+            >
+              {isSubmitting() ? "Oppretter..." : "Opprett rom"}
             </button>
           </div>
         </div>
 
-        <div class="flex max-w-sm items-center justify-between rounded-lg border border-neutral-200 bg-neutral-50 p-4">
-          <div class="flex flex-col gap-2">
-            <label
-              class={`mb-1 block w-fit rounded-2xl border px-3 py-0.5 text-sm font-medium text-neutral-900/90 ${isPublic() ? "border-green-400/80 bg-green-400/10" : "border-red-400/50 bg-red-400/10"}`}
-            >
-              {isPublic() ? "Offentlig" : "Privat"}
-            </label>
-            <p class="text-sm text-neutral-600">
-              Gjør rommet synlig for alle brukere på plattformen.
-            </p>
-          </div>
+        {/* Room name input */}
+        <div class="mb-8">
+          <input
+            type="text"
+            value={roomName()}
+            onInput={(e) => setRoomName(e.currentTarget.value)}
+            placeholder="Skriv inn romnavn..."
+            class="w-full max-w-md border-b-2 border-neutral-300 bg-transparent pb-2 text-3xl font-bold text-neutral-900 placeholder-neutral-400 outline-none focus:border-blue-500"
+          />
+          <p class="mt-2 text-neutral-500">
+            Klikk på + for å legge til kategorier og sanger
+          </p>
+        </div>
+
+        {/* Game board style grid */}
+        <div class="flex gap-8 overflow-x-auto pt-4 pb-4">
+          {/* Existing categories */}
+          <For each={categories()}>
+            {(category, index) => {
+              const colorScheme =
+                categoryColors[index() % categoryColors.length];
+              return (
+                <div class="flex w-40 shrink-0 flex-col gap-4">
+                  {/* Category header */}
+                  <div
+                    class={`group relative rounded-lg ${colorScheme.titleBg} border ${colorScheme.border} px-4 py-3 text-center shadow-sm`}
+                  >
+                    <Show
+                      when={editingCategory() === category.id}
+                      fallback={
+                        <h2
+                          class={`cursor-pointer text-lg font-semibold ${colorScheme.titleText} tracking-tight`}
+                          onClick={() => setEditingCategory(category.id)}
+                        >
+                          {category.name}
+                        </h2>
+                      }
+                    >
+                      <input
+                        type="text"
+                        value={category.name}
+                        onInput={(e) =>
+                          updateCategoryName(category.id, e.currentTarget.value)
+                        }
+                        onBlur={() => setEditingCategory(null)}
+                        onKeyPress={(e) =>
+                          e.key === "Enter" && setEditingCategory(null)
+                        }
+                        class="w-full bg-transparent text-center text-lg font-semibold text-white outline-none"
+                        autofocus
+                      />
+                    </Show>
+
+                    {/* Delete category button */}
+                    <button
+                      type="button"
+                      onClick={() => removeCategory(category.id)}
+                      class="absolute -top-2 -right-2 hidden h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white shadow-md transition group-hover:flex hover:bg-red-600"
+                    >
+                      <svg
+                        class="h-4 w-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M6 18L18 6M6 6l12 12"
+                        />
+                      </svg>
+                    </button>
+                  </div>
+
+                  {/* Items */}
+                  <div class="flex flex-col gap-3">
+                    <For each={category.items}>
+                      {(item) => (
+                        <div
+                          class={`group relative flex h-16 w-full items-center justify-center rounded-lg border-2 ${colorScheme.border} ${colorScheme.itemBg} sm:h-20`}
+                        >
+                          <Show
+                            when={editingItem() === item.id}
+                            fallback={
+                              <button
+                                type="button"
+                                class="flex h-full w-full items-center justify-center"
+                                onClick={() => setEditingItem(item.id)}
+                              >
+                                <span
+                                  class={`text-2xl font-bold ${colorScheme.itemText}`}
+                                >
+                                  {item.level}
+                                </span>
+                              </button>
+                            }
+                          >
+                            <input
+                              type="text"
+                              value={item.songUrl || ""}
+                              onInput={(e) =>
+                                updateItemUrl(
+                                  category.id,
+                                  item.id,
+                                  e.currentTarget.value
+                                )
+                              }
+                              onBlur={() => setEditingItem(null)}
+                              onKeyPress={(e) =>
+                                e.key === "Enter" && setEditingItem(null)
+                              }
+                              placeholder="Lim inn URL..."
+                              class="w-full bg-transparent px-2 text-center text-sm outline-none"
+                              autofocus
+                            />
+                          </Show>
+
+                          {/* Song URL indicator */}
+                          <Show
+                            when={item.songUrl && editingItem() !== item.id}
+                          >
+                            <div class="absolute right-1 bottom-1">
+                              <svg
+                                class="h-4 w-4 text-green-500"
+                                fill="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                              </svg>
+                            </div>
+                          </Show>
+
+                          {/* Delete item button */}
+                          <button
+                            type="button"
+                            onClick={() => removeItem(category.id, item.id)}
+                            class="absolute -top-2 -right-2 hidden h-5 w-5 items-center justify-center rounded-full bg-red-500 text-white shadow-md transition group-hover:flex hover:bg-red-600"
+                          >
+                            <svg
+                              class="h-3 w-3"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"
+                              />
+                            </svg>
+                          </button>
+                        </div>
+                      )}
+                    </For>
+
+                    {/* Add item button */}
+                    <button
+                      type="button"
+                      onClick={() => addItem(category.id)}
+                      class={`flex h-16 w-full items-center justify-center rounded-lg border-2 border-dashed ${colorScheme.border} ${colorScheme.hoverBg} transition sm:h-20`}
+                    >
+                      <svg
+                        class={`h-8 w-8 ${colorScheme.itemText} opacity-50`}
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M12 4v16m8-8H4"
+                        />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              );
+            }}
+          </For>
+
+          {/* Add category button */}
           <button
             type="button"
-            onClick={() => setIsPublic(!isPublic())}
-            class={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-              isPublic() ? "bg-blue-600" : "bg-neutral-300"
-            }`}
+            onClick={addCategory}
+            class="flex h-48 w-40 flex-shrink-0 flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-neutral-300 bg-neutral-100/50 text-neutral-500 transition hover:border-neutral-400 hover:bg-neutral-100 hover:text-neutral-700"
           >
-            <span
-              class={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                isPublic() ? "translate-x-6" : "translate-x-1"
-              }`}
-            />
+            <svg
+              class="h-10 w-10"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 4v16m8-8H4"
+              />
+            </svg>
+            <span class="text-sm font-medium">Legg til kategori</span>
           </button>
         </div>
 
-        {/* Create Button */}
-        <div class="flex gap-3 pt-4">
-          <button
-            type="button"
-            onClick={createRoom}
-            class="flex-1 rounded-lg bg-linear-to-r from-blue-600 to-blue-700 px-6 py-3 font-semibold text-white shadow-sm transition hover:from-blue-700 hover:to-blue-800"
-          >
-            Opprett rom
-          </button>
-          <button
-            type="button"
-            onClick={() => navigate("/")}
-            class="rounded-lg border border-neutral-300 px-6 py-3 font-medium text-neutral-700 transition hover:bg-neutral-50"
-          >
-            Avbryt
-          </button>
-        </div>
+        {/* Help text */}
+        <Show when={categories().length === 0}>
+          <div class="mt-12 text-center">
+            <p class="text-lg text-neutral-500">
+              Klikk på "Legg til kategori" for å begynne å bygge ditt spillbrett
+            </p>
+          </div>
+        </Show>
       </div>
     </div>
   );
