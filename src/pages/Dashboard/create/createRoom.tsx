@@ -33,6 +33,16 @@ const CreateRoom: Component = () => {
   // Check if we've reached the maximum categories
   const canAddCategory = () => categories().length < MAX_CATEGORIES;
 
+  // Check if room creation requirements are met
+  const canCreateRoom = () => {
+    const hasRoomName = roomName().trim().length > 0;
+    const hasCategories = categories().length > 0;
+    const allCategoriesHaveItems = categories().every(
+      (c) => c.items.length > 0
+    );
+    return hasRoomName && hasCategories && allCategoriesHaveItems;
+  };
+
   // Add a new category
   const addCategory = () => {
     if (!canAddCategory()) return;
@@ -111,6 +121,19 @@ const CreateRoom: Component = () => {
     );
   };
 
+  // Count empty song URLs for warning
+  const countEmptySongUrls = () => {
+    let count = 0;
+    for (const category of categories()) {
+      for (const item of category.items) {
+        if (!item.songUrl?.trim()) {
+          count++;
+        }
+      }
+    }
+    return count;
+  };
+
   // Submit the room
   const handleCreateRoom = async () => {
     const name = roomName().trim();
@@ -131,12 +154,23 @@ const CreateRoom: Component = () => {
       return;
     }
 
+    // Check for empty song URLs and warn user (one-time confirmation)
+    const emptyCount = countEmptySongUrls();
+    if (emptyCount > 0) {
+      const confirmed = confirm(
+        `Du har ${emptyCount} sang${emptyCount > 1 ? "er" : ""} uten URL. Vil du fortsette uten å legge til URL-er?`
+      );
+      if (!confirmed) {
+        return;
+      }
+    }
+
     setIsSubmitting(true);
 
     try {
       await createRoomInFirestore({
         roomName: name,
-        hostName: auth.state.user?.displayName || "Anonym",
+        hostName: auth.state.user?.displayName || "Anonym", // TODO: Get from user profile
         categories: categories(),
         isPublic: isPublic(),
         createdAt: Date.now(),
@@ -226,8 +260,8 @@ const CreateRoom: Component = () => {
             <button
               type="button"
               onClick={handleCreateRoom}
-              disabled={isSubmitting()}
-              class="rounded-lg bg-neutral-900 px-6 py-2 font-semibold text-white transition hover:bg-neutral-700 disabled:opacity-50"
+              disabled={isSubmitting() || !canCreateRoom()}
+              class="rounded-lg bg-neutral-900 px-6 py-2 font-semibold text-white transition hover:bg-neutral-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isSubmitting() ? "Oppretter..." : "Opprett rom"}
             </button>
