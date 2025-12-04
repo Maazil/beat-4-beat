@@ -50,7 +50,14 @@ const CreateRoom: Component = () => {
     const newCategory: Category = {
       id: `cat-${Date.now()}`,
       name: "Ny kategori",
-      items: [],
+      items: [
+        {
+          id: `item-${Date.now()}`,
+          level: 1,
+          isRevealed: false,
+          songUrl: "",
+        },
+      ],
     };
     setCategories([...categories(), newCategory]);
     setEditingCategory(newCategory.id);
@@ -173,6 +180,7 @@ const CreateRoom: Component = () => {
         hostName: auth.state.user?.displayName || "Anonym", // TODO: Get from user profile
         categories: categories(),
         isPublic: isPublic(),
+        isActive: true,
         createdAt: Date.now(),
       });
       navigate("/dashboard");

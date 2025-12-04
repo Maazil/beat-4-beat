@@ -1,4 +1,4 @@
-import { Component, Show } from "solid-js";
+import { Component, createEffect, createSignal, Show } from "solid-js";
 import type { SongItem } from "../../../model/songItem";
 import type { CategoryColorScheme } from "./categoryColors";
 
@@ -13,6 +13,19 @@ interface SongItemCardProps {
 }
 
 const SongItemCard: Component<SongItemCardProps> = (props) => {
+  // Local state for editing to avoid re-renders on every keystroke
+  const [localUrl, setLocalUrl] = createSignal(props.item.songUrl || "");
+
+  // Sync local state when item songUrl changes externally
+  createEffect(() => {
+    setLocalUrl(props.item.songUrl || "");
+  });
+
+  const handleBlur = () => {
+    props.onUpdate(localUrl());
+    props.onBlur();
+  };
+
   return (
     <div
       class="group relative flex h-16 w-full items-center justify-center rounded-lg border-2 transition-colors sm:h-20"
@@ -46,10 +59,10 @@ const SongItemCard: Component<SongItemCardProps> = (props) => {
       >
         <input
           type="text"
-          value={props.item.songUrl || ""}
-          onInput={(e) => props.onUpdate(e.currentTarget.value)}
-          onBlur={() => props.onBlur()}
-          onKeyPress={(e) => e.key === "Enter" && props.onBlur()}
+          value={localUrl()}
+          onInput={(e) => setLocalUrl(e.currentTarget.value)}
+          onBlur={handleBlur}
+          onKeyPress={(e) => e.key === "Enter" && handleBlur()}
           placeholder="Lim inn URL..."
           class="w-full bg-transparent px-2 text-center text-sm outline-none"
           autofocus
