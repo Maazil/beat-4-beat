@@ -223,7 +223,7 @@ const CreateRoom: Component = () => {
             <button
               type="button"
               onClick={() => setIsPublic(!isPublic())}
-              class={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition ${
+              class={`flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition ${
                 isPublic()
                   ? "bg-green-100 text-green-700"
                   : "bg-neutral-200 text-neutral-600"
