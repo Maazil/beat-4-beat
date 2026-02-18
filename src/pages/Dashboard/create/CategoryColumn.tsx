@@ -67,7 +67,7 @@ const CategoryColumn: Component<CategoryColumnProps> = (props) => {
           type="text"
           variant="ghost"
           value={localName()}
-          placeholder="Kategori navn"
+          placeholder="Navn"
           maxLength={22}
           onInput={(e) => setLocalName(e.currentTarget.value)}
           onBlur={handleBlur}
