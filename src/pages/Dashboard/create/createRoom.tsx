@@ -1,260 +1,347 @@
 import { useNavigate } from "@solidjs/router";
-import { Component, createSignal, For } from "solid-js";
+import { Component, createSignal, For, onMount, Show } from "solid-js";
+import { useAuth } from "../../../context/AuthContext";
 import type { Category } from "../../../model/category";
-import { addRoom, type RoomSnapshot } from "../../../store/roomsStore";
+import type { SongItem } from "../../../model/songItem";
+import { createRoom as createRoomInFirestore } from "../../../services/roomsService";
+import AddCategoryButton from "./AddCategoryButton";
+import {
+  generateColorScheme,
+  MAX_CATEGORIES,
+  MAX_ITEMS_CREATE,
+  resetHueAssignments,
+} from "./categoryColors";
+import CategoryColumn from "./CategoryColumn";
 
 const CreateRoom: Component = () => {
   const navigate = useNavigate();
+  const auth = useAuth();
   const [roomName, setRoomName] = createSignal("");
-  const [hostName, setHostName] = createSignal("");
   const [isPublic, setIsPublic] = createSignal(false);
   const [categories, setCategories] = createSignal<Category[]>([]);
-  const [newCategoryName, setNewCategoryName] = createSignal("");
-  const [itemCounts, setItemCounts] = createSignal<Record<string, number>>({});
+  const [editingCategory, setEditingCategory] = createSignal<string | null>(
+    null
+  );
+  const [editingItem, setEditingItem] = createSignal<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = createSignal(false);
 
+  // Reset hue assignments when component mounts (fresh room creation)
+  onMount(() => {
+    resetHueAssignments();
+  });
+
+  // Check if we've reached the maximum categories
+  const canAddCategory = () => categories().length < MAX_CATEGORIES;
+
+  // Check if room creation requirements are met
+  const canCreateRoom = () => {
+    const hasRoomName = roomName().trim().length > 0;
+    const hasCategories = categories().length > 0;
+    const allCategoriesHaveItems = categories().every(
+      (c) => c.items.length > 0
+    );
+    return hasRoomName && hasCategories && allCategoriesHaveItems;
+  };
+
+  // Add a new category
   const addCategory = () => {
-    const categoryName = newCategoryName().trim();
-    if (!categoryName) return;
+    if (!canAddCategory()) return;
 
     const newCategory: Category = {
       id: `cat-${Date.now()}`,
-      name: categoryName,
-      items: [],
+      name: "Ny kategori",
+      items: [
+        {
+          id: `item-${Date.now()}`,
+          level: 1,
+          isRevealed: false,
+          songUrl: "",
+        },
+      ],
     };
-
     setCategories([...categories(), newCategory]);
-    setItemCounts({ ...itemCounts(), [newCategory.id]: 3 });
-    setNewCategoryName("");
+    setEditingCategory(newCategory.id);
   };
 
+  // Update category name
+  const updateCategoryName = (categoryId: string, name: string) => {
+    setCategories(
+      categories().map((c) => (c.id === categoryId ? { ...c, name } : c))
+    );
+  };
+
+  // Remove a category
   const removeCategory = (categoryId: string) => {
     setCategories(categories().filter((c) => c.id !== categoryId));
-    const newCounts = { ...itemCounts() };
-    delete newCounts[categoryId];
-    setItemCounts(newCounts);
   };
 
-  const updateItemCount = (categoryId: string, count: number) => {
-    setItemCounts({
-      ...itemCounts(),
-      [categoryId]: Math.max(1, Math.min(10, count)),
-    });
+  // Add item to a category
+  const addItem = (categoryId: string) => {
+    setCategories(
+      categories().map((c) => {
+        if (c.id !== categoryId) return c;
+        const newItem: SongItem = {
+          id: `item-${Date.now()}`,
+          level: c.items.length + 1,
+          isRevealed: false,
+          songUrl: "",
+        };
+        return { ...c, items: [...c.items, newItem] };
+      })
+    );
   };
 
-  const createRoom = () => {
+  // Update item song URL
+  const updateItemUrl = (
+    categoryId: string,
+    itemId: string,
+    songUrl: string
+  ) => {
+    setCategories(
+      categories().map((c) => {
+        if (c.id !== categoryId) return c;
+        return {
+          ...c,
+          items: c.items.map((item) =>
+            item.id === itemId ? { ...item, songUrl } : item
+          ),
+        };
+      })
+    );
+  };
+
+  // Remove item from category
+  const removeItem = (categoryId: string, itemId: string) => {
+    setCategories(
+      categories().map((c) => {
+        if (c.id !== categoryId) return c;
+        const filteredItems = c.items.filter((item) => item.id !== itemId);
+        // Re-number levels
+        return {
+          ...c,
+          items: filteredItems.map((item, index) => ({
+            ...item,
+            level: index + 1,
+          })),
+        };
+      })
+    );
+  };
+
+  // Count empty song URLs for warning
+  const countEmptySongUrls = () => {
+    let count = 0;
+    for (const category of categories()) {
+      for (const item of category.items) {
+        if (!item.songUrl?.trim()) {
+          count++;
+        }
+      }
+    }
+    return count;
+  };
+
+  // Submit the room
+  const handleCreateRoom = async () => {
     const name = roomName().trim();
-    const host = hostName().trim();
 
-    if (!name || !host || categories().length === 0) {
-      alert("Vennligst fyll ut alle felter og legg til minst én kategori");
+    if (!name) {
+      alert("Vennligst skriv inn et romnavn");
       return;
     }
 
-    const categoriesWithItems = categories().map((category) => {
-      const count = itemCounts()[category.id] || 3;
-      const items = Array.from({ length: count }, (_, i) => ({
-        id: `item-${category.id}-${i + 1}`,
-        level: i + 1,
-        isRevealed: false,
-        songUrl: undefined,
-      }));
+    if (categories().length === 0) {
+      alert("Legg til minst én kategori");
+      return;
+    }
 
-      return {
-        ...category,
-        items,
-      };
-    });
+    const hasEmptyCategories = categories().some((c) => c.items.length === 0);
+    if (hasEmptyCategories) {
+      alert("Alle kategorier må ha minst én sang");
+      return;
+    }
 
-    const newRoom: RoomSnapshot = {
-      id: `room-${Date.now()}`,
-      roomName: name, // Cant have roomName due to signal being named same
-      hostId: `host-${Date.now()}`,
-      hostName: host,
-      categories: categoriesWithItems,
-      isActive: true,
-      isPublic: isPublic(),
-      createdAt: Date.now(),
-      status: "scheduled",
-      participants: 0,
-    };
+    // Check for empty song URLs and warn user (one-time confirmation)
+    const emptyCount = countEmptySongUrls();
+    if (emptyCount > 0) {
+      const confirmed = confirm(
+        `Du har ${emptyCount} sang${emptyCount > 1 ? "er" : ""} uten URL. Vil du fortsette uten å legge til URL-er?`
+      );
+      if (!confirmed) {
+        return;
+      }
+    }
 
-    addRoom(newRoom);
-    navigate("/");
+    setIsSubmitting(true);
+
+    try {
+      await createRoomInFirestore({
+        roomName: name,
+        hostName: auth.state.user?.displayName || "Anonym", // TODO: Get from user profile
+        categories: categories(),
+        isPublic: isPublic(),
+        isActive: true,
+        createdAt: Date.now(),
+      });
+      navigate("/dashboard");
+    } catch (error) {
+      console.error("Failed to create room:", error);
+      alert("Kunne ikke opprette rom. Prøv igjen.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <div class="mx-auto w-full max-w-4xl px-6 py-12">
-      <button
-        type="button"
-        onClick={() => navigate("/dashboard")}
-        class="mb-6 flex items-center gap-2 text-neutral-600 transition hover:text-neutral-900"
-      >
-        <svg
-          class="h-5 w-5"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M10 19l-7-7m0 0l7-7m-7 7h18"
-          />
-        </svg>
-        <span class="font-medium">Tilbake</span>
-      </button>
+    <div class="min-h-screen bg-[#f4f6f8] p-6">
+      <div class="mx-auto max-w-7xl">
+        {/* Header */}
+        <div class="mb-6 flex items-center justify-between">
+          <button
+            type="button"
+            onClick={() => navigate("/dashboard")}
+            class="flex items-center gap-2 text-neutral-600 transition hover:text-neutral-900"
+          >
+            <svg
+              class="h-5 w-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M10 19l-7-7m0 0l7-7m-7 7h18"
+              />
+            </svg>
+            <span class="font-medium">Tilbake</span>
+          </button>
 
-      <h1 class="mb-8 text-3xl font-bold text-neutral-900">Opprett nytt rom</h1>
-
-      <div class="space-y-6">
-        {/* Room Name */}
-        <div>
-          <label class="mb-2 block text-sm font-medium text-neutral-700">
-            Romnavn
-          </label>
-          <input
-            type="text"
-            value={roomName()}
-            onInput={(e) => setRoomName(e.currentTarget.value)}
-            placeholder="F.eks. Fredagskveld Beat Battle"
-            class="w-full rounded-lg border border-neutral-300 px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
-          />
-        </div>
-
-        {/* Host Name */}
-        <div>
-          <label class="mb-2 block text-sm font-medium text-neutral-700">
-            Vertsnavn
-          </label>
-          <input
-            type="text"
-            value={hostName()}
-            onInput={(e) => setHostName(e.currentTarget.value)}
-            placeholder="F.eks. DJ Ola"
-            class="w-full rounded-lg border border-neutral-300 px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
-          />
-        </div>
-
-        {/* Categories */}
-        <div>
-          <label class="mb-2 block text-sm font-medium text-neutral-700">
-            Kategorier
-          </label>
-
-          <div class="mb-4 space-y-3">
-            <For each={categories()}>
-              {(category) => (
-                <div class="flex items-center gap-3 rounded-lg border border-neutral-200 bg-neutral-50 p-4">
-                  <div class="flex-1">
-                    <span class="font-medium text-neutral-900">
-                      {category.name}
-                    </span>
-                  </div>
-                  <div class="flex items-center gap-2">
-                    <label class="text-sm text-neutral-600">
-                      Antall sanger:
-                    </label>
-                    <input
-                      type="number"
-                      min="1"
-                      max="10"
-                      value={itemCounts()[category.id] || 3}
-                      onInput={(e) =>
-                        updateItemCount(
-                          category.id,
-                          parseInt(e.currentTarget.value) || 3
-                        )
-                      }
-                      class="w-16 rounded border border-neutral-300 px-2 py-1 text-center"
-                    />
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => removeCategory(category.id)}
-                    class="text-red-600 hover:text-red-700"
-                  >
-                    <svg
-                      class="h-5 w-5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M6 18L18 6M6 6l12 12"
-                      />
-                    </svg>
-                  </button>
-                </div>
-              )}
-            </For>
-          </div>
-
-          <div class="flex gap-2">
-            <input
-              type="text"
-              value={newCategoryName()}
-              onInput={(e) => setNewCategoryName(e.currentTarget.value)}
-              onKeyPress={(e) => e.key === "Enter" && addCategory()}
-              placeholder="F.eks. Pop Hits"
-              class="flex-1 rounded-lg border border-neutral-300 px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
-            />
+          <div class="flex items-center gap-3">
+            {/* Public toggle with lock icons */}
             <button
               type="button"
-              onClick={addCategory}
-              class="rounded-lg bg-blue-600 px-6 py-2 font-medium text-white transition hover:bg-blue-700"
+              onClick={() => setIsPublic(!isPublic())}
+              class={`flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition ${
+                isPublic()
+                  ? "bg-green-100 text-green-700"
+                  : "bg-neutral-200 text-neutral-600"
+              }`}
             >
-              Legg til
+              <Show
+                when={isPublic()}
+                fallback={
+                  <svg
+                    class="h-4 w-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                    />
+                  </svg>
+                }
+              >
+                <svg
+                  class="h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"
+                  />
+                </svg>
+              </Show>
+              {isPublic() ? "Offentlig rom" : "Privat rom"}
+            </button>
+
+            {/* Create button */}
+            <button
+              type="button"
+              onClick={handleCreateRoom}
+              disabled={isSubmitting() || !canCreateRoom()}
+              class="rounded-lg bg-neutral-900 px-6 py-2 font-semibold text-white transition hover:bg-neutral-700 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {isSubmitting() ? "Oppretter..." : "Opprett rom"}
             </button>
           </div>
         </div>
 
-        <div class="flex max-w-sm items-center justify-between rounded-lg border border-neutral-200 bg-neutral-50 p-4">
-          <div class="flex flex-col gap-2">
-            <label
-              class={`mb-1 block w-fit rounded-2xl border px-3 py-0.5 text-sm font-medium text-neutral-900/90 ${isPublic() ? "border-green-400/80 bg-green-400/10" : "border-red-400/50 bg-red-400/10"}`}
-            >
-              {isPublic() ? "Offentlig" : "Privat"}
-            </label>
-            <p class="text-sm text-neutral-600">
-              Gjør rommet synlig for alle brukere på plattformen.
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => setIsPublic(!isPublic())}
-            class={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-              isPublic() ? "bg-blue-600" : "bg-neutral-300"
-            }`}
-          >
-            <span
-              class={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                isPublic() ? "translate-x-6" : "translate-x-1"
-              }`}
-            />
-          </button>
+        {/* Room name input */}
+        <div class="mb-8">
+          <input
+            type="text"
+            value={roomName()}
+            onInput={(e) => setRoomName(e.currentTarget.value)}
+            placeholder="Skriv inn romnavn..."
+            class="w-full max-w-md border-b-2 border-neutral-300 bg-transparent pb-2 text-3xl font-bold text-neutral-900 placeholder-neutral-400 outline-none focus:border-blue-500"
+          />
+          <p class="mt-2 text-neutral-500">
+            Klikk på + for å legge til kategorier og sanger
+            <Show when={categories().length > 0}>
+              <span class="ml-2 text-neutral-400">
+                ({categories().length}/{MAX_CATEGORIES} kategorier)
+              </span>
+            </Show>
+          </p>
         </div>
 
-        {/* Create Button */}
-        <div class="flex gap-3 pt-4">
-          <button
-            type="button"
-            onClick={createRoom}
-            class="flex-1 rounded-lg bg-linear-to-r from-blue-600 to-blue-700 px-6 py-3 font-semibold text-white shadow-sm transition hover:from-blue-700 hover:to-blue-800"
-          >
-            Opprett rom
-          </button>
-          <button
-            type="button"
-            onClick={() => navigate("/")}
-            class="rounded-lg border border-neutral-300 px-6 py-3 font-medium text-neutral-700 transition hover:bg-neutral-50"
-          >
-            Avbryt
-          </button>
+        {/* Game board style grid - wraps to next row if needed */}
+        <div class="flex flex-wrap gap-6 pt-4 pb-4">
+          {/* Existing categories */}
+          <For each={categories()}>
+            {(category) => {
+              // Generate color based on category ID for consistent, unique colors
+              const colorScheme = generateColorScheme(category.id);
+              return (
+                <CategoryColumn
+                  category={category}
+                  colorScheme={colorScheme}
+                  maxItems={MAX_ITEMS_CREATE}
+                  isEditingName={editingCategory() === category.id}
+                  editingItemId={editingItem()}
+                  onEditName={() => setEditingCategory(category.id)}
+                  onUpdateName={(name) => updateCategoryName(category.id, name)}
+                  onBlurName={() => setEditingCategory(null)}
+                  onRemove={() => removeCategory(category.id)}
+                  onAddItem={() => addItem(category.id)}
+                  onEditItem={(itemId) => setEditingItem(itemId)}
+                  onUpdateItem={(itemId, songUrl) =>
+                    updateItemUrl(category.id, itemId, songUrl)
+                  }
+                  onBlurItem={() => setEditingItem(null)}
+                  onRemoveItem={(itemId) => removeItem(category.id, itemId)}
+                />
+              );
+            }}
+          </For>
+
+          {/* Add category button, only show if user can add more categories */}
+          {canAddCategory() && (
+            <AddCategoryButton
+              onClick={addCategory}
+              disabled={!canAddCategory()}
+            />
+          )}
         </div>
+
+        {/* Help text */}
+        <Show when={categories().length === 0}>
+          <div class="mt-12 text-center">
+            <p class="text-lg text-neutral-500">
+              Klikk på "Legg til kategori" for å begynne å bygge ditt spillbrett
+            </p>
+          </div>
+        </Show>
       </div>
     </div>
   );

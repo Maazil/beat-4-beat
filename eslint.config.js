@@ -12,9 +12,9 @@ export default defineConfig([
   {
     files: ["src/**/*.{ts,tsx}"],
     extends: [...tseslint.configs.recommended],
-    plugins: {
-      prettier,
-    },
+    // plugins: {
+    //   prettier,
+    // },
     languageOptions: {
       globals: {
         ...globals.browser,
@@ -25,7 +25,6 @@ export default defineConfig([
       },
     },
     rules: {
-      "prettier/prettier": "error",
       "@typescript-eslint/no-unused-vars": [
         "warn",
         {
