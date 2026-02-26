@@ -1,9 +1,9 @@
 import { useNavigate } from "@solidjs/router";
 import { Component, createSignal } from "solid-js";
-import type { RoomSnapshot } from "../store/roomsStore";
+import type { Room } from "../model/room";
 
 interface RoomManageCardProps {
-  room: RoomSnapshot;
+  room: Room;
   onDelete?: (roomId: string) => void;
 }
 
@@ -11,31 +11,12 @@ const RoomManageCard: Component<RoomManageCardProps> = (props) => {
   const navigate = useNavigate();
   const [showDeleteConfirm, setShowDeleteConfirm] = createSignal(false);
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "live":
-        return "bg-green-100 text-green-700 border border-green-200";
-      case "scheduled":
-        return "bg-blue-100 text-blue-700 border border-blue-200";
-      case "completed":
-        return "bg-neutral-100 text-neutral-600 border border-neutral-200";
-      default:
-        return "bg-neutral-100 text-neutral-600 border border-neutral-200";
-    }
-  };
+  const statusBadge = () =>
+    props.room.isActive
+      ? "bg-green-100 text-green-700 border border-green-200"
+      : "bg-neutral-100 text-neutral-600 border border-neutral-200";
 
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case "live":
-        return "Live";
-      case "scheduled":
-        return "Planlagt";
-      case "completed":
-        return "Fullført";
-      default:
-        return status;
-    }
-  };
+  const statusLabel = () => (props.room.isActive ? "Aktiv" : "Inaktiv");
 
   const handleCopyLink = () => {
     const shareUrl = `${window.location.origin}/rooms/${props.room.id}/play`;
@@ -58,9 +39,9 @@ const RoomManageCard: Component<RoomManageCardProps> = (props) => {
           {props.room.roomName}
         </h3>
         <span
-          class={`rounded-full px-2.5 py-0.5 text-xs font-medium ${getStatusBadge(props.room.status)}`}
+          class={`rounded-full px-2.5 py-0.5 text-xs font-medium ${statusBadge()}`}
         >
-          {getStatusLabel(props.room.status)}
+          {statusLabel()}
         </span>
       </div>
 

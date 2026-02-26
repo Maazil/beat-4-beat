@@ -2,20 +2,11 @@ import { useNavigate } from "@solidjs/router";
 import { For, type Component } from "solid-js";
 import RoomManageCard from "../../components/RoomManageCard";
 import { useMyRooms } from "../../hooks/useMyRooms";
-import type { Room } from "../../model/room";
 import { deleteRoom } from "../../services/roomsService";
-import type { RoomSnapshot } from "../../store/roomsStore";
 
 const Dashboard: Component = () => {
   const navigate = useNavigate();
   const { rooms: myRooms, isLoading, error } = useMyRooms();
-
-  // Convert Room from Firestore to RoomSnapshot for the UI
-  const roomToSnapshot = (room: Room): RoomSnapshot => ({
-    ...room,
-    status: room.isActive ? "live" : "scheduled",
-    participants: 0, // Could be fetched from a subcollection later
-  });
 
   const handleDeleteRoom = async (roomId: string) => {
     try {
@@ -68,7 +59,7 @@ const Dashboard: Component = () => {
           ) : (
             <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               <For
-                each={myRooms().map(roomToSnapshot)}
+                each={myRooms()}
                 fallback={
                   <div class="col-span-full rounded-2xl border border-dashed border-neutral-300 bg-neutral-50 p-8 text-center">
                     <p class="text-neutral-500">

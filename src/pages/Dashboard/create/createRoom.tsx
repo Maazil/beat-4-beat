@@ -1,9 +1,13 @@
-import { useNavigate } from "@solidjs/router";
+import { useNavigate, useSearchParams } from "@solidjs/router";
 import { Component, createSignal, For, onMount, Show } from "solid-js";
 import { useAuth } from "../../../context/AuthContext";
 import type { Category } from "../../../model/category";
 import type { SongItem } from "../../../model/songItem";
-import { createRoom as createRoomInFirestore } from "../../../services/roomsService";
+import {
+  createRoom as createRoomInFirestore,
+  getRoom,
+  updateRoom as updateRoomInFirestore,
+} from "../../../services/roomsService";
 import AddCategoryButton from "./AddCategoryButton";
 import {
   generateColorScheme,
@@ -15,6 +19,7 @@ import CategoryColumn from "./CategoryColumn";
 
 const CreateRoom: Component = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const auth = useAuth();
   const [roomName, setRoomName] = createSignal("");
   const [isPublic, setIsPublic] = createSignal(false);
@@ -24,10 +29,43 @@ const CreateRoom: Component = () => {
   );
   const [editingItem, setEditingItem] = createSignal<string | null>(null);
   const [isSubmitting, setIsSubmitting] = createSignal(false);
+  const [isLoadingRoom, setIsLoadingRoom] = createSignal(false);
 
-  // Reset hue assignments when component mounts (fresh room creation)
-  onMount(() => {
+  const editRoomId = () => searchParams.edit as string | undefined;
+  const isEditMode = () => !!editRoomId();
+
+  // Load existing room data when in edit mode, or reset for creation
+  onMount(async () => {
     resetHueAssignments();
+
+    const roomId = editRoomId();
+    if (!roomId) return;
+
+    setIsLoadingRoom(true);
+    try {
+      const room = await getRoom(roomId);
+      if (!room) {
+        alert("Rommet ble ikke funnet.");
+        navigate("/dashboard");
+        return;
+      }
+
+      // Populate form with existing data
+      setRoomName(room.roomName);
+      setIsPublic(room.isPublic);
+      setCategories(room.categories);
+
+      // Register existing category hues so new ones get distinct colors
+      for (const cat of room.categories) {
+        generateColorScheme(cat.id);
+      }
+    } catch (err) {
+      console.error("Failed to load room for editing:", err);
+      alert("Kunne ikke laste rommet. Prøv igjen.");
+      navigate("/dashboard");
+    } finally {
+      setIsLoadingRoom(false);
+    }
   });
 
   // Check if we've reached the maximum categories
@@ -141,8 +179,8 @@ const CreateRoom: Component = () => {
     return count;
   };
 
-  // Submit the room
-  const handleCreateRoom = async () => {
+  // Submit the room (handles both create and edit)
+  const handleSubmit = async () => {
     const name = roomName().trim();
 
     if (!name) {
@@ -175,24 +213,50 @@ const CreateRoom: Component = () => {
     setIsSubmitting(true);
 
     try {
-      await createRoomInFirestore({
-        roomName: name,
-        hostName: auth.state.user?.displayName || "Anonym", // TODO: Get from user profile
-        categories: categories(),
-        isPublic: isPublic(),
-        isActive: true,
-        createdAt: Date.now(),
-      });
+      const roomId = editRoomId();
+      if (roomId) {
+        // Edit mode — update existing room
+        await updateRoomInFirestore(roomId, {
+          roomName: name,
+          categories: categories(),
+          isPublic: isPublic(),
+        });
+      } else {
+        // Create mode — create new room
+        await createRoomInFirestore({
+          roomName: name,
+          hostName: auth.state.user?.displayName || "Anonym",
+          categories: categories(),
+          isPublic: isPublic(),
+          isActive: true,
+          createdAt: Date.now(),
+        });
+      }
       navigate("/dashboard");
     } catch (error) {
-      console.error("Failed to create room:", error);
-      alert("Kunne ikke opprette rom. Prøv igjen.");
+      console.error(
+        `Failed to ${isEditMode() ? "update" : "create"} room:`,
+        error
+      );
+      alert(
+        isEditMode()
+          ? "Kunne ikke oppdatere rommet. Prøv igjen."
+          : "Kunne ikke opprette rom. Prøv igjen."
+      );
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
+    <Show
+      when={!isLoadingRoom()}
+      fallback={
+        <div class="flex min-h-screen items-center justify-center bg-[#f4f6f8]">
+          <div class="h-8 w-8 animate-spin rounded-full border-4 border-neutral-300 border-t-neutral-900" />
+        </div>
+      }
+    >
     <div class="min-h-screen bg-[#f4f6f8] p-6">
       <div class="mx-auto max-w-7xl">
         {/* Header */}
@@ -264,14 +328,20 @@ const CreateRoom: Component = () => {
               {isPublic() ? "Offentlig rom" : "Privat rom"}
             </button>
 
-            {/* Create button */}
+            {/* Submit button */}
             <button
               type="button"
-              onClick={handleCreateRoom}
+              onClick={handleSubmit}
               disabled={isSubmitting() || !canCreateRoom()}
               class="rounded-lg bg-neutral-900 px-6 py-2 font-semibold text-white transition hover:bg-neutral-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {isSubmitting() ? "Oppretter..." : "Opprett rom"}
+              {isSubmitting()
+                ? isEditMode()
+                  ? "Lagrer..."
+                  : "Oppretter..."
+                : isEditMode()
+                  ? "Lagre endringer"
+                  : "Opprett rom"}
             </button>
           </div>
         </div>
@@ -344,6 +414,7 @@ const CreateRoom: Component = () => {
         </Show>
       </div>
     </div>
+    </Show>
   );
 };
 

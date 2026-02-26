@@ -9,92 +9,86 @@ Never add Claude Code as a co-author on commits or pull requests.
 ## Commands
 
 ```bash
-npm run dev        # Start dev server on http://localhost:4900 (with Turbo)
-npm run build      # Production build (runs pre-build scripts first)
-npm run lint       # ESLint check
-npm run lint:fix   # ESLint auto-fix
-npm run ts         # TypeScript type check (no emit)
-npm run unused     # Detect unused exports/imports via Knip
+pnpm dev          # Start dev server (localhost:3000) + TypeScript check in parallel
+pnpm build        # Production build to /dist via Vite
+pnpm serve        # Preview production build
+pnpm ts           # TypeScript type check (no emit)
+pnpm format       # Format code with oxfmt
+pnpm lint         # ESLint check
+pnpm lint:fix     # ESLint auto-fix
 ```
-
-Both `dev` and `build` automatically run `src/utils/script/pre-build.js` first, which generates type files for icons and colors in parallel, then formats them.
-
-**Node/npm version requirements** (from `package.json` engines): Node 25.6.1, npm 11.9.0.
 
 ## Architecture
 
+### Tech Stack
+
+- **Solid.js** v1.9 — Reactive UI framework (NOT React)
+- **Vite** v7 — Build tool and dev server
+- **Firebase** v12 — Auth (Google OAuth, Anonymous), Firestore (real-time NoSQL), Analytics
+- **TypeScript** — Strict mode enabled
+- **Tailwind CSS** v4 — Utility-first styling via `@tailwindcss/vite` plugin
+- **@solidjs/router** v0.15 — Client-side routing with lazy loading
+
 ### Routing
 
-Next.js 14 **App Router**. Key route groups under `src/app/`:
+SolidJS Router. Route definitions in `src/routes.ts`:
 
-- `(before-login-page)/` — public/unauthenticated pages
-- `app/` — authenticated dashboard (hjem, prute, tilbud, innsikt, tips, profil, lan, refinansier)
-- `api/` — Next.js API route handlers
-- Top-level pages: `/login`, `/forbrukslan`, `/andrelan`, `/bankguiden`
+- `/` — Landing page
+- `/login`, `/guest` — Authentication pages
+- `/market` — Public room marketplace
+- `/rooms`, `/rooms/:id`, `/rooms/:id/play` — Browse, view, and play rooms
+- `/dashboard` — Authenticated user dashboard
+- `/dashboard/create` — Create or edit room (`?edit=roomId` for edit mode)
+- `/profile` — User profile
+- `/ui-preview`, `/forms-preview` — Development-only component showcases
 
-### API Layer
+### Data Layer
 
-**Axios client** at `src/utils/api-client/axios-instance.ts`:
-- Dev: `https://rente-gateway-dev.herokuapp.com`, Prod: `https://rente-gateway-prod.herokuapp.com`
-- Controlled by `NEXT_PUBLIC_ENV=production`
-- Request interceptor injects `X-Auth-Token` from localStorage and `h_id` from Hotjar cookie
-- Custom `raw` config flag bypasses response unwrapping; `silent` flag suppresses error handling
-- `ErrorHandlerRegistry` class handles API errors; global handlers registered in `global-errors.ts`
+**Firestore collections:** `rooms/` and `users/`
 
-**API endpoints** defined in `src/api-config/api-urls.ts` as `V2_ENDPOINTS` object.
+**Service layer** in `src/services/`:
+- `roomsService.ts` — Room CRUD + real-time subscriptions (`onSnapshot`)
+- `usersService.ts` — User profile sync to Firestore on auth state change
 
-**React Query hooks** in `src/api-config/hooks/` — 23+ hooks (e.g., `auth-api.ts`, `loans-api.ts`, `user-api.ts`). These are the primary way components fetch and mutate data.
-
-React Query provider at `src/utils/ReactQueryProvider.tsx`: staleTime 10 min, 1 retry, no refetch on window focus.
+**Custom hooks** in `src/hooks/`:
+- `useRoom(getRoomId)` — Subscribe to single room (reactive)
+- `useMyRooms()` — Subscribe to current user's rooms
+- `usePublicRooms()` — Subscribe to all public rooms
+- All return `{ data/rooms, isLoading, error }` pattern with `onCleanup` for unsubscribing
 
 ### Authentication
 
-Multi-service token system. Token types: `"main"`, `"ftb"`, `"unsecured-debt"`, `"omstartslan"`. Stored in localStorage with service-specific keys, managed in `src/utils/api-client/accessToken.ts`.
-
-Login methods: BankID, Vipps, demo login, GUID-based, unfinished registration/payment recovery.
-
-### State Management
-
-- **React Query** — all server state
-- **React Context** — UI state: `DrawerContext` (`src/store/DrawerContext.tsx`), `StepContext` (`src/store/StepContext.tsx`)
-- **Providers** in `src/provider/` (e.g., `HouseProvider`)
-
-### Path Aliases (tsconfig)
-
-```
-@/*          → src/*
-@components/* → src/shared/components/*
-@shared/*    → src/shared/*
-@store/*     → src/store/*
-@api/*       → src/api-config/*
-@utils/*     → src/utils/*
-@lib/*       → src/lib/*
-@types/*     → src/types/*
-```
+Firebase Auth via `src/context/AuthContext.tsx`:
+- **Google OAuth** — Full users, can create/manage rooms
+- **Anonymous/Guest** — Can view/play rooms only
+- Computed accessors: `isGuest()`, `isFullUser()`, `canCreateRooms()`, `isRoomHost()`
+- Route guards: `ProtectedRoute`, `RequireFullUser`, `RequireHost` components
 
 ### Key Directories
 
-- `src/api-config/` — API hooks, DTOs, endpoint URLs, service type definitions
-- `src/app/` — Next.js App Router pages and layouts
-- `src/lib/` — helpers, custom hooks (`useLoginVerification`, `useResponsiveLayout`), A/B testing (`abTests/`), Brevo chat integration
-- `src/provider/` — React providers
-- `src/shared/components/` — 50+ shared UI components (forms, cards, menus, modals, etc.)
-- `src/store/` — React context providers
-- `src/types/` — TypeScript types including generated color and icon types
-- `src/utils/` — API client, cookies, domain utilities (unsecuredDebt, refinancing, zipcodes)
+- `src/services/` — Firebase CRUD operations + real-time subscriptions
+- `src/hooks/` — Custom Solid.js primitives for data fetching
+- `src/context/` — AuthContext (global auth state)
+- `src/model/` — TypeScript interfaces (Room, Category, SongItem, Score)
+- `src/pages/` — Route page components
+- `src/components/` — Shared UI components (RoomManageCard, RoomPreview, ProtectedRoute, forms)
+- `src/lib/` — Firebase SDK initialization
 
-### Generated Files
+### Data Model
 
-`src/utils/script/icon-script.js` and `colors-script.js` generate TypeScript type files at build time. Don't edit these generated files manually.
+```typescript
+Room { id, roomName, hostId, hostName, categories: Category[], isActive, isPublic, createdAt }
+Category { id, name, items: SongItem[] }
+SongItem { id, level, title?, artist?, songUrl?, startTime?, isRevealed }
+```
 
 ### Styling
 
-Tailwind CSS v4 with PostCSS. Global styles in `src/app/globals.css`, `theme.css`, `typography.css`. Prettier auto-sorts Tailwind classes via `prettier-plugin-tailwindcss`.
+Tailwind CSS v4 via Vite plugin. Dark theme with red accents. Custom animations in `src/index.css` (`beat-pulse`, `gradient-orbit`, `ambient-float`). Prettier sorts Tailwind classes via `prettier-plugin-tailwindcss`.
 
-### Forms
+### Environment Variables
 
-React Hook Form v7 + Zod v4 for validation + Maskito v5 for input masking. Norwegian-specific: `@navikt/fnrvalidator` for FNR (national ID) validation.
-
-### External Integrations
-
-Sentry (error tracking), Google Tag Manager, Hotjar, Brevo (customer chat), BankID, Vipps, Dintero (checkout).
+Firebase config via Vite env vars (`.env.local`):
+- `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_AUTH_DOMAIN`, `VITE_FIREBASE_PROJECT_ID`
+- `VITE_FIREBASE_STORAGE_BUCKET`, `VITE_FIREBASE_MESSAGING_SENDER_ID`
+- `VITE_FIREBASE_APP_ID`, `VITE_FIREBASE_MEASUREMENT_ID`
