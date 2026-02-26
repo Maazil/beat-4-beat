@@ -123,15 +123,15 @@ const Play: Component = () => {
             <div class="grid gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
               <For each={currentRoom()?.categories}>
                 {(category, index) => {
-                  const colorScheme =
+                  const colorScheme = () =>
                     categoryColors[index() % categoryColors.length];
                   return (
                     <div class="flex flex-col gap-4">
                       <div
-                        class={`rounded-lg ${colorScheme.titleBg} border ${colorScheme.border} px-4 py-3 text-center ${colorScheme.shadow}`}
+                        class={`rounded-lg ${colorScheme().titleBg} border ${colorScheme().border} px-4 py-3 text-center ${colorScheme().shadow}`}
                       >
                         <h2
-                          class={`text-lg font-semibold ${colorScheme.titleText} tracking-tight`}
+                          class={`text-lg font-semibold ${colorScheme().titleText} tracking-tight`}
                         >
                           {category.name}
                         </h2>
@@ -145,7 +145,7 @@ const Play: Component = () => {
                               class={`group flex h-16 w-full cursor-pointer items-center justify-center rounded-lg border-2 transition hover:scale-105 hover:shadow-lg active:scale-95 sm:h-20 ${
                                 revealedItems().has(item.id)
                                   ? "border-dashed border-neutral-300 bg-neutral-100/50"
-                                  : `${colorScheme.border} ${colorScheme.itemBg}`
+                                  : `${colorScheme().border} ${colorScheme().itemBg}`
                               }`}
                               onClick={() =>
                                 handleItemClick(item.id, item.songUrl)
@@ -155,7 +155,7 @@ const Play: Component = () => {
                                 class={`text-2xl font-bold ${
                                   revealedItems().has(item.id)
                                     ? "text-neutral-400"
-                                    : colorScheme.itemText
+                                    : colorScheme().itemText
                                 } transition group-hover:scale-110`}
                               >
                                 {item.level}

@@ -60,7 +60,7 @@ export async function upsertUserProfile(user: User) {
 
 type UserDoc = UserProfile & { id: string };
 
-const usersRef = collection(db, "users");
+const _usersRef = collection(db, "users");
 const [users, setUsers] = createStore<UserDoc[]>([]);
 const [isLoading, setIsLoading] = createSignal(true);
 const [error, setError] = createSignal<Error | null>(null);

@@ -24,9 +24,9 @@ interface CategoryColumnProps {
 
 const CategoryColumn: Component<CategoryColumnProps> = (props) => {
   // Local state for editing to avoid re-renders on every keystroke
-  const [localName, setLocalName] = createSignal(props.category.name);
+  const [localName, setLocalName] = createSignal("");
 
-  // Sync local state when category name changes externally
+  // Sync local state when category name changes (including initial value)
   createEffect(() => {
     setLocalName(props.category.name);
   });

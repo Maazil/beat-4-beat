@@ -11,7 +11,8 @@
     "ts": "tsc --noEmit",
     "format": "oxfmt src",
     "lint": "eslint src",
-    "lint:fix": "eslint src --fix"
+    "lint:fix": "eslint src --fix",
+    "deploy": "vite build && npx firebase deploy --only hosting"
   },
   "license": "MIT",
   "devDependencies": {
