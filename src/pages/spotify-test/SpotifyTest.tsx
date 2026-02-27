@@ -2,7 +2,7 @@
 // Route: /spotify-test
 // Remove this file and its route once integration is verified.
 
-import { createSignal, onMount, Show } from "solid-js";
+import { createSignal, For, onMount, Show } from "solid-js";
 
 import {
   handleSpotifyCallback,
@@ -126,25 +126,27 @@ function PlaybackTest() {
 
         {/* Results */}
         <div class="mt-4 space-y-2">
-          {results().map((track) => (
-            <div class="flex items-center gap-3 rounded bg-neutral-800 p-3">
-              <img
-                src={track.albumArt}
-                alt=""
-                class="h-12 w-12 rounded object-cover"
-              />
-              <div class="flex-1">
-                <p class="font-medium">{track.name}</p>
-                <p class="text-sm text-neutral-400">{track.artist}</p>
+          <For each={results()}>
+            {(track) => (
+              <div class="flex items-center gap-3 rounded bg-neutral-800 p-3">
+                <img
+                  src={track.albumArt}
+                  alt=""
+                  class="h-12 w-12 rounded object-cover"
+                />
+                <div class="flex-1">
+                  <p class="font-medium">{track.name}</p>
+                  <p class="text-sm text-neutral-400">{track.artist}</p>
+                </div>
+                <button
+                  onClick={() => playSong(track.uri)}
+                  class="rounded bg-green-600 px-3 py-1 text-sm hover:bg-green-500"
+                >
+                  Play
+                </button>
               </div>
-              <button
-                onClick={() => playSong(track.uri)}
-                class="rounded bg-green-600 px-3 py-1 text-sm hover:bg-green-500"
-              >
-                Play
-              </button>
-            </div>
-          ))}
+            )}
+          </For>
         </div>
       </div>
 
