@@ -1,6 +1,13 @@
 import { useParams } from "@solidjs/router";
 import { Component, createSignal, For, Show } from "solid-js";
 import { useRoom } from "../../hooks/useRoom";
+import {
+  isSpotifyLoggedIn,
+  SpotifyPlayerProvider,
+  useSpotifyPlayback,
+  spotifyUrlToUri,
+} from "../../lib/spotify";
+import type { CurrentTrack, PlaybackState } from "../../lib/spotify";
 
 const categoryColors = [
   {
@@ -53,18 +60,37 @@ const categoryColors = [
   },
 ];
 
-const Play: Component = () => {
+/** Inner component that has access to the SpotifyPlayerProvider context. */
+const RoomPlayInner: Component = () => {
   const params = useParams();
   const { room: currentRoom, isLoading } = useRoom(() => params.id);
   const [revealedItems, setRevealedItems] = createSignal<Set<string>>(
     new Set()
   );
 
-  const handleItemClick = (itemId: string, songUrl?: string) => {
+  const spotifyConnected = isSpotifyLoggedIn();
+  // Only call useSpotifyPlayback when we know the provider is above us
+  const playback = spotifyConnected ? useSpotifyPlayback() : null;
+
+  const handleItemClick = async (itemId: string, songUrl?: string, startTime?: number) => {
     setRevealedItems((prev) => new Set(prev).add(itemId));
-    if (songUrl) {
-      window.open(songUrl, "_blank");
+
+    if (!songUrl) return;
+
+    if (playback) {
+      const uri = spotifyUrlToUri(songUrl);
+      if (uri) {
+        await playback.playSong(uri);
+        if (startTime != null && startTime > 0) {
+          // Small delay to let playback start before seeking
+          setTimeout(() => playback.seek(startTime * 1000), 400);
+        }
+        return;
+      }
     }
+
+    // Fallback: open externally if no SDK or not a Spotify URL
+    window.open(songUrl, "_blank");
   };
 
   return (
@@ -118,6 +144,13 @@ const Play: Component = () => {
                 </h2>
               </div>
               <p class="text-neutral-600">Klikk på en rute for å velge sang</p>
+
+              {/* Spotify connection status */}
+              <Show when={!spotifyConnected}>
+                <div class="rounded-lg border border-amber-200 bg-amber-50 px-4 py-2 text-sm text-amber-700">
+                  Spotify er ikke tilkoblet. Koble til Spotify fra dashbordet for å spille sanger direkte i nettleseren.
+                </div>
+              </Show>
             </div>
 
             <div class="grid gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
@@ -148,7 +181,7 @@ const Play: Component = () => {
                                   : `${colorScheme().border} ${colorScheme().itemBg}`
                               }`}
                               onClick={() =>
-                                handleItemClick(item.id, item.songUrl)
+                                handleItemClick(item.id, item.songUrl, item.startTime)
                               }
                             >
                               <span
@@ -172,7 +205,76 @@ const Play: Component = () => {
           </div>
         </Show>
       </div>
+
+      {/* Now Playing bar */}
+      <Show when={playback}>
+        {(pb) => <NowPlayingBar currentTrack={pb().currentTrack()} playbackState={pb().playbackState()} onPause={() => pb().pause()} onResume={() => pb().resume()} />}
+      </Show>
     </div>
+  );
+};
+
+/** Minimal Now Playing bar fixed at the bottom of the screen. */
+const NowPlayingBar: Component<{
+  currentTrack: CurrentTrack | null;
+  playbackState: PlaybackState;
+  onPause: () => void;
+  onResume: () => void;
+}> = (props) => {
+  return (
+    <Show when={props.currentTrack}>
+      {(track) => (
+        <div class="fixed right-0 bottom-0 left-0 z-50 flex items-center gap-4 border-t border-neutral-200 bg-white px-6 py-3 shadow-lg">
+          <Show when={track().albumArt}>
+            <img
+              src={track().albumArt}
+              alt=""
+              class="h-10 w-10 rounded"
+            />
+          </Show>
+          <div class="min-w-0 flex-1">
+            <p class="truncate text-sm font-medium text-neutral-900">
+              {track().name}
+            </p>
+            <p class="truncate text-xs text-neutral-500">{track().artist}</p>
+          </div>
+          <button
+            type="button"
+            onClick={() =>
+              props.playbackState.isPlaying ? props.onPause() : props.onResume()
+            }
+            class="flex h-9 w-9 items-center justify-center rounded-full bg-neutral-900 text-white transition hover:bg-neutral-700"
+          >
+            <Show
+              when={props.playbackState.isPlaying}
+              fallback={
+                <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+              }
+            >
+              <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+              </svg>
+            </Show>
+          </button>
+        </div>
+      )}
+    </Show>
+  );
+};
+
+/** Top-level component that conditionally wraps with SpotifyPlayerProvider. */
+const Play: Component = () => {
+  return (
+    <Show
+      when={isSpotifyLoggedIn()}
+      fallback={<RoomPlayInner />}
+    >
+      <SpotifyPlayerProvider>
+        <RoomPlayInner />
+      </SpotifyPlayerProvider>
+    </Show>
   );
 };
 

@@ -21,6 +21,8 @@ export { useSpotifyPlayback } from "./spotify.playback";
 
 export { searchTracks, loadPlaylistTracks } from "./spotify.api";
 
+export { spotifyUrlToUri } from "./spotify.utils";
+
 export type {
   SpotifyTrack,
   CurrentTrack,
