@@ -19,12 +19,21 @@ export { SpotifyPlayerProvider, useSpotifyPlayer } from "./spotify.sdk.jsx";
 
 export { useSpotifyPlayback } from "./spotify.playback";
 
-export { searchTracks, loadPlaylistTracks } from "./spotify.api";
+export {
+  searchTracks,
+  loadPlaylistTracks,
+  getDevices,
+  playOnDevice,
+  pausePlayback,
+  resumePlayback,
+  seekPlayback,
+} from "./spotify.api";
 
 export { spotifyUrlToUri } from "./spotify.utils";
 
 export type {
   SpotifyTrack,
+  SpotifyDevice,
   CurrentTrack,
   PlaybackState,
 } from "./spotify.types";
