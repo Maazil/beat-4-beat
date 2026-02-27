@@ -115,11 +115,12 @@ const CreateRoom: Component = () => {
 
   // Add item to a category
   const addItem = (categoryId: string) => {
+    const newItemId = `item-${Date.now()}`;
     setCategories(
       categories().map((c) => {
         if (c.id !== categoryId) return c;
         const newItem: SongItem = {
-          id: `item-${Date.now()}`,
+          id: newItemId,
           level: c.items.length + 1,
           isRevealed: false,
           songUrl: "",
@@ -127,6 +128,7 @@ const CreateRoom: Component = () => {
         return { ...c, items: [...c.items, newItem] };
       })
     );
+    setEditingItem(newItemId);
   };
 
   // Update item song URL and optional metadata (title, artist)
