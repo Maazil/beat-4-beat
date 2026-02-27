@@ -208,56 +208,145 @@ const RoomPlayInner: Component = () => {
 
       {/* Now Playing bar */}
       <Show when={playback}>
-        {(pb) => <NowPlayingBar currentTrack={pb().currentTrack()} playbackState={pb().playbackState()} onPause={() => pb().pause()} onResume={() => pb().resume()} />}
+        {(pb) => (
+          <NowPlayingBar
+            currentTrack={pb().currentTrack()}
+            playbackState={pb().playbackState()}
+            onPause={() => pb().pause()}
+            onResume={() => pb().resume()}
+            onSeek={(ms) => pb().seek(ms)}
+          />
+        )}
       </Show>
     </div>
   );
 };
 
-/** Minimal Now Playing bar fixed at the bottom of the screen. */
+/** Format milliseconds as m:ss */
+const formatTime = (ms: number): string => {
+  const totalSeconds = Math.floor(ms / 1000);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+};
+
+/** Now Playing bar fixed at the bottom of the screen with seek controls. */
 const NowPlayingBar: Component<{
   currentTrack: CurrentTrack | null;
   playbackState: PlaybackState;
   onPause: () => void;
   onResume: () => void;
+  onSeek: (positionMs: number) => void;
 }> = (props) => {
+  const progressPct = () => {
+    const { positionMs, durationMs } = props.playbackState;
+    if (durationMs <= 0) return 0;
+    return (positionMs / durationMs) * 100;
+  };
+
+  const handleSeekClick = (e: MouseEvent) => {
+    const bar = e.currentTarget as HTMLElement;
+    const rect = bar.getBoundingClientRect();
+    const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    props.onSeek(Math.floor(pct * props.playbackState.durationMs));
+  };
+
+  const skipForward = () => {
+    const newPos = Math.min(
+      props.playbackState.positionMs + 10_000,
+      props.playbackState.durationMs,
+    );
+    props.onSeek(newPos);
+  };
+
+  const skipBackward = () => {
+    const newPos = Math.max(props.playbackState.positionMs - 10_000, 0);
+    props.onSeek(newPos);
+  };
+
   return (
     <Show when={props.currentTrack}>
       {(track) => (
-        <div class="fixed right-0 bottom-0 left-0 z-50 flex items-center gap-4 border-t border-neutral-200 bg-white px-6 py-3 shadow-lg">
-          <Show when={track().albumArt}>
-            <img
-              src={track().albumArt}
-              alt=""
-              class="h-10 w-10 rounded"
-            />
-          </Show>
-          <div class="min-w-0 flex-1">
-            <p class="truncate text-sm font-medium text-neutral-900">
-              {track().name}
-            </p>
-            <p class="truncate text-xs text-neutral-500">{track().artist}</p>
-          </div>
-          <button
-            type="button"
-            onClick={() =>
-              props.playbackState.isPlaying ? props.onPause() : props.onResume()
-            }
-            class="flex h-9 w-9 items-center justify-center rounded-full bg-neutral-900 text-white transition hover:bg-neutral-700"
+        <div class="fixed right-0 bottom-0 left-0 z-50 border-t border-neutral-200 bg-white shadow-lg">
+          {/* Seek bar */}
+          <div
+            class="group h-1.5 w-full cursor-pointer bg-neutral-200 transition-all hover:h-2.5"
+            onClick={handleSeekClick}
           >
-            <Show
-              when={props.playbackState.isPlaying}
-              fallback={
-                <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M8 5v14l11-7z" />
-                </svg>
-              }
+            <div
+              class="h-full bg-neutral-900 transition-all"
+              style={{ width: `${progressPct()}%` }}
+            />
+          </div>
+
+          <div class="flex items-center gap-4 px-6 py-2.5">
+            <Show when={track().albumArt}>
+              <img
+                src={track().albumArt}
+                alt=""
+                class="h-10 w-10 rounded"
+              />
+            </Show>
+            <div class="min-w-0 flex-1">
+              <p class="truncate text-sm font-medium text-neutral-900">
+                {track().name}
+              </p>
+              <p class="truncate text-xs text-neutral-500">{track().artist}</p>
+            </div>
+
+            {/* Time display */}
+            <span class="text-xs tabular-nums text-neutral-400">
+              {formatTime(props.playbackState.positionMs)}
+              {" / "}
+              {formatTime(props.playbackState.durationMs)}
+            </span>
+
+            {/* Skip back 10s */}
+            <button
+              type="button"
+              onClick={skipBackward}
+              class="flex h-8 w-8 items-center justify-center rounded-full text-neutral-600 transition hover:bg-neutral-100 hover:text-neutral-900"
             >
               <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+                <path d="M12.5 3C7.81 3 4.01 6.54 3.68 11H1l3.89 3.89.07.14L9 11H6.73c.32-3.12 2.97-5.5 6.27-5.5A6.5 6.5 0 0 1 19.5 12 6.5 6.5 0 0 1 13 18.5c-1.83 0-3.45-.75-4.63-1.96l-1.42 1.42A8.46 8.46 0 0 0 13 20.5a8.5 8.5 0 0 0 8.5-8.5A8.5 8.5 0 0 0 13 3.5h-.5V3z" />
+                <text x="10" y="16" font-size="7" font-weight="bold" text-anchor="middle">10</text>
               </svg>
-            </Show>
-          </button>
+            </button>
+
+            {/* Play / Pause */}
+            <button
+              type="button"
+              onClick={() =>
+                props.playbackState.isPlaying ? props.onPause() : props.onResume()
+              }
+              class="flex h-9 w-9 items-center justify-center rounded-full bg-neutral-900 text-white transition hover:bg-neutral-700"
+            >
+              <Show
+                when={props.playbackState.isPlaying}
+                fallback={
+                  <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                }
+              >
+                <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+                </svg>
+              </Show>
+            </button>
+
+            {/* Skip forward 10s */}
+            <button
+              type="button"
+              onClick={skipForward}
+              class="flex h-8 w-8 items-center justify-center rounded-full text-neutral-600 transition hover:bg-neutral-100 hover:text-neutral-900"
+            >
+              <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M11.5 3v.5A8.5 8.5 0 0 0 3 12a8.5 8.5 0 0 0 8.5 8.5 8.46 8.46 0 0 0 6.05-2.54l-1.42-1.42A6.47 6.47 0 0 1 11.5 18.5 6.5 6.5 0 0 1 5 12a6.5 6.5 0 0 1 6.5-6.5c3.3 0 5.95 2.38 6.27 5.5H15l4.04 3.89.07-.14L23 11h-2.68c-.33-4.46-4.13-8-7.82-8z" />
+                <text x="14" y="16" font-size="7" font-weight="bold" text-anchor="middle">10</text>
+              </svg>
+            </button>
+          </div>
         </div>
       )}
     </Show>
