@@ -24,6 +24,20 @@ export interface CurrentTrack {
   durationMs: number;
 }
 
+// ── Spotify Connect device types ──────────────────────────────────────
+
+/** A Spotify Connect device as returned by GET /me/player/devices. */
+export interface SpotifyDevice {
+  id: string;
+  is_active: boolean;
+  is_private_session: boolean;
+  is_restricted: boolean;
+  name: string;
+  type: string; // "Computer", "Smartphone", "Speaker", etc.
+  volume_percent: number | null;
+  supports_volume: boolean;
+}
+
 // ── Spotify Web API response types (only what we use) ─────────────────
 
 /** Subset of the Spotify image object. */
