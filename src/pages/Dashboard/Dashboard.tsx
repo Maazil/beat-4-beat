@@ -1,12 +1,29 @@
 import { useNavigate } from "@solidjs/router";
-import { For, type Component } from "solid-js";
+import { createSignal, For, onMount, Show, type Component } from "solid-js";
 import RoomManageCard from "../../components/RoomManageCard";
 import { useMyRooms } from "../../hooks/useMyRooms";
 import { deleteRoom } from "../../services/roomsService";
+import {
+  handleSpotifyCallback,
+  isSpotifyLoggedIn,
+  loginWithSpotify,
+  logoutSpotify,
+} from "../../lib/spotify";
 
 const Dashboard: Component = () => {
   const navigate = useNavigate();
   const { rooms: myRooms, isLoading, error } = useMyRooms();
+  const [spotifyConnected, setSpotifyConnected] = createSignal(false);
+
+  onMount(async () => {
+    // Handle Spotify redirect callback if returning from auth flow
+    const handled = await handleSpotifyCallback();
+    if (handled) {
+      setSpotifyConnected(true);
+      return;
+    }
+    setSpotifyConnected(isSpotifyLoggedIn());
+  });
 
   const handleDeleteRoom = async (roomId: string) => {
     try {
@@ -100,6 +117,45 @@ const Dashboard: Component = () => {
             >
               Opprett et nytt rom
             </button>
+          </article>
+
+          <article class="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+            <h2 class="text-lg font-semibold text-neutral-900">
+              Spotify
+            </h2>
+            <p class="mt-2 text-sm text-neutral-500">
+              Koble til Spotify Premium-kontoen din for å spille musikk direkte
+              i nettleseren under spillet.
+            </p>
+            <Show
+              when={spotifyConnected()}
+              fallback={
+                <button
+                  type="button"
+                  class="mt-6 inline-flex items-center justify-center rounded-full bg-[#1DB954] px-5 py-2 text-sm font-semibold text-white transition hover:cursor-pointer hover:bg-[#1ed760]"
+                  onClick={() => loginWithSpotify()}
+                >
+                  Koble til Spotify
+                </button>
+              }
+            >
+              <div class="mt-6 flex items-center gap-3">
+                <span class="inline-block h-2.5 w-2.5 rounded-full bg-[#1DB954]" />
+                <span class="text-sm font-medium text-neutral-700">
+                  Spotify tilkoblet
+                </span>
+                <button
+                  type="button"
+                  class="ml-auto text-sm text-neutral-400 hover:text-neutral-600"
+                  onClick={() => {
+                    logoutSpotify();
+                    setSpotifyConnected(false);
+                  }}
+                >
+                  Koble fra
+                </button>
+              </div>
+            </Show>
           </article>
 
           <article class="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">

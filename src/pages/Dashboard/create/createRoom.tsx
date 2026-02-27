@@ -115,11 +115,12 @@ const CreateRoom: Component = () => {
 
   // Add item to a category
   const addItem = (categoryId: string) => {
+    const newItemId = `item-${Date.now()}`;
     setCategories(
       categories().map((c) => {
         if (c.id !== categoryId) return c;
         const newItem: SongItem = {
-          id: `item-${Date.now()}`,
+          id: newItemId,
           level: c.items.length + 1,
           isRevealed: false,
           songUrl: "",
@@ -127,13 +128,16 @@ const CreateRoom: Component = () => {
         return { ...c, items: [...c.items, newItem] };
       })
     );
+    setEditingItem(newItemId);
   };
 
-  // Update item song URL
-  const updateItemUrl = (
+  // Update item song URL and optional metadata (title, artist)
+  const updateItem = (
     categoryId: string,
     itemId: string,
-    songUrl: string
+    songUrl: string,
+    title?: string,
+    artist?: string,
   ) => {
     setCategories(
       categories().map((c) => {
@@ -141,7 +145,9 @@ const CreateRoom: Component = () => {
         return {
           ...c,
           items: c.items.map((item) =>
-            item.id === itemId ? { ...item, songUrl } : item
+            item.id === itemId
+              ? { ...item, songUrl, title: title ?? item.title, artist: artist ?? item.artist }
+              : item
           ),
         };
       })
@@ -385,8 +391,8 @@ const CreateRoom: Component = () => {
                   onRemove={() => removeCategory(category.id)}
                   onAddItem={() => addItem(category.id)}
                   onEditItem={(itemId) => setEditingItem(itemId)}
-                  onUpdateItem={(itemId, songUrl) =>
-                    updateItemUrl(category.id, itemId, songUrl)
+                  onUpdateItem={(itemId, songUrl, title, artist) =>
+                    updateItem(category.id, itemId, songUrl, title, artist)
                   }
                   onBlurItem={() => setEditingItem(null)}
                   onRemoveItem={(itemId) => removeItem(category.id, itemId)}

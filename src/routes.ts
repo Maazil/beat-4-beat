@@ -97,6 +97,12 @@ export const routes: RouteDefinition[] = [
     component: lazy(() => import("./pages/forms-preview/FormsPreview")),
   },
 
+  // Spotify test (development only)
+  {
+    path: "/spotify-test",
+    component: lazy(() => import("./pages/spotify-test/SpotifyTest")),
+  },
+
   // Fallback
   {
     path: "**",
