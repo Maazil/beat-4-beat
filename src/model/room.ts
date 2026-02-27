@@ -24,77 +24,10 @@ export interface CreateRoomData {
   createdAt: Date | number; // Timestamp
 }
 
-export const defaultRoomData = (
-  overrides?: Partial<CreateRoomData>
-): CreateRoomData => ({
-  roomName: "My Beat Room",
-  hostName: "Maazil",
-  categories: [],
-  showCategories: true,
-  isActive: false,
-  isPublic: false,
-  createdAt: Date.now(),
-  ...overrides,
-});
-
-export const demoRoom = {
-  id: "demo-room-001",
-  roomName: "First room",
-  hostId: "demo-host-123",
-  hostName: "DJ Demo",
-  categories: [
-    {
-      id: "category-001",
-      name: "Pop Hits",
-      items: [
-        { id: "song-001", level: 1, isRevealed: false },
-        { id: "song-002", level: 2, isRevealed: false },
-        { id: "song-003", level: 3, isRevealed: false },
-      ],
-    },
-    {
-      id: "category-002",
-      name: "Rock Classics",
-      items: [
-        { id: "song-101", level: 1, isRevealed: false },
-        { id: "song-102", level: 2, isRevealed: false },
-        { id: "song-103", level: 3, isRevealed: false },
-      ],
-    },
-    {
-      id: "category-003",
-      name: "Norske Hits",
-      items: [
-        { id: "song-201", level: 1, isRevealed: false },
-        { id: "song-202", level: 2, isRevealed: false },
-        { id: "song-203", level: 3, isRevealed: false },
-      ],
-    },
-    {
-      id: "category-004",
-      name: "80s Favorites",
-      items: [
-        { id: "song-301", level: 1, isRevealed: false },
-        { id: "song-302", level: 2, isRevealed: false },
-        { id: "song-303", level: 3, isRevealed: false },
-      ],
-    },
-    {
-      id: "category-005",
-      name: "Tiktok Trends",
-      items: [
-        { id: "song-401", level: 1, isRevealed: false },
-        { id: "song-402", level: 2, isRevealed: false },
-        { id: "song-403", level: 3, isRevealed: false },
-      ],
-    },
-  ],
-  showCategories: true,
-  isActive: true,
-  createdAt: Date.now(),
-  isPublic: true,
-};
-
+/**
+ * Demo room data for seeding Firestore.
+ * Create this room via the dashboard, then delete the export once saved.
+ */
 export const drakeRoom: CreateRoomData = {
   roomName: "Drakes catalogue",
   hostName: "Drizzy drake",
@@ -254,3 +187,4 @@ export const drakeRoom: CreateRoomData = {
   createdAt: Date.now(),
   isPublic: true,
 };
+

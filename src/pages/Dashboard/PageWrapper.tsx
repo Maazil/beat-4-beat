@@ -49,6 +49,7 @@ const PageWrapper: ParentComponent = (props) => {
                 src={auth.state.user?.photoURL || "/images/guest.png"}
                 class="h-8 w-8 rounded-full"
                 alt="User image"
+                referrerpolicy="no-referrer"
               />
             </A>
           </nav>

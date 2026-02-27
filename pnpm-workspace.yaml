@@ -16,3 +16,4 @@ minimumReleaseAgeExclude:
   - globals
   - eslint
   - "@typescript-eslint/*"
+  - minimatch

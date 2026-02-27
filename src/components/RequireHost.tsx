@@ -1,11 +1,11 @@
 import { useParams } from "@solidjs/router";
 import { ParentComponent } from "solid-js";
-import { rooms } from "../store/roomsStore";
+import { useRoom } from "../hooks/useRoom";
 import ProtectedRoute from "./ProtectedRoute";
 
 const RequireHost: ParentComponent = (props) => {
   const params = useParams<{ id: string }>();
-  const room = () => rooms.find((r) => r.id === params.id);
+  const { room } = useRoom(() => params.id);
 
   return (
     <ProtectedRoute requireHost={true} roomHostId={room()?.hostId}>

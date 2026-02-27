@@ -14,9 +14,9 @@ interface SongItemCardProps {
 
 const SongItemCard: Component<SongItemCardProps> = (props) => {
   // Local state for editing to avoid re-renders on every keystroke
-  const [localUrl, setLocalUrl] = createSignal(props.item.songUrl || "");
+  const [localUrl, setLocalUrl] = createSignal("");
 
-  // Sync local state when item songUrl changes externally
+  // Sync local state when item songUrl changes (including initial value)
   createEffect(() => {
     setLocalUrl(props.item.songUrl || "");
   });
