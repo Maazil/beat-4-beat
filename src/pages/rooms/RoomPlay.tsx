@@ -15,6 +15,9 @@ import {
 import type { SpotifyDevice } from "../../lib/spotify";
 import DevicePicker, { deviceIcon } from "../../components/DevicePicker";
 import NowPlayingBar from "../../components/NowPlayingBar";
+import Scoreboard from "../../components/Scoreboard";
+import { updateRoom } from "../../services/roomsService";
+import type { Score } from "../../model/score";
 
 const categoryColors = [
   {
@@ -316,6 +319,19 @@ const RoomPlayInner: Component = () => {
                 </div>
               )}
             </Show>
+
+            {/* Scoreboard */}
+            <Scoreboard
+              scores={currentRoom()?.scores ?? []}
+              onUpdateScores={(scores: Score[]) => {
+                const room = currentRoom();
+                if (room) {
+                  updateRoom(room.id, { scores }).catch((err) =>
+                    console.error("[RoomPlay] Failed to update scores:", err),
+                  );
+                }
+              }}
+            />
 
             {/* Game board */}
             <Show when={selectedDevice() || !spotifyConnected}>
