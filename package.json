@@ -1,5 +1,6 @@
 {
   "name": "beat-4-beat-solid",
+  "packageManager": "pnpm@10.30.3",
   "version": "0.0.1",
   "description": "",
   "type": "module",
