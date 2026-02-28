@@ -7,9 +7,10 @@
 //   4. Exchange the code + verifier for an access_token & refresh_token.
 //   5. On expiry, silently refresh using the refresh_token (no user prompt).
 //
-// Tokens are kept in module-level variables (memory only).
-// The PKCE verifier is stored in sessionStorage only for the brief redirect
-// round-trip — it is deleted immediately after use.
+// Tokens are persisted in sessionStorage so the Spotify connection
+// survives page reloads within the same browser tab/session.
+// The PKCE verifier is also stored in sessionStorage for the brief
+// redirect round-trip — it is deleted immediately after use.
 
 import {
   SPOTIFY_AUTH_URL,
@@ -19,11 +20,15 @@ import {
   SPOTIFY_TOKEN_URL,
 } from "./spotify.config";
 
-// ── In-memory token store ─────────────────────────────────────────────
+// ── Token store (sessionStorage-backed) ───────────────────────────────
 
-let accessToken: string | null = null;
-let refreshToken: string | null = null;
-let tokenExpiresAt = 0; // epoch ms
+const SK_ACCESS = "spotify_access_token";
+const SK_REFRESH = "spotify_refresh_token";
+const SK_EXPIRES = "spotify_token_expires_at";
+
+let accessToken: string | null = sessionStorage.getItem(SK_ACCESS);
+let refreshToken: string | null = sessionStorage.getItem(SK_REFRESH);
+let tokenExpiresAt = Number(sessionStorage.getItem(SK_EXPIRES)) || 0;
 
 // Allow external modules to check login state without importing internals
 export function isSpotifyLoggedIn(): boolean {
@@ -156,11 +161,14 @@ export async function getAccessToken(): Promise<string> {
   return accessToken;
 }
 
-/** Disconnect: clear all in-memory tokens. */
+/** Disconnect: clear all tokens from memory and sessionStorage. */
 export function logoutSpotify(): void {
   accessToken = null;
   refreshToken = null;
   tokenExpiresAt = 0;
+  sessionStorage.removeItem(SK_ACCESS);
+  sessionStorage.removeItem(SK_REFRESH);
+  sessionStorage.removeItem(SK_EXPIRES);
 }
 
 // ── Internal helpers ──────────────────────────────────────────────────
@@ -168,8 +176,11 @@ export function logoutSpotify(): void {
 function storeTokens(access: string, refresh: string, expiresIn: number) {
   accessToken = access;
   refreshToken = refresh;
-  // Convert the "seconds until expiry" into an absolute epoch timestamp
   tokenExpiresAt = Date.now() + expiresIn * 1000;
+
+  sessionStorage.setItem(SK_ACCESS, access);
+  sessionStorage.setItem(SK_REFRESH, refresh);
+  sessionStorage.setItem(SK_EXPIRES, String(tokenExpiresAt));
 }
 
 async function silentRefresh(): Promise<void> {
