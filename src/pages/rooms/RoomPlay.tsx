@@ -1,5 +1,5 @@
 import { useParams } from "@solidjs/router";
-import { Component, createSignal, For, Show } from "solid-js";
+import { Component, createSignal, For, Show, onCleanup } from "solid-js";
 import { useRoom } from "../../hooks/useRoom";
 import {
   isSpotifyLoggedIn,
@@ -264,6 +264,72 @@ const RoomPlayInner: Component = () => {
   const [currentItemId, setCurrentItemId] = createSignal<string | null>(null);
   const [showTrackInfo, setShowTrackInfo] = createSignal(false);
 
+  // Progress bar state
+  const [positionMs, setPositionMs] = createSignal(0);
+  const [durationMs, setDurationMs] = createSignal(0);
+  const [isSeeking, setIsSeeking] = createSignal(false);
+
+  const progressPct = () => {
+    const d = durationMs();
+    return d > 0 ? (positionMs() / d) * 100 : 0;
+  };
+
+  const formatTime = (ms: number) => {
+    const totalSec = Math.floor(ms / 1000);
+    const min = Math.floor(totalSec / 60);
+    const sec = totalSec % 60;
+    return `${min}:${sec.toString().padStart(2, "0")}`;
+  };
+
+  // Poll Spotify for playback progress
+  let pollInterval: ReturnType<typeof setInterval> | undefined;
+
+  const startPolling = () => {
+    stopPolling();
+    pollInterval = setInterval(async () => {
+      if (isSeeking()) return;
+      try {
+        const token = await getAccessToken();
+        const res = await fetch("https://api.spotify.com/v1/me/player", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setPositionMs(data.progress_ms ?? 0);
+          setDurationMs(data.item?.duration_ms ?? 0);
+          setIsPlaying(data.is_playing ?? false);
+        }
+      } catch {
+        // silently ignore poll errors
+      }
+    }, 1000);
+  };
+
+  const stopPolling = () => {
+    if (pollInterval != null) {
+      clearInterval(pollInterval);
+      pollInterval = undefined;
+    }
+  };
+
+  onCleanup(stopPolling);
+
+  const handleSeekBar = async (e: MouseEvent) => {
+    const bar = e.currentTarget as HTMLElement;
+    const rect = bar.getBoundingClientRect();
+    const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    const seekMs = Math.round(pct * durationMs());
+    setIsSeeking(true);
+    setPositionMs(seekMs);
+    try {
+      await seekPlayback(seekMs);
+    } catch (err) {
+      console.error("[RoomPlay] Seek failed:", err);
+    } finally {
+      setIsSeeking(false);
+    }
+  };
+
   const spotifyConnected = isSpotifyLoggedIn();
 
   const fetchDevices = async () => {
@@ -302,6 +368,9 @@ const RoomPlayInner: Component = () => {
             startTime != null && startTime > 0 ? startTime * 1000 : 0;
           await playOnDevice(uri, device.id, posMs);
           setIsPlaying(true);
+          setPositionMs(posMs);
+          setDurationMs(0);
+          startPolling();
         } catch (err) {
           console.error("[RoomPlay] Play failed:", err);
           window.open(songUrl, "_blank");
@@ -560,6 +629,30 @@ const RoomPlayInner: Component = () => {
       {/* Bottom control bar — shown when a song is playing */}
       <Show when={currentItemId()}>
         <div class="fixed right-0 bottom-0 left-0 z-50 border-t border-neutral-200 bg-white shadow-lg">
+          {/* Progress / seek bar */}
+          <Show when={durationMs() > 0}>
+            <div class="flex items-center gap-2 px-6 pt-3">
+              <span class="w-10 text-right text-xs tabular-nums text-neutral-500">
+                {formatTime(positionMs())}
+              </span>
+              <div
+                class="group relative h-1.5 flex-1 cursor-pointer rounded-full bg-neutral-200"
+                onClick={handleSeekBar}
+              >
+                <div
+                  class="absolute top-0 left-0 h-full rounded-full bg-neutral-900 transition-[width] duration-200"
+                  style={{ width: `${progressPct()}%` }}
+                />
+                <div
+                  class="absolute top-1/2 h-3 w-3 -translate-y-1/2 rounded-full bg-neutral-900 opacity-0 shadow transition group-hover:opacity-100"
+                  style={{ left: `${progressPct()}%` }}
+                />
+              </div>
+              <span class="w-10 text-xs tabular-nums text-neutral-500">
+                {formatTime(durationMs())}
+              </span>
+            </div>
+          </Show>
           <div class="flex items-center gap-4 px-6 py-3">
             {/* Hidden track info with reveal toggle */}
             <div class="min-w-0 flex-1">
