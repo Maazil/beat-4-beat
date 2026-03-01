@@ -22,7 +22,8 @@ import type {
  */
 export async function searchTracks(
   query: string,
-  limit = 20
+  limit = 20,
+  offset = 0
 ): Promise<SpotifyTrack[]> {
   const token = await getAccessToken();
 
@@ -30,6 +31,7 @@ export async function searchTracks(
     q: query,
     type: "track",
     limit: String(Math.min(limit, 50)),
+    offset: String(offset),
   });
 
   const res = await fetch(`${SPOTIFY_API_BASE}/search?${params.toString()}`, {
