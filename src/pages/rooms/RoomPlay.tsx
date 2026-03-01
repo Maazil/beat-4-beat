@@ -75,11 +75,15 @@ const RoomPlayInner: Component = () => {
   const params = useParams();
   const { room: currentRoom, isLoading } = useRoom(() => params.id);
 
-  // Device selection
+  // Device selection (restore from sessionStorage)
   const [devices, setDevices] = createSignal<SpotifyDevice[]>([]);
   const [isLoadingDevices, setIsLoadingDevices] = createSignal(false);
+
+  const storedDevice = sessionStorage.getItem("spotify_selected_device");
   const [selectedDevice, setSelectedDevice] =
-    createSignal<SpotifyDevice | null>(null);
+    createSignal<SpotifyDevice | null>(
+      storedDevice ? (JSON.parse(storedDevice) as SpotifyDevice) : null,
+    );
 
   // Playback state
   const [revealedItems, setRevealedItems] = createSignal<Set<string>>(
@@ -107,6 +111,7 @@ const RoomPlayInner: Component = () => {
 
   const handleSelectDevice = (device: SpotifyDevice) => {
     setSelectedDevice(device);
+    sessionStorage.setItem("spotify_selected_device", JSON.stringify(device));
   };
 
   const handleItemClick = async (
@@ -310,6 +315,7 @@ const RoomPlayInner: Component = () => {
                     type="button"
                     onClick={() => {
                       setSelectedDevice(null);
+                      sessionStorage.removeItem("spotify_selected_device");
                       fetchDevices();
                     }}
                     class="text-xs text-green-700 underline transition hover:text-green-900"
