@@ -21,12 +21,13 @@ export { useSpotifyPlayback } from "./spotify.playback";
 
 export {
   searchTracks,
-  loadPlaylistTracks,
   getDevices,
   playOnDevice,
   pausePlayback,
   resumePlayback,
   seekPlayback,
+  getMySpotifyPlaylists,
+  getOwnPlaylistTracks,
   searchPlaylists,
 } from "./spotify.api";
 

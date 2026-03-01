@@ -84,12 +84,6 @@ export interface SpotifySearchResponse {
   };
 }
 
-/** /v1/playlists/{id}/tracks response. */
-export interface SpotifyPlaylistTracksResponse {
-  items: Array<{ track: SpotifyApiTrack | null }>;
-  next: string | null; // pagination cursor
-}
-
 // ── Spotify Web Playback SDK ambient types ────────────────────────────
 // The SDK is loaded at runtime via <script> and attaches to `window.Spotify`.
 

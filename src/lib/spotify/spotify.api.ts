@@ -9,7 +9,6 @@ import type {
   SpotifyApiTrack,
   SpotifyDevice,
   SpotifyPlaylistBrief,
-  SpotifyPlaylistTracksResponse,
   SpotifySearchResponse,
   SpotifyTrack,
 } from "./spotify.types";
@@ -46,52 +45,6 @@ export async function searchTracks(
   return data.tracks.items.map(mapApiTrack);
 }
 
-// ── Playlist loader ───────────────────────────────────────────────────
-
-/**
- * Load all tracks from a Spotify playlist.
- *
- * Accepts any of these formats:
- *   - Full URL:  https://open.spotify.com/playlist/37i9dQZF1DXcBWIGoYBM5M
- *   - URI:       spotify:playlist:37i9dQZF1DXcBWIGoYBM5M
- *   - Plain ID:  37i9dQZF1DXcBWIGoYBM5M
- *
- * Automatically paginates through all pages.
- */
-export async function loadPlaylistTracks(
-  playlistInput: string
-): Promise<SpotifyTrack[]> {
-  const id = extractPlaylistId(playlistInput);
-  const token = await getAccessToken();
-
-  const tracks: SpotifyTrack[] = [];
-  let url: string | null =
-    `${SPOTIFY_API_BASE}/playlists/${id}/tracks?fields=items(track(name,uri,duration_ms,artists(name),album(images))),next&limit=100`;
-
-  // Follow pagination until there are no more pages
-  while (url) {
-    const res = await fetch(url, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-
-    if (!res.ok) {
-      throw new Error(`[spotify.api] Playlist load failed: ${res.status}`);
-    }
-
-    const data: SpotifyPlaylistTracksResponse = await res.json();
-
-    for (const item of data.items) {
-      // Playlist items can be null (e.g. deleted tracks)
-      if (item.track) {
-        tracks.push(mapApiTrack(item.track));
-      }
-    }
-
-    url = data.next;
-  }
-
-  return tracks;
-}
 
 // ── Helpers ───────────────────────────────────────────────────────────
 
@@ -106,26 +59,6 @@ function mapApiTrack(t: SpotifyApiTrack): SpotifyTrack {
   };
 }
 
-/**
- * Extract a playlist ID from a URL, URI, or plain ID.
- *
- * Examples:
- *   "https://open.spotify.com/playlist/37i9dQZF1DXcBWIGoYBM5M?si=..." → "37i9dQZF1DXcBWIGoYBM5M"
- *   "spotify:playlist:37i9dQZF1DXcBWIGoYBM5M"                        → "37i9dQZF1DXcBWIGoYBM5M"
- *   "37i9dQZF1DXcBWIGoYBM5M"                                         → "37i9dQZF1DXcBWIGoYBM5M"
- */
-function extractPlaylistId(input: string): string {
-  // Full URL
-  const urlMatch = input.match(/playlist\/([A-Za-z0-9]+)/);
-  if (urlMatch) return urlMatch[1];
-
-  // Spotify URI
-  const uriMatch = input.match(/spotify:playlist:([A-Za-z0-9]+)/);
-  if (uriMatch) return uriMatch[1];
-
-  // Assume it's already a bare ID
-  return input;
-}
 
 // ── Spotify Connect — device listing & remote playback ────────────────
 
@@ -226,6 +159,79 @@ export async function seekPlayback(positionMs: number): Promise<void> {
   if (!res.ok) {
     throw new Error(`[spotify.api] Seek failed: ${res.status}`);
   }
+}
+
+// ── Current user's playlists ─────────────────────────────────────────
+
+/**
+ * Fetch the current user's playlists via `GET /me/playlists`.
+ * Returns up to `limit` playlists (default 50, max 50).
+ */
+export async function getMySpotifyPlaylists(
+  limit = 50
+): Promise<SpotifyPlaylistBrief[]> {
+  const token = await getAccessToken();
+
+  const params = new URLSearchParams({
+    limit: String(Math.min(limit, 50)),
+  });
+
+  const res = await fetch(
+    `${SPOTIFY_API_BASE}/me/playlists?${params.toString()}`,
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+
+  if (!res.ok) {
+    throw new Error(`[spotify.api] Get my playlists failed: ${res.status}`);
+  }
+
+  const data = await res.json();
+  const items: (SpotifyPlaylistBrief | null)[] = data?.items ?? [];
+  return items.filter((p): p is SpotifyPlaylistBrief => p !== null);
+}
+
+/**
+ * Fetch tracks from a playlist the current user owns or collaborates on.
+ * Uses `GET /playlists/{id}/items` (works for own playlists).
+ * Paginates through all pages automatically.
+ */
+export async function getOwnPlaylistTracks(
+  playlistId: string
+): Promise<SpotifyTrack[]> {
+  const token = await getAccessToken();
+
+  const tracks: SpotifyTrack[] = [];
+  let url: string | null =
+    `${SPOTIFY_API_BASE}/playlists/${playlistId}/items?limit=50`;
+
+  while (url) {
+    const res: Response = await fetch(url, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (!res.ok) {
+      throw new Error(
+        `[spotify.api] Get playlist items failed: ${res.status}`
+      );
+    }
+
+    const data: {
+      items?: Array<{
+        item?: SpotifyApiTrack | null;
+        is_local?: boolean;
+      } | null>;
+      next?: string | null;
+    } = await res.json();
+
+    for (const entry of data.items ?? []) {
+      if (!entry || entry.is_local || !entry.item) continue;
+      tracks.push(mapApiTrack(entry.item));
+    }
+
+    url = data.next ?? null;
+  }
+
+  return tracks;
 }
 
 // ── Playlist search ──────────────────────────────────────────────────
