@@ -38,6 +38,17 @@ export interface SpotifyDevice {
   supports_volume: boolean;
 }
 
+// ── Spotify Browse API types ──────────────────────────────────────────
+
+/** A brief playlist object returned by Search or Browse API. */
+export interface SpotifyPlaylistBrief {
+  id: string;
+  name: string;
+  description: string;
+  images: SpotifyImage[];
+  items?: { total: number };
+}
+
 // ── Spotify Web API response types (only what we use) ─────────────────
 
 /** Subset of the Spotify image object. */
