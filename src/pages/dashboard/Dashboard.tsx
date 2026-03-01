@@ -159,6 +159,20 @@ const Dashboard: Component = () => {
           </article>
 
           <article class="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+            <h2 class="text-lg font-semibold text-neutral-900">Markedsplass</h2>
+            <p class="mt-2 text-sm text-neutral-500">
+              Utforsk offentlige rom laget av andre spillere og bli med i en økt.
+            </p>
+            <button
+              type="button"
+              class="mt-6 inline-flex items-center justify-center rounded-full bg-neutral-900 px-5 py-2 text-sm font-semibold text-white transition hover:cursor-pointer hover:bg-neutral-700"
+              onClick={() => navigate("/market")}
+            >
+              Utforsk rom
+            </button>
+          </article>
+
+          <article class="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
             <h2 class="text-lg font-semibold text-neutral-900">Statistikk</h2>
             <p class="mt-2 text-sm text-neutral-500">
               Få innblikk i engasjement og prestasjon fra tidligere runder.
