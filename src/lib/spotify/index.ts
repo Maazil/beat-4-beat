@@ -27,6 +27,7 @@ export {
   pausePlayback,
   resumePlayback,
   seekPlayback,
+  searchPlaylists,
 } from "./spotify.api";
 
 export { spotifyUrlToUri } from "./spotify.utils";
@@ -34,6 +35,7 @@ export { spotifyUrlToUri } from "./spotify.utils";
 export type {
   SpotifyTrack,
   SpotifyDevice,
+  SpotifyPlaylistBrief,
   CurrentTrack,
   PlaybackState,
 } from "./spotify.types";

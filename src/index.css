@@ -93,6 +93,14 @@ button {
 }
 
 @layer utilities {
+	.scrollbar-hide {
+		-ms-overflow-style: none;
+		scrollbar-width: none;
+	}
+	.scrollbar-hide::-webkit-scrollbar {
+		display: none;
+	}
+
 	.bg-ambient {
 		background: radial-gradient(circle at top left, rgba(94, 0, 23, 0.22) 0, rgba(5, 5, 7, 0) 58%),
 			radial-gradient(circle at 80% -10%, rgba(255, 64, 64, 0.2) 0, rgba(5, 5, 7, 0) 45%),
