@@ -67,11 +67,11 @@ const Login: Component = () => {
           when={!auth.state.isLoading}
           fallback={<p class="text-center text-neutral-500">Laster konto…</p>}
         >
-          {error() && (
+          <Show when={error()}>
             <div class="mb-6 rounded-lg border border-red-500/30 bg-red-500/10 p-3">
               <p class="text-sm text-red-300">{error()}</p>
             </div>
-          )}
+          </Show>
 
           <div class="space-y-4">
             <button

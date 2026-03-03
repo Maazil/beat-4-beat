@@ -1,5 +1,5 @@
 import type { Component } from "solid-js";
-import { For, createEffect, createSignal, onCleanup, onMount } from "solid-js";
+import { For, createEffect, createSignal, onCleanup } from "solid-js";
 
 type RandomVisualizerProps = {
   barCount?: number;
@@ -41,8 +41,6 @@ const RandomVisualizer: Component<RandomVisualizerProps> = (props) => {
       });
     }, delay);
   };
-
-  onMount(() => start(stepInterval(), count()));
 
   createEffect(() => {
     const bars = count();
