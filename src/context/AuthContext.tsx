@@ -28,10 +28,13 @@ import {
   getSpotifyProfile,
 } from "../lib/spotify";
 import {
+  deleteUserProfile,
+  findUserBySpotifyId,
   getUserProfile,
   upsertUserProfile,
   type AuthProvider as AuthProviderType,
 } from "../services/usersService";
+import { migrateRoomOwnership } from "../services/roomsService";
 
 export interface AuthState {
   user: User | null;
@@ -145,12 +148,29 @@ export const AuthProvider: ParentComponent = (props) => {
 
     try {
       const profile = await getSpotifyProfile();
+      const displayName = profile.display_name || "Spotify User";
+      const photoURL = profile.images?.[0]?.url || null;
+
+      // Check if this Spotify account has logged in before (different Firebase UID)
+      const existingUser = await findUserBySpotifyId(profile.id);
+      if (existingUser && existingUser.uid !== user.uid) {
+        // Returning Spotify user — migrate rooms from old UID to new UID
+        const migrated = await migrateRoomOwnership(
+          existingUser.uid,
+          user.uid,
+          displayName
+        );
+        if (migrated > 0) {
+          console.info(
+            `[auth] Migrated ${migrated} room(s) from old UID ${existingUser.uid} to ${user.uid}`
+          );
+        }
+        // Clean up the old user document
+        await deleteUserProfile(existingUser.uid);
+      }
 
       // Update Firebase Auth profile with Spotify display name + photo
-      await updateProfile(user, {
-        displayName: profile.display_name || "Spotify User",
-        photoURL: profile.images?.[0]?.url || null,
-      });
+      await updateProfile(user, { displayName, photoURL });
 
       // Update Firestore user doc with authProvider and Spotify info
       const ref = doc(db, "users", user.uid);
@@ -158,9 +178,9 @@ export const AuthProvider: ParentComponent = (props) => {
         ref,
         {
           authProvider: "spotify" as AuthProviderType,
-          displayName: profile.display_name || "Spotify User",
+          displayName,
           email: profile.email || null,
-          photoURL: profile.images?.[0]?.url || null,
+          photoURL,
           spotifyId: profile.id,
           lastLoginAt: serverTimestamp(),
         },

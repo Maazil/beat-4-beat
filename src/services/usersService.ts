@@ -2,12 +2,15 @@
 import { type User } from "firebase/auth";
 import {
   collection,
+  deleteDoc,
   doc,
   getDoc,
+  getDocs,
   onSnapshot,
   query,
   serverTimestamp,
   setDoc,
+  where,
   type DocumentReference,
 } from "firebase/firestore";
 import { createSignal } from "solid-js";
@@ -76,6 +79,32 @@ export async function getUserProfile(
   return { id: snapshot.id, ...snapshot.data() } as UserProfile & {
     id: string;
   };
+}
+
+/**
+ * Find an existing user doc by Spotify ID.
+ * Returns the first match (there should be at most one) or null.
+ */
+export async function findUserBySpotifyId(
+  spotifyId: string
+): Promise<(UserProfile & { id: string }) | null> {
+  const q = query(
+    collection(db, "users"),
+    where("spotifyId", "==", spotifyId),
+    where("authProvider", "==", "spotify")
+  );
+  const snapshot = await getDocs(q);
+  if (snapshot.empty) return null;
+  const d = snapshot.docs[0];
+  return { id: d.id, ...d.data() } as UserProfile & { id: string };
+}
+
+/**
+ * Delete a user profile document (used to clean up old anonymous user docs
+ * after migrating a returning Spotify user to a new Firebase UID).
+ */
+export async function deleteUserProfile(uid: string): Promise<void> {
+  await deleteDoc(doc(db, "users", uid));
 }
 
 type UserDoc = UserProfile & { id: string };

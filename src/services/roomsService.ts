@@ -257,6 +257,30 @@ export async function toggleRoomActive(roomId: string): Promise<boolean> {
 }
 
 /**
+ * Migrate all rooms owned by `oldHostId` to `newHostId`.
+ * Used when a returning Spotify user gets a new Firebase anonymous UID.
+ */
+export async function migrateRoomOwnership(
+  oldHostId: string,
+  newHostId: string,
+  newHostName?: string
+): Promise<number> {
+  const q = query(roomsCollection, where("hostId", "==", oldHostId));
+  const snapshot = await getDocs(q);
+
+  const updates: Record<string, string> = { hostId: newHostId };
+  if (newHostName) updates.hostName = newHostName;
+
+  let migrated = 0;
+  for (const d of snapshot.docs) {
+    await updateDoc(d.ref, updates);
+    migrated++;
+  }
+
+  return migrated;
+}
+
+/**
  * Check if current user is the host of a room
  */
 export function isRoomHost(room: Room): boolean {
