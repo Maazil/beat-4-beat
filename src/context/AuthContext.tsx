@@ -8,6 +8,11 @@ import {
   type User,
 } from "firebase/auth";
 import {
+  doc,
+  serverTimestamp,
+  setDoc,
+} from "firebase/firestore";
+import {
   Accessor,
   createContext,
   onCleanup,
@@ -16,19 +21,31 @@ import {
   useContext,
 } from "solid-js";
 import { createStore } from "solid-js/store";
-import { auth } from "../lib/firebase";
-import { upsertUserProfile } from "../services/usersService";
+import { auth, db } from "../lib/firebase";
+import {
+  loginWithSpotify,
+  logoutSpotify,
+  getSpotifyProfile,
+} from "../lib/spotify";
+import {
+  getUserProfile,
+  upsertUserProfile,
+  type AuthProvider as AuthProviderType,
+} from "../services/usersService";
 
 export interface AuthState {
   user: User | null;
   isLoading: boolean;
+  authProvider: AuthProviderType | null;
 }
 
 interface AuthContextValue {
   state: AuthState;
   signInAnonymously: () => Promise<void>;
   signInWithGoogle: () => Promise<void>;
+  signInWithSpotify: () => Promise<void>;
   signOut: () => Promise<void>;
+  handleSpotifyLoginCallback: () => Promise<void>;
   isGuest: Accessor<boolean>;
   isAuthenticated: Accessor<boolean>;
   isFullUser: Accessor<boolean>;
@@ -43,13 +60,14 @@ export const AuthProvider: ParentComponent = (props) => {
   const [state, setState] = createStore<AuthState>({
     user: null,
     isLoading: true,
+    authProvider: null,
   });
 
-  // Computed signals based on user state
-  const isGuest = () => state.user?.isAnonymous === true;
+  // Computed signals based on user state + authProvider
+  const isGuest = () => state.authProvider === "guest";
   const isAuthenticated = () => state.user !== null;
   const isFullUser = () =>
-    state.user !== null && state.user.isAnonymous === false;
+    state.authProvider === "google" || state.authProvider === "spotify";
   const canCreateRooms = () => isFullUser();
   const userNameSplit = () => {
     return state.user !== null && isFullUser()
@@ -63,7 +81,7 @@ export const AuthProvider: ParentComponent = (props) => {
     return state.user.uid === roomHostId;
   };
 
-  // Firebase Anonymous Sign In
+  // Firebase Anonymous Sign In (guest)
   const signInAnonymously = async () => {
     setState("isLoading", true);
     try {
@@ -97,10 +115,78 @@ export const AuthProvider: ParentComponent = (props) => {
     }
   };
 
+  // Spotify login: sign in anonymously to Firebase, then redirect to Spotify
+  const signInWithSpotify = async () => {
+    setState("isLoading", true);
+    try {
+      await firebaseSignInAnonymously(auth);
+      sessionStorage.setItem("spotify_auth_intent", "login");
+      await loginWithSpotify();
+      // loginWithSpotify() redirects — code below won't execute
+    } catch (error) {
+      console.error("Spotify sign in failed:", error);
+      sessionStorage.removeItem("spotify_auth_intent");
+      setState("isLoading", false);
+      throw error;
+    }
+  };
+
+  /**
+   * Called after Spotify OAuth redirect is handled on the Dashboard.
+   * If the intent was "login", fetch the Spotify profile, update Firebase
+   * user profile and Firestore doc, then update auth state.
+   */
+  const handleSpotifyLoginCallback = async () => {
+    const intent = sessionStorage.getItem("spotify_auth_intent");
+    if (intent !== "login") return;
+
+    const user = auth.currentUser;
+    if (!user) return;
+
+    try {
+      const profile = await getSpotifyProfile();
+
+      // Update Firebase Auth profile with Spotify display name + photo
+      await updateProfile(user, {
+        displayName: profile.display_name || "Spotify User",
+        photoURL: profile.images?.[0]?.url || null,
+      });
+
+      // Update Firestore user doc with authProvider and Spotify info
+      const ref = doc(db, "users", user.uid);
+      await setDoc(
+        ref,
+        {
+          authProvider: "spotify" as AuthProviderType,
+          displayName: profile.display_name || "Spotify User",
+          email: profile.email || null,
+          photoURL: profile.images?.[0]?.url || null,
+          spotifyId: profile.id,
+          lastLoginAt: serverTimestamp(),
+        },
+        { merge: true }
+      );
+
+      setState({
+        authProvider: "spotify",
+        // Re-read user to pick up updated displayName/photoURL
+        user: auth.currentUser,
+      });
+    } catch (error) {
+      console.error("Failed to complete Spotify login:", error);
+    } finally {
+      sessionStorage.removeItem("spotify_auth_intent");
+    }
+  };
+
   // Firebase Sign Out
   const signOut = async () => {
     try {
+      if (state.authProvider === "spotify") {
+        logoutSpotify();
+      }
       await firebaseSignOut(auth);
+      setState({ authProvider: null });
     } catch (error) {
       console.error("Sign out failed:", error);
       throw error;
@@ -118,8 +204,20 @@ export const AuthProvider: ParentComponent = (props) => {
         } catch (error) {
           console.error("Failed to sync user profile:", error);
         }
+
+        // Read authProvider from Firestore
+        let authProvider: AuthProviderType | null = null;
+        try {
+          const profile = await getUserProfile(user.uid);
+          authProvider = profile?.authProvider ?? (user.isAnonymous ? "guest" : "google");
+        } catch {
+          authProvider = user.isAnonymous ? "guest" : "google";
+        }
+
+        setState({ user, authProvider, isLoading: false });
+      } else {
+        setState({ user: null, authProvider: null, isLoading: false });
       }
-      setState({ user, isLoading: false });
     });
 
     onCleanup(() => {
@@ -131,7 +229,9 @@ export const AuthProvider: ParentComponent = (props) => {
     state,
     signInAnonymously,
     signInWithGoogle,
+    signInWithSpotify,
     signOut,
+    handleSpotifyLoginCallback,
     isGuest,
     isAuthenticated,
     isFullUser,

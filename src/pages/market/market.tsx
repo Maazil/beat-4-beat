@@ -71,20 +71,23 @@ const Market: Component = () => {
         isRevealed: false,
       }));
 
-      const roomId = await createRoom({
-        roomName: playlist.name,
-        hostName: state.user?.displayName || "Host",
-        categories: [
-          {
-            id: crypto.randomUUID(),
-            name: playlist.name,
-            items,
-          },
-        ],
-        showCategories: false,
-        isPublic: false,
-        createdAt: Date.now(),
-      });
+      const roomId = await createRoom(
+        {
+          roomName: playlist.name,
+          hostName: state.user?.displayName || "Host",
+          categories: [
+            {
+              id: crypto.randomUUID(),
+              name: playlist.name,
+              items,
+            },
+          ],
+          showCategories: false,
+          isPublic: false,
+          createdAt: Date.now(),
+        },
+        { isFullUser: canCreateRooms() }
+      );
 
       navigate(`/rooms/${roomId}/play`);
     } catch (err) {

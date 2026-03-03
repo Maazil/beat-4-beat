@@ -29,6 +29,7 @@ export {
   getMySpotifyPlaylists,
   getOwnPlaylistTracks,
   searchPlaylists,
+  getSpotifyProfile,
 } from "./spotify.api";
 
 export { spotifyUrlToUri } from "./spotify.utils";
@@ -37,6 +38,7 @@ export type {
   SpotifyTrack,
   SpotifyDevice,
   SpotifyPlaylistBrief,
+  SpotifyUserProfile,
   CurrentTrack,
   PlaybackState,
 } from "./spotify.types";

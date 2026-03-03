@@ -11,6 +11,7 @@ import type {
   SpotifyPlaylistBrief,
   SpotifySearchResponse,
   SpotifyTrack,
+  SpotifyUserProfile,
 } from "./spotify.types";
 
 // ── Search ────────────────────────────────────────────────────────────
@@ -232,6 +233,28 @@ export async function getOwnPlaylistTracks(
   }
 
   return tracks;
+}
+
+// ── Playlist search ──────────────────────────────────────────────────
+
+// ── Current user profile ─────────────────────────────────────────────
+
+/**
+ * Fetch the current user's Spotify profile via `GET /v1/me`.
+ * Requires scopes: user-read-email, user-read-private (already requested).
+ */
+export async function getSpotifyProfile(): Promise<SpotifyUserProfile> {
+  const token = await getAccessToken();
+
+  const res = await fetch(`${SPOTIFY_API_BASE}/me`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  if (!res.ok) {
+    throw new Error(`[spotify.api] Get profile failed: ${res.status}`);
+  }
+
+  return res.json() as Promise<SpotifyUserProfile>;
 }
 
 // ── Playlist search ──────────────────────────────────────────────────

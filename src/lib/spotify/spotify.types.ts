@@ -84,6 +84,16 @@ export interface SpotifySearchResponse {
   };
 }
 
+// ── Spotify User Profile ──────────────────────────────────────────────
+
+/** Subset of the Spotify user profile returned by GET /v1/me. */
+export interface SpotifyUserProfile {
+  id: string;
+  display_name: string | null;
+  email: string;
+  images: SpotifyImage[];
+}
+
 // ── Spotify Web Playback SDK ambient types ────────────────────────────
 // The SDK is loaded at runtime via <script> and attaches to `window.Spotify`.
 

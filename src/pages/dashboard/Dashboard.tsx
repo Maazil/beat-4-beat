@@ -1,6 +1,7 @@
 import { useNavigate } from "@solidjs/router";
 import { createSignal, For, onMount, Show, type Component } from "solid-js";
 import RoomManageCard from "../../components/RoomManageCard";
+import { useAuth } from "../../context/AuthContext";
 import { useMyRooms } from "../../hooks/useMyRooms";
 import { deleteRoom } from "../../services/roomsService";
 import {
@@ -12,6 +13,7 @@ import {
 
 const Dashboard: Component = () => {
   const navigate = useNavigate();
+  const auth = useAuth();
   const { rooms: myRooms, isLoading, error } = useMyRooms();
   const [spotifyConnected, setSpotifyConnected] = createSignal(false);
 
@@ -20,6 +22,9 @@ const Dashboard: Component = () => {
     const handled = await handleSpotifyCallback();
     if (handled) {
       setSpotifyConnected(true);
+
+      // If returning from a "login with Spotify" flow, complete the login
+      await auth.handleSpotifyLoginCallback();
       return;
     }
     setSpotifyConnected(isSpotifyLoggedIn());

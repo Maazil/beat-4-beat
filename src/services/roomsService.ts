@@ -63,14 +63,25 @@ function generateFreshIds(categories: Category[]): Category[] {
  * Uses provided hostName or falls back to user's displayName
  * Generates fresh UUIDs for all categories and items
  */
-export async function createRoom(roomData: CreateRoomData): Promise<string> {
+/**
+ * Create a new room in Firestore.
+ * Pass `isFullUser: true` to allow Spotify users (who are anonymous in Firebase
+ * but authenticated via Spotify) to create rooms.
+ */
+export async function createRoom(
+  roomData: CreateRoomData,
+  options?: { isFullUser?: boolean }
+): Promise<string> {
   const user = auth.currentUser;
 
   if (!user) {
     throw new Error("Must be logged in to create a room");
   }
 
-  if (user.isAnonymous) {
+  // Allow room creation if caller confirms the user is a full user (Google or Spotify),
+  // otherwise fall back to checking Firebase anonymous status
+  const fullUser = options?.isFullUser ?? !user.isAnonymous;
+  if (!fullUser) {
     throw new Error("Guest users cannot create rooms");
   }
 

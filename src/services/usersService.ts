@@ -14,6 +14,8 @@ import { createSignal } from "solid-js";
 import { createStore } from "solid-js/store";
 import { db } from "../lib/firebase";
 
+export type AuthProvider = "google" | "spotify" | "guest";
+
 type UserProfile = {
   uid: string;
   displayName: string | null;
@@ -23,6 +25,7 @@ type UserProfile = {
   isAnonymous: boolean;
   providerId: string;
   phoneNumber: string | null;
+  authProvider?: AuthProvider;
   createdAt: ReturnType<typeof serverTimestamp>;
   lastLoginAt: ReturnType<typeof serverTimestamp>;
 };
@@ -47,15 +50,32 @@ export async function upsertUserProfile(user: User) {
   };
 
   if (!snapshot.exists()) {
+    // New user — determine provider from Firebase auth state
+    const authProvider: AuthProvider = user.isAnonymous ? "guest" : "google";
     await setDoc(ref, {
       ...payload,
+      authProvider,
       createdAt: serverTimestamp(),
     } as UserProfile);
   } else {
+    // Existing user — preserve authProvider (may have been upgraded to "spotify")
     await setDoc(ref, payload, { merge: true });
   }
 
   return ref.id;
+}
+
+/**
+ * Read a single user profile from Firestore.
+ */
+export async function getUserProfile(
+  uid: string
+): Promise<(UserProfile & { id: string }) | null> {
+  const snapshot = await getDoc(userDoc(uid));
+  if (!snapshot.exists()) return null;
+  return { id: snapshot.id, ...snapshot.data() } as UserProfile & {
+    id: string;
+  };
 }
 
 type UserDoc = UserProfile & { id: string };

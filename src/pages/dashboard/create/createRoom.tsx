@@ -353,14 +353,17 @@ const CreateRoom: Component = () => {
         });
       } else {
         // Create mode — create new room
-        await createRoomInFirestore({
-          roomName: name,
-          hostName: auth.state.user?.displayName || "Anonym",
-          categories: categories(),
-          isPublic: isPublic(),
-          isActive: true,
-          createdAt: Date.now(),
-        });
+        await createRoomInFirestore(
+          {
+            roomName: name,
+            hostName: auth.state.user?.displayName || "Anonym",
+            categories: categories(),
+            isPublic: isPublic(),
+            isActive: true,
+            createdAt: Date.now(),
+          },
+          { isFullUser: auth.isFullUser() }
+        );
       }
       navigate("/dashboard");
     } catch (error) {
