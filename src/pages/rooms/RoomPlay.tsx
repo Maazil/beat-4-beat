@@ -109,7 +109,7 @@ const RoomPlayInner: Component = () => {
   // Playback progress hook
   const playback = usePlaybackProgress();
 
-  const spotifyConnected = isSpotifyLoggedIn();
+  const spotifyConnected = () => isSpotifyLoggedIn();
 
   const fetchDevices = async () => {
     setIsLoadingDevices(true);
@@ -140,7 +140,7 @@ const RoomPlayInner: Component = () => {
     if (!songUrl) return;
 
     const device = selectedDevice();
-    if (spotifyConnected && device) {
+    if (spotifyConnected() && device) {
       const uri = spotifyUrlToUri(songUrl);
       if (uri) {
         try {
@@ -275,7 +275,7 @@ const RoomPlayInner: Component = () => {
               </div>
 
               {/* Spotify connection status */}
-              <Show when={!spotifyConnected}>
+              <Show when={!spotifyConnected()}>
                 <div class="rounded-lg border border-amber-200 bg-amber-50 px-4 py-2 text-sm text-amber-700">
                   Spotify er ikke tilkoblet. Koble til Spotify fra dashbordet
                   for å spille sanger direkte.
@@ -284,7 +284,7 @@ const RoomPlayInner: Component = () => {
             </div>
 
             {/* Device picker — shown until a device is selected */}
-            <Show when={spotifyConnected && !selectedDevice()}>
+            <Show when={spotifyConnected() && !selectedDevice()}>
               <div class="mx-auto w-full max-w-lg">
                 <Show
                   when={devices().length > 0 || isLoadingDevices()}
@@ -354,7 +354,7 @@ const RoomPlayInner: Component = () => {
             />
 
             {/* Game board */}
-            <Show when={selectedDevice() || !spotifyConnected}>
+            <Show when={selectedDevice() || !spotifyConnected()}>
               <div>
                 <p class="mb-4 text-neutral-600">
                   Klikk på en rute for å spille sang

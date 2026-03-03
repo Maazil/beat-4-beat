@@ -61,15 +61,9 @@ const SongItemCard: Component<SongItemCardProps> = (props) => {
   };
 
   createEffect(() => {
-    if (props.isEditing) {
-      document.addEventListener("keydown", handleKeyDown);
-    } else {
-      document.removeEventListener("keydown", handleKeyDown);
-    }
-  });
-
-  onCleanup(() => {
-    document.removeEventListener("keydown", handleKeyDown);
+    if (!props.isEditing) return;
+    document.addEventListener("keydown", handleKeyDown);
+    onCleanup(() => document.removeEventListener("keydown", handleKeyDown));
   });
 
   const handleUrlSubmit = () => {
