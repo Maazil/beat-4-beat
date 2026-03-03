@@ -92,3 +92,111 @@ Firebase config via Vite env vars (`.env.local`):
 - `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_AUTH_DOMAIN`, `VITE_FIREBASE_PROJECT_ID`
 - `VITE_FIREBASE_STORAGE_BUCKET`, `VITE_FIREBASE_MESSAGING_SENDER_ID`
 - `VITE_FIREBASE_APP_ID`, `VITE_FIREBASE_MEASUREMENT_ID`
+
+## SolidJS Best Practices (MUST follow)
+
+Source: https://www.brenelz.com/posts/solid-js-best-practices/
+
+### 1. Call signals when passing to JSX props
+
+Props should always be plain values, not accessors. Call the signal at the call site so components don't need to know whether a value is reactive.
+
+```tsx
+// WRONG — passing an accessor as a prop
+<User id={id} />  // id is Accessor<number>
+
+// RIGHT — call the signal
+<User id={id()} />  // id() is number
+```
+
+### 2. Never destructure props
+
+Destructuring extracts the value and breaks reactivity. Access props via `props.x` or use `splitProps`.
+
+```tsx
+// WRONG
+function User({ name }: { name: string }) { ... }
+
+// RIGHT
+function User(props: { name: string }) {
+  return <h1>{props.name}</h1>;
+}
+
+// ALSO RIGHT — when you need to separate local vs forwarded props
+const [local, rest] = splitProps(props, ["name"]);
+```
+
+### 3. Wrap derived values in functions (or createMemo)
+
+Signals only track dependencies when read inside a reactive scope (JSX, createEffect, createMemo). A bare `count() * 2` outside a reactive scope runs once and never updates.
+
+```tsx
+// WRONG — runs once, never updates
+const doubled = count() * 2;
+
+// RIGHT — derived function, re-evaluated in JSX
+const doubled = () => count() * 2;
+
+// RIGHT — cached derived value
+const doubled = createMemo(() => count() * 2);
+```
+
+### 4. Use `<Show>` and `<For>` control-flow components
+
+Prefer Solid's control-flow components over JS conditionals and `.map()`.
+
+```tsx
+// WRONG
+{open() && <Sidebar />}
+{items().map(item => <Item item={item} />)}
+
+// RIGHT
+<Show when={open()} fallback={<EmptyState />}><Sidebar /></Show>
+<For each={items()}>{item => <Item item={item} />}</For>
+```
+
+### 5. Use createEffect sparingly — last resort only
+
+Effects are for external side-effects (DOM manipulation, third-party libs). Never use them to sync state or fetch data.
+
+```tsx
+// WRONG — fetching in an effect
+createEffect(async () => {
+  const data = await fetch("/api/posts").then(r => r.json());
+  setPosts(data);
+});
+
+// RIGHT — use createResource
+const [posts] = createResource(() => fetch("/api/posts").then(r => r.json()));
+
+// WRONG — syncing derived state via effect
+createEffect(() => setFullName(`${firstName()} ${lastName()}`));
+
+// RIGHT — derive it
+const fullName = () => `${firstName()} ${lastName()}`;
+```
+
+### 6. Derive as much as possible
+
+Never use a signal + effect to mirror another signal. Use `createMemo` or a derived function instead.
+
+```tsx
+// WRONG
+const [double, setDouble] = createSignal(0);
+createEffect(() => setDouble(count() * 2));
+
+// RIGHT
+const double = createMemo(() => count() * 2);
+```
+
+### 7. Use stores for complex/nested objects
+
+Signals replace entire objects on update. Stores provide fine-grained reactivity at the property level — better for nested data like Room categories.
+
+```tsx
+// Signal — must spread entire object
+setBoard({ ...board(), notes: [...board().notes, "Note 3"] });
+
+// Store — surgical update
+setBoard("notes", notes => [...notes, "Note 3"]);
+```
