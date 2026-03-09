@@ -343,6 +343,12 @@ const RoomPlayInner: Component = () => {
             {/* Scoreboard */}
             <Scoreboard
               scores={currentRoom()?.scores ?? []}
+              totalRounds={
+                currentRoom()?.categories.reduce(
+                  (sum, cat) => sum + cat.items.length,
+                  0,
+                ) ?? 0
+              }
               onUpdateScores={(scores: Score[]) => {
                 const room = currentRoom();
                 if (room) {
