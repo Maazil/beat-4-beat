@@ -8,6 +8,7 @@ import {
   query,
   serverTimestamp,
   setDoc,
+  updateDoc,
   type DocumentReference,
 } from "firebase/firestore";
 import { createSignal } from "solid-js";
@@ -17,6 +18,7 @@ import { db } from "../lib/firebase";
 type UserProfile = {
   uid: string;
   displayName: string | null;
+  djName: string | null;
   email: string | null;
   emailVerified: boolean;
   photoURL: string | null;
@@ -56,6 +58,18 @@ export async function upsertUserProfile(user: User) {
   }
 
   return ref.id;
+}
+
+export async function getUserDjName(uid: string): Promise<string | null> {
+  const ref = doc(db, "users", uid);
+  const snapshot = await getDoc(ref);
+  if (!snapshot.exists()) return null;
+  return (snapshot.data()?.djName as string) ?? null;
+}
+
+export async function updateDjName(uid: string, djName: string): Promise<void> {
+  const ref = doc(db, "users", uid);
+  await updateDoc(ref, { djName: djName.trim() || null });
 }
 
 type UserDoc = UserProfile & { id: string };

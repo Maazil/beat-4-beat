@@ -348,6 +348,7 @@ const CreateRoom: Component = () => {
         // Edit mode — update existing room
         await updateRoomInFirestore(roomId, {
           roomName: name,
+          hostName: auth.djName() || auth.state.user?.displayName || "Anonym",
           categories: categories(),
           isPublic: isPublic(),
         });
@@ -355,7 +356,7 @@ const CreateRoom: Component = () => {
         // Create mode — create new room
         await createRoomInFirestore({
           roomName: name,
-          hostName: auth.state.user?.displayName || "Anonym",
+          hostName: auth.djName() || auth.state.user?.displayName || "Anonym",
           categories: categories(),
           isPublic: isPublic(),
           isActive: true,
