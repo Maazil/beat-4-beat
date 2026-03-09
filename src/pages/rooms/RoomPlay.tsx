@@ -373,7 +373,7 @@ const RoomPlayInner: Component = () => {
 
             {/* Game board */}
             <Show when={selectedDevice() || !spotifyConnected()}>
-              <div>
+              <div class="py-4 pb-16">
                 <p class="mb-4 text-neutral-600">
                   Klikk på en rute for å spille sang
                 </p>
