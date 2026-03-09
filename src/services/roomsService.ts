@@ -32,9 +32,18 @@ const roomDoc = (roomId: string): DocumentReference => doc(db, "rooms", roomId);
  * Firestore Timestamps are converted to JavaScript Dates
  */
 function docToRoom(id: string, data: DocumentData): Room {
+  // Migrate old score format ({ points: number } → { roundPoints: number[] })
+  const scores = data.scores?.map(
+    (s: Record<string, unknown>) =>
+      "roundPoints" in s
+        ? s
+        : { teamName: s.teamName, roundPoints: [] },
+  );
+
   return {
     ...data,
     id,
+    ...(scores ? { scores } : {}),
     createdAt:
       data.createdAt instanceof Timestamp
         ? data.createdAt.toDate()

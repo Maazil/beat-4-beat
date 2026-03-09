@@ -106,23 +106,7 @@ const Dashboard: Component = () => {
           class="grid gap-6 lg:grid-cols-[repeat(auto-fit,minmax(240px,1fr))]"
         >
           <article class="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
-            <h2 class="text-lg font-semibold text-neutral-900">Lag nytt rom</h2>
-            <p class="mt-2 text-sm text-neutral-500">
-              Lag ett nytt rom fra bunnen av for din neste Beat 4 Beat økt.
-            </p>
-            <button
-              type="button"
-              class="mt-6 inline-flex items-center justify-center rounded-full bg-neutral-900 px-5 py-2 text-sm font-semibold text-white transition hover:cursor-pointer hover:bg-neutral-700"
-              onClick={() => navigate("create")}
-            >
-              Opprett et nytt rom
-            </button>
-          </article>
-
-          <article class="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
-            <h2 class="text-lg font-semibold text-neutral-900">
-              Spotify
-            </h2>
+            <h2 class="text-lg font-semibold text-neutral-900">Spotify</h2>
             <p class="mt-2 text-sm text-neutral-500">
               Koble til Spotify Premium-kontoen din for å spille musikk direkte
               i nettleseren under spillet.
@@ -161,7 +145,8 @@ const Dashboard: Component = () => {
           <article class="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
             <h2 class="text-lg font-semibold text-neutral-900">Markedsplass</h2>
             <p class="mt-2 text-sm text-neutral-500">
-              Utforsk offentlige rom laget av andre spillere og bli med i en økt.
+              Utforsk offentlige rom laget av andre spillere og bli med i en
+              økt.
             </p>
             <button
               type="button"

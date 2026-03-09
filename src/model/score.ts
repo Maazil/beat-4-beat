@@ -1,15 +1,15 @@
 export interface Score {
   teamName: string;
-  points: number; // e.g., 0–3 depending on correct guesses/performance
+  roundPoints: number[]; // points earned per round (one entry per song item)
 }
 
 export const defaultScore = (overrides?: Partial<Score>): Score => ({
   teamName: "Team Blue",
-  points: 0,
+  roundPoints: [],
   ...overrides,
 });
 
 export const demoScores: Score[] = [
-  { teamName: "Team Red", points: 2 },
-  { teamName: "Team Blue", points: 3 },
+  { teamName: "Team Red", roundPoints: [1, 0, 2, 1] },
+  { teamName: "Team Blue", roundPoints: [0, 2, 1, 2] },
 ];

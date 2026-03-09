@@ -73,15 +73,27 @@ const categoryColors = [
 /** Per-item colors used in single-category (flat) layout. */
 const itemColors = [
   { bg: "bg-blue-500/10", border: "border-blue-200", text: "text-blue-700" },
-  { bg: "bg-purple-500/10", border: "border-purple-200", text: "text-purple-700" },
+  {
+    bg: "bg-purple-500/10",
+    border: "border-purple-200",
+    text: "text-purple-700",
+  },
   { bg: "bg-green-500/10", border: "border-green-200", text: "text-green-700" },
-  { bg: "bg-orange-500/10", border: "border-orange-200", text: "text-orange-700" },
+  {
+    bg: "bg-orange-500/10",
+    border: "border-orange-200",
+    text: "text-orange-700",
+  },
   { bg: "bg-pink-500/10", border: "border-pink-200", text: "text-pink-700" },
   { bg: "bg-teal-500/10", border: "border-teal-200", text: "text-teal-700" },
   { bg: "bg-red-500/10", border: "border-red-200", text: "text-red-700" },
   { bg: "bg-amber-500/10", border: "border-amber-200", text: "text-amber-700" },
   { bg: "bg-cyan-500/10", border: "border-cyan-200", text: "text-cyan-700" },
-  { bg: "bg-indigo-500/10", border: "border-indigo-200", text: "text-indigo-700" },
+  {
+    bg: "bg-indigo-500/10",
+    border: "border-indigo-200",
+    text: "text-indigo-700",
+  },
 ];
 
 /** Main room play page. */
@@ -96,12 +108,12 @@ const RoomPlayInner: Component = () => {
   const storedDevice = sessionStorage.getItem("spotify_selected_device");
   const [selectedDevice, setSelectedDevice] =
     createSignal<SpotifyDevice | null>(
-      storedDevice ? (JSON.parse(storedDevice) as SpotifyDevice) : null,
+      storedDevice ? (JSON.parse(storedDevice) as SpotifyDevice) : null
     );
 
   // Playback state
   const [revealedItems, setRevealedItems] = createSignal<Set<string>>(
-    new Set(),
+    new Set()
   );
   const [currentItemId, setCurrentItemId] = createSignal<string | null>(null);
   const [showTrackInfo, setShowTrackInfo] = createSignal(false);
@@ -131,7 +143,7 @@ const RoomPlayInner: Component = () => {
   const handleItemClick = async (
     itemId: string,
     songUrl?: string,
-    startTime?: number,
+    startTime?: number
   ) => {
     setRevealedItems((prev) => new Set(prev).add(itemId));
     setCurrentItemId(itemId);
@@ -266,9 +278,9 @@ const RoomPlayInner: Component = () => {
                 <h1 class="text-3xl font-bold text-neutral-900">
                   {currentRoom()?.roomName}
                 </h1>
-                <h2 class="font-medium">
-                  Laget av{" "}
-                  <span class="rounded-full border bg-yellow-200 px-3 py-0.5 text-sm text-neutral-700">
+                <h2 class="flex items-center gap-2 font-medium text-neutral-500">
+                  Hostet av{" "}
+                  <span class="inline-block rounded-full bg-gradient-to-r from-purple-600 to-pink-500 px-4 py-1 text-sm font-bold tracking-wide text-white shadow-md">
                     {currentRoom()?.hostName}
                   </span>
                 </h2>
@@ -343,11 +355,17 @@ const RoomPlayInner: Component = () => {
             {/* Scoreboard */}
             <Scoreboard
               scores={currentRoom()?.scores ?? []}
+              totalRounds={
+                currentRoom()?.categories.reduce(
+                  (sum, cat) => sum + cat.items.length,
+                  0
+                ) ?? 0
+              }
               onUpdateScores={(scores: Score[]) => {
                 const room = currentRoom();
                 if (room) {
                   updateRoom(room.id, { scores }).catch((err) =>
-                    console.error("[RoomPlay] Failed to update scores:", err),
+                    console.error("[RoomPlay] Failed to update scores:", err)
                   );
                 }
               }}
@@ -359,9 +377,9 @@ const RoomPlayInner: Component = () => {
                 <p class="mb-4 text-neutral-600">
                   Klikk på en rute for å spille sang
                 </p>
-                {/* Single-category: flat flex-wrap grid without category box */}
+                {/* Single-category: full-width grid */}
                 <Show when={(currentRoom()?.categories.length ?? 0) === 1}>
-                  <div class="flex flex-wrap gap-3">
+                  <div class="grid grid-cols-2 gap-6 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
                     <For each={currentRoom()?.categories[0]?.items}>
                       {(item) => {
                         const color = () =>
@@ -371,7 +389,7 @@ const RoomPlayInner: Component = () => {
                         return (
                           <button
                             type="button"
-                            class={`group flex h-20 w-20 cursor-pointer items-center justify-center rounded-xl border-2 transition hover:scale-105 hover:shadow-lg active:scale-95 sm:h-24 sm:w-24 ${
+                            class={`group flex h-20 w-full cursor-pointer items-center justify-center rounded-xl border-2 transition hover:scale-105 hover:shadow-lg active:scale-95 sm:h-24 ${
                               revealedItems().has(item.id)
                                 ? "border-dashed border-neutral-300 bg-neutral-100/50"
                                 : `${color().border} ${color().bg}`
@@ -380,7 +398,7 @@ const RoomPlayInner: Component = () => {
                               handleItemClick(
                                 item.id,
                                 item.songUrl,
-                                item.startTime,
+                                item.startTime
                               )
                             }
                           >
@@ -402,7 +420,10 @@ const RoomPlayInner: Component = () => {
 
                 {/* Multi-category: column grid with category headers */}
                 <Show when={(currentRoom()?.categories.length ?? 0) > 1}>
-                  <div class="grid gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
+                  <div
+                    class="grid gap-6"
+                    style={`grid-template-columns: repeat(${currentRoom()?.categories.length ?? 1}, minmax(0, 1fr))`}
+                  >
                     <For each={currentRoom()?.categories}>
                       {(category, index) => {
                         const colorScheme = () =>
@@ -424,7 +445,7 @@ const RoomPlayInner: Component = () => {
                                 {(item) => (
                                   <button
                                     type="button"
-                                    class={`group flex h-16 w-full cursor-pointer items-center justify-center rounded-lg border-2 transition hover:scale-105 hover:shadow-lg active:scale-95 sm:h-20 ${
+                                    class={`group flex h-16 w-full cursor-pointer items-center justify-center rounded-lg border-2 transition hover:scale-105 hover:shadow-lg active:scale-95 sm:h-16 ${
                                       revealedItems().has(item.id)
                                         ? "border-dashed border-neutral-300 bg-neutral-100/50"
                                         : `${colorScheme().border} ${colorScheme().itemBg}`
@@ -433,7 +454,7 @@ const RoomPlayInner: Component = () => {
                                       handleItemClick(
                                         item.id,
                                         item.songUrl,
-                                        item.startTime,
+                                        item.startTime
                                       )
                                     }
                                   >

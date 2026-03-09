@@ -10,6 +10,7 @@ import {
 import {
   Accessor,
   createContext,
+  createSignal,
   onCleanup,
   onMount,
   ParentComponent,
@@ -17,7 +18,7 @@ import {
 } from "solid-js";
 import { createStore } from "solid-js/store";
 import { auth } from "../lib/firebase";
-import { upsertUserProfile } from "../services/usersService";
+import { getUserDjName, upsertUserProfile } from "../services/usersService";
 
 export interface AuthState {
   user: User | null;
@@ -35,6 +36,8 @@ interface AuthContextValue {
   canCreateRooms: Accessor<boolean>;
   isRoomHost: (roomHostId?: string) => boolean;
   userNameSplit: () => string;
+  djName: Accessor<string | null>;
+  setDjName: (name: string | null) => void;
 }
 
 const AuthContext = createContext<AuthContextValue>();
@@ -44,6 +47,8 @@ export const AuthProvider: ParentComponent = (props) => {
     user: null,
     isLoading: true,
   });
+
+  const [djName, setDjName] = createSignal<string | null>(null);
 
   // Computed signals based on user state
   const isGuest = () => state.user?.isAnonymous === true;
@@ -115,9 +120,13 @@ export const AuthProvider: ParentComponent = (props) => {
         // Upsert user profile to Firestore (create if new, update if exists)
         try {
           await upsertUserProfile(user);
+          const name = await getUserDjName(user.uid);
+          setDjName(name);
         } catch (error) {
           console.error("Failed to sync user profile:", error);
         }
+      } else {
+        setDjName(null);
       }
       setState({ user, isLoading: false });
     });
@@ -138,6 +147,8 @@ export const AuthProvider: ParentComponent = (props) => {
     canCreateRooms,
     isRoomHost,
     userNameSplit,
+    djName,
+    setDjName,
   };
 
   return (
