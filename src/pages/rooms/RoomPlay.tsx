@@ -278,9 +278,9 @@ const RoomPlayInner: Component = () => {
                 <h1 class="text-3xl font-bold text-neutral-900">
                   {currentRoom()?.roomName}
                 </h1>
-                <h2 class="font-medium">
-                  Laget av{" "}
-                  <span class="rounded-full border bg-yellow-200 px-3 py-0.5 text-sm text-neutral-700">
+                <h2 class="flex items-center gap-2 font-medium text-neutral-500">
+                  Hostet av{" "}
+                  <span class="inline-block rounded-full bg-gradient-to-r from-purple-600 to-pink-500 px-4 py-1 text-sm font-bold tracking-wide text-white shadow-md">
                     {currentRoom()?.hostName}
                   </span>
                 </h2>
