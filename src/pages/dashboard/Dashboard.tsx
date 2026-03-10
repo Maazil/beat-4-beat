@@ -157,7 +157,7 @@ const Dashboard: Component = () => {
             </button>
           </article>
 
-          <article class="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
+          {/* <article class="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
             <h2 class="text-lg font-semibold text-neutral-900">Statistikk</h2>
             <p class="mt-2 text-sm text-neutral-500">
               Få innblikk i engasjement og prestasjon fra tidligere runder.
@@ -168,10 +168,10 @@ const Dashboard: Component = () => {
             >
               Se analyser
             </button>
-          </article>
+          </article> */}
         </section>
 
-        <section
+        {/* <section
           id="analytics"
           class="mt-12 rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm"
         >
@@ -185,7 +185,7 @@ const Dashboard: Component = () => {
             <li>• «Team Echo» planla en ny sesjon til fredag kl. 20:00.</li>
             <li>• 4 nye spillere sluttet seg til fellesskapet i dag.</li>
           </ul>
-        </section>
+        </section> */}
       </main>
     </>
   );
