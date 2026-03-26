@@ -16,7 +16,6 @@ import type { SpotifyDevice } from "../../lib/spotify";
 import DevicePicker, { deviceIcon } from "../../components/DevicePicker";
 import NowPlayingBar from "../../components/NowPlayingBar";
 import Scoreboard from "../../components/Scoreboard";
-import { updateRoom } from "../../services/roomsService";
 import type { Score } from "../../model/score";
 
 const categoryColors = [
@@ -110,6 +109,9 @@ const RoomPlayInner: Component = () => {
     createSignal<SpotifyDevice | null>(
       storedDevice ? (JSON.parse(storedDevice) as SpotifyDevice) : null
     );
+
+  // Local scores — per-session, not shared across users
+  const [scores, setScores] = createSignal<Score[]>([]);
 
   // Playback state
   const [revealedItems, setRevealedItems] = createSignal<Set<string>>(
@@ -352,23 +354,16 @@ const RoomPlayInner: Component = () => {
               )}
             </Show>
 
-            {/* Scoreboard */}
+            {/* Scoreboard — local per session, not shared */}
             <Scoreboard
-              scores={currentRoom()?.scores ?? []}
+              scores={scores()}
               totalRounds={
                 currentRoom()?.categories.reduce(
                   (sum, cat) => sum + cat.items.length,
                   0
                 ) ?? 0
               }
-              onUpdateScores={(scores: Score[]) => {
-                const room = currentRoom();
-                if (room) {
-                  updateRoom(room.id, { scores }).catch((err) =>
-                    console.error("[RoomPlay] Failed to update scores:", err)
-                  );
-                }
-              }}
+              onUpdateScores={setScores}
             />
 
             {/* Game board */}
