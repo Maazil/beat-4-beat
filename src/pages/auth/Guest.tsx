@@ -23,12 +23,9 @@ const Guest: Component = () => {
   return (
     <div class="flex min-h-screen items-center justify-center bg-[#f4f6f8] p-6">
       <div class="w-full max-w-md rounded-xl bg-white p-8 shadow-lg">
-        <h1 class="mb-2 text-3xl font-bold text-neutral-900">
-          Fortsett som gjest
-        </h1>
+        <h1 class="mb-2 text-3xl font-bold text-neutral-900">Fortsett som gjest</h1>
         <p class="mb-6 text-neutral-600">
-          Du kan spille i rom, men du vil ikke kunne lage egne rom eller lagre
-          fremgang.
+          Du kan spille i rom, men du vil ikke kunne lage egne rom eller lagre fremgang.
         </p>
 
         <div class="mb-6 rounded-lg border border-blue-200 bg-blue-50 p-4">
@@ -41,9 +38,7 @@ const Guest: Component = () => {
         </div>
 
         <div class="mb-6 rounded-lg border border-neutral-200 bg-neutral-50 p-4">
-          <h3 class="mb-2 font-semibold text-neutral-900">
-            Som gjest kan du IKKE:
-          </h3>
+          <h3 class="mb-2 font-semibold text-neutral-900">Som gjest kan du IKKE:</h3>
           <ul class="space-y-1 text-sm text-neutral-700">
             <li>✗ Lage egne rom</li>
             <li>✗ Redigere rom</li>

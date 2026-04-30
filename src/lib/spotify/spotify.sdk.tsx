@@ -71,9 +71,7 @@ export function SpotifyPlayerProvider(props: { children: JSX.Element }) {
 export function useSpotifyPlayer(): SpotifyPlayerContext {
   const ctx = useContext(SpotifyPlayerCtx);
   if (!ctx) {
-    throw new Error(
-      "[spotify.sdk] useSpotifyPlayer must be used inside <SpotifyPlayerProvider>",
-    );
+    throw new Error("[spotify.sdk] useSpotifyPlayer must be used inside <SpotifyPlayerProvider>");
   }
   return ctx;
 }

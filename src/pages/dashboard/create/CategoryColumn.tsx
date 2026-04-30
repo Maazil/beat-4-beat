@@ -81,12 +81,7 @@ const CategoryColumn: Component<CategoryColumnProps> = (props) => {
           onClick={() => props.onRemove()}
           class="absolute -top-2 -right-2 hidden h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white shadow-md transition group-hover:flex hover:bg-red-600"
         >
-          <svg
-            class="h-4 w-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               stroke-linecap="round"
               stroke-linejoin="round"
@@ -106,7 +101,9 @@ const CategoryColumn: Component<CategoryColumnProps> = (props) => {
               colorScheme={props.colorScheme}
               isEditing={props.editingItemId === item.id}
               onEdit={() => props.onEditItem(item.id)}
-              onUpdate={(songUrl, title, artist) => props.onUpdateItem(item.id, songUrl, title, artist)}
+              onUpdate={(songUrl, title, artist) =>
+                props.onUpdateItem(item.id, songUrl, title, artist)
+              }
               onBlur={() => props.onBlurItem()}
               onRemove={() => props.onRemoveItem(item.id)}
             />
@@ -115,10 +112,7 @@ const CategoryColumn: Component<CategoryColumnProps> = (props) => {
 
         {/* Add item button - only show if under limit */}
         <Show when={props.category.items.length < (props.maxItems ?? 5)}>
-          <AddItemButton
-            colorScheme={props.colorScheme}
-            onClick={() => props.onAddItem()}
-          />
+          <AddItemButton colorScheme={props.colorScheme} onClick={() => props.onAddItem()} />
         </Show>
       </div>
     </div>

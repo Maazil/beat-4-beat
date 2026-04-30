@@ -81,8 +81,7 @@ export default function SpotifyTest() {
 }
 
 function PlaybackTest() {
-  const { playSong, pause, resume, currentTrack, playbackState } =
-    useSpotifyPlayback();
+  const { playSong, pause, resume, currentTrack, playbackState } = useSpotifyPlayback();
 
   const [query, setQuery] = createSignal("");
   const [results, setResults] = createSignal<SpotifyTrack[]>([]);
@@ -129,11 +128,7 @@ function PlaybackTest() {
           <For each={results()}>
             {(track) => (
               <div class="flex items-center gap-3 rounded bg-neutral-800 p-3">
-                <img
-                  src={track.albumArt}
-                  alt=""
-                  class="h-12 w-12 rounded object-cover"
-                />
+                <img src={track.albumArt} alt="" class="h-12 w-12 rounded object-cover" />
                 <div class="flex-1">
                   <p class="font-medium">{track.name}</p>
                   <p class="text-sm text-neutral-400">{track.artist}</p>
@@ -156,11 +151,7 @@ function PlaybackTest() {
           <div class="rounded bg-neutral-900 p-4">
             <h2 class="mb-3 text-lg font-semibold">Now Playing</h2>
             <div class="flex items-center gap-4">
-              <img
-                src={track().albumArt}
-                alt=""
-                class="h-16 w-16 rounded object-cover"
-              />
+              <img src={track().albumArt} alt="" class="h-16 w-16 rounded object-cover" />
               <div class="flex-1">
                 <p class="text-lg font-medium">{track().name}</p>
                 <p class="text-neutral-400">{track().artist}</p>

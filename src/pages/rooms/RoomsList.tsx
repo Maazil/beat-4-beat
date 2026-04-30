@@ -13,12 +13,7 @@ const Rooms: Component = () => {
         onClick={() => navigate("/dashboard")}
         class="mb-6 flex items-center gap-2 text-neutral-600 transition hover:cursor-pointer hover:text-neutral-900"
       >
-        <svg
-          class="h-5 w-5"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
             stroke-linecap="round"
             stroke-linejoin="round"
@@ -76,18 +71,14 @@ const Rooms: Component = () => {
                 <div class="space-y-2 text-sm text-neutral-500">
                   {room.categories.length > 0 && (
                     <p>
-                      <span class="font-medium text-neutral-700">
-                        Antall kategorier:
-                      </span>{" "}
+                      <span class="font-medium text-neutral-700">Antall kategorier:</span>{" "}
                       {room.categories.length}
                     </p>
                   )}
 
                   {room.createdAt && (
                     <p>
-                      <span class="font-medium text-neutral-700">
-                        Opprettet:
-                      </span>{" "}
+                      <span class="font-medium text-neutral-700">Opprettet:</span>{" "}
                       {new Date(room.createdAt).toLocaleString("no-NO", {
                         dateStyle: "short",
                         timeStyle: "short",

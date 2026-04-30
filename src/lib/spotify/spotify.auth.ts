@@ -153,9 +153,7 @@ export async function getAccessToken(): Promise<string> {
   }
 
   if (!accessToken) {
-    throw new Error(
-      "[spotify.auth] No access token available. User must log in.",
-    );
+    throw new Error("[spotify.auth] No access token available. User must log in.");
   }
 
   return accessToken;
@@ -212,9 +210,5 @@ async function silentRefresh(): Promise<void> {
   };
 
   // Spotify may or may not rotate the refresh token
-  storeTokens(
-    data.access_token,
-    data.refresh_token ?? refreshToken!,
-    data.expires_in,
-  );
+  storeTokens(data.access_token, data.refresh_token ?? refreshToken!, data.expires_in);
 }

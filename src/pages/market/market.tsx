@@ -3,11 +3,7 @@ import { Component, createSignal, For, onMount, Show } from "solid-js";
 import RoomPreview from "../../components/RoomPreview";
 import { useAuth } from "../../context/AuthContext";
 import { usePublicRooms } from "../../hooks/usePublicRooms";
-import {
-  searchPlaylists,
-  searchTracks,
-  isSpotifyLoggedIn,
-} from "../../lib/spotify";
+import { searchPlaylists, searchTracks, isSpotifyLoggedIn } from "../../lib/spotify";
 import type { SpotifyPlaylistBrief } from "../../lib/spotify";
 import type { SongItem } from "../../model/songItem";
 import { createRoom } from "../../services/roomsService";
@@ -33,9 +29,7 @@ const Market: Component = () => {
       const results = await searchPlaylists("Top 50 Norway", 10);
       setPlaylists(results);
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to load playlists"
-      );
+      setError(err instanceof Error ? err.message : "Failed to load playlists");
     } finally {
       setSpotifyConnected(true);
       setPlaylistsLoading(false);
@@ -89,9 +83,7 @@ const Market: Component = () => {
       navigate(`/rooms/${roomId}/play`);
     } catch (err) {
       console.error("Failed to create room from playlist:", err);
-      setError(
-        err instanceof Error ? err.message : "Failed to create room"
-      );
+      setError(err instanceof Error ? err.message : "Failed to create room");
     } finally {
       setCreatingFrom(null);
     }
@@ -104,12 +96,7 @@ const Market: Component = () => {
         onClick={() => navigate("/dashboard")}
         class="mb-6 flex items-center gap-2 text-neutral-400 transition hover:text-neutral-100"
       >
-        <svg
-          class="h-5 w-5"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
             stroke-linecap="round"
             stroke-linejoin="round"
@@ -122,9 +109,7 @@ const Market: Component = () => {
 
       <div class="mb-8">
         <h1 class="text-3xl font-semibold text-neutral-100">Marketplace</h1>
-        <p class="mt-2 text-neutral-400">
-          Pick a playlist and start playing instantly
-        </p>
+        <p class="mt-2 text-neutral-400">Pick a playlist and start playing instantly</p>
       </div>
 
       {/* ── Error banner ─────────────────────────────────────────── */}
@@ -146,7 +131,8 @@ const Market: Component = () => {
             Connect Spotify to explore playlists
           </h3>
           <p class="mb-4 text-sm text-neutral-400">
-            Link your Spotify account from the dashboard to browse popular playlists and create rooms instantly.
+            Link your Spotify account from the dashboard to browse popular playlists and create
+            rooms instantly.
           </p>
           <button
             class="rounded-lg bg-green-600 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-green-500"
@@ -162,17 +148,13 @@ const Market: Component = () => {
         <Show when={playlistsLoading()}>
           <div class="mb-12 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
             <For each={[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}>
-              {() => (
-                <div class="h-56 animate-pulse rounded-xl bg-neutral-700/50" />
-              )}
+              {() => <div class="h-56 animate-pulse rounded-xl bg-neutral-700/50" />}
             </For>
           </div>
         </Show>
 
         <Show when={!playlistsLoading() && playlists().length > 0}>
-          <h2 class="mb-4 text-xl font-semibold text-neutral-100">
-            Popular in Norway
-          </h2>
+          <h2 class="mb-4 text-xl font-semibold text-neutral-100">Popular in Norway</h2>
           <div class="mb-12 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
             <For each={playlists()}>
               {(playlist) => (
@@ -207,9 +189,7 @@ const Market: Component = () => {
                     </div>
 
                     <div class="p-3">
-                      <p class="truncate text-sm font-medium text-neutral-100">
-                        {playlist.name}
-                      </p>
+                      <p class="truncate text-sm font-medium text-neutral-100">{playlist.name}</p>
                       <p class="mt-0.5 text-xs text-neutral-400">
                         {playlist.items?.total ?? "?"} tracks
                       </p>
@@ -224,9 +204,7 @@ const Market: Component = () => {
 
       {/* ── Community Rooms ──────────────────────────────────────── */}
       <div class="border-t border-neutral-700/60 pt-10">
-        <h2 class="mb-6 text-2xl font-semibold text-neutral-100">
-          Community Rooms
-        </h2>
+        <h2 class="mb-6 text-2xl font-semibold text-neutral-100">Community Rooms</h2>
 
         <Show when={roomsError()}>
           <div class="mb-4 rounded-lg border border-red-400/50 bg-red-900/20 p-4 text-red-300">

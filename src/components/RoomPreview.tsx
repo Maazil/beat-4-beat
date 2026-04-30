@@ -55,9 +55,7 @@ const RoomPreview: Component<RoomPreviewProps> = (props) => {
         <div class="pointer-events-none absolute inset-0 rounded-2xl bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.03),transparent_50%)] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
         <div class="relative">
           <div class="mb-3 flex items-start justify-between">
-            <h2 class="text-lg font-semibold text-neutral-100">
-              {props.room.roomName}
-            </h2>
+            <h2 class="text-lg font-semibold text-neutral-100">{props.room.roomName}</h2>
             <span
               class={`rounded-full px-2.5 py-0.5 text-xs font-medium ${getStatusBadge(getStatus())}`}
             >
@@ -66,8 +64,7 @@ const RoomPreview: Component<RoomPreviewProps> = (props) => {
           </div>
           <div class="space-y-2 text-sm text-neutral-400">
             <p>
-              <span class="font-medium text-neutral-300">Host:</span>{" "}
-              {props.room.hostName}
+              <span class="font-medium text-neutral-300">Host:</span> {props.room.hostName}
             </p>
             {/* <p>
               <span class="font-medium text-neutral-300">Deltakere:</span>{" "}

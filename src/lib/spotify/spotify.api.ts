@@ -19,11 +19,7 @@ import type {
  * Search Spotify for tracks matching `query`.
  * Returns up to `limit` results (default 20, max 50).
  */
-export async function searchTracks(
-  query: string,
-  limit = 20,
-  offset = 0
-): Promise<SpotifyTrack[]> {
+export async function searchTracks(query: string, limit = 20, offset = 0): Promise<SpotifyTrack[]> {
   const token = await getAccessToken();
 
   const params = new URLSearchParams({
@@ -45,7 +41,6 @@ export async function searchTracks(
   return data.tracks.items.map(mapApiTrack);
 }
 
-
 // ── Helpers ───────────────────────────────────────────────────────────
 
 /** Map a Spotify Web API track object to our simplified SpotifyTrack. */
@@ -58,7 +53,6 @@ function mapApiTrack(t: SpotifyApiTrack): SpotifyTrack {
     uri: t.uri,
   };
 }
-
 
 // ── Spotify Connect — device listing & remote playback ────────────────
 
@@ -93,24 +87,21 @@ export async function getDevices(): Promise<SpotifyDevice[]> {
 export async function playOnDevice(
   trackUri: string,
   deviceId: string,
-  positionMs = 0
+  positionMs = 0,
 ): Promise<void> {
   const token = await getAccessToken();
 
-  const res = await fetch(
-    `${SPOTIFY_API_BASE}/me/player/play?device_id=${deviceId}`,
-    {
-      method: "PUT",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        uris: [trackUri],
-        position_ms: positionMs,
-      }),
-    }
-  );
+  const res = await fetch(`${SPOTIFY_API_BASE}/me/player/play?device_id=${deviceId}`, {
+    method: "PUT",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      uris: [trackUri],
+      position_ms: positionMs,
+    }),
+  });
 
   if (!res.ok) {
     throw new Error(`[spotify.api] Play on device failed: ${res.status}`);
@@ -153,7 +144,7 @@ export async function seekPlayback(positionMs: number): Promise<void> {
     {
       method: "PUT",
       headers: { Authorization: `Bearer ${token}` },
-    }
+    },
   );
 
   if (!res.ok) {
@@ -167,19 +158,16 @@ export async function seekPlayback(positionMs: number): Promise<void> {
  * Fetch the current user's playlists via `GET /me/playlists`.
  * Returns up to `limit` playlists (default 50, max 50).
  */
-export async function getMySpotifyPlaylists(
-  limit = 50
-): Promise<SpotifyPlaylistBrief[]> {
+export async function getMySpotifyPlaylists(limit = 50): Promise<SpotifyPlaylistBrief[]> {
   const token = await getAccessToken();
 
   const params = new URLSearchParams({
     limit: String(Math.min(limit, 50)),
   });
 
-  const res = await fetch(
-    `${SPOTIFY_API_BASE}/me/playlists?${params.toString()}`,
-    { headers: { Authorization: `Bearer ${token}` } }
-  );
+  const res = await fetch(`${SPOTIFY_API_BASE}/me/playlists?${params.toString()}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
 
   if (!res.ok) {
     throw new Error(`[spotify.api] Get my playlists failed: ${res.status}`);
@@ -195,14 +183,11 @@ export async function getMySpotifyPlaylists(
  * Uses `GET /playlists/{id}/items` (works for own playlists).
  * Paginates through all pages automatically.
  */
-export async function getOwnPlaylistTracks(
-  playlistId: string
-): Promise<SpotifyTrack[]> {
+export async function getOwnPlaylistTracks(playlistId: string): Promise<SpotifyTrack[]> {
   const token = await getAccessToken();
 
   const tracks: SpotifyTrack[] = [];
-  let url: string | null =
-    `${SPOTIFY_API_BASE}/playlists/${playlistId}/items?limit=50`;
+  let url: string | null = `${SPOTIFY_API_BASE}/playlists/${playlistId}/items?limit=50`;
 
   while (url) {
     const res: Response = await fetch(url, {
@@ -210,9 +195,7 @@ export async function getOwnPlaylistTracks(
     });
 
     if (!res.ok) {
-      throw new Error(
-        `[spotify.api] Get playlist items failed: ${res.status}`
-      );
+      throw new Error(`[spotify.api] Get playlist items failed: ${res.status}`);
     }
 
     const data: {
@@ -241,10 +224,7 @@ export async function getOwnPlaylistTracks(
  * Uses the standard /search endpoint (no elevated access required).
  * Returns up to `limit` results (default 10, max 10).
  */
-export async function searchPlaylists(
-  query: string,
-  limit = 10
-): Promise<SpotifyPlaylistBrief[]> {
+export async function searchPlaylists(query: string, limit = 10): Promise<SpotifyPlaylistBrief[]> {
   const token = await getAccessToken();
 
   const params = new URLSearchParams({
@@ -261,9 +241,6 @@ export async function searchPlaylists(
     throw new Error(`[spotify.api] Playlist search failed: ${res.status}`);
   }
 
-  const data: { playlists: { items: (SpotifyPlaylistBrief | null)[] } } =
-    await res.json();
-  return data.playlists.items.filter(
-    (p): p is SpotifyPlaylistBrief => p !== null
-  );
+  const data: { playlists: { items: (SpotifyPlaylistBrief | null)[] } } = await res.json();
+  return data.playlists.items.filter((p): p is SpotifyPlaylistBrief => p !== null);
 }

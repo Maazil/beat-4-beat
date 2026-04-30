@@ -1,10 +1,5 @@
 import { A } from "@solidjs/router";
-import {
-  createSignal,
-  onCleanup,
-  onMount,
-  type ParentComponent,
-} from "solid-js";
+import { createSignal, onCleanup, onMount, type ParentComponent } from "solid-js";
 import Logo from "../../components/Logo";
 import { useAuth } from "../../context/AuthContext";
 
@@ -37,14 +32,8 @@ const PageWrapper: ParentComponent = (props) => {
             <Logo class="h-8 w-auto" />
           </A>
           <nav class="flex items-center gap-5 text-sm font-medium text-neutral-600">
-            <A
-              class="flex items-center gap-2 hover:text-neutral-900"
-              href="/profile"
-            >
-              <p>
-                Hei{" "}
-                {auth.userNameSplit() !== "" ? auth.userNameSplit() : "Gjest"}
-              </p>
+            <A class="flex items-center gap-2 hover:text-neutral-900" href="/profile">
+              <p>Hei {auth.userNameSplit() !== "" ? auth.userNameSplit() : "Gjest"}</p>
               <img
                 src={auth.state.user?.photoURL || "/images/guest.png"}
                 class="h-8 w-8 rounded-full"

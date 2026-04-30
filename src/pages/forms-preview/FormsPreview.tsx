@@ -12,25 +12,17 @@ const FormsPreview: Component = () => {
   return (
     <div class="min-h-screen bg-neutral-100 p-8">
       <div class="mx-auto max-w-4xl">
-        <h1 class="mb-2 text-3xl font-bold text-neutral-900">
-          Form Components Preview
-        </h1>
-        <p class="mb-8 text-neutral-600">
-          Test and preview all form components in one place.
-        </p>
+        <h1 class="mb-2 text-3xl font-bold text-neutral-900">Form Components Preview</h1>
+        <p class="mb-8 text-neutral-600">Test and preview all form components in one place.</p>
 
         {/* Input Component */}
         <section class="mb-12 rounded-xl bg-white p-6 shadow-sm">
-          <h2 class="mb-6 text-xl font-semibold text-neutral-800">
-            Input Component
-          </h2>
+          <h2 class="mb-6 text-xl font-semibold text-neutral-800">Input Component</h2>
 
           <div class="grid gap-6 md:grid-cols-2">
             {/* Basic Text Input */}
             <div>
-              <h3 class="mb-3 text-sm font-medium text-neutral-500">
-                Basic Text Input
-              </h3>
+              <h3 class="mb-3 text-sm font-medium text-neutral-500">Basic Text Input</h3>
               <Input
                 type="text"
                 label="Username"
@@ -42,9 +34,7 @@ const FormsPreview: Component = () => {
 
             {/* Email Input */}
             <div>
-              <h3 class="mb-3 text-sm font-medium text-neutral-500">
-                Email Input
-              </h3>
+              <h3 class="mb-3 text-sm font-medium text-neutral-500">Email Input</h3>
               <Input
                 type="email"
                 label="Email"
@@ -56,9 +46,7 @@ const FormsPreview: Component = () => {
 
             {/* Password Input */}
             <div>
-              <h3 class="mb-3 text-sm font-medium text-neutral-500">
-                Password Input
-              </h3>
+              <h3 class="mb-3 text-sm font-medium text-neutral-500">Password Input</h3>
               <Input
                 type="password"
                 label="Password"
@@ -70,9 +58,7 @@ const FormsPreview: Component = () => {
 
             {/* Number Input */}
             <div>
-              <h3 class="mb-3 text-sm font-medium text-neutral-500">
-                Number Input
-              </h3>
+              <h3 class="mb-3 text-sm font-medium text-neutral-500">Number Input</h3>
               <Input
                 type="number"
                 label="Age"
@@ -87,9 +73,7 @@ const FormsPreview: Component = () => {
 
             {/* Search Input */}
             <div>
-              <h3 class="mb-3 text-sm font-medium text-neutral-500">
-                Search Input
-              </h3>
+              <h3 class="mb-3 text-sm font-medium text-neutral-500">Search Input</h3>
               <Input
                 type="search"
                 label="Search"
@@ -101,9 +85,7 @@ const FormsPreview: Component = () => {
 
             {/* Date Input */}
             <div>
-              <h3 class="mb-3 text-sm font-medium text-neutral-500">
-                Date Input
-              </h3>
+              <h3 class="mb-3 text-sm font-medium text-neutral-500">Date Input</h3>
               <Input
                 type="date"
                 label="Birth Date"
@@ -114,22 +96,13 @@ const FormsPreview: Component = () => {
 
             {/* Required Input */}
             <div>
-              <h3 class="mb-3 text-sm font-medium text-neutral-500">
-                Required Input
-              </h3>
-              <Input
-                type="text"
-                label="Full Name"
-                placeholder="John Doe"
-                required
-              />
+              <h3 class="mb-3 text-sm font-medium text-neutral-500">Required Input</h3>
+              <Input type="text" label="Full Name" placeholder="John Doe" required />
             </div>
 
             {/* Input with Helper Text */}
             <div>
-              <h3 class="mb-3 text-sm font-medium text-neutral-500">
-                With Helper Text
-              </h3>
+              <h3 class="mb-3 text-sm font-medium text-neutral-500">With Helper Text</h3>
               <Input
                 type="text"
                 label="Website"
@@ -140,9 +113,7 @@ const FormsPreview: Component = () => {
 
             {/* Input with Error */}
             <div>
-              <h3 class="mb-3 text-sm font-medium text-neutral-500">
-                With Error State
-              </h3>
+              <h3 class="mb-3 text-sm font-medium text-neutral-500">With Error State</h3>
               <Input
                 type="email"
                 label="Email"
@@ -154,35 +125,19 @@ const FormsPreview: Component = () => {
 
             {/* Disabled Input */}
             <div>
-              <h3 class="mb-3 text-sm font-medium text-neutral-500">
-                Disabled Input
-              </h3>
-              <Input
-                type="text"
-                label="Disabled Field"
-                value="Cannot edit this"
-                disabled
-              />
+              <h3 class="mb-3 text-sm font-medium text-neutral-500">Disabled Input</h3>
+              <Input type="text" label="Disabled Field" value="Cannot edit this" disabled />
             </div>
 
             {/* Read-only Input */}
             <div>
-              <h3 class="mb-3 text-sm font-medium text-neutral-500">
-                Read-only Input
-              </h3>
-              <Input
-                type="text"
-                label="Read-only Field"
-                value="Read-only value"
-                readonly
-              />
+              <h3 class="mb-3 text-sm font-medium text-neutral-500">Read-only Input</h3>
+              <Input type="text" label="Read-only Field" value="Read-only value" readonly />
             </div>
 
             {/* Input with min/max length */}
             <div>
-              <h3 class="mb-3 text-sm font-medium text-neutral-500">
-                With Min/Max Length
-              </h3>
+              <h3 class="mb-3 text-sm font-medium text-neutral-500">With Min/Max Length</h3>
               <Input
                 type="text"
                 label="Username"
@@ -197,9 +152,7 @@ const FormsPreview: Component = () => {
 
         {/* Current Values */}
         <section class="rounded-xl bg-white p-6 shadow-sm">
-          <h2 class="mb-4 text-xl font-semibold text-neutral-800">
-            Current Values
-          </h2>
+          <h2 class="mb-4 text-xl font-semibold text-neutral-800">Current Values</h2>
           <div class="rounded-lg bg-neutral-50 p-4 font-mono text-sm">
             <pre class="text-neutral-700">
               {JSON.stringify(
@@ -212,7 +165,7 @@ const FormsPreview: Component = () => {
                   date: dateValue(),
                 },
                 null,
-                2
+                2,
               )}
             </pre>
           </div>
@@ -221,8 +174,7 @@ const FormsPreview: Component = () => {
         {/* Placeholder for future components */}
         <section class="mt-8 rounded-xl border-2 border-dashed border-neutral-300 p-8 text-center">
           <p class="text-neutral-500">
-            More form components will be added here: Select, Checkbox, Radio,
-            Textarea, Switch, etc.
+            More form components will be added here: Select, Checkbox, Radio, Textarea, Switch, etc.
           </p>
         </section>
       </div>

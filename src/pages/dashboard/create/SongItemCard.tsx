@@ -1,11 +1,4 @@
-import {
-  Component,
-  createEffect,
-  createSignal,
-  For,
-  onCleanup,
-  Show,
-} from "solid-js";
+import { Component, createEffect, createSignal, For, onCleanup, Show } from "solid-js";
 import { Portal } from "solid-js/web";
 import { Transition } from "solid-transition-group";
 import { isSpotifyLoggedIn, searchTracks } from "../../../lib/spotify";
@@ -118,12 +111,10 @@ const SongItemCard: Component<SongItemCardProps> = (props) => {
         }}
         onMouseEnter={(e) => {
           if (!props.isEditing)
-            e.currentTarget.style.backgroundColor =
-              props.colorScheme.itemBgHover;
+            e.currentTarget.style.backgroundColor = props.colorScheme.itemBgHover;
         }}
         onMouseLeave={(e) => {
-          if (!props.isEditing)
-            e.currentTarget.style.backgroundColor = props.colorScheme.itemBg;
+          if (!props.isEditing) e.currentTarget.style.backgroundColor = props.colorScheme.itemBg;
         }}
       >
         <button
@@ -131,10 +122,7 @@ const SongItemCard: Component<SongItemCardProps> = (props) => {
           class="flex h-full w-full flex-col items-center justify-center"
           onClick={() => !props.isEditing && props.onEdit()}
         >
-          <span
-            class="text-2xl font-bold"
-            style={{ color: props.colorScheme.textDark }}
-          >
+          <span class="text-2xl font-bold" style={{ color: props.colorScheme.textDark }}>
             {props.item.level}
           </span>
           <Show when={props.item.title && !props.isEditing}>
@@ -150,11 +138,7 @@ const SongItemCard: Component<SongItemCardProps> = (props) => {
         {/* Song URL indicator */}
         <Show when={props.item.songUrl && !props.isEditing}>
           <div class="absolute right-1 bottom-1">
-            <svg
-              class="h-4 w-4 text-green-500"
-              fill="currentColor"
-              viewBox="0 0 24 24"
-            >
+            <svg class="h-4 w-4 text-green-500" fill="currentColor" viewBox="0 0 24 24">
               <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
             </svg>
           </div>
@@ -167,12 +151,7 @@ const SongItemCard: Component<SongItemCardProps> = (props) => {
             onClick={() => props.onRemove()}
             class="absolute -top-2 -right-2 hidden h-5 w-5 items-center justify-center rounded-full bg-red-500 text-white shadow-md transition group-hover:flex hover:bg-red-600"
           >
-            <svg
-              class="h-3 w-3"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
+            <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
@@ -189,9 +168,7 @@ const SongItemCard: Component<SongItemCardProps> = (props) => {
         <Transition
           onEnter={(el, done) => {
             const rect = originRect();
-            const modalCard = el.querySelector(
-              "[data-modal-card]"
-            ) as HTMLElement | null;
+            const modalCard = el.querySelector("[data-modal-card]") as HTMLElement | null;
             if (!rect || !modalCard) {
               el.animate([{ opacity: 0 }, { opacity: 1 }], {
                 duration: 200,
@@ -201,14 +178,8 @@ const SongItemCard: Component<SongItemCardProps> = (props) => {
             }
             // Force layout so we can measure the modal's resting position
             const modalRect = modalCard.getBoundingClientRect();
-            const dx =
-              rect.left +
-              rect.width / 2 -
-              (modalRect.left + modalRect.width / 2);
-            const dy =
-              rect.top +
-              rect.height / 2 -
-              (modalRect.top + modalRect.height / 2);
+            const dx = rect.left + rect.width / 2 - (modalRect.left + modalRect.width / 2);
+            const dy = rect.top + rect.height / 2 - (modalRect.top + modalRect.height / 2);
             const scaleX = rect.width / modalRect.width;
             const scaleY = rect.height / modalRect.height;
 
@@ -226,16 +197,14 @@ const SongItemCard: Component<SongItemCardProps> = (props) => {
                     borderRadius: "0.75rem",
                   },
                 ],
-                { duration: 280, easing: "cubic-bezier(0.32, 0.72, 0, 1)" }
+                { duration: 280, easing: "cubic-bezier(0.32, 0.72, 0, 1)" },
               )
               .finished.then(done);
           }}
           onExit={(el, done) => {
             // Re-measure card position (it may have shifted due to scroll)
             const rect = cardRef?.getBoundingClientRect() ?? originRect();
-            const modalCard = el.querySelector(
-              "[data-modal-card]"
-            ) as HTMLElement | null;
+            const modalCard = el.querySelector("[data-modal-card]") as HTMLElement | null;
             if (!rect || !modalCard) {
               el.animate([{ opacity: 1 }, { opacity: 0 }], {
                 duration: 150,
@@ -244,14 +213,8 @@ const SongItemCard: Component<SongItemCardProps> = (props) => {
               return;
             }
             const modalRect = modalCard.getBoundingClientRect();
-            const dx =
-              rect.left +
-              rect.width / 2 -
-              (modalRect.left + modalRect.width / 2);
-            const dy =
-              rect.top +
-              rect.height / 2 -
-              (modalRect.top + modalRect.height / 2);
+            const dx = rect.left + rect.width / 2 - (modalRect.left + modalRect.width / 2);
+            const dy = rect.top + rect.height / 2 - (modalRect.top + modalRect.height / 2);
             const scaleX = rect.width / modalRect.width;
             const scaleY = rect.height / modalRect.height;
 
@@ -269,7 +232,7 @@ const SongItemCard: Component<SongItemCardProps> = (props) => {
                     borderRadius: "0.5rem",
                   },
                 ],
-                { duration: 220, easing: "cubic-bezier(0.32, 0, 0.67, 0)" }
+                { duration: 220, easing: "cubic-bezier(0.32, 0, 0.67, 0)" },
               )
               .finished.then(done);
           }}
@@ -277,10 +240,7 @@ const SongItemCard: Component<SongItemCardProps> = (props) => {
           <Show when={props.isEditing}>
             <div class="fixed inset-0 z-[100] flex items-center justify-center">
               {/* Subtle backdrop — click to close */}
-              <div
-                class="absolute inset-0 bg-black/25"
-                onClick={() => props.onBlur()}
-              />
+              <div class="absolute inset-0 bg-black/25" onClick={() => props.onBlur()} />
 
               {/* Modal card */}
               <div
@@ -294,12 +254,7 @@ const SongItemCard: Component<SongItemCardProps> = (props) => {
                   onClick={() => props.onBlur()}
                   class="absolute top-3 right-3 flex h-7 w-7 items-center justify-center rounded-full text-neutral-400 transition hover:bg-neutral-100 hover:text-neutral-700"
                 >
-                  <svg
-                    class="h-4 w-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
+                  <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
                       stroke-linecap="round"
                       stroke-linejoin="round"
@@ -318,17 +273,12 @@ const SongItemCard: Component<SongItemCardProps> = (props) => {
                       "border-color": props.colorScheme.border,
                     }}
                   >
-                    <span
-                      class="text-xl font-bold"
-                      style={{ color: props.colorScheme.textDark }}
-                    >
+                    <span class="text-xl font-bold" style={{ color: props.colorScheme.textDark }}>
                       {props.item.level}
                     </span>
                   </div>
                   <div class="min-w-0 flex-1">
-                    <p class="text-sm font-semibold text-neutral-900">
-                      Nivå {props.item.level}
-                    </p>
+                    <p class="text-sm font-semibold text-neutral-900">Nivå {props.item.level}</p>
                     <Show when={props.item.title}>
                       <p class="truncate text-xs text-neutral-500">
                         {props.item.title}
@@ -347,9 +297,7 @@ const SongItemCard: Component<SongItemCardProps> = (props) => {
                         type="text"
                         value={localUrl()}
                         onInput={(e) => setLocalUrl(e.currentTarget.value)}
-                        onKeyPress={(e) =>
-                          e.key === "Enter" && handleUrlSubmit()
-                        }
+                        onKeyPress={(e) => e.key === "Enter" && handleUrlSubmit()}
                         placeholder="Lim inn sang-URL..."
                         class="w-full rounded-lg border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm text-neutral-900 transition outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
                         autofocus
@@ -378,9 +326,7 @@ const SongItemCard: Component<SongItemCardProps> = (props) => {
                     <Show when={searchResults().length > 0 || isSearching()}>
                       <div class="max-h-64 overflow-y-auto rounded-lg border border-neutral-200 bg-white">
                         <Show when={isSearching()}>
-                          <div class="px-3 py-3 text-center text-xs text-neutral-400">
-                            Søker...
-                          </div>
+                          <div class="px-3 py-3 text-center text-xs text-neutral-400">Søker...</div>
                         </Show>
                         <For each={searchResults()}>
                           {(track) => (
@@ -400,9 +346,7 @@ const SongItemCard: Component<SongItemCardProps> = (props) => {
                                 <p class="truncate text-sm font-medium text-neutral-900">
                                   {track.name}
                                 </p>
-                                <p class="truncate text-xs text-neutral-500">
-                                  {track.artist}
-                                </p>
+                                <p class="truncate text-xs text-neutral-500">{track.artist}</p>
                               </div>
                             </button>
                           )}

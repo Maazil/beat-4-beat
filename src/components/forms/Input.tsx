@@ -20,10 +20,7 @@ type InputType =
 
 type InputVariant = "default" | "ghost";
 
-interface InputProps extends Omit<
-  JSX.InputHTMLAttributes<HTMLInputElement>,
-  "type"
-> {
+interface InputProps extends Omit<JSX.InputHTMLAttributes<HTMLInputElement>, "type"> {
   type?: InputType;
   label?: string;
   error?: string;
@@ -41,14 +38,12 @@ const Input: Component<InputProps> = (props) => {
     "variant",
   ]);
 
-  const inputId = () =>
-    local.id || `input-${Math.random().toString(36).slice(2, 9)}`;
+  const inputId = () => local.id || `input-${Math.random().toString(36).slice(2, 9)}`;
 
   const isGhost = () => local.variant === "ghost";
 
   // Ghost variant: transparent, no border, blends with parent
-  const ghostClass =
-    "w-full bg-transparent outline-none caret-current placeholder-current/50";
+  const ghostClass = "w-full bg-transparent outline-none caret-current placeholder-current/50";
 
   // Default variant: standard form input styling
   const defaultClass = () =>
@@ -58,8 +53,7 @@ const Input: Component<InputProps> = (props) => {
         : "border-neutral-300 focus:border-blue-500 focus:ring-blue-500/20"
     } disabled:cursor-not-allowed disabled:bg-neutral-100 disabled:text-neutral-500`;
 
-  const inputClass = () =>
-    `${isGhost() ? ghostClass : defaultClass()} ${local.class || ""}`;
+  const inputClass = () => `${isGhost() ? ghostClass : defaultClass()} ${local.class || ""}`;
 
   return (
     <Show
@@ -87,11 +81,7 @@ const Input: Component<InputProps> = (props) => {
           }
         />
         <Show when={local.error}>
-          <p
-            id={`${inputId()}-error`}
-            class="text-sm text-red-500"
-            role="alert"
-          >
+          <p id={`${inputId()}-error`} class="text-sm text-red-500" role="alert">
             {local.error}
           </p>
         </Show>

@@ -14,8 +14,9 @@ pnpm build        # Production build to /dist via Vite
 pnpm serve        # Preview production build
 pnpm ts           # TypeScript type check (no emit)
 pnpm format       # Format code with oxfmt
-pnpm lint         # ESLint check
-pnpm lint:fix     # ESLint auto-fix
+pnpm format:check # Verify formatting without writing
+pnpm lint         # Lint with oxlint
+pnpm lint:fix     # oxlint auto-fix
 ```
 
 ## Architecture
@@ -84,7 +85,7 @@ SongItem { id, level, title?, artist?, songUrl?, startTime?, isRevealed }
 
 ### Styling
 
-Tailwind CSS v4 via Vite plugin. Dark theme with red accents. Custom animations in `src/index.css` (`beat-pulse`, `gradient-orbit`, `ambient-float`). Prettier sorts Tailwind classes via `prettier-plugin-tailwindcss`.
+Tailwind CSS v4 via Vite plugin. Dark theme with red accents. Custom animations in `src/index.css` (`beat-pulse`, `gradient-orbit`, `ambient-float`).
 
 ### Environment Variables
 

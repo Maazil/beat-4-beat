@@ -53,8 +53,7 @@ export const AuthProvider: ParentComponent = (props) => {
   // Computed signals based on user state
   const isGuest = () => state.user?.isAnonymous === true;
   const isAuthenticated = () => state.user !== null;
-  const isFullUser = () =>
-    state.user !== null && state.user.isAnonymous === false;
+  const isFullUser = () => state.user !== null && state.user.isAnonymous === false;
   const canCreateRooms = () => isFullUser();
   const userNameSplit = () => {
     return state.user !== null && isFullUser()
@@ -151,9 +150,7 @@ export const AuthProvider: ParentComponent = (props) => {
     setDjName,
   };
 
-  return (
-    <AuthContext.Provider value={value}>{props.children}</AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{props.children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => {

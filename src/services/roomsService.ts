@@ -33,21 +33,15 @@ const roomDoc = (roomId: string): DocumentReference => doc(db, "rooms", roomId);
  */
 function docToRoom(id: string, data: DocumentData): Room {
   // Migrate old score format ({ points: number } → { roundPoints: number[] })
-  const scores = data.scores?.map(
-    (s: Record<string, unknown>) =>
-      "roundPoints" in s
-        ? s
-        : { teamName: s.teamName, roundPoints: [] },
+  const scores = data.scores?.map((s: Record<string, unknown>) =>
+    "roundPoints" in s ? s : { teamName: s.teamName, roundPoints: [] },
   );
 
   return {
     ...data,
     id,
     ...(scores ? { scores } : {}),
-    createdAt:
-      data.createdAt instanceof Timestamp
-        ? data.createdAt.toDate()
-        : data.createdAt,
+    createdAt: data.createdAt instanceof Timestamp ? data.createdAt.toDate() : data.createdAt,
   } as Room;
 }
 
@@ -144,9 +138,7 @@ export async function getMyRooms(): Promise<Room[]> {
 /**
  * Subscribe to real-time updates for public rooms
  */
-export function subscribeToPublicRooms(
-  callback: (rooms: Room[]) => void
-): Unsubscribe {
+export function subscribeToPublicRooms(callback: (rooms: Room[]) => void): Unsubscribe {
   const q = query(roomsCollection, where("isPublic", "==", true));
 
   return onSnapshot(q, (snapshot) => {
@@ -158,9 +150,7 @@ export function subscribeToPublicRooms(
 /**
  * Subscribe to real-time updates for current user's rooms
  */
-export function subscribeToMyRooms(
-  callback: (rooms: Room[]) => void
-): Unsubscribe {
+export function subscribeToMyRooms(callback: (rooms: Room[]) => void): Unsubscribe {
   const user = auth.currentUser;
 
   if (!user) {
@@ -180,7 +170,7 @@ export function subscribeToMyRooms(
  */
 export function subscribeToRoom(
   roomId: string,
-  callback: (room: Room | null) => void
+  callback: (room: Room | null) => void,
 ): Unsubscribe {
   return onSnapshot(roomDoc(roomId), (snapshot) => {
     if (!snapshot.exists()) {
@@ -196,7 +186,7 @@ export function subscribeToRoom(
  */
 export async function updateRoom(
   roomId: string,
-  updates: Partial<Omit<Room, "id" | "hostId" | "createdAt">>
+  updates: Partial<Omit<Room, "id" | "hostId" | "createdAt">>,
 ): Promise<void> {
   const user = auth.currentUser;
 

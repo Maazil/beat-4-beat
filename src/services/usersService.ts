@@ -93,7 +93,7 @@ export function startUsersListener() {
           ({
             id: doc.id,
             ...doc.data(),
-          }) as UserDoc
+          }) as UserDoc,
       );
       setUsers(docs);
       setIsLoading(false);
@@ -101,7 +101,7 @@ export function startUsersListener() {
     (err) => {
       setError(err);
       setIsLoading(false);
-    }
+    },
   );
 }
 

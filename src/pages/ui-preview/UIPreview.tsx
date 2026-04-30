@@ -154,8 +154,7 @@ const ctaVariations = {
     },
     {
       name: "Berry Outline",
-      class:
-        "border-2 border-[#9D4EDD] text-[#9D4EDD] hover:bg-[#9D4EDD] hover:text-white",
+      class: "border-2 border-[#9D4EDD] text-[#9D4EDD] hover:bg-[#9D4EDD] hover:text-white",
     },
     {
       name: "Dark Contrast",
@@ -169,8 +168,7 @@ const ctaVariations = {
     },
     {
       name: "Forest Outline",
-      class:
-        "border-2 border-[#2D5A3D] text-[#2D5A3D] hover:bg-[#2D5A3D] hover:text-white",
+      class: "border-2 border-[#2D5A3D] text-[#2D5A3D] hover:bg-[#2D5A3D] hover:text-white",
     },
     {
       name: "Gold Accent",
@@ -184,8 +182,7 @@ const ctaVariations = {
     },
     {
       name: "Amber Outline",
-      class:
-        "border-2 border-[#D97706] text-[#D97706] hover:bg-[#D97706] hover:text-white",
+      class: "border-2 border-[#D97706] text-[#D97706] hover:bg-[#D97706] hover:text-white",
     },
     {
       name: "Dark Contrast",
@@ -199,8 +196,7 @@ const ctaVariations = {
     },
     {
       name: "Red Outline",
-      class:
-        "border-2 border-[#DC2626] text-[#DC2626] hover:bg-[#DC2626] hover:text-white",
+      class: "border-2 border-[#DC2626] text-[#DC2626] hover:bg-[#DC2626] hover:text-white",
     },
     {
       name: "Dark Contrast",
@@ -214,8 +210,7 @@ const ctaVariations = {
     },
     {
       name: "Sky Outline",
-      class:
-        "border-2 border-[#0EA5E9] text-[#0EA5E9] hover:bg-[#0EA5E9] hover:text-white",
+      class: "border-2 border-[#0EA5E9] text-[#0EA5E9] hover:bg-[#0EA5E9] hover:text-white",
     },
     {
       name: "Dark Contrast",
@@ -225,8 +220,7 @@ const ctaVariations = {
 };
 
 const UIPreview: Component = () => {
-  const [activePalette, setActivePalette] =
-    createSignal<keyof typeof palettes>("softRose");
+  const [activePalette, setActivePalette] = createSignal<keyof typeof palettes>("softRose");
   const currentPalette = () => palettes[activePalette()];
   const currentCTAs = () => ctaVariations[activePalette()];
 
@@ -238,10 +232,7 @@ const UIPreview: Component = () => {
       <div class="mx-auto max-w-6xl">
         {/* Header */}
         <div class="mb-8 text-center">
-          <h1
-            class="mb-2 text-4xl font-bold"
-            style={{ color: currentPalette().text.primary }}
-          >
+          <h1 class="mb-2 text-4xl font-bold" style={{ color: currentPalette().text.primary }}>
             Beat 4 Beat — UI Color Exploration
           </h1>
           <p style={{ color: currentPalette().text.secondary }}>
@@ -266,10 +257,7 @@ const UIPreview: Component = () => {
                     activePalette() === key
                       ? currentPalette().accent.primary
                       : currentPalette().bg.card,
-                  color:
-                    activePalette() === key
-                      ? "white"
-                      : currentPalette().text.primary,
+                  color: activePalette() === key ? "white" : currentPalette().text.primary,
                   "border-color": currentPalette().border,
                   "border-width": "1px",
                 }}
@@ -288,15 +276,10 @@ const UIPreview: Component = () => {
             "border-color": currentPalette().border,
           }}
         >
-          <h2
-            class="mb-2 text-2xl font-semibold"
-            style={{ color: currentPalette().text.primary }}
-          >
+          <h2 class="mb-2 text-2xl font-semibold" style={{ color: currentPalette().text.primary }}>
             {currentPalette().name}
           </h2>
-          <p style={{ color: currentPalette().text.secondary }}>
-            {currentPalette().description}
-          </p>
+          <p style={{ color: currentPalette().text.secondary }}>{currentPalette().description}</p>
         </div>
 
         {/* CTA Button Variations */}
@@ -307,10 +290,7 @@ const UIPreview: Component = () => {
             "border-color": currentPalette().border,
           }}
         >
-          <h3
-            class="mb-4 text-xl font-semibold"
-            style={{ color: currentPalette().text.primary }}
-          >
+          <h3 class="mb-4 text-xl font-semibold" style={{ color: currentPalette().text.primary }}>
             CTA Button Variations
           </h3>
           <div class="flex flex-wrap gap-4">
@@ -323,10 +303,7 @@ const UIPreview: Component = () => {
                   >
                     Start Game
                   </button>
-                  <span
-                    class="text-sm"
-                    style={{ color: currentPalette().text.muted }}
-                  >
+                  <span class="text-sm" style={{ color: currentPalette().text.muted }}>
                     {cta.name}
                   </span>
                 </div>
@@ -352,10 +329,7 @@ const UIPreview: Component = () => {
                 >
                   {title()}
                 </h3>
-                <p
-                  class="mb-4 text-sm"
-                  style={{ color: currentPalette().text.secondary }}
-                >
+                <p class="mb-4 text-sm" style={{ color: currentPalette().text.secondary }}>
                   Sample card description text that explains the feature.
                 </p>
                 <button
@@ -388,18 +362,11 @@ const UIPreview: Component = () => {
             "border-color": currentPalette().border,
           }}
         >
-          <h3
-            class="mb-4 text-xl font-semibold"
-            style={{ color: currentPalette().text.primary }}
-          >
+          <h3 class="mb-4 text-xl font-semibold" style={{ color: currentPalette().text.primary }}>
             Category Colors (Remain Varied)
           </h3>
-          <p
-            class="mb-4 text-sm"
-            style={{ color: currentPalette().text.secondary }}
-          >
-            These stay distinct regardless of palette choice. Future: Replace
-            with uploaded images.
+          <p class="mb-4 text-sm" style={{ color: currentPalette().text.secondary }}>
+            These stay distinct regardless of palette choice. Future: Replace with uploaded images.
           </p>
           <div class="grid grid-cols-6 gap-3">
             <For
@@ -455,10 +422,7 @@ const UIPreview: Component = () => {
             "border-color": currentPalette().border,
           }}
         >
-          <h3
-            class="mb-4 text-xl font-semibold"
-            style={{ color: currentPalette().text.primary }}
-          >
+          <h3 class="mb-4 text-xl font-semibold" style={{ color: currentPalette().text.primary }}>
             Form Elements
           </h3>
           <div class="max-w-md space-y-4">
@@ -511,10 +475,7 @@ const UIPreview: Component = () => {
             "border-color": currentPalette().border,
           }}
         >
-          <h3
-            class="mb-4 text-xl font-semibold"
-            style={{ color: currentPalette().text.primary }}
-          >
+          <h3 class="mb-4 text-xl font-semibold" style={{ color: currentPalette().text.primary }}>
             Status Badges
           </h3>
           <div class="flex flex-wrap gap-3">
@@ -544,10 +505,7 @@ const UIPreview: Component = () => {
             "border-color": currentPalette().border,
           }}
         >
-          <h3
-            class="mb-4 text-xl font-semibold"
-            style={{ color: currentPalette().text.primary }}
-          >
+          <h3 class="mb-4 text-xl font-semibold" style={{ color: currentPalette().text.primary }}>
             Full Color Palette
           </h3>
           <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
@@ -569,10 +527,7 @@ const UIPreview: Component = () => {
                           "border-color": currentPalette().border,
                         }}
                       />
-                      <span
-                        class="text-xs"
-                        style={{ color: currentPalette().text.muted }}
-                      >
+                      <span class="text-xs" style={{ color: currentPalette().text.muted }}>
                         {name}: {color}
                       </span>
                     </div>
@@ -598,10 +553,7 @@ const UIPreview: Component = () => {
                           "border-color": currentPalette().border,
                         }}
                       />
-                      <span
-                        class="text-xs"
-                        style={{ color: currentPalette().text.muted }}
-                      >
+                      <span class="text-xs" style={{ color: currentPalette().text.muted }}>
                         {name}: {color}
                       </span>
                     </div>
@@ -627,10 +579,7 @@ const UIPreview: Component = () => {
                           "border-color": currentPalette().border,
                         }}
                       />
-                      <span
-                        class="text-xs"
-                        style={{ color: currentPalette().text.muted }}
-                      >
+                      <span class="text-xs" style={{ color: currentPalette().text.muted }}>
                         {name}: {color}
                       </span>
                     </div>
@@ -654,10 +603,7 @@ const UIPreview: Component = () => {
                       "border-color": currentPalette().border,
                     }}
                   />
-                  <span
-                    class="text-xs"
-                    style={{ color: currentPalette().text.muted }}
-                  >
+                  <span class="text-xs" style={{ color: currentPalette().text.muted }}>
                     border: {currentPalette().border}
                   </span>
                 </div>
@@ -669,10 +615,7 @@ const UIPreview: Component = () => {
                       "border-color": currentPalette().border,
                     }}
                   />
-                  <span
-                    class="text-xs"
-                    style={{ color: currentPalette().text.muted }}
-                  >
+                  <span class="text-xs" style={{ color: currentPalette().text.muted }}>
                     success: {currentPalette().success}
                   </span>
                 </div>
@@ -684,10 +627,7 @@ const UIPreview: Component = () => {
                       "border-color": currentPalette().border,
                     }}
                   />
-                  <span
-                    class="text-xs"
-                    style={{ color: currentPalette().text.muted }}
-                  >
+                  <span class="text-xs" style={{ color: currentPalette().text.muted }}>
                     info: {currentPalette().info}
                   </span>
                 </div>
@@ -704,18 +644,12 @@ const UIPreview: Component = () => {
             "border-color": currentPalette().border,
           }}
         >
-          <h3
-            class="mb-2 text-xl font-semibold"
-            style={{ color: currentPalette().text.primary }}
-          >
+          <h3 class="mb-2 text-xl font-semibold" style={{ color: currentPalette().text.primary }}>
             ✨ Vite-style Hover Glow Effect
           </h3>
-          <p
-            class="mb-6 text-sm"
-            style={{ color: currentPalette().text.secondary }}
-          >
-            Hover over the items below to see the colored glow effect (works
-            great on light backgrounds!)
+          <p class="mb-6 text-sm" style={{ color: currentPalette().text.secondary }}>
+            Hover over the items below to see the colored glow effect (works great on light
+            backgrounds!)
           </p>
 
           <div class="flex flex-wrap justify-center gap-6">
@@ -796,18 +730,11 @@ const UIPreview: Component = () => {
             "border-color": currentPalette().border,
           }}
         >
-          <h3
-            class="mb-2 text-xl font-semibold"
-            style={{ color: currentPalette().text.primary }}
-          >
+          <h3 class="mb-2 text-xl font-semibold" style={{ color: currentPalette().text.primary }}>
             🪐 Perplexity-style Clean UI
           </h3>
-          <p
-            class="mb-6 text-sm"
-            style={{ color: currentPalette().text.secondary }}
-          >
-            Minimal, spacious cards with subtle hover interactions and soft
-            shadows
+          <p class="mb-6 text-sm" style={{ color: currentPalette().text.secondary }}>
+            Minimal, spacious cards with subtle hover interactions and soft shadows
           </p>
 
           <div class="grid gap-4 md:grid-cols-3">
@@ -858,10 +785,7 @@ const UIPreview: Component = () => {
                     >
                       {card.title}
                     </h4>
-                    <p
-                      class="mb-4 text-sm"
-                      style={{ color: currentPalette().text.secondary }}
-                    >
+                    <p class="mb-4 text-sm" style={{ color: currentPalette().text.secondary }}>
                       {card.desc}
                     </p>
                     <button
@@ -872,8 +796,7 @@ const UIPreview: Component = () => {
                       style={
                         card.primary
                           ? {
-                              "background-color":
-                                currentPalette().accent.primary,
+                              "background-color": currentPalette().accent.primary,
                             }
                           : {
                               "background-color": currentPalette().bg.secondary,
@@ -969,18 +892,8 @@ const UIPreview: Component = () => {
                 </path>
 
                 {/* Beat dots along the wave */}
-                <circle
-                  cx="200"
-                  cy="200"
-                  r="4"
-                  fill={currentPalette().accent.primary}
-                >
-                  <animate
-                    attributeName="r"
-                    dur="2s"
-                    repeatCount="indefinite"
-                    values="4;8;4"
-                  />
+                <circle cx="200" cy="200" r="4" fill={currentPalette().accent.primary}>
+                  <animate attributeName="r" dur="2s" repeatCount="indefinite" values="4;8;4" />
                   <animate
                     attributeName="opacity"
                     dur="2s"
@@ -988,12 +901,7 @@ const UIPreview: Component = () => {
                     values="1;0.5;1"
                   />
                 </circle>
-                <circle
-                  cx="600"
-                  cy="200"
-                  r="4"
-                  fill={currentPalette().accent.secondary}
-                >
+                <circle cx="600" cy="200" r="4" fill={currentPalette().accent.secondary}>
                   <animate
                     attributeName="r"
                     dur="2s"
@@ -1009,12 +917,7 @@ const UIPreview: Component = () => {
                     begin="0.5s"
                   />
                 </circle>
-                <circle
-                  cx="1000"
-                  cy="200"
-                  r="4"
-                  fill={currentPalette().accent.primary}
-                >
+                <circle cx="1000" cy="200" r="4" fill={currentPalette().accent.primary}>
                   <animate
                     attributeName="r"
                     dur="2s"
@@ -1045,8 +948,8 @@ const UIPreview: Component = () => {
                 class="mx-auto mb-10 max-w-2xl text-lg"
                 style={{ color: currentPalette().text.secondary }}
               >
-                Beat 4 Beat makes music gaming social, competitive, and fun.
-                Create rooms, challenge friends, and prove your musical prowess.
+                Beat 4 Beat makes music gaming social, competitive, and fun. Create rooms, challenge
+                friends, and prove your musical prowess.
               </p>
 
               {/* Stats Grid */}
@@ -1085,10 +988,7 @@ const UIPreview: Component = () => {
                       >
                         {stat.label}
                       </div>
-                      <div
-                        class="text-sm"
-                        style={{ color: currentPalette().text.muted }}
-                      >
+                      <div class="text-sm" style={{ color: currentPalette().text.muted }}>
                         {stat.subtext}
                       </div>
                     </div>
@@ -1107,16 +1007,10 @@ const UIPreview: Component = () => {
             "border-color": currentPalette().border,
           }}
         >
-          <h3
-            class="mb-2 text-xl font-semibold"
-            style={{ color: currentPalette().text.primary }}
-          >
+          <h3 class="mb-2 text-xl font-semibold" style={{ color: currentPalette().text.primary }}>
             🎯 Room Cards with Hover Glow
           </h3>
-          <p
-            class="mb-6 text-sm"
-            style={{ color: currentPalette().text.secondary }}
-          >
+          <p class="mb-6 text-sm" style={{ color: currentPalette().text.secondary }}>
             How room cards could look with the glow effect
           </p>
 
@@ -1161,10 +1055,7 @@ const UIPreview: Component = () => {
                     }}
                   >
                     <div class="mb-3 flex items-start justify-between">
-                      <h4
-                        class="font-semibold"
-                        style={{ color: currentPalette().text.primary }}
-                      >
+                      <h4 class="font-semibold" style={{ color: currentPalette().text.primary }}>
                         {room.name}
                       </h4>
                       <span
@@ -1174,10 +1065,7 @@ const UIPreview: Component = () => {
                         {room.status}
                       </span>
                     </div>
-                    <p
-                      class="text-sm"
-                      style={{ color: currentPalette().text.secondary }}
-                    >
+                    <p class="text-sm" style={{ color: currentPalette().text.secondary }}>
                       Hosted by {room.host}
                     </p>
                   </div>
