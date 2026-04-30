@@ -11,7 +11,7 @@ export {
   isSpotifyLoggedIn,
 } from "./spotify.auth";
 
-export { SpotifyPlayerProvider, useSpotifyPlayer } from "./spotify.sdk.jsx";
+export { SpotifyPlayerProvider, useSpotifyPlayer } from "./spotify.sdk";
 
 export { useSpotifyPlayback } from "./spotify.playback";
 

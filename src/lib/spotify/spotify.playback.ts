@@ -11,7 +11,7 @@ import { createEffect, createSignal, onCleanup } from "solid-js";
 
 import { SPOTIFY_API_BASE } from "./spotify.config";
 import { getAccessToken } from "./spotify.auth";
-import { useSpotifyPlayer } from "./spotify.sdk.jsx";
+import { useSpotifyPlayer } from "./spotify.sdk";
 import type { CurrentTrack, PlaybackState, WebPlaybackState } from "./spotify.types";
 
 // ── The composable ────────────────────────────────────────────────────
