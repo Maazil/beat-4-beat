@@ -7,8 +7,8 @@ packages: []
 # Supply chain security settings
 # See: https://pnpm.io/supply-chain-security
 
-# Enforce minimum release age of 14 days (1440 minutes) to reduce risk of compromised packages
-minimumReleaseAge: 20160
+# Enforce minimum release age of 7 days (10080 minutes) to reduce risk of compromised packages
+minimumReleaseAge: 10080
 
 # Exclude well-known dev tools from minimum release age check
 minimumReleaseAgeExclude:
@@ -17,3 +17,7 @@ minimumReleaseAgeExclude:
   - eslint
   - "@typescript-eslint/*"
   - minimatch
+
+# Block all dependency lifecycle scripts (preinstall/install/postinstall) by default.
+# Add packages here to explicitly allow them to run scripts (e.g. - esbuild).
+onlyBuiltDependencies: []
