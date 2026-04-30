@@ -6,12 +6,7 @@ export const deviceIcon = (type: string) => {
   switch (type.toLowerCase()) {
     case "smartphone":
       return (
-        <svg
-          class="h-5 w-5"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
             stroke-linecap="round"
             stroke-linejoin="round"
@@ -22,12 +17,7 @@ export const deviceIcon = (type: string) => {
       );
     case "computer":
       return (
-        <svg
-          class="h-5 w-5"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
             stroke-linecap="round"
             stroke-linejoin="round"
@@ -38,12 +28,7 @@ export const deviceIcon = (type: string) => {
       );
     case "speaker":
       return (
-        <svg
-          class="h-5 w-5"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
             stroke-linecap="round"
             stroke-linejoin="round"
@@ -54,12 +39,7 @@ export const deviceIcon = (type: string) => {
       );
     default:
       return (
-        <svg
-          class="h-5 w-5"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
             stroke-linecap="round"
             stroke-linejoin="round"
@@ -84,9 +64,7 @@ const DevicePicker: Component<DevicePickerProps> = (props) => {
     <div class="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
       <div class="mb-4 flex items-center justify-between">
         <div>
-          <h3 class="text-lg font-semibold text-neutral-900">
-            Velg avspillingsenhet
-          </h3>
+          <h3 class="text-lg font-semibold text-neutral-900">Velg avspillingsenhet</h3>
           <p class="text-sm text-neutral-500">
             Sang spilles av på valgt enhet (telefon, PC, høyttaler)
           </p>
@@ -126,8 +104,8 @@ const DevicePicker: Component<DevicePickerProps> = (props) => {
           when={props.devices.length > 0}
           fallback={
             <div class="rounded-lg border border-amber-200 bg-amber-50 p-4 text-center text-sm text-amber-700">
-              Ingen enheter funnet. Åpne Spotify-appen på telefonen eller
-              datamaskinen og prøv igjen.
+              Ingen enheter funnet. Åpne Spotify-appen på telefonen eller datamaskinen og prøv
+              igjen.
             </div>
           }
         >
@@ -138,27 +116,17 @@ const DevicePicker: Component<DevicePickerProps> = (props) => {
                   type="button"
                   onClick={() => props.onSelect(device)}
                   class={`flex items-center gap-3 rounded-lg border px-4 py-3 text-left transition hover:border-neutral-400 hover:bg-neutral-50 ${
-                    device.is_active
-                      ? "border-green-300 bg-green-50"
-                      : "border-neutral-200"
+                    device.is_active ? "border-green-300 bg-green-50" : "border-neutral-200"
                   }`}
                 >
-                  <span
-                    class={
-                      device.is_active ? "text-green-600" : "text-neutral-400"
-                    }
-                  >
+                  <span class={device.is_active ? "text-green-600" : "text-neutral-400"}>
                     {deviceIcon(device.type)}
                   </span>
                   <div class="min-w-0 flex-1">
-                    <p class="text-sm font-medium text-neutral-900">
-                      {device.name}
-                    </p>
+                    <p class="text-sm font-medium text-neutral-900">{device.name}</p>
                     <p class="text-xs text-neutral-500">
                       {device.type}
-                      {device.is_active && (
-                        <span class="ml-1.5 text-green-600">• Aktiv</span>
-                      )}
+                      {device.is_active && <span class="ml-1.5 text-green-600">• Aktiv</span>}
                     </p>
                   </div>
                   <svg

@@ -15,18 +15,13 @@ const formatTime = (ms: number) => {
 
 const SeekBar: Component<SeekBarProps> = (props) => {
   const progressPct = () => {
-    return props.durationMs > 0
-      ? (props.positionMs / props.durationMs) * 100
-      : 0;
+    return props.durationMs > 0 ? (props.positionMs / props.durationMs) * 100 : 0;
   };
 
   const handleClick = (e: MouseEvent) => {
     const bar = e.currentTarget as HTMLElement;
     const rect = bar.getBoundingClientRect();
-    const pct = Math.max(
-      0,
-      Math.min(1, (e.clientX - rect.left) / rect.width),
-    );
+    const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
     props.onSeek(Math.round(pct * props.durationMs));
   };
 
@@ -48,9 +43,7 @@ const SeekBar: Component<SeekBarProps> = (props) => {
           style={{ left: `${progressPct()}%` }}
         />
       </div>
-      <span class="w-10 text-xs tabular-nums text-neutral-500">
-        {formatTime(props.durationMs)}
-      </span>
+      <span class="w-10 text-xs tabular-nums text-neutral-500">{formatTime(props.durationMs)}</span>
     </div>
   );
 };

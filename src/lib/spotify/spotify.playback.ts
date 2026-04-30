@@ -12,11 +12,7 @@ import { createEffect, createSignal, onCleanup } from "solid-js";
 import { SPOTIFY_API_BASE } from "./spotify.config";
 import { getAccessToken } from "./spotify.auth";
 import { useSpotifyPlayer } from "./spotify.sdk.jsx";
-import type {
-  CurrentTrack,
-  PlaybackState,
-  WebPlaybackState,
-} from "./spotify.types";
+import type { CurrentTrack, PlaybackState, WebPlaybackState } from "./spotify.types";
 
 // ── The composable ────────────────────────────────────────────────────
 
@@ -24,9 +20,7 @@ export function useSpotifyPlayback() {
   const { player, deviceId } = useSpotifyPlayer();
 
   // Reactive signals consumers can read in JSX or createEffect
-  const [currentTrack, setCurrentTrack] = createSignal<CurrentTrack | null>(
-    null,
-  );
+  const [currentTrack, setCurrentTrack] = createSignal<CurrentTrack | null>(null);
   const [playbackState, setPlaybackState] = createSignal<PlaybackState>({
     isPlaying: false,
     positionMs: 0,

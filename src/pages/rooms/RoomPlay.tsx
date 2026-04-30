@@ -105,18 +105,15 @@ const RoomPlayInner: Component = () => {
   const [isLoadingDevices, setIsLoadingDevices] = createSignal(false);
 
   const storedDevice = sessionStorage.getItem("spotify_selected_device");
-  const [selectedDevice, setSelectedDevice] =
-    createSignal<SpotifyDevice | null>(
-      storedDevice ? (JSON.parse(storedDevice) as SpotifyDevice) : null
-    );
+  const [selectedDevice, setSelectedDevice] = createSignal<SpotifyDevice | null>(
+    storedDevice ? (JSON.parse(storedDevice) as SpotifyDevice) : null,
+  );
 
   // Local scores — per-session, not shared across users
   const [scores, setScores] = createSignal<Score[]>([]);
 
   // Playback state
-  const [revealedItems, setRevealedItems] = createSignal<Set<string>>(
-    new Set()
-  );
+  const [revealedItems, setRevealedItems] = createSignal<Set<string>>(new Set());
   const [currentItemId, setCurrentItemId] = createSignal<string | null>(null);
   const [showTrackInfo, setShowTrackInfo] = createSignal(false);
 
@@ -142,11 +139,7 @@ const RoomPlayInner: Component = () => {
     sessionStorage.setItem("spotify_selected_device", JSON.stringify(device));
   };
 
-  const handleItemClick = async (
-    itemId: string,
-    songUrl?: string,
-    startTime?: number
-  ) => {
+  const handleItemClick = async (itemId: string, songUrl?: string, startTime?: number) => {
     setRevealedItems((prev) => new Set(prev).add(itemId));
     setCurrentItemId(itemId);
     setShowTrackInfo(false);
@@ -158,8 +151,7 @@ const RoomPlayInner: Component = () => {
       const uri = spotifyUrlToUri(songUrl);
       if (uri) {
         try {
-          const posMs =
-            startTime != null && startTime > 0 ? startTime * 1000 : 0;
+          const posMs = startTime != null && startTime > 0 ? startTime * 1000 : 0;
           await playOnDevice(uri, device.id, posMs);
           playback.setIsPlaying(true);
           playback.startPolling(posMs);
@@ -245,12 +237,7 @@ const RoomPlayInner: Component = () => {
           onClick={() => window.history.back()}
           class="mb-6 flex items-center gap-2 text-neutral-600 transition hover:text-neutral-900"
         >
-          <svg
-            class="h-5 w-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               stroke-linecap="round"
               stroke-linejoin="round"
@@ -277,9 +264,7 @@ const RoomPlayInner: Component = () => {
           <div class="flex flex-col gap-8">
             <div class="flex flex-col gap-4">
               <div class="flex flex-col gap-2">
-                <h1 class="text-3xl font-bold text-neutral-900">
-                  {currentRoom()?.roomName}
-                </h1>
+                <h1 class="text-3xl font-bold text-neutral-900">{currentRoom()?.roomName}</h1>
                 <h2 class="flex items-center gap-2 font-medium text-neutral-500">
                   Hostet av{" "}
                   <span class="inline-block rounded-full bg-gradient-to-r from-purple-600 to-pink-500 px-4 py-1 text-sm font-bold tracking-wide text-white shadow-md">
@@ -291,8 +276,8 @@ const RoomPlayInner: Component = () => {
               {/* Spotify connection status */}
               <Show when={!spotifyConnected()}>
                 <div class="rounded-lg border border-amber-200 bg-amber-50 px-4 py-2 text-sm text-amber-700">
-                  Spotify er ikke tilkoblet. Koble til Spotify fra dashbordet
-                  for å spille sanger direkte.
+                  Spotify er ikke tilkoblet. Koble til Spotify fra dashbordet for å spille sanger
+                  direkte.
                 </div>
               </Show>
             </div>
@@ -331,13 +316,9 @@ const RoomPlayInner: Component = () => {
             <Show when={selectedDevice()}>
               {(device) => (
                 <div class="flex items-center gap-3 rounded-lg border border-green-200 bg-green-50 px-4 py-2">
-                  <span class="text-green-600">
-                    {deviceIcon(device().type)}
-                  </span>
+                  <span class="text-green-600">{deviceIcon(device().type)}</span>
                   <div class="min-w-0 flex-1">
-                    <p class="text-sm font-medium text-green-900">
-                      Spiller på: {device().name}
-                    </p>
+                    <p class="text-sm font-medium text-green-900">Spiller på: {device().name}</p>
                   </div>
                   <button
                     type="button"
@@ -358,10 +339,7 @@ const RoomPlayInner: Component = () => {
             <Scoreboard
               scores={scores()}
               totalRounds={
-                currentRoom()?.categories.reduce(
-                  (sum, cat) => sum + cat.items.length,
-                  0
-                ) ?? 0
+                currentRoom()?.categories.reduce((sum, cat) => sum + cat.items.length, 0) ?? 0
               }
               onUpdateScores={setScores}
             />
@@ -369,18 +347,13 @@ const RoomPlayInner: Component = () => {
             {/* Game board */}
             <Show when={selectedDevice() || !spotifyConnected()}>
               <div class="py-4 pb-16">
-                <p class="mb-4 text-neutral-600">
-                  Klikk på en rute for å spille sang
-                </p>
+                <p class="mb-4 text-neutral-600">Klikk på en rute for å spille sang</p>
                 {/* Single-category: full-width grid */}
                 <Show when={(currentRoom()?.categories.length ?? 0) === 1}>
                   <div class="grid grid-cols-2 gap-6 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
                     <For each={currentRoom()?.categories[0]?.items}>
                       {(item) => {
-                        const color = () =>
-                          itemColors[
-                            ((item.level ?? 1) - 1) % itemColors.length
-                          ];
+                        const color = () => itemColors[((item.level ?? 1) - 1) % itemColors.length];
                         return (
                           <button
                             type="button"
@@ -389,19 +362,11 @@ const RoomPlayInner: Component = () => {
                                 ? "border-dashed border-neutral-300 bg-neutral-100/50"
                                 : `${color().border} ${color().bg}`
                             }`}
-                            onClick={() =>
-                              handleItemClick(
-                                item.id,
-                                item.songUrl,
-                                item.startTime
-                              )
-                            }
+                            onClick={() => handleItemClick(item.id, item.songUrl, item.startTime)}
                           >
                             <span
                               class={`text-2xl font-bold ${
-                                revealedItems().has(item.id)
-                                  ? "text-neutral-400"
-                                  : color().text
+                                revealedItems().has(item.id) ? "text-neutral-400" : color().text
                               } transition group-hover:scale-110`}
                             >
                               {item.level}
@@ -421,8 +386,7 @@ const RoomPlayInner: Component = () => {
                   >
                     <For each={currentRoom()?.categories}>
                       {(category, index) => {
-                        const colorScheme = () =>
-                          categoryColors[index() % categoryColors.length];
+                        const colorScheme = () => categoryColors[index() % categoryColors.length];
                         return (
                           <div class="flex flex-col gap-4">
                             <div
@@ -446,11 +410,7 @@ const RoomPlayInner: Component = () => {
                                         : `${colorScheme().border} ${colorScheme().itemBg}`
                                     }`}
                                     onClick={() =>
-                                      handleItemClick(
-                                        item.id,
-                                        item.songUrl,
-                                        item.startTime
-                                      )
+                                      handleItemClick(item.id, item.songUrl, item.startTime)
                                     }
                                   >
                                     <span

@@ -51,23 +51,15 @@ const NowPlayingBar: Component<NowPlayingBarProps> = (props) => {
                   </svg>
                 </div>
                 <div>
-                  <p class="text-sm font-medium text-neutral-900">
-                    Sang spilles...
-                  </p>
-                  <p class="text-xs text-neutral-500">
-                    Trykk avsløre for å vise
-                  </p>
+                  <p class="text-sm font-medium text-neutral-900">Sang spilles...</p>
+                  <p class="text-xs text-neutral-500">Trykk avsløre for å vise</p>
                 </div>
               </div>
             }
           >
             <div class="flex items-center gap-2">
               <div class="flex h-10 w-10 items-center justify-center rounded bg-green-100">
-                <svg
-                  class="h-5 w-5 text-green-600"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                >
+                <svg class="h-5 w-5 text-green-600" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2z" />
                 </svg>
               </div>
@@ -96,12 +88,7 @@ const NowPlayingBar: Component<NowPlayingBarProps> = (props) => {
           <Show
             when={props.showTrackInfo}
             fallback={
-              <svg
-                class="h-4 w-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   stroke-linecap="round"
                   stroke-linejoin="round"
@@ -117,12 +104,7 @@ const NowPlayingBar: Component<NowPlayingBarProps> = (props) => {
               </svg>
             }
           >
-            <svg
-              class="h-4 w-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
@@ -143,13 +125,7 @@ const NowPlayingBar: Component<NowPlayingBarProps> = (props) => {
         >
           <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
             <path d="M12.5 3C7.81 3 4.01 6.54 3.68 11H1l3.89 3.89.07.14L9 11H6.73c.32-3.12 2.97-5.5 6.27-5.5A6.5 6.5 0 0 1 19.5 12 6.5 6.5 0 0 1 13 18.5c-1.83 0-3.45-.75-4.63-1.96l-1.42 1.42A8.46 8.46 0 0 0 13 20.5a8.5 8.5 0 0 0 8.5-8.5A8.5 8.5 0 0 0 13 3.5h-.5V3z" />
-            <text
-              x="10"
-              y="16"
-              font-size="7"
-              font-weight="bold"
-              text-anchor="middle"
-            >
+            <text x="10" y="16" font-size="7" font-weight="bold" text-anchor="middle">
               10
             </text>
           </svg>
@@ -184,13 +160,7 @@ const NowPlayingBar: Component<NowPlayingBarProps> = (props) => {
         >
           <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
             <path d="M11.5 3v.5A8.5 8.5 0 0 0 3 12a8.5 8.5 0 0 0 8.5 8.5 8.46 8.46 0 0 0 6.05-2.54l-1.42-1.42A6.47 6.47 0 0 1 11.5 18.5 6.5 6.5 0 0 1 5 12a6.5 6.5 0 0 1 6.5-6.5c3.3 0 5.95 2.38 6.27 5.5H15l4.04 3.89.07-.14L23 11h-2.68c-.33-4.46-4.13-8-7.82-8z" />
-            <text
-              x="14"
-              y="16"
-              font-size="7"
-              font-weight="bold"
-              text-anchor="middle"
-            >
+            <text x="14" y="16" font-size="7" font-weight="bold" text-anchor="middle">
               10
             </text>
           </svg>

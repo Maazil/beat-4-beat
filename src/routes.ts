@@ -60,15 +60,11 @@ export const routes: RouteDefinition[] = [
       },
       {
         path: "/create",
-        component: lazy(
-          () => import("./pages/dashboard/create/CreateRoomWrapper")
-        ),
+        component: lazy(() => import("./pages/dashboard/create/CreateRoomWrapper")),
         children: [
           {
             path: "/",
-            component: lazy(
-              () => import("./pages/dashboard/create/createRoom")
-            ),
+            component: lazy(() => import("./pages/dashboard/create/createRoom")),
           },
         ],
       },

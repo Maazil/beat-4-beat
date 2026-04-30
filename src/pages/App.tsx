@@ -36,8 +36,7 @@ const App: Component = () => {
             <RandomVisualizer class="mt-4" />
 
             <p class="max-w-[46ch] text-base text-pretty text-neutral-400 sm:text-lg">
-              Hvor rytme møter reaksjon. Trå inn i pulsen, og merk slagene før
-              alle andre.
+              Hvor rytme møter reaksjon. Trå inn i pulsen, og merk slagene før alle andre.
             </p>
 
             <button

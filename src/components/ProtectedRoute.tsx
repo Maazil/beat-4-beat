@@ -45,9 +45,7 @@ const ProtectedRoute: ParentComponent<ProtectedRouteProps> = (props) => {
       fallback={
         <div class="flex min-h-screen items-center justify-center bg-[#f4f6f8]">
           <div class="text-center">
-            <h2 class="mb-4 text-2xl font-bold text-neutral-900">
-              Tilgang nektet
-            </h2>
+            <h2 class="mb-4 text-2xl font-bold text-neutral-900">Tilgang nektet</h2>
             <p class="mb-6 text-neutral-600">
               {!auth.isAuthenticated()
                 ? "Du må være logget inn for å se denne siden."

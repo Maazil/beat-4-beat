@@ -45,8 +45,8 @@ const Dashboard: Component = () => {
           <div>
             <h1 class="text-3xl font-semibold text-neutral-900">Dashbord</h1>
             <p class="mt-2 max-w-2xl text-sm text-neutral-500">
-              Administrer spillets rom, hold styr på deltakere, og finjuster
-              pulsen for din neste økt.
+              Administrer spillets rom, hold styr på deltakere, og finjuster pulsen for din neste
+              økt.
             </p>
           </div>
 
@@ -92,9 +92,7 @@ const Dashboard: Component = () => {
                   </div>
                 }
               >
-                {(room) => (
-                  <RoomManageCard room={room} onDelete={handleDeleteRoom} />
-                )}
+                {(room) => <RoomManageCard room={room} onDelete={handleDeleteRoom} />}
               </For>
             </div>
           )}
@@ -108,8 +106,8 @@ const Dashboard: Component = () => {
           <article class="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
             <h2 class="text-lg font-semibold text-neutral-900">Spotify</h2>
             <p class="mt-2 text-sm text-neutral-500">
-              Koble til Spotify Premium-kontoen din for å spille musikk direkte
-              i nettleseren under spillet.
+              Koble til Spotify Premium-kontoen din for å spille musikk direkte i nettleseren under
+              spillet.
             </p>
             <Show
               when={spotifyConnected()}
@@ -125,9 +123,7 @@ const Dashboard: Component = () => {
             >
               <div class="mt-6 flex items-center gap-3">
                 <span class="inline-block h-2.5 w-2.5 rounded-full bg-[#1DB954]" />
-                <span class="text-sm font-medium text-neutral-700">
-                  Spotify tilkoblet
-                </span>
+                <span class="text-sm font-medium text-neutral-700">Spotify tilkoblet</span>
                 <button
                   type="button"
                   class="ml-auto text-sm text-neutral-400 hover:text-neutral-600"
@@ -145,8 +141,7 @@ const Dashboard: Component = () => {
           <article class="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
             <h2 class="text-lg font-semibold text-neutral-900">Markedsplass</h2>
             <p class="mt-2 text-sm text-neutral-500">
-              Utforsk offentlige rom laget av andre spillere og bli med i en
-              økt.
+              Utforsk offentlige rom laget av andre spillere og bli med i en økt.
             </p>
             <button
               type="button"

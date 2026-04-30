@@ -6,9 +6,7 @@ const Login: Component = () => {
   const navigate = useNavigate();
   const auth = useAuth();
   const [error, setError] = createSignal("");
-  const [loadingProvider, setLoadingProvider] = createSignal<
-    "google" | "guest" | null
-  >(null);
+  const [loadingProvider, setLoadingProvider] = createSignal<"google" | "guest" | null>(null);
 
   createEffect(() => {
     if (auth.state.isLoading) return;
@@ -59,8 +57,8 @@ const Login: Component = () => {
       <div class="relative z-10 w-full max-w-md rounded-2xl border border-white/10 bg-white/5 p-8 shadow-2xl backdrop-blur-sm">
         <h1 class="mb-2 text-3xl font-bold text-neutral-100">Logg inn</h1>
         <p class="mb-6 text-neutral-400">
-          Velg hvordan du vil fortsette. Google-kontoer får full tilgang til å
-          opprette og administrere rom.
+          Velg hvordan du vil fortsette. Google-kontoer får full tilgang til å opprette og
+          administrere rom.
         </p>
 
         <Show
@@ -80,9 +78,7 @@ const Login: Component = () => {
               disabled={loadingProvider() !== null}
               class="flex w-full items-center justify-center gap-3 rounded-full border border-red-500/60 bg-red-500/20 px-6 py-3 font-semibold text-red-200 transition duration-300 hover:border-red-400/80 hover:bg-red-500/30 hover:text-red-100 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {loadingProvider() === "google"
-                ? "Logger inn..."
-                : "Logg inn med Google"}
+              {loadingProvider() === "google" ? "Logger inn..." : "Logg inn med Google"}
             </button>
 
             <button
@@ -91,9 +87,7 @@ const Login: Component = () => {
               disabled={loadingProvider() !== null}
               class="w-full rounded-full border border-neutral-600 bg-transparent px-6 py-3 font-medium text-neutral-300 transition duration-300 hover:border-neutral-500 hover:bg-white/5 hover:text-neutral-200 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {loadingProvider() === "guest"
-                ? "Logger inn som gjest..."
-                : "Fortsett som gjest"}
+              {loadingProvider() === "guest" ? "Logger inn som gjest..." : "Fortsett som gjest"}
             </button>
           </div>
 

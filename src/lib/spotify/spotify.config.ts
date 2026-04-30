@@ -3,8 +3,7 @@
 // same build can target dev / staging / production.
 
 /** Spotify application client ID (public, safe for frontend). */
-export const SPOTIFY_CLIENT_ID: string = import.meta.env
-  .VITE_SPOTIFY_CLIENT_ID as string;
+export const SPOTIFY_CLIENT_ID: string = import.meta.env.VITE_SPOTIFY_CLIENT_ID as string;
 
 /**
  * Where Spotify redirects after the user approves access.
@@ -15,8 +14,7 @@ export const SPOTIFY_CLIENT_ID: string = import.meta.env
  * For local dev use the loopback IP instead: http://127.0.0.1:3000
  * Production must use HTTPS.
  */
-export const SPOTIFY_REDIRECT_URI: string = import.meta.env
-  .VITE_SPOTIFY_REDIRECT_URI as string;
+export const SPOTIFY_REDIRECT_URI: string = import.meta.env.VITE_SPOTIFY_REDIRECT_URI as string;
 
 /**
  * OAuth scopes the app needs.

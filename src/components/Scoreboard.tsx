@@ -54,8 +54,7 @@ const Scoreboard: Component<ScoreboardProps> = (props) => {
     props.onUpdateScores(updated);
   };
 
-  const totalPoints = (score: Score) =>
-    score.roundPoints.reduce((sum, p) => sum + p, 0);
+  const totalPoints = (score: Score) => score.roundPoints.reduce((sum, p) => sum + p, 0);
 
   const roundValue = (score: Score, roundIndex: number) =>
     roundIndex < score.roundPoints.length ? score.roundPoints[roundIndex] : 0;
@@ -103,29 +102,32 @@ const Scoreboard: Component<ScoreboardProps> = (props) => {
       {/* Scoreboard table */}
       <Show
         when={props.scores.length > 0}
-        fallback={
-          <p class="py-4 text-center text-sm text-neutral-400">
-            Ingen lag lagt til ennå
-          </p>
-        }
+        fallback={<p class="py-4 text-center text-sm text-neutral-400">Ingen lag lagt til ennå</p>}
       >
         <div class="overflow-x-auto">
           <table class="w-full text-sm" style="border-collapse: separate; border-spacing: 0;">
             <thead>
               <tr>
-                <th class="sticky left-0 z-10 border-b-2 border-neutral-400 bg-white px-3 pb-3 pt-2 pr-4 text-left font-semibold text-neutral-700" style="box-shadow: 4px 0 8px -2px rgba(59,130,246,0.3); border-right: 3px solid rgb(96,165,250);">
+                <th
+                  class="sticky left-0 z-10 border-b-2 border-neutral-400 bg-white px-3 pb-3 pt-2 pr-4 text-left font-semibold text-neutral-700"
+                  style="box-shadow: 4px 0 8px -2px rgba(59,130,246,0.3); border-right: 3px solid rgb(96,165,250);"
+                >
                   Lag
                 </th>
-                <For
-                  each={Array.from({ length: props.totalRounds }, (_, i) => i)}
-                >
+                <For each={Array.from({ length: props.totalRounds }, (_, i) => i)}>
                   {(roundIndex) => (
-                    <th class="border-b-2 border-r border-neutral-400 px-2 pb-3 pt-2 text-center font-semibold text-neutral-500" style="border-right-color: rgb(229,231,235);">
+                    <th
+                      class="border-b-2 border-r border-neutral-400 px-2 pb-3 pt-2 text-center font-semibold text-neutral-500"
+                      style="border-right-color: rgb(229,231,235);"
+                    >
                       {roundIndex + 1}
                     </th>
                   )}
                 </For>
-                <th class="border-b-2 border-r border-neutral-400 px-3 pb-3 pt-2 text-center font-semibold text-neutral-900" style="border-right-color: rgb(212,212,216);">
+                <th
+                  class="border-b-2 border-r border-neutral-400 px-3 pb-3 pt-2 text-center font-semibold text-neutral-900"
+                  style="border-right-color: rgb(212,212,216);"
+                >
                   Totalt
                 </th>
                 <th class="w-8 border-b-2 border-neutral-400" />
@@ -135,15 +137,13 @@ const Scoreboard: Component<ScoreboardProps> = (props) => {
               <For each={props.scores}>
                 {(score, teamIndex) => (
                   <tr style="height: 3rem;">
-                    <td class="sticky left-0 z-10 border-b border-neutral-200 bg-white px-3 py-3 pr-4 font-medium text-neutral-800" style="box-shadow: 4px 0 8px -2px rgba(59,130,246,0.3); border-right: 3px solid rgb(96,165,250);">
+                    <td
+                      class="sticky left-0 z-10 border-b border-neutral-200 bg-white px-3 py-3 pr-4 font-medium text-neutral-800"
+                      style="box-shadow: 4px 0 8px -2px rgba(59,130,246,0.3); border-right: 3px solid rgb(96,165,250);"
+                    >
                       {score.teamName}
                     </td>
-                    <For
-                      each={Array.from(
-                        { length: props.totalRounds },
-                        (_, i) => i,
-                      )}
-                    >
+                    <For each={Array.from({ length: props.totalRounds }, (_, i) => i)}>
                       {(roundIndex) => (
                         <td class="border-b border-r border-neutral-200 px-3 py-3 text-center">
                           <div class="flex items-center justify-center gap-1">
@@ -153,24 +153,40 @@ const Scoreboard: Component<ScoreboardProps> = (props) => {
                             <div class="flex flex-col gap-0.5">
                               <button
                                 type="button"
-                                onClick={() =>
-                                  handleIncrement(teamIndex(), roundIndex)
-                                }
+                                onClick={() => handleIncrement(teamIndex(), roundIndex)}
                                 class="flex h-6 w-7 items-center justify-center rounded-t text-green-600 transition hover:bg-green-100 active:scale-90"
                               >
-                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 15l7-7 7 7" />
+                                <svg
+                                  class="h-4 w-4"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="3"
+                                    d="M5 15l7-7 7 7"
+                                  />
                                 </svg>
                               </button>
                               <button
                                 type="button"
-                                onClick={() =>
-                                  handleDecrement(teamIndex(), roundIndex)
-                                }
+                                onClick={() => handleDecrement(teamIndex(), roundIndex)}
                                 class="flex h-6 w-7 items-center justify-center rounded-b text-red-500 transition hover:bg-red-100 active:scale-90"
                               >
-                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7" />
+                                <svg
+                                  class="h-4 w-4"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="3"
+                                    d="M19 9l-7 7-7-7"
+                                  />
                                 </svg>
                               </button>
                             </div>

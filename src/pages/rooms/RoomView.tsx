@@ -8,9 +8,7 @@ const RoomView: Component = () => {
   const { room: currentRoom, isLoading } = useRoom(() => params.id);
 
   const getStatusBadge = (isActive: boolean) => {
-    return isActive
-      ? "bg-green-100 text-green-800"
-      : "bg-neutral-100 text-neutral-600";
+    return isActive ? "bg-green-100 text-green-800" : "bg-neutral-100 text-neutral-600";
   };
 
   const getStatusLabel = (isActive: boolean) => {
@@ -48,9 +46,7 @@ const RoomView: Component = () => {
             </button>
             <div class="mb-8 flex items-start justify-between">
               <div>
-                <h1 class="text-3xl font-semibold text-neutral-900">
-                  {room.roomName}
-                </h1>
+                <h1 class="text-3xl font-semibold text-neutral-900">{room.roomName}</h1>
                 <p class="mt-2 text-sm text-neutral-500">
                   Administrer rominnstillinger og deltakere.
                 </p>
@@ -64,21 +60,15 @@ const RoomView: Component = () => {
 
             <div class="grid gap-6 lg:grid-cols-2">
               <section class="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
-                <h2 class="mb-4 text-lg font-semibold text-neutral-900">
-                  Rominformasjon
-                </h2>
+                <h2 class="mb-4 text-lg font-semibold text-neutral-900">Rominformasjon</h2>
                 <dl class="space-y-3 text-sm">
                   <div>
                     <dt class="font-medium text-neutral-700">Host</dt>
                     <dd class="mt-1 text-neutral-500">{room.hostName}</dd>
                   </div>
                   <div>
-                    <dt class="font-medium text-neutral-700">
-                      Antall kategorier
-                    </dt>
-                    <dd class="mt-1 text-neutral-500">
-                      {room.categories.length}
-                    </dd>
+                    <dt class="font-medium text-neutral-700">Antall kategorier</dt>
+                    <dd class="mt-1 text-neutral-500">{room.categories.length}</dd>
                   </div>
                   <div>
                     <dt class="font-medium text-neutral-700">Opprettet</dt>
@@ -96,9 +86,7 @@ const RoomView: Component = () => {
               </section>
 
               <section class="rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm">
-                <h2 class="mb-2 text-lg font-semibold text-neutral-900">
-                  Handlinger
-                </h2>
+                <h2 class="mb-2 text-lg font-semibold text-neutral-900">Handlinger</h2>
                 <p class="mb-4 text-sm text-neutral-600">
                   Del lenken:{" "}
                   <code class="rounded bg-neutral-100 px-2 py-1 text-xs">
@@ -117,9 +105,7 @@ const RoomView: Component = () => {
                     onClick={() => {
                       const shareUrl = `${window.location.origin}/rooms/${room.id}/play`;
                       navigator.clipboard.writeText(shareUrl);
-                      alert(
-                        "Lenke kopiert! Del denne med spillere: " + shareUrl
-                      );
+                      alert("Lenke kopiert! Del denne med spillere: " + shareUrl);
                     }}
                   >
                     Kopier spillerlenke

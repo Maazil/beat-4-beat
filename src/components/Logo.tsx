@@ -17,14 +17,7 @@ const Logo = (props: JSX.SvgSVGAttributes<SVGSVGElement>) => (
         <stop offset="100%" stop-color="#ff3b5c" />
       </linearGradient>
     </defs>
-    <circle
-      cx="16"
-      cy="16"
-      r="14"
-      stroke="url(#logoGradient)"
-      stroke-width="2.4"
-      fill="#050507"
-    />
+    <circle cx="16" cy="16" r="14" stroke="url(#logoGradient)" stroke-width="2.4" fill="#050507" />
     <path
       d="M6 16h4l3-6 4 12 4-8 3 6h4"
       stroke="url(#logoGradient)"

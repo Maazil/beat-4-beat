@@ -35,12 +35,8 @@ const RoomManageCard: Component<RoomManageCardProps> = (props) => {
     <article class="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm transition hover:shadow-md">
       {/* Header */}
       <div class="mb-3 flex items-start justify-between">
-        <h3 class="text-lg font-semibold text-neutral-900">
-          {props.room.roomName}
-        </h3>
-        <span
-          class={`rounded-full px-2.5 py-0.5 text-xs font-medium ${statusBadge()}`}
-        >
+        <h3 class="text-lg font-semibold text-neutral-900">{props.room.roomName}</h3>
+        <span class={`rounded-full px-2.5 py-0.5 text-xs font-medium ${statusBadge()}`}>
           {statusLabel()}
         </span>
       </div>
@@ -64,9 +60,7 @@ const RoomManageCard: Component<RoomManageCardProps> = (props) => {
       {/* Actions */}
       {showDeleteConfirm() ? (
         <div class="rounded-lg border border-red-200 bg-red-50 p-3">
-          <p class="mb-3 text-sm text-red-700">
-            Er du sikker på at du vil slette dette rommet?
-          </p>
+          <p class="mb-3 text-sm text-red-700">Er du sikker på at du vil slette dette rommet?</p>
           <div class="flex gap-2">
             <button
               type="button"
@@ -99,12 +93,7 @@ const RoomManageCard: Component<RoomManageCardProps> = (props) => {
             onClick={handleCopyLink}
             title="Kopier spillerlenke"
           >
-            <svg
-              class="h-4 w-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
@@ -119,12 +108,7 @@ const RoomManageCard: Component<RoomManageCardProps> = (props) => {
             onClick={() => navigate(`/dashboard/create?edit=${props.room.id}`)}
             title="Rediger rom"
           >
-            <svg
-              class="h-4 w-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
@@ -139,12 +123,7 @@ const RoomManageCard: Component<RoomManageCardProps> = (props) => {
             onClick={() => setShowDeleteConfirm(true)}
             title="Slett rom"
           >
-            <svg
-              class="h-4 w-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"

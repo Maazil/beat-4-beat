@@ -8,13 +8,11 @@ type RandomVisualizerProps = {
 };
 
 const RandomVisualizer: Component<RandomVisualizerProps> = (props) => {
-  const clamp = (value: number, min: number, max: number) =>
-    Math.min(max, Math.max(min, value));
+  const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
   const count = () => props.barCount ?? 48;
   const tempo = () => clamp(props.bpm ?? 150, 120, 200);
   const stepInterval = () => Math.max(60, Math.round(60000 / tempo() / 4));
-  const createLevels = (bars: number) =>
-    Array.from({ length: bars }, () => Math.random());
+  const createLevels = (bars: number) => Array.from({ length: bars }, () => Math.random());
 
   const [levels, setLevels] = createSignal<number[]>(createLevels(count()));
 
@@ -31,8 +29,7 @@ const RandomVisualizer: Component<RandomVisualizerProps> = (props) => {
     stop();
     intervalId = window.setInterval(() => {
       setLevels((previous) => {
-        const snapshot =
-          previous.length === bars ? previous : createLevels(bars);
+        const snapshot = previous.length === bars ? previous : createLevels(bars);
         return snapshot.map((value) => {
           const target = Math.random();
           const eased = value + (target - value) * 0.55;
