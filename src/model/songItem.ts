@@ -26,7 +26,7 @@ export const demoSongItems: SongItem[] = [
   {
     id: "song-002",
     level: 2,
-    songUrl: "hhttps://open.spotify.com/track/7CSQp9T3JtkjQGPmpR1vTb?si=4f65da5f08cd4756",
+    songUrl: "https://open.spotify.com/track/7CSQp9T3JtkjQGPmpR1vTb?si=4f65da5f08cd4756",
     isRevealed: false,
   },
   {
