@@ -23,7 +23,6 @@ const Login: Component = () => {
     try {
       await auth.signInWithGoogle();
       navigate("/dashboard");
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setError(err?.message || "Kunne ikke logge inn med Google");
     } finally {
@@ -37,7 +36,6 @@ const Login: Component = () => {
     try {
       await auth.signInAnonymously();
       navigate("/market");
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setError(err?.message || "Kunne ikke logge inn som gjest");
     } finally {

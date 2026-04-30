@@ -31,7 +31,7 @@ Your app is ready to be deployed!
 
 ### `pnpm lint` / `pnpm lint:fix`
 
-Runs ESLint to check for code quality issues. Use `lint:fix` to auto-fix issues.
+Runs oxclint to check for code quality issues. Use `lint:fix` to auto-fix issues.
 
 ### `pnpm ts`
 

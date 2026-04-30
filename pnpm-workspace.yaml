@@ -12,10 +12,9 @@ minimumReleaseAge: 10080
 
 # Exclude well-known dev tools from minimum release age check
 minimumReleaseAgeExclude:
-  - typescript-eslint
   - globals
-  - eslint
-  - "@typescript-eslint/*"
+  - oxclint
+  - oxcfmt
   - minimatch
 
 # Block all dependency lifecycle scripts (preinstall/install/postinstall) by default.
