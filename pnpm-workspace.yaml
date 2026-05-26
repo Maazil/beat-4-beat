@@ -13,8 +13,8 @@ minimumReleaseAge: 10080
 # Exclude well-known dev tools from minimum release age check
 minimumReleaseAgeExclude:
   - globals
-  - oxclint
-  - oxcfmt
+  - oxlint
+  - oxfmt
   - minimatch
 
 # Block all dependency lifecycle scripts (preinstall/install/postinstall) by default.
