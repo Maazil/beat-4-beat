@@ -14,10 +14,8 @@ export const routes: RouteDefinition[] = [
     path: "/login",
     component: lazy(() => import("./pages/auth/Login")),
   },
-  {
-    path: "/guest",
-    component: lazy(() => import("./pages/auth/Guest")),
-  },
+
+  // Protected routes (require authentication)
   {
     path: "/market",
     component: lazy(() => import("./pages/market/MarketWrapper")),
@@ -28,8 +26,6 @@ export const routes: RouteDefinition[] = [
       },
     ],
   },
-
-  // Room routes (public/guest accessible)
   {
     path: "/rooms",
     component: lazy(() => import("./pages/dashboard/PageWrapper")),
@@ -49,7 +45,6 @@ export const routes: RouteDefinition[] = [
     ],
   },
 
-  // Protected routes (require authentication)
   {
     path: "/dashboard",
     component: lazy(() => import("./pages/dashboard/PageWrapper")),

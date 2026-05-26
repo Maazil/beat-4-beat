@@ -1,10 +1,10 @@
-import RequireFullUser from "../../../components/RequireFullUser";
+import ProtectedRoute from "../../../components/ProtectedRoute";
 import CreateRoom from "./createRoom";
 
 export default function CreateRoomWrapper() {
   return (
-    <RequireFullUser>
+    <ProtectedRoute>
       <CreateRoom />
-    </RequireFullUser>
+    </ProtectedRoute>
   );
 }

@@ -1,9 +1,8 @@
 import { useNavigate } from "@solidjs/router";
-import { ParentComponent, Show, onMount } from "solid-js";
+import { ParentComponent, Show, createEffect } from "solid-js";
 import { useAuth } from "../context/AuthContext";
 
 interface ProtectedRouteProps {
-  requireFullUser?: boolean;
   requireHost?: boolean;
   roomHostId?: string;
 }
@@ -12,29 +11,21 @@ const ProtectedRoute: ParentComponent<ProtectedRouteProps> = (props) => {
   const auth = useAuth();
   const navigate = useNavigate();
 
-  onMount(() => {
-    // Check if user needs to be logged in
+  createEffect(() => {
+    if (auth.state.isLoading) return;
+
     if (!auth.isAuthenticated()) {
       navigate("/login", { replace: true });
       return;
     }
 
-    // Check if full user is required (not guest)
-    if (props.requireFullUser && !auth.isFullUser()) {
-      navigate("/dashboard", { replace: true });
-      return;
-    }
-
-    // Check if user is the host of this room
     if (props.requireHost && !auth.isRoomHost(props.roomHostId)) {
       navigate("/", { replace: true });
-      return;
     }
   });
 
   const hasAccess = () => {
     if (!auth.isAuthenticated()) return false;
-    if (props.requireFullUser && !auth.isFullUser()) return false;
     if (props.requireHost && !auth.isRoomHost(props.roomHostId)) return false;
     return true;
   };
@@ -49,9 +40,7 @@ const ProtectedRoute: ParentComponent<ProtectedRouteProps> = (props) => {
             <p class="mb-6 text-neutral-600">
               {!auth.isAuthenticated()
                 ? "Du må være logget inn for å se denne siden."
-                : props.requireHost
-                  ? "Kun rom-verten har tilgang til denne siden."
-                  : "Du trenger en fullverdig konto for å se denne siden."}
+                : "Kun rom-verten har tilgang til denne siden."}
             </p>
             <button
               type="button"

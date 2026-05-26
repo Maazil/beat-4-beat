@@ -10,7 +10,7 @@ import { createRoom } from "../../services/roomsService";
 
 const Market: Component = () => {
   const { rooms, isLoading: roomsLoading, error: roomsError } = usePublicRooms();
-  const { state, canCreateRooms } = useAuth();
+  const { state } = useAuth();
   const navigate = useNavigate();
 
   const [playlists, setPlaylists] = createSignal<SpotifyPlaylistBrief[]>([]);
@@ -37,7 +37,6 @@ const Market: Component = () => {
   });
 
   async function handlePlaylistClick(playlist: SpotifyPlaylistBrief) {
-    if (!canCreateRooms()) return;
     if (creatingFrom()) return;
 
     setCreatingFrom(playlist.id);
@@ -161,7 +160,7 @@ const Market: Component = () => {
                 <button
                   class="group relative text-left focus:outline-none disabled:opacity-50"
                   onClick={() => handlePlaylistClick(playlist)}
-                  disabled={!canCreateRooms() || creatingFrom() !== null}
+                  disabled={creatingFrom() !== null}
                 >
                   <div class="overflow-hidden rounded-xl border border-neutral-700/60 bg-neutral-800/80 transition-all duration-200 group-hover:border-red-500/40 group-hover:shadow-lg group-hover:shadow-red-500/10">
                     <div class="relative aspect-square w-full overflow-hidden bg-neutral-700">

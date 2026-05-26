@@ -22,7 +22,6 @@ type UserProfile = {
   email: string | null;
   emailVerified: boolean;
   photoURL: string | null;
-  isAnonymous: boolean;
   providerId: string;
   phoneNumber: string | null;
   createdAt: ReturnType<typeof serverTimestamp>;
@@ -42,7 +41,6 @@ export async function upsertUserProfile(user: User) {
     email: user.email ?? null,
     emailVerified: user.emailVerified,
     photoURL: user.photoURL ?? null,
-    isAnonymous: user.isAnonymous,
     providerId: user.providerId,
     phoneNumber: user.phoneNumber ?? null,
     lastLoginAt: serverTimestamp(),
