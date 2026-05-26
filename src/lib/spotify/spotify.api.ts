@@ -217,30 +217,3 @@ export async function getOwnPlaylistTracks(playlistId: string): Promise<SpotifyT
   return tracks;
 }
 
-// ── Playlist search ──────────────────────────────────────────────────
-
-/**
- * Search Spotify for playlists matching `query`.
- * Uses the standard /search endpoint (no elevated access required).
- * Returns up to `limit` results (default 10, max 10).
- */
-export async function searchPlaylists(query: string, limit = 10): Promise<SpotifyPlaylistBrief[]> {
-  const token = await getAccessToken();
-
-  const params = new URLSearchParams({
-    q: query,
-    type: "playlist",
-    limit: String(Math.min(limit, 10)),
-  });
-
-  const res = await fetch(`${SPOTIFY_API_BASE}/search?${params.toString()}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-
-  if (!res.ok) {
-    throw new Error(`[spotify.api] Playlist search failed: ${res.status}`);
-  }
-
-  const data: { playlists: { items: (SpotifyPlaylistBrief | null)[] } } = await res.json();
-  return data.playlists.items.filter((p): p is SpotifyPlaylistBrief => p !== null);
-}

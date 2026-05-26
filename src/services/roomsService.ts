@@ -73,10 +73,6 @@ export async function createRoom(roomData: CreateRoomData): Promise<string> {
     throw new Error("Must be logged in to create a room");
   }
 
-  if (user.isAnonymous) {
-    throw new Error("Guest users cannot create rooms");
-  }
-
   // Generate fresh IDs for categories and items
   const categoriesWithFreshIds = generateFreshIds(roomData.categories);
 
@@ -84,7 +80,7 @@ export async function createRoom(roomData: CreateRoomData): Promise<string> {
     ...roomData,
     categories: categoriesWithFreshIds,
     hostId: user.uid,
-    hostName: roomData.hostName || user.displayName || "Anonymous Host",
+    hostName: roomData.hostName || user.displayName || "Host",
     showCategories: roomData.showCategories ?? true,
     isActive: roomData.isActive ?? false,
     createdAt: serverTimestamp(),
