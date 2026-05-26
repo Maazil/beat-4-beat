@@ -24,7 +24,6 @@ export {
   seekPlayback,
   getMySpotifyPlaylists,
   getOwnPlaylistTracks,
-  searchPlaylists,
 } from "./spotify.api";
 
 export { spotifyUrlToUri } from "./spotify.utils";
