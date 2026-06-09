@@ -19,19 +19,19 @@
   "license": "MIT",
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.0",
-    "@types/node": "^25.9.0",
-    "oxfmt": "0.51.0",
-    "oxlint": "1.66.0",
+    "@types/node": "^25.9.1",
+    "oxfmt": "0.53.0",
+    "oxlint": "1.68.0",
     "solid-devtools": "^0.34.5",
     "tailwindcss": "^4.3.0",
     "typescript": "^6.0.3",
-    "vite": "^8.0.13",
+    "vite": "^8.0.16",
     "vite-plugin-solid": "^2.11.12"
   },
   "dependencies": {
     "@solidjs/meta": "^0.29.4",
     "@solidjs/router": "^0.16.1",
-    "firebase": "^12.13.0",
+    "firebase": "^12.14.0",
     "solid-js": "^1.9.13",
     "solid-transition-group": "^0.3.0"
   }
