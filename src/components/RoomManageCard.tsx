@@ -1,5 +1,6 @@
 import { useNavigate } from "@solidjs/router";
-import { Component, createSignal } from "solid-js";
+import { Component, createSignal, Show } from "solid-js";
+import { useAuth } from "../context/AuthContext";
 import type { Room } from "../model/room";
 
 interface RoomManageCardProps {
@@ -9,7 +10,10 @@ interface RoomManageCardProps {
 
 const RoomManageCard: Component<RoomManageCardProps> = (props) => {
   const navigate = useNavigate();
+  const auth = useAuth();
   const [showDeleteConfirm, setShowDeleteConfirm] = createSignal(false);
+
+  const isHost = () => auth.state.user?.uid === props.room.hostId;
 
   const statusBadge = () =>
     props.room.isActive
@@ -35,7 +39,14 @@ const RoomManageCard: Component<RoomManageCardProps> = (props) => {
     <article class="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm transition hover:shadow-md">
       {/* Header */}
       <div class="mb-3 flex items-start justify-between">
-        <h3 class="text-lg font-semibold text-neutral-900">{props.room.roomName}</h3>
+        <div class="flex min-w-0 flex-wrap items-center gap-2">
+          <h3 class="text-lg font-semibold text-neutral-900">{props.room.roomName}</h3>
+          <Show when={!isHost()}>
+            <span class="rounded-full border border-blue-200 bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700">
+              Medeier
+            </span>
+          </Show>
+        </div>
         <span class={`rounded-full px-2.5 py-0.5 text-xs font-medium ${statusBadge()}`}>
           {statusLabel()}
         </span>
@@ -117,21 +128,23 @@ const RoomManageCard: Component<RoomManageCardProps> = (props) => {
               />
             </svg>
           </button>
-          <button
-            type="button"
-            class="rounded-lg border border-red-200 px-3 py-2 text-sm font-medium text-red-600 transition hover:border-red-300 hover:bg-red-50"
-            onClick={() => setShowDeleteConfirm(true)}
-            title="Slett rom"
-          >
-            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-              />
-            </svg>
-          </button>
+          <Show when={isHost()}>
+            <button
+              type="button"
+              class="rounded-lg border border-red-200 px-3 py-2 text-sm font-medium text-red-600 transition hover:border-red-300 hover:bg-red-50"
+              onClick={() => setShowDeleteConfirm(true)}
+              title="Slett rom"
+            >
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                />
+              </svg>
+            </button>
+          </Show>
         </div>
       )}
     </article>

@@ -6,6 +6,7 @@ export interface Room {
   roomName: string; // Room/game name
   hostId: string; // User ID of host
   hostName: string; // Optional: Host display name
+  editorIds?: string[]; // User IDs of additional editors (co-owners), excluding the host
   categories: Category[]; // Music categories (Pop, 80s, etc.)
   showCategories?: boolean; // Optional: whether categories are shown
   scores?: Score[]; // Optional: team score tracking

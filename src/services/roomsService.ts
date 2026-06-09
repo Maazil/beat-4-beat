@@ -1,6 +1,8 @@
 // src/services/roomsService.ts
 import {
   addDoc,
+  arrayRemove,
+  arrayUnion,
   collection,
   deleteDoc,
   doc,
@@ -20,6 +22,7 @@ import { auth, db } from "../lib/firebase";
 import type { Category } from "../model/category";
 import type { CreateRoomData, Room } from "../model/room";
 import type { SongItem } from "../model/songItem";
+import { findUserByEmail } from "./usersService";
 
 // Collection reference
 const roomsCollection = collection(db, "rooms");
@@ -81,6 +84,7 @@ export async function createRoom(roomData: CreateRoomData): Promise<string> {
     categories: categoriesWithFreshIds,
     hostId: user.uid,
     hostName: roomData.hostName || user.displayName || "Host",
+    editorIds: [],
     showCategories: roomData.showCategories ?? true,
     isActive: roomData.isActive ?? false,
     createdAt: serverTimestamp(),
@@ -144,7 +148,10 @@ export function subscribeToPublicRooms(callback: (rooms: Room[]) => void): Unsub
 }
 
 /**
- * Subscribe to real-time updates for current user's rooms
+ * Subscribe to real-time updates for the current user's rooms — both the rooms
+ * they host and the rooms they co-edit. Runs two queries (hostId and
+ * editorIds) and emits the merged, deduped result on either update. Rooms
+ * created before the editorIds field existed still match via the hostId query.
  */
 export function subscribeToMyRooms(callback: (rooms: Room[]) => void): Unsubscribe {
   const user = auth.currentUser;
@@ -153,12 +160,33 @@ export function subscribeToMyRooms(callback: (rooms: Room[]) => void): Unsubscri
     throw new Error("Must be logged in to subscribe to your rooms");
   }
 
-  const q = query(roomsCollection, where("hostId", "==", user.uid));
+  const hostedQuery = query(roomsCollection, where("hostId", "==", user.uid));
+  const editedQuery = query(roomsCollection, where("editorIds", "array-contains", user.uid));
 
-  return onSnapshot(q, (snapshot) => {
-    const rooms = snapshot.docs.map((doc) => docToRoom(doc.id, doc.data()));
-    callback(rooms);
+  let hosted: Room[] = [];
+  let edited: Room[] = [];
+
+  const emit = () => {
+    const byId = new Map<string, Room>();
+    for (const room of [...hosted, ...edited]) {
+      byId.set(room.id, room);
+    }
+    callback([...byId.values()]);
+  };
+
+  const unsubHosted = onSnapshot(hostedQuery, (snapshot) => {
+    hosted = snapshot.docs.map((doc) => docToRoom(doc.id, doc.data()));
+    emit();
   });
+  const unsubEdited = onSnapshot(editedQuery, (snapshot) => {
+    edited = snapshot.docs.map((doc) => docToRoom(doc.id, doc.data()));
+    emit();
+  });
+
+  return () => {
+    unsubHosted();
+    unsubEdited();
+  };
 }
 
 /**
@@ -178,11 +206,13 @@ export function subscribeToRoom(
 }
 
 /**
- * Update a room (only host can update)
+ * Update a room (host or co-editors can update content).
+ * Editor membership is managed via addRoomEditor/removeRoomEditor, so it can't
+ * be changed through this generic update.
  */
 export async function updateRoom(
   roomId: string,
-  updates: Partial<Omit<Room, "id" | "hostId" | "createdAt">>,
+  updates: Partial<Omit<Room, "id" | "hostId" | "editorIds" | "createdAt">>,
 ): Promise<void> {
   const user = auth.currentUser;
 
@@ -190,14 +220,14 @@ export async function updateRoom(
     throw new Error("Must be logged in to update a room");
   }
 
-  // Verify ownership
+  // Verify the current user is allowed to edit (host or co-editor)
   const room = await getRoom(roomId);
   if (!room) {
     throw new Error("Room not found");
   }
 
-  if (room.hostId !== user.uid) {
-    throw new Error("Only the host can update this room");
+  if (room.hostId !== user.uid && !room.editorIds?.includes(user.uid)) {
+    throw new Error("Only the host or a co-owner can update this room");
   }
 
   await updateDoc(roomDoc(roomId), updates);
@@ -246,4 +276,71 @@ export async function toggleRoomActive(roomId: string): Promise<boolean> {
 export function isRoomHost(room: Room): boolean {
   const user = auth.currentUser;
   return user !== null && room.hostId === user.uid;
+}
+
+/**
+ * Check if current user can edit a room (host or co-editor)
+ */
+export function canEditRoom(room: Room): boolean {
+  const user = auth.currentUser;
+  if (!user) return false;
+  return room.hostId === user.uid || (room.editorIds?.includes(user.uid) ?? false);
+}
+
+/**
+ * Add a co-owner to a room by their account email (host only).
+ * The person must already have a user account (signed in at least once).
+ */
+export async function addRoomEditor(roomId: string, email: string): Promise<void> {
+  const user = auth.currentUser;
+
+  if (!user) {
+    throw new Error("Must be logged in to manage co-owners");
+  }
+
+  const room = await getRoom(roomId);
+  if (!room) {
+    throw new Error("Room not found");
+  }
+
+  if (room.hostId !== user.uid) {
+    throw new Error("Only the host can manage co-owners");
+  }
+
+  const target = await findUserByEmail(email);
+  if (!target) {
+    throw new Error("Fant ingen bruker med denne e-postadressen");
+  }
+
+  if (target.uid === room.hostId) {
+    throw new Error("Verten er allerede eier av rommet");
+  }
+
+  if (room.editorIds?.includes(target.uid)) {
+    throw new Error("Denne brukeren er allerede medeier");
+  }
+
+  await updateDoc(roomDoc(roomId), { editorIds: arrayUnion(target.uid) });
+}
+
+/**
+ * Remove a co-owner from a room by their user ID (host only).
+ */
+export async function removeRoomEditor(roomId: string, uid: string): Promise<void> {
+  const user = auth.currentUser;
+
+  if (!user) {
+    throw new Error("Must be logged in to manage co-owners");
+  }
+
+  const room = await getRoom(roomId);
+  if (!room) {
+    throw new Error("Room not found");
+  }
+
+  if (room.hostId !== user.uid) {
+    throw new Error("Only the host can manage co-owners");
+  }
+
+  await updateDoc(roomDoc(roomId), { editorIds: arrayRemove(uid) });
 }
