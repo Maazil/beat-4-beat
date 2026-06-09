@@ -37,7 +37,7 @@ const PageWrapper: ParentComponent = (props) => {
               <A class="flex items-center gap-2 hover:text-neutral-900" href="/profile">
                 <p>Hei {auth.userNameSplit()}</p>
                 <img
-                  src={auth.state.user?.photoURL || "/images/guest.png"}
+                  src={auth.state.user?.photoURL || "/images/default-avatar.png"}
                   class="h-8 w-8 rounded-full"
                   alt="User image"
                   referrerpolicy="no-referrer"
