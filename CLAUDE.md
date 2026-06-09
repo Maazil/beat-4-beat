@@ -25,7 +25,7 @@ pnpm lint:fix     # oxlint auto-fix
 
 - **Solid.js** v1.9 — Reactive UI framework (NOT React)
 - **Vite** v7 — Build tool and dev server
-- **Firebase** v12 — Auth (Google OAuth, Anonymous), Firestore (real-time NoSQL), Analytics
+- **Firebase** v12 — Auth (Google OAuth), Firestore (real-time NoSQL), Analytics
 - **TypeScript** — Strict mode enabled
 - **Tailwind CSS** v4 — Utility-first styling via `@tailwindcss/vite` plugin
 - **@solidjs/router** v0.15 — Client-side routing with lazy loading
@@ -35,7 +35,7 @@ pnpm lint:fix     # oxlint auto-fix
 SolidJS Router. Route definitions in `src/routes.ts`:
 
 - `/` — Landing page
-- `/login`, `/guest` — Authentication pages
+- `/login` — Authentication page
 - `/market` — Public room marketplace
 - `/rooms`, `/rooms/:id`, `/rooms/:id/play` — Browse, view, and play rooms
 - `/dashboard` — Authenticated user dashboard
@@ -60,10 +60,9 @@ SolidJS Router. Route definitions in `src/routes.ts`:
 ### Authentication
 
 Firebase Auth via `src/context/AuthContext.tsx`:
-- **Google OAuth** — Full users, can create/manage rooms
-- **Anonymous/Guest** — Can view/play rooms only
-- Computed accessors: `isGuest()`, `isFullUser()`, `canCreateRooms()`, `isRoomHost()`
-- Route guards: `ProtectedRoute`, `RequireFullUser`, `RequireHost` components
+- **Google OAuth** — Authenticated users can create/manage rooms
+- Methods/accessors: `signInWithGoogle()`, `signOut()`, `isAuthenticated()`, `isRoomHost(roomHostId?)`, `userNameSplit()`
+- Route guards: `ProtectedRoute`, `RequireHost` components
 
 ### Key Directories
 
