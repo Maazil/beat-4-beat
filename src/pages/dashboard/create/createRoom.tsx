@@ -4,10 +4,14 @@ import { useAuth } from "../../../context/AuthContext";
 import type { Category } from "../../../model/category";
 import type { SongItem } from "../../../model/songItem";
 import {
+  addRoomEditor,
+  canEditRoom,
   createRoom as createRoomInFirestore,
   getRoom,
+  removeRoomEditor,
   updateRoom as updateRoomInFirestore,
 } from "../../../services/roomsService";
+import { getUsersByIds, type UserSummary } from "../../../services/usersService";
 import {
   isSpotifyLoggedIn,
   getMySpotifyPlaylists,
@@ -34,6 +38,54 @@ const CreateRoom: Component = () => {
   const [editingItem, setEditingItem] = createSignal<string | null>(null);
   const [isSubmitting, setIsSubmitting] = createSignal(false);
   const [isLoadingRoom, setIsLoadingRoom] = createSignal(false);
+
+  // Co-owner (medeier) management state — edit mode, host only
+  const [roomHostId, setRoomHostId] = createSignal<string | null>(null);
+  const [editors, setEditors] = createSignal<UserSummary[]>([]);
+  const [editorEmail, setEditorEmail] = createSignal("");
+  const [editorError, setEditorError] = createSignal<string | null>(null);
+  const [editorBusy, setEditorBusy] = createSignal(false);
+
+  const isHost = () => !!roomHostId() && auth.state.user?.uid === roomHostId();
+
+  const loadEditors = async (editorIds: string[]) => {
+    setEditors(editorIds.length > 0 ? await getUsersByIds(editorIds) : []);
+  };
+
+  const handleAddEditor = async () => {
+    const roomId = editRoomId();
+    const email = editorEmail().trim();
+    if (!roomId || !email) return;
+
+    setEditorBusy(true);
+    setEditorError(null);
+    try {
+      await addRoomEditor(roomId, email);
+      setEditorEmail("");
+      const room = await getRoom(roomId);
+      await loadEditors(room?.editorIds ?? []);
+    } catch (err) {
+      setEditorError(err instanceof Error ? err.message : "Kunne ikke legge til medeier");
+    } finally {
+      setEditorBusy(false);
+    }
+  };
+
+  const handleRemoveEditor = async (uid: string) => {
+    const roomId = editRoomId();
+    if (!roomId) return;
+
+    setEditorBusy(true);
+    setEditorError(null);
+    try {
+      await removeRoomEditor(roomId, uid);
+      setEditors(editors().filter((e) => e.uid !== uid));
+    } catch (err) {
+      setEditorError(err instanceof Error ? err.message : "Kunne ikke fjerne medeier");
+    } finally {
+      setEditorBusy(false);
+    }
+  };
 
   // Spotify playlist import state
   const [showPlaylistPicker, setShowPlaylistPicker] = createSignal(false);
@@ -172,10 +224,19 @@ const CreateRoom: Component = () => {
         return;
       }
 
+      // Only the host or a co-owner may edit this room
+      if (!canEditRoom(room)) {
+        alert("Du har ikke tilgang til å redigere dette rommet.");
+        navigate("/dashboard");
+        return;
+      }
+
       // Populate form with existing data
       setRoomName(room.roomName);
       setIsPublic(room.isPublic);
       setCategories(room.categories);
+      setRoomHostId(room.hostId);
+      await loadEditors(room.editorIds ?? []);
 
       // Register existing category hues so new ones get distinct colors
       for (const cat of room.categories) {
@@ -469,6 +530,67 @@ const CreateRoom: Component = () => {
               </Show>
             </p>
           </div>
+
+          {/* Co-owners (medeiere) — host only, edit mode */}
+          <Show when={isEditMode() && isHost()}>
+            <div class="mb-8 max-w-md rounded-xl border border-neutral-200 bg-white p-4 shadow-sm">
+              <h3 class="mb-1 font-semibold text-neutral-900">Medeiere</h3>
+              <p class="mb-3 text-sm text-neutral-500">
+                Medeiere kan redigere rommet, men ikke slette det eller endre medeier-listen.
+              </p>
+
+              {/* Existing co-owners */}
+              <Show
+                when={editors().length > 0}
+                fallback={<p class="mb-3 text-sm text-neutral-400">Ingen medeiere ennå.</p>}
+              >
+                <ul class="mb-3 space-y-1">
+                  <For each={editors()}>
+                    {(editor) => (
+                      <li class="flex items-center justify-between rounded-lg bg-neutral-50 px-3 py-2 text-sm">
+                        <span class="min-w-0 truncate text-neutral-700">
+                          {editor.email || editor.displayName || editor.uid}
+                        </span>
+                        <button
+                          type="button"
+                          disabled={editorBusy()}
+                          onClick={() => handleRemoveEditor(editor.uid)}
+                          class="ml-3 shrink-0 text-neutral-400 transition hover:text-red-600 disabled:opacity-50"
+                          title="Fjern medeier"
+                        >
+                          ✕
+                        </button>
+                      </li>
+                    )}
+                  </For>
+                </ul>
+              </Show>
+
+              {/* Add co-owner by email */}
+              <div class="flex gap-2">
+                <input
+                  type="email"
+                  value={editorEmail()}
+                  onInput={(e) => setEditorEmail(e.currentTarget.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleAddEditor()}
+                  placeholder="E-post til medeier..."
+                  class="min-w-0 flex-1 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-neutral-900 outline-none focus:border-blue-400"
+                />
+                <button
+                  type="button"
+                  disabled={editorBusy() || !editorEmail().trim()}
+                  onClick={handleAddEditor}
+                  class="rounded-lg bg-neutral-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-neutral-700 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  Legg til
+                </button>
+              </div>
+
+              <Show when={editorError()}>
+                <p class="mt-2 text-sm text-red-600">{editorError()}</p>
+              </Show>
+            </div>
+          </Show>
 
           {/* Spotify playlist import */}
           <Show when={isSpotifyLoggedIn() && !isEditMode()}>
