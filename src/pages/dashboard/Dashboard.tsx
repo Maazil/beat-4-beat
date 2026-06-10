@@ -52,7 +52,7 @@ const Dashboard: Component = () => {
 
           <button
             type="button"
-            class="inline-flex items-center justify-center gap-2 rounded-full bg-beat px-5 py-2.5 text-sm font-bold text-white shadow-[0_10px_24px_-10px_rgba(232,38,74,0.55)] transition hover:bg-beat-deep"
+            class="inline-flex items-center justify-center gap-2 rounded-full bg-beat px-5 py-2.5 text-sm font-bold text-white shadow-[3px_3px_0_var(--color-ink)] transition hover:-translate-x-0.5 hover:-translate-y-0.5 hover:bg-beat-deep hover:shadow-[4px_4px_0_var(--color-ink)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
             onClick={() => navigate("create")}
           >
             New room
@@ -115,7 +115,7 @@ const Dashboard: Component = () => {
               fallback={
                 <button
                   type="button"
-                  class="mt-6 inline-flex items-center justify-center rounded-full bg-spotify px-5 py-2 text-sm font-bold text-white transition hover:brightness-110"
+                  class="mt-6 inline-flex items-center justify-center rounded-full bg-spotify px-5 py-2 text-sm font-bold text-white shadow-[3px_3px_0_var(--color-ink)] transition hover:-translate-x-0.5 hover:-translate-y-0.5 hover:brightness-110 hover:shadow-[4px_4px_0_var(--color-ink)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
                   onClick={() => loginWithSpotify()}
                 >
                   Connect Spotify
@@ -146,7 +146,7 @@ const Dashboard: Component = () => {
             </p>
             <button
               type="button"
-              class="mt-6 inline-flex items-center justify-center rounded-full border border-line bg-cream px-5 py-2 text-sm font-semibold text-ink transition hover:border-beat hover:text-beat"
+              class="mt-6 inline-flex items-center justify-center rounded-full border-2 border-line bg-cream px-5 py-2 text-sm font-semibold text-ink transition hover:-translate-x-0.5 hover:-translate-y-0.5 hover:border-ink hover:shadow-[3px_3px_0_var(--color-ink)] active:translate-x-0 active:translate-y-0 active:shadow-none"
               onClick={() => navigate("/market")}
             >
               Explore rooms

@@ -1,6 +1,6 @@
 export interface Score {
   teamName: string;
-  roundPoints: number[]; // points earned per round (one entry per song item)
+  roundPoints: number[]; // history of point awards, in the order they were given
 }
 
 export const defaultScore = (overrides?: Partial<Score>): Score => ({

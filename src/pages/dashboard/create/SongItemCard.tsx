@@ -103,18 +103,12 @@ const SongItemCard: Component<SongItemCardProps> = (props) => {
       {/* In-place card — always visible */}
       <div
         ref={cardRef}
-        class="flex h-16 w-full items-center justify-center rounded-lg border-2 transition-colors sm:h-20"
+        class="press-card flex h-16 w-full items-center justify-center rounded-lg sm:h-20"
         style={{
-          "background-color": props.colorScheme.itemBg,
-          "border-color": props.colorScheme.border,
+          "--press-ink": props.colorScheme.border,
+          "--press-tint": props.colorScheme.itemBg,
+          "--press-tint-hover": props.colorScheme.itemBgHover,
           opacity: props.isEditing ? 0.5 : 1,
-        }}
-        onMouseEnter={(e) => {
-          if (!props.isEditing)
-            e.currentTarget.style.backgroundColor = props.colorScheme.itemBgHover;
-        }}
-        onMouseLeave={(e) => {
-          if (!props.isEditing) e.currentTarget.style.backgroundColor = props.colorScheme.itemBg;
         }}
       >
         <button
@@ -122,7 +116,7 @@ const SongItemCard: Component<SongItemCardProps> = (props) => {
           class="flex h-full w-full flex-col items-center justify-center"
           onClick={() => !props.isEditing && props.onEdit()}
         >
-          <span class="text-2xl font-bold" style={{ color: props.colorScheme.textDark }}>
+          <span class="font-mono text-2xl font-bold" style={{ color: props.colorScheme.textDark }}>
             {props.item.level}
           </span>
           <Show when={props.item.title && !props.isEditing}>
@@ -149,7 +143,7 @@ const SongItemCard: Component<SongItemCardProps> = (props) => {
           <button
             type="button"
             onClick={() => props.onRemove()}
-            class="absolute -top-2 -right-2 hidden h-5 w-5 items-center justify-center rounded-full bg-red-500 text-white shadow-md transition group-hover:flex hover:bg-red-600"
+            class="absolute -top-2 -right-2 hidden h-5 w-5 items-center justify-center rounded-full bg-ink text-cream shadow-md transition group-hover:flex hover:bg-beat"
           >
             <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -273,7 +267,10 @@ const SongItemCard: Component<SongItemCardProps> = (props) => {
                       "border-color": props.colorScheme.border,
                     }}
                   >
-                    <span class="text-xl font-bold" style={{ color: props.colorScheme.textDark }}>
+                    <span
+                      class="font-mono text-xl font-bold"
+                      style={{ color: props.colorScheme.textDark }}
+                    >
                       {props.item.level}
                     </span>
                   </div>

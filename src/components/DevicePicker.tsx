@@ -112,8 +112,8 @@ const DevicePicker: Component<DevicePickerProps> = (props) => {
                 <button
                   type="button"
                   onClick={() => props.onSelect(device)}
-                  class={`flex items-center gap-3 rounded-xl border px-4 py-3 text-left transition hover:border-beat hover:bg-beat-soft/40 ${
-                    device.is_active ? "border-spotify/40 bg-spotify/10" : "border-line"
+                  class={`flex items-center gap-3 rounded-xl border-2 px-4 py-3 text-left transition hover:-translate-x-0.5 hover:-translate-y-0.5 hover:border-beat hover:shadow-[3px_3px_0_var(--color-beat)] active:translate-x-0 active:translate-y-0 active:shadow-none ${
+                    device.is_active ? "border-spotify/40 bg-spotify/10" : "border-line bg-paper"
                   }`}
                 >
                   <span class={device.is_active ? "text-spotify" : "text-muted"}>

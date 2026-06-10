@@ -57,11 +57,8 @@ const CategoryColumn: Component<CategoryColumnProps> = (props) => {
     >
       {/* Category header - always show input in edit mode */}
       <div
-        class="group relative min-h-13 rounded-lg border px-4 py-3 text-center shadow-sm"
-        style={{
-          background: `linear-gradient(to right, ${props.colorScheme.titleBg}, ${props.colorScheme.titleBgHover})`,
-          "border-color": props.colorScheme.border,
-        }}
+        class="group relative min-h-13 rounded-lg px-4 py-3 text-center shadow-[3px_3px_0_rgba(26,20,24,0.85)]"
+        style={{ background: props.colorScheme.titleBg }}
       >
         <Input
           type="text"
@@ -79,7 +76,7 @@ const CategoryColumn: Component<CategoryColumnProps> = (props) => {
         <button
           type="button"
           onClick={() => props.onRemove()}
-          class="absolute -top-2 -right-2 hidden h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white shadow-md transition group-hover:flex hover:bg-red-600"
+          class="absolute -top-2 -right-2 hidden h-6 w-6 items-center justify-center rounded-full bg-ink text-cream shadow-md transition group-hover:flex hover:bg-beat"
         >
           <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path

@@ -162,6 +162,32 @@ button {
   .animate-marquee {
     animation: marquee 28s linear infinite;
   }
+
+  /*
+    Screen-print press: flat fill, solid ink border, hard offset shadow.
+    Set --press-ink / --press-tint / --press-tint-hover inline to recolor.
+    Hover lifts the card off the paper; active presses it flat.
+  */
+  .press-card {
+    border: 2px solid var(--press-ink, var(--color-ink));
+    background-color: var(--press-tint, var(--color-paper));
+    box-shadow: 3px 3px 0 var(--press-ink, var(--color-ink));
+    transition:
+      transform 0.15s ease,
+      box-shadow 0.15s ease,
+      background-color 0.15s ease;
+  }
+
+  .press-card:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 5px 5px 0 var(--press-ink, var(--color-ink));
+    background-color: var(--press-tint-hover, var(--press-tint, var(--color-paper)));
+  }
+
+  .press-card:active {
+    transform: translate(2px, 2px);
+    box-shadow: 0 0 0 var(--press-ink, var(--color-ink));
+  }
 }
 
 /* ── Landing visualizer ────────────────────────────────────── */

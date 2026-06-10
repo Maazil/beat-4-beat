@@ -17,83 +17,15 @@ import DevicePicker, { deviceIcon } from "../../components/DevicePicker";
 import NowPlayingBar from "../../components/NowPlayingBar";
 import Scoreboard from "../../components/Scoreboard";
 import type { Score } from "../../model/score";
+import { posterInk } from "../../theme/palette";
+import type { PosterInk } from "../../theme/palette";
 
-const categoryColors = [
-  {
-    titleBg: "bg-gradient-to-r from-blue-600 to-blue-700",
-    itemBg: "bg-blue-500/10",
-    border: "border-blue-200",
-    titleText: "text-white",
-    itemText: "text-blue-700",
-    shadow: "shadow-sm",
-  },
-  {
-    titleBg: "bg-gradient-to-r from-purple-600 to-purple-700",
-    itemBg: "bg-purple-500/10",
-    border: "border-purple-200",
-    titleText: "text-white",
-    itemText: "text-purple-700",
-    shadow: "shadow-sm",
-  },
-  {
-    titleBg: "bg-gradient-to-r from-green-600 to-green-700",
-    itemBg: "bg-green-500/10",
-    border: "border-green-200",
-    titleText: "text-white",
-    itemText: "text-green-700",
-    shadow: "shadow-sm",
-  },
-  {
-    titleBg: "bg-gradient-to-r from-orange-600 to-orange-700",
-    itemBg: "bg-orange-500/10",
-    border: "border-orange-200",
-    titleText: "text-white",
-    itemText: "text-orange-700",
-    shadow: "shadow-sm",
-  },
-  {
-    titleBg: "bg-gradient-to-r from-pink-600 to-pink-700",
-    itemBg: "bg-pink-500/10",
-    border: "border-pink-200",
-    titleText: "text-white",
-    itemText: "text-pink-700",
-    shadow: "shadow-sm",
-  },
-  {
-    titleBg: "bg-gradient-to-r from-teal-600 to-teal-700",
-    itemBg: "bg-teal-500/10",
-    border: "border-teal-200",
-    titleText: "text-white",
-    itemText: "text-teal-700",
-    shadow: "shadow-sm",
-  },
-];
-
-/** Per-item colors used in single-category (flat) layout. */
-const itemColors = [
-  { bg: "bg-blue-500/10", border: "border-blue-200", text: "text-blue-700" },
-  {
-    bg: "bg-purple-500/10",
-    border: "border-purple-200",
-    text: "text-purple-700",
-  },
-  { bg: "bg-green-500/10", border: "border-green-200", text: "text-green-700" },
-  {
-    bg: "bg-orange-500/10",
-    border: "border-orange-200",
-    text: "text-orange-700",
-  },
-  { bg: "bg-pink-500/10", border: "border-pink-200", text: "text-pink-700" },
-  { bg: "bg-teal-500/10", border: "border-teal-200", text: "text-teal-700" },
-  { bg: "bg-red-500/10", border: "border-red-200", text: "text-red-700" },
-  { bg: "bg-amber-500/10", border: "border-amber-200", text: "text-amber-700" },
-  { bg: "bg-cyan-500/10", border: "border-cyan-200", text: "text-cyan-700" },
-  {
-    bg: "bg-indigo-500/10",
-    border: "border-indigo-200",
-    text: "text-indigo-700",
-  },
-];
+/** Tile CSS vars for the screen-print press treatment. */
+const pressVars = (ink: PosterInk) => ({
+  "--press-ink": ink.ink,
+  "--press-tint": ink.tint,
+  "--press-tint-hover": ink.tintHover,
+});
 
 /** Main room play page. */
 const RoomPlayInner: Component = () => {
@@ -116,6 +48,16 @@ const RoomPlayInner: Component = () => {
   const [revealedItems, setRevealedItems] = createSignal<Set<string>>(new Set());
   const [currentItemId, setCurrentItemId] = createSignal<string | null>(null);
   const [showTrackInfo, setShowTrackInfo] = createSignal(false);
+
+  // Songs in the order they were played — each one is a scoring round
+  const [playOrder, setPlayOrder] = createSignal<string[]>([]);
+
+  const currentRound = () => {
+    const id = currentItemId();
+    if (!id) return undefined;
+    const round = playOrder().indexOf(id);
+    return round >= 0 ? round : undefined;
+  };
 
   // Playback progress hook
   const playback = usePlaybackProgress();
@@ -141,6 +83,7 @@ const RoomPlayInner: Component = () => {
 
   const handleItemClick = async (itemId: string, songUrl?: string, startTime?: number) => {
     setRevealedItems((prev) => new Set(prev).add(itemId));
+    setPlayOrder((prev) => (prev.includes(itemId) ? prev : [...prev, itemId]));
     setCurrentItemId(itemId);
     setShowTrackInfo(false);
 
@@ -338,9 +281,7 @@ const RoomPlayInner: Component = () => {
             {/* Scoreboard — local per session, not shared */}
             <Scoreboard
               scores={scores()}
-              totalRounds={
-                currentRoom()?.categories.reduce((sum, cat) => sum + cat.items.length, 0) ?? 0
-              }
+              currentRound={currentRound()}
               onUpdateScores={setScores}
             />
 
@@ -348,26 +289,30 @@ const RoomPlayInner: Component = () => {
             <Show when={selectedDevice() || !spotifyConnected()}>
               <div class="py-4 pb-16">
                 <p class="mb-4 text-muted">Click a tile to play a song</p>
-                {/* Single-category: full-width grid */}
+                {/* Single-category: full-width grid, one ink for the whole board */}
                 <Show when={(currentRoom()?.categories.length ?? 0) === 1}>
                   <div class="grid grid-cols-2 gap-6 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
                     <For each={currentRoom()?.categories[0]?.items}>
                       {(item) => {
-                        const color = () => itemColors[((item.level ?? 1) - 1) % itemColors.length];
+                        const ink = posterInk(0);
                         return (
                           <button
                             type="button"
-                            class={`group flex h-20 w-full cursor-pointer items-center justify-center rounded-xl border-2 transition hover:scale-105 hover:shadow-lg active:scale-95 sm:h-24 ${
+                            class={`flex h-20 w-full cursor-pointer items-center justify-center rounded-xl sm:h-24 ${
                               revealedItems().has(item.id)
-                                ? "border-dashed border-line bg-sand/50"
-                                : `${color().border} ${color().bg}`
+                                ? "border-2 border-dashed border-line bg-sand/50"
+                                : "press-card"
                             }`}
+                            style={revealedItems().has(item.id) ? undefined : pressVars(ink)}
                             onClick={() => handleItemClick(item.id, item.songUrl, item.startTime)}
                           >
                             <span
-                              class={`font-mono text-2xl font-bold ${
-                                revealedItems().has(item.id) ? "text-muted" : color().text
-                              } transition group-hover:scale-110`}
+                              class="font-mono text-2xl font-bold"
+                              style={{
+                                color: revealedItems().has(item.id)
+                                  ? "var(--color-muted)"
+                                  : ink.deep,
+                              }}
                             >
                               {item.level}
                             </span>
@@ -386,15 +331,14 @@ const RoomPlayInner: Component = () => {
                   >
                     <For each={currentRoom()?.categories}>
                       {(category, index) => {
-                        const colorScheme = () => categoryColors[index() % categoryColors.length];
+                        const ink = () => posterInk(index());
                         return (
                           <div class="flex flex-col gap-4">
                             <div
-                              class={`rounded-lg ${colorScheme().titleBg} border ${colorScheme().border} px-4 py-3 text-center ${colorScheme().shadow}`}
+                              class="rounded-lg px-4 py-3 text-center shadow-[3px_3px_0_rgba(26,20,24,0.85)]"
+                              style={{ background: ink().ink }}
                             >
-                              <h2
-                                class={`text-lg font-semibold ${colorScheme().titleText} tracking-tight`}
-                              >
+                              <h2 class="font-display text-lg font-bold tracking-tight text-white">
                                 {category.name}
                               </h2>
                             </div>
@@ -404,21 +348,25 @@ const RoomPlayInner: Component = () => {
                                 {(item) => (
                                   <button
                                     type="button"
-                                    class={`group flex h-16 w-full cursor-pointer items-center justify-center rounded-lg border-2 transition hover:scale-105 hover:shadow-lg active:scale-95 sm:h-16 ${
+                                    class={`flex h-16 w-full cursor-pointer items-center justify-center rounded-lg ${
                                       revealedItems().has(item.id)
-                                        ? "border-dashed border-line bg-sand/50"
-                                        : `${colorScheme().border} ${colorScheme().itemBg}`
+                                        ? "border-2 border-dashed border-line bg-sand/50"
+                                        : "press-card"
                                     }`}
+                                    style={
+                                      revealedItems().has(item.id) ? undefined : pressVars(ink())
+                                    }
                                     onClick={() =>
                                       handleItemClick(item.id, item.songUrl, item.startTime)
                                     }
                                   >
                                     <span
-                                      class={`font-mono text-2xl font-bold ${
-                                        revealedItems().has(item.id)
-                                          ? "text-muted"
-                                          : colorScheme().itemText
-                                      } transition group-hover:scale-110`}
+                                      class="font-mono text-2xl font-bold"
+                                      style={{
+                                        color: revealedItems().has(item.id)
+                                          ? "var(--color-muted)"
+                                          : ink().deep,
+                                      }}
                                     >
                                       {item.level}
                                     </span>
