@@ -5,7 +5,7 @@ import { updateDjName } from "../../services/usersService";
 
 const Profile: Component = () => {
   const auth = useAuth();
-  const name = auth.state.user?.displayName?.split(" ")[0] || "Bruker";
+  const name = auth.state.user?.displayName?.split(" ")[0] || "there";
   const navigate = useNavigate();
 
   const [editingDjName, setEditingDjName] = createSignal(false);
@@ -24,7 +24,7 @@ const Profile: Component = () => {
       setEditingDjName(false);
     } catch (err) {
       console.error("Failed to save DJ name:", err);
-      alert("Kunne ikke lagre DJ-navn. Prøv igjen.");
+      alert("Could not save DJ name. Please try again.");
     } finally {
       setIsSaving(false);
     }
@@ -37,28 +37,31 @@ const Profile: Component = () => {
 
   return (
     <main class="mx-auto w-full max-w-6xl px-6 py-12">
-      <div class="mb-12 flex w-full flex-col items-center justify-between gap-6">
-        <div>Hei {name}, velkommen til din profil!</div>
+      <div class="mx-auto flex w-full max-w-sm flex-col gap-6">
+        <div class="text-center">
+          <h1 class="font-display text-3xl font-bold tracking-tight text-ink">Hi {name}</h1>
+          <p class="mt-2 text-sm text-muted">Welcome to your profile</p>
+        </div>
 
         {/* DJ Name section */}
-        <section class="w-full max-w-sm rounded-xl border border-neutral-200 bg-white p-5 shadow-sm">
-          <h3 class="mb-3 text-sm font-semibold text-neutral-700">DJ-navn</h3>
+        <section class="rounded-2xl border border-line bg-paper p-5 shadow-sm">
+          <h3 class="mb-3 font-mono text-xs font-semibold tracking-[0.2em] text-muted uppercase">
+            DJ name
+          </h3>
           <Show
             when={editingDjName()}
             fallback={
               <div class="flex items-center justify-between gap-3">
-                <span class="text-lg font-medium text-neutral-900">
-                  {auth.djName() || "Ikke satt"}
-                </span>
+                <span class="text-lg font-semibold text-ink">{auth.djName() || "Not set"}</span>
                 <button
                   type="button"
                   onClick={() => {
                     setDjNameInput(auth.djName() || "");
                     setEditingDjName(true);
                   }}
-                  class="rounded-lg bg-neutral-100 px-3 py-1.5 text-sm font-medium text-neutral-700 transition hover:bg-neutral-200"
+                  class="rounded-full border border-line px-4 py-1.5 text-sm font-semibold text-ink transition hover:border-beat hover:text-beat"
                 >
-                  Endre
+                  Edit
                 </button>
               </div>
             }
@@ -74,50 +77,45 @@ const Profile: Component = () => {
                 type="text"
                 value={djNameInput()}
                 onInput={(e) => setDjNameInput(e.currentTarget.value)}
-                placeholder="F.eks. DJ Mustard"
-                class="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
+                placeholder="E.g. DJ Mustard"
+                class="w-full rounded-xl border border-line bg-cream px-3 py-2 text-sm text-ink outline-none focus:border-beat focus:ring-2 focus:ring-beat/20"
                 autofocus
               />
               <div class="flex gap-2">
                 <button
                   type="submit"
                   disabled={isSaving()}
-                  class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:opacity-50"
+                  class="rounded-full bg-beat px-5 py-2 text-sm font-bold text-white transition hover:bg-beat-deep disabled:opacity-50"
                 >
-                  {isSaving() ? "Lagrer..." : "Lagre"}
+                  {isSaving() ? "Saving…" : "Save"}
                 </button>
                 <button
                   type="button"
                   onClick={() => setEditingDjName(false)}
-                  class="rounded-lg bg-neutral-100 px-4 py-2 text-sm font-medium text-neutral-700 transition hover:bg-neutral-200"
+                  class="rounded-full border border-line px-5 py-2 text-sm font-semibold text-ink transition hover:bg-sand"
                 >
-                  Avbryt
+                  Cancel
                 </button>
               </div>
             </form>
           </Show>
-          <p class="mt-2 text-xs text-neutral-400">
-            Dette navnet vises som vertsnavn på rommene dine
-          </p>
+          <p class="mt-2 text-xs text-muted">This name is shown as the host name on your rooms</p>
         </section>
 
-        <section class="w-60">
+        <section class="flex flex-col gap-3">
           <button
             type="button"
-            class="inline-flex w-full items-center justify-center rounded-full bg-neutral-900 px-5 py-2 text-sm font-semibold text-white transition hover:bg-neutral-700"
+            class="inline-flex w-full items-center justify-center rounded-full bg-beat px-5 py-2.5 text-sm font-bold text-white transition hover:bg-beat-deep"
             onClick={() => navigate("/dashboard")}
           >
-            Til dashboard
+            Go to dashboard
           </button>
-        </section>
-
-        <section id="overview" class="w-60">
           <button
             type="button"
-            class="inline-flex w-full items-center justify-center rounded-full bg-neutral-900 px-5 py-2 text-sm font-semibold text-white transition hover:bg-neutral-700"
+            class="inline-flex w-full items-center justify-center rounded-full border border-line bg-paper px-5 py-2.5 text-sm font-semibold text-ink transition hover:border-beat hover:text-beat"
             onClick={logoutAndRedirect}
           >
-            Logg ut
+            Sign out
           </button>
         </section>
       </div>

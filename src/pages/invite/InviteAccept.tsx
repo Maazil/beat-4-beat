@@ -13,30 +13,30 @@ const InviteAccept: Component = () => {
       await acceptRoomInvite(params.roomId, params.token);
       navigate(`/dashboard/create?edit=${params.roomId}`, { replace: true });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Kunne ikke godta invitasjonen");
+      setError(err instanceof Error ? err.message : "Could not accept the invite");
     }
   });
 
   return (
-    <div class="flex min-h-screen items-center justify-center bg-[#f4f6f8] p-6">
+    <div class="bg-stage flex min-h-screen items-center justify-center p-6">
       <Show
         when={error()}
         fallback={
           <div class="text-center">
-            <div class="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-neutral-300 border-t-neutral-700" />
-            <p class="text-neutral-600">Godtar invitasjonen…</p>
+            <div class="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-line border-t-beat" />
+            <p class="text-muted">Accepting the invite…</p>
           </div>
         }
       >
-        <div class="max-w-md text-center">
-          <h2 class="mb-4 text-2xl font-bold text-neutral-900">Kunne ikke godta invitasjonen</h2>
-          <p class="mb-6 text-neutral-600">{error()}</p>
+        <div class="max-w-md rounded-3xl border border-line bg-paper p-8 text-center shadow-sm">
+          <h2 class="font-display mb-4 text-2xl font-bold text-ink">Could not accept the invite</h2>
+          <p class="mb-6 text-muted">{error()}</p>
           <button
             type="button"
             onClick={() => navigate("/dashboard")}
-            class="rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700"
+            class="rounded-full bg-beat px-6 py-3 font-bold text-white transition hover:bg-beat-deep"
           >
-            Gå til dashbordet
+            Go to dashboard
           </button>
         </div>
       </Show>

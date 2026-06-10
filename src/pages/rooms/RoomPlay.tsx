@@ -230,12 +230,12 @@ const RoomPlayInner: Component = () => {
   };
 
   return (
-    <div class="min-h-screen bg-[#f4f6f8] p-6 pb-24">
+    <div class="bg-stage min-h-screen p-6 pb-24">
       <div class="mx-auto max-w-7xl">
         <button
           type="button"
           onClick={() => window.history.back()}
-          class="mb-6 flex items-center gap-2 text-neutral-600 transition hover:text-neutral-900"
+          class="mb-6 flex items-center gap-2 text-muted transition hover:text-beat"
         >
           <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
@@ -245,18 +245,18 @@ const RoomPlayInner: Component = () => {
               d="M10 19l-7-7m0 0l7-7m-7 7h18"
             />
           </svg>
-          <span class="font-medium">Tilbake</span>
+          <span class="font-medium">Back</span>
         </button>
 
         <Show when={isLoading()}>
           <div class="flex items-center justify-center py-24">
-            <div class="h-8 w-8 animate-spin rounded-full border-4 border-neutral-300 border-t-neutral-900" />
+            <div class="h-8 w-8 animate-spin rounded-full border-4 border-line border-t-beat" />
           </div>
         </Show>
 
         <Show when={!isLoading() && !currentRoom()}>
-          <div class="rounded-lg border border-red-200 bg-red-50 p-8 text-center">
-            <p class="text-red-700">Rom ikke funnet</p>
+          <div class="rounded-2xl border border-beat/30 bg-beat-soft p-8 text-center">
+            <p class="text-beat-deep">Room not found</p>
           </div>
         </Show>
 
@@ -264,10 +264,12 @@ const RoomPlayInner: Component = () => {
           <div class="flex flex-col gap-8">
             <div class="flex flex-col gap-4">
               <div class="flex flex-col gap-2">
-                <h1 class="text-3xl font-bold text-neutral-900">{currentRoom()?.roomName}</h1>
-                <h2 class="flex items-center gap-2 font-medium text-neutral-500">
-                  Hostet av{" "}
-                  <span class="inline-block rounded-full bg-gradient-to-r from-purple-600 to-pink-500 px-4 py-1 text-sm font-bold tracking-wide text-white shadow-md">
+                <h1 class="font-display text-3xl font-bold tracking-tight text-ink">
+                  {currentRoom()?.roomName}
+                </h1>
+                <h2 class="flex items-center gap-2 font-medium text-muted">
+                  Hosted by{" "}
+                  <span class="inline-block rounded-full bg-beat px-4 py-1 text-sm font-bold tracking-wide text-white shadow-md">
                     {currentRoom()?.hostName}
                   </span>
                 </h2>
@@ -275,9 +277,9 @@ const RoomPlayInner: Component = () => {
 
               {/* Spotify connection status */}
               <Show when={!spotifyConnected()}>
-                <div class="rounded-lg border border-amber-200 bg-amber-50 px-4 py-2 text-sm text-amber-700">
-                  Spotify er ikke tilkoblet. Koble til Spotify fra dashbordet for å spille sanger
-                  direkte.
+                <div class="rounded-xl border border-line bg-sand px-4 py-2 text-sm text-ink">
+                  Spotify is not connected. Connect Spotify from the dashboard to play songs
+                  directly.
                 </div>
               </Show>
             </div>
@@ -289,15 +291,13 @@ const RoomPlayInner: Component = () => {
                   when={devices().length > 0 || isLoadingDevices()}
                   fallback={
                     <div class="text-center">
-                      <p class="mb-4 text-neutral-600">
-                        Koble til en Spotify-enhet for å spille sanger
-                      </p>
+                      <p class="mb-4 text-muted">Connect a Spotify device to play songs</p>
                       <button
                         type="button"
                         onClick={fetchDevices}
-                        class="rounded-lg bg-[#1DB954] px-6 py-2.5 font-semibold text-white transition hover:bg-[#1aa34a]"
+                        class="rounded-full bg-spotify px-6 py-2.5 font-bold text-white transition hover:brightness-110"
                       >
-                        Finn enheter
+                        Find devices
                       </button>
                     </div>
                   }
@@ -315,10 +315,10 @@ const RoomPlayInner: Component = () => {
             {/* Selected device indicator */}
             <Show when={selectedDevice()}>
               {(device) => (
-                <div class="flex items-center gap-3 rounded-lg border border-green-200 bg-green-50 px-4 py-2">
-                  <span class="text-green-600">{deviceIcon(device().type)}</span>
+                <div class="flex items-center gap-3 rounded-xl border border-spotify/30 bg-spotify/10 px-4 py-2">
+                  <span class="text-spotify">{deviceIcon(device().type)}</span>
                   <div class="min-w-0 flex-1">
-                    <p class="text-sm font-medium text-green-900">Spiller på: {device().name}</p>
+                    <p class="text-sm font-semibold text-ink">Playing on: {device().name}</p>
                   </div>
                   <button
                     type="button"
@@ -327,9 +327,9 @@ const RoomPlayInner: Component = () => {
                       sessionStorage.removeItem("spotify_selected_device");
                       fetchDevices();
                     }}
-                    class="text-xs text-green-700 underline transition hover:text-green-900"
+                    class="text-xs text-muted underline transition hover:text-ink"
                   >
-                    Bytt enhet
+                    Switch device
                   </button>
                 </div>
               )}
@@ -347,7 +347,7 @@ const RoomPlayInner: Component = () => {
             {/* Game board */}
             <Show when={selectedDevice() || !spotifyConnected()}>
               <div class="py-4 pb-16">
-                <p class="mb-4 text-neutral-600">Klikk på en rute for å spille sang</p>
+                <p class="mb-4 text-muted">Click a tile to play a song</p>
                 {/* Single-category: full-width grid */}
                 <Show when={(currentRoom()?.categories.length ?? 0) === 1}>
                   <div class="grid grid-cols-2 gap-6 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
@@ -359,14 +359,14 @@ const RoomPlayInner: Component = () => {
                             type="button"
                             class={`group flex h-20 w-full cursor-pointer items-center justify-center rounded-xl border-2 transition hover:scale-105 hover:shadow-lg active:scale-95 sm:h-24 ${
                               revealedItems().has(item.id)
-                                ? "border-dashed border-neutral-300 bg-neutral-100/50"
+                                ? "border-dashed border-line bg-sand/50"
                                 : `${color().border} ${color().bg}`
                             }`}
                             onClick={() => handleItemClick(item.id, item.songUrl, item.startTime)}
                           >
                             <span
-                              class={`text-2xl font-bold ${
-                                revealedItems().has(item.id) ? "text-neutral-400" : color().text
+                              class={`font-mono text-2xl font-bold ${
+                                revealedItems().has(item.id) ? "text-muted" : color().text
                               } transition group-hover:scale-110`}
                             >
                               {item.level}
@@ -406,7 +406,7 @@ const RoomPlayInner: Component = () => {
                                     type="button"
                                     class={`group flex h-16 w-full cursor-pointer items-center justify-center rounded-lg border-2 transition hover:scale-105 hover:shadow-lg active:scale-95 sm:h-16 ${
                                       revealedItems().has(item.id)
-                                        ? "border-dashed border-neutral-300 bg-neutral-100/50"
+                                        ? "border-dashed border-line bg-sand/50"
                                         : `${colorScheme().border} ${colorScheme().itemBg}`
                                     }`}
                                     onClick={() =>
@@ -414,9 +414,9 @@ const RoomPlayInner: Component = () => {
                                     }
                                   >
                                     <span
-                                      class={`text-2xl font-bold ${
+                                      class={`font-mono text-2xl font-bold ${
                                         revealedItems().has(item.id)
-                                          ? "text-neutral-400"
+                                          ? "text-muted"
                                           : colorScheme().itemText
                                       } transition group-hover:scale-110`}
                                     >

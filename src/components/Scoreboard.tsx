@@ -26,7 +26,7 @@ const Scoreboard: Component<ScoreboardProps> = (props) => {
 
   const handleRemoveTeam = (index: number) => {
     const team = props.scores[index];
-    if (!confirm(`Er du sikker på at du vil fjerne "${team.teamName}"?`)) return;
+    if (!confirm(`Are you sure you want to remove "${team.teamName}"?`)) return;
     const updated = props.scores.filter((_, i) => i !== index);
     props.onUpdateScores(updated);
   };
@@ -60,15 +60,15 @@ const Scoreboard: Component<ScoreboardProps> = (props) => {
     roundIndex < score.roundPoints.length ? score.roundPoints[roundIndex] : 0;
 
   return (
-    <div class="rounded-xl border border-neutral-200 bg-white p-4 shadow-sm">
+    <div class="rounded-2xl border border-line bg-paper p-4 shadow-sm">
       <div class="mb-6 flex items-center justify-between">
-        <h3 class="text-lg font-semibold text-neutral-900">Poeng tabell</h3>
+        <h3 class="font-display text-lg font-bold text-ink">Scoreboard</h3>
         <button
           type="button"
           onClick={() => setIsAdding(!isAdding())}
-          class="rounded-lg bg-neutral-100 px-3 py-1.5 text-sm font-medium text-neutral-700 transition hover:bg-neutral-200"
+          class="rounded-full border border-line px-4 py-1.5 text-sm font-semibold text-ink transition hover:border-beat hover:text-beat"
         >
-          {isAdding() ? "Avbryt" : "+ Legg til lag"}
+          {isAdding() ? "Cancel" : "+ Add team"}
         </button>
       </div>
 
@@ -85,16 +85,16 @@ const Scoreboard: Component<ScoreboardProps> = (props) => {
             type="text"
             value={newTeamName()}
             onInput={(e) => setNewTeamName(e.currentTarget.value)}
-            placeholder="Lagnavn..."
-            class="flex-1 rounded-lg border border-neutral-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
+            placeholder="Team name…"
+            class="flex-1 rounded-xl border border-line bg-cream px-3 py-2 text-sm text-ink outline-none focus:border-beat focus:ring-2 focus:ring-beat/20"
             autofocus
           />
           <button
             type="submit"
             disabled={!newTeamName().trim()}
-            class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:opacity-50"
+            class="rounded-full bg-beat px-5 py-2 text-sm font-bold text-white transition hover:bg-beat-deep disabled:opacity-50"
           >
-            Legg til
+            Add
           </button>
         </form>
       </Show>
@@ -102,35 +102,29 @@ const Scoreboard: Component<ScoreboardProps> = (props) => {
       {/* Scoreboard table */}
       <Show
         when={props.scores.length > 0}
-        fallback={<p class="py-4 text-center text-sm text-neutral-400">Ingen lag lagt til ennå</p>}
+        fallback={<p class="py-4 text-center text-sm text-muted">No teams added yet</p>}
       >
         <div class="overflow-x-auto">
           <table class="w-full text-sm" style="border-collapse: separate; border-spacing: 0;">
             <thead>
               <tr>
                 <th
-                  class="sticky left-0 z-10 border-b-2 border-neutral-400 bg-white px-3 pb-3 pt-2 pr-4 text-left font-semibold text-neutral-700"
-                  style="box-shadow: 4px 0 8px -2px rgba(59,130,246,0.3); border-right: 3px solid rgb(96,165,250);"
+                  class="sticky left-0 z-10 border-b-2 border-ink/20 bg-paper px-3 pt-2 pr-4 pb-3 text-left font-semibold text-ink"
+                  style="border-right: 3px solid var(--color-beat);"
                 >
-                  Lag
+                  Team
                 </th>
                 <For each={Array.from({ length: props.totalRounds }, (_, i) => i)}>
                   {(roundIndex) => (
-                    <th
-                      class="border-b-2 border-r border-neutral-400 px-2 pb-3 pt-2 text-center font-semibold text-neutral-500"
-                      style="border-right-color: rgb(229,231,235);"
-                    >
+                    <th class="border-r border-b-2 border-ink/20 px-2 pt-2 pb-3 text-center font-mono font-semibold text-muted">
                       {roundIndex + 1}
                     </th>
                   )}
                 </For>
-                <th
-                  class="border-b-2 border-r border-neutral-400 px-3 pb-3 pt-2 text-center font-semibold text-neutral-900"
-                  style="border-right-color: rgb(212,212,216);"
-                >
-                  Totalt
+                <th class="border-r border-b-2 border-ink/20 px-3 pt-2 pb-3 text-center font-semibold text-ink">
+                  Total
                 </th>
-                <th class="w-8 border-b-2 border-neutral-400" />
+                <th class="w-8 border-b-2 border-ink/20" />
               </tr>
             </thead>
             <tbody>
@@ -138,23 +132,23 @@ const Scoreboard: Component<ScoreboardProps> = (props) => {
                 {(score, teamIndex) => (
                   <tr style="height: 3rem;">
                     <td
-                      class="sticky left-0 z-10 border-b border-neutral-200 bg-white px-3 py-3 pr-4 font-medium text-neutral-800"
-                      style="box-shadow: 4px 0 8px -2px rgba(59,130,246,0.3); border-right: 3px solid rgb(96,165,250);"
+                      class="sticky left-0 z-10 border-b border-line bg-paper px-3 py-3 pr-4 font-semibold text-ink"
+                      style="border-right: 3px solid var(--color-beat);"
                     >
                       {score.teamName}
                     </td>
                     <For each={Array.from({ length: props.totalRounds }, (_, i) => i)}>
                       {(roundIndex) => (
-                        <td class="border-b border-r border-neutral-200 px-3 py-3 text-center">
+                        <td class="border-r border-b border-line px-3 py-3 text-center">
                           <div class="flex items-center justify-center gap-1">
-                            <span class="w-6 text-center font-mono text-base font-bold text-neutral-800">
+                            <span class="w-6 text-center font-mono text-base font-bold text-ink">
                               {roundValue(score, roundIndex)}
                             </span>
                             <div class="flex flex-col gap-0.5">
                               <button
                                 type="button"
                                 onClick={() => handleIncrement(teamIndex(), roundIndex)}
-                                class="flex h-6 w-7 items-center justify-center rounded-t text-green-600 transition hover:bg-green-100 active:scale-90"
+                                class="flex h-6 w-7 items-center justify-center rounded-t text-beat transition hover:bg-beat-soft active:scale-90"
                               >
                                 <svg
                                   class="h-4 w-4"
@@ -173,7 +167,7 @@ const Scoreboard: Component<ScoreboardProps> = (props) => {
                               <button
                                 type="button"
                                 onClick={() => handleDecrement(teamIndex(), roundIndex)}
-                                class="flex h-6 w-7 items-center justify-center rounded-b text-red-500 transition hover:bg-red-100 active:scale-90"
+                                class="flex h-6 w-7 items-center justify-center rounded-b text-muted transition hover:bg-sand active:scale-90"
                               >
                                 <svg
                                   class="h-4 w-4"
@@ -194,14 +188,14 @@ const Scoreboard: Component<ScoreboardProps> = (props) => {
                         </td>
                       )}
                     </For>
-                    <td class="border-b border-r border-neutral-300 px-3 py-3 text-center text-lg font-bold text-neutral-900">
+                    <td class="border-r border-b border-line px-3 py-3 text-center font-mono text-lg font-bold text-beat">
                       {totalPoints(score)}
                     </td>
-                    <td class="border-b border-neutral-200 px-1 py-3">
+                    <td class="border-b border-line px-1 py-3">
                       <button
                         type="button"
                         onClick={() => handleRemoveTeam(teamIndex())}
-                        class="flex h-6 w-6 items-center justify-center rounded-full text-neutral-400 transition hover:bg-red-100 hover:text-red-600"
+                        class="flex h-6 w-6 items-center justify-center rounded-full text-muted transition hover:bg-beat-soft hover:text-beat"
                       >
                         <svg
                           class="h-3.5 w-3.5"

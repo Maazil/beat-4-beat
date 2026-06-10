@@ -15,11 +15,9 @@ const RoomPreview: Component<RoomPreviewProps> = (props) => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "live":
-        return "bg-green-500/20 text-green-400 border border-green-500/30";
-      case "inactive":
-        return "bg-neutral-700/50 text-neutral-400 border border-neutral-600";
+        return "bg-beat-soft text-beat-deep border border-beat/20";
       default:
-        return "bg-neutral-700/50 text-neutral-400 border border-neutral-600";
+        return "bg-sand text-muted border border-line";
     }
   };
 
@@ -28,81 +26,69 @@ const RoomPreview: Component<RoomPreviewProps> = (props) => {
       case "live":
         return "Live";
       case "inactive":
-        return "Ikke aktiv";
+        return "Inactive";
       default:
         return status;
     }
   };
 
-  const categoryColors = [
-    "bg-blue-500/20 text-blue-400 border-blue-500/30",
-    "bg-purple-500/20 text-purple-400 border-purple-500/30",
-    "bg-green-500/20 text-green-400 border-green-500/30",
-    "bg-orange-500/20 text-orange-400 border-orange-500/30",
-    "bg-pink-500/20 text-pink-400 border-pink-500/30",
-    "bg-teal-500/20 text-teal-400 border-teal-500/30",
-  ];
-
   return (
-    <div class="group relative">
-      {/* Glow layer - shows on hover */}
-      <div class="pointer-events-none absolute -inset-2 rounded-3xl bg-red-500/40 opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-60" />
-      <article
-        class="relative z-10 cursor-pointer rounded-2xl border border-neutral-600/60 bg-neutral-900/80 p-6 shadow-sm backdrop-blur-sm transition-all duration-300 group-hover:border-red-500/30 group-hover:shadow-lg"
-        onClick={() => navigate(`/rooms/${props.room.id}/play`)}
-      >
-        {/* Subtle gradient overlay on hover */}
-        <div class="pointer-events-none absolute inset-0 rounded-2xl bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.03),transparent_50%)] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-        <div class="relative">
-          <div class="mb-3 flex items-start justify-between">
-            <h2 class="text-lg font-semibold text-neutral-100">{props.room.roomName}</h2>
-            <span
-              class={`rounded-full px-2.5 py-0.5 text-xs font-medium ${getStatusBadge(getStatus())}`}
-            >
-              {getStatusLabel(getStatus())}
-            </span>
-          </div>
-          <div class="space-y-2 text-sm text-neutral-400">
-            <p>
-              <span class="font-medium text-neutral-300">Host:</span> {props.room.hostName}
-            </p>
-            {/* <p>
-              <span class="font-medium text-neutral-300">Deltakere:</span>{" "}
-              {props.room.participants}
-            </p> */}
-            {props.room.categories.length > 0 && (
-              <p>
-                <span class="font-medium text-neutral-300">Kategorier:</span>{" "}
-                {props.room.categories.length}
-              </p>
+    <article
+      class="group cursor-pointer rounded-2xl border border-line bg-paper p-6 shadow-sm transition duration-300 hover:-translate-y-0.5 hover:border-beat/40 hover:shadow-[0_16px_36px_-20px_rgba(232,38,74,0.45)]"
+      onClick={() => navigate(`/rooms/${props.room.id}/play`)}
+    >
+      <div class="mb-3 flex items-start justify-between gap-3">
+        <h2 class="font-display text-lg font-bold text-ink transition group-hover:text-beat">
+          {props.room.roomName}
+        </h2>
+        <span
+          class={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold ${getStatusBadge(getStatus())}`}
+        >
+          {getStatusLabel(getStatus())}
+        </span>
+      </div>
+      <div class="space-y-1 font-mono text-xs text-muted">
+        <p>
+          <span class="font-semibold text-ink">Host:</span> {props.room.hostName}
+        </p>
+        {props.room.categories.length > 0 && (
+          <p>
+            <span class="font-semibold text-ink">Categories:</span> {props.room.categories.length}
+          </p>
+        )}
+        {props.room.createdAt && (
+          <p>
+            <span class="font-semibold text-ink">Created:</span>{" "}
+            {new Date(props.room.createdAt).toLocaleString("en-GB", {
+              dateStyle: "short",
+            })}
+          </p>
+        )}
+      </div>
+      {props.room.categories.length > 0 && props.room.showCategories && (
+        <div class="mt-4 flex flex-wrap gap-1.5">
+          <For each={props.room.categories.slice(0, 6)}>
+            {(category) => (
+              <span class="rounded-full border border-line bg-cream px-2.5 py-0.5 text-xs font-medium text-muted">
+                {category.name}
+              </span>
             )}
-            {props.room.createdAt && (
-              <p>
-                <span class="font-medium text-neutral-300">Opprettet:</span>{" "}
-                {new Date(props.room.createdAt).toLocaleString("no-NO", {
-                  dateStyle: "short",
-                })}
-              </p>
-            )}
-          </div>
-          {props.room.categories.length > 0 && props.room.showCategories && (
-            <div class="mt-3 flex flex-wrap gap-1.5">
-              <For each={props.room.categories.slice(0, 6)}>
-                {(category, index) => (
-                  <span
-                    class={`rounded-md border px-2 py-0.5 text-xs font-medium ${
-                      categoryColors[index() % categoryColors.length]
-                    }`}
-                  >
-                    {category.name}
-                  </span>
-                )}
-              </For>
-            </div>
-          )}
+          </For>
         </div>
-      </article>
-    </div>
+      )}
+      <p class="mt-5 inline-flex items-center gap-1.5 text-sm font-bold text-beat opacity-0 transition duration-300 group-hover:opacity-100">
+        Play now
+        <svg class="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path
+            d="M5.333 3.556 10.667 8l-5.334 4.444"
+            stroke="currentColor"
+            stroke-width="1.6"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </p>
+    </article>
   );
 };
 

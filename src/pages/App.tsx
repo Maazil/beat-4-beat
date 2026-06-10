@@ -1,51 +1,87 @@
 import { Meta, Title } from "@solidjs/meta";
 import { useNavigate } from "@solidjs/router";
-import type { Component } from "solid-js";
+import { For, type Component } from "solid-js";
 import Logo from "../components/Logo";
 import RandomVisualizer from "../components/RandomVisualizer";
+
+const marqueeWords = [
+  "Guess the track",
+  "Steal the points",
+  "Pick your team",
+  "Hit play",
+  "Beat the room",
+  "One more round",
+];
 
 const App: Component = () => {
   const navigate = useNavigate();
 
   return (
     <>
-      <Title>Beat 4 Beat</Title>
+      <Title>Beat 4 Beat — The music quiz party game</Title>
       <Meta
         name="description"
-        content="Bli med på Beat 4 Beat, det ultimate musikkspillet! Test dine musikkevner, konkurrer mot venner, og opplev spenningen ved å gjette riktig. Enten du er en musikkentusiast eller bare leter etter en morsom utfordring, tilbyr Beat 4 Beat timevis med underholdning. Klarer du å holde takten og bli den beste rytmespilleren?"
+        content="Beat 4 Beat is the ultimate music quiz party game. Build game boards from your Spotify playlists, gather your friends, guess the track, and beat the room."
       />
 
-      <main class="bg-ambient relative min-h-screen overflow-hidden text-neutral-100">
+      <main class="bg-stage relative flex min-h-screen flex-col overflow-hidden">
+        {/* Texture + soft floating glows */}
         <div class="pointer-events-none absolute inset-0">
-          <div class="animate-ambient-float absolute top-24 -left-28 h-72 w-72 rounded-full bg-red-500/25 blur-[120px]" />
-          <div class="animate-ambient-float absolute -right-24 bottom-24 h-80 w-80 rounded-full bg-red-700/15 blur-[140px]" />
-          <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,48,64,0.12)_0,rgba(10,10,14,0)_70%)]" />
-          <div class="absolute inset-0 bg-[linear-gradient(115deg,rgba(255,25,70,0.08)_0%,rgba(9,9,13,0)_40%,rgba(255,25,70,0.06)_75%,rgba(9,9,13,0)_100%)]" />
-          <div class="absolute top-0 left-0 h-full w-full bg-[linear-gradient(rgba(255,255,255,0.04)_1px,transparent_1px)] bg-size-[0.5px_32px] opacity-30" />
+          <div class="bg-halftone absolute inset-0 opacity-60" />
+          <div class="animate-ambient-float absolute top-24 -left-28 h-72 w-72 rounded-full bg-beat/10 blur-[120px]" />
+          <div class="animate-ambient-float absolute -right-24 bottom-32 h-80 w-80 rounded-full bg-beat/8 blur-[140px]" />
         </div>
 
-        <div class="relative z-10 mx-auto flex min-h-screen w-full max-w-6xl flex-col items-center justify-center px-6 py-20 pt-7 sm:pt-20">
-          <header class="mb-16 flex items-center gap-4 text-neutral-300 sm:gap-6">
-            <Logo class="h-10 w-auto text-red-400" />
-            {/* <span class="text-xs uppercase tracking-[0.55em] text-neutral-500 sm:text-sm">
-            Beat 4 Beat
-          </span> */}
-          </header>
+        {/* Header */}
+        <header class="relative z-10 mx-auto flex w-full max-w-6xl items-center justify-between px-6 pt-8">
+          <Logo class="animate-rise-in h-9 w-auto" />
+          <button
+            type="button"
+            onClick={() => navigate("/login")}
+            class="animate-rise-in rounded-full border border-line bg-paper px-5 py-2 text-sm font-semibold text-ink transition hover:border-beat hover:text-beat"
+            style={{ "animation-delay": "80ms" }}
+          >
+            Sign in
+          </button>
+        </header>
 
-          <section class="flex w-full max-w-3xl flex-col items-center gap-12 text-center">
-            <RandomVisualizer class="mt-4" />
+        {/* Hero */}
+        <section class="relative z-10 mx-auto flex w-full max-w-6xl flex-1 flex-col justify-center px-6 py-16">
+          <p
+            class="animate-rise-in mb-6 font-mono text-xs font-semibold tracking-[0.35em] text-beat uppercase"
+            style={{ "animation-delay": "120ms" }}
+          >
+            ♪ The music quiz party game
+          </p>
 
-            <p class="max-w-[46ch] text-base text-pretty text-neutral-400 sm:text-lg">
-              Hvor rytme møter reaksjon. Trå inn i pulsen, og merk slagene før alle andre.
-            </p>
+          <h1
+            class="animate-rise-in font-display max-w-4xl text-6xl leading-[0.95] font-extrabold tracking-tight text-balance text-ink sm:text-7xl lg:text-8xl"
+            style={{ "animation-delay": "200ms" }}
+          >
+            Guess the track.
+            <br />
+            <span class="text-beat">Beat the room.</span>
+          </h1>
 
+          <p
+            class="animate-rise-in mt-8 max-w-[52ch] text-lg text-pretty text-muted"
+            style={{ "animation-delay": "320ms" }}
+          >
+            Build a game board from your Spotify playlists, gather your friends, and find out who
+            really knows their music. First to name the tune takes the points.
+          </p>
+
+          <div
+            class="animate-rise-in mt-10 flex flex-wrap items-center gap-4"
+            style={{ "animation-delay": "440ms" }}
+          >
             <button
               type="button"
               onClick={() => navigate("/login")}
-              class="group relative inline-flex items-center gap-3 overflow-hidden rounded-full border border-red-500/60 bg-red-500/10 px-9 py-3 text-sm font-semibold tracking-[0.5em] text-red-300 uppercase transition duration-300 hover:cursor-pointer hover:border-red-400/80 hover:bg-red-500/15 hover:text-red-200 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-red-500"
+              class="group inline-flex items-center gap-3 rounded-full bg-beat px-8 py-3.5 text-base font-bold text-white shadow-[0_12px_30px_-10px_rgba(232,38,74,0.55)] transition duration-300 hover:bg-beat-deep focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-beat"
             >
-              <span>Start spillet</span>
-              <span class="relative flex h-6 w-6 items-center justify-center rounded-full bg-red-500/60 text-neutral-950 transition duration-300 group-hover:bg-red-400/90">
+              <span>Start playing</span>
+              <span class="flex h-6 w-6 items-center justify-center rounded-full bg-white/20 transition duration-300 group-hover:translate-x-0.5">
                 <svg
                   class="h-3.5 w-3.5"
                   viewBox="0 0 16 16"
@@ -63,7 +99,47 @@ const App: Component = () => {
                 </svg>
               </span>
             </button>
-          </section>
+            <button
+              type="button"
+              onClick={() => navigate("/market")}
+              class="rounded-full border border-line bg-paper px-7 py-3.5 text-base font-semibold text-ink transition hover:border-beat hover:text-beat"
+            >
+              Explore public rooms
+            </button>
+          </div>
+
+          <div class="animate-rise-in mt-14 max-w-xl" style={{ "animation-delay": "560ms" }}>
+            <RandomVisualizer />
+          </div>
+        </section>
+
+        {/* Marquee footer */}
+        <div
+          class="animate-rise-in relative z-10 border-t border-line bg-paper/80 py-4 backdrop-blur-sm"
+          style={{ "animation-delay": "680ms" }}
+        >
+          <div class="flex overflow-hidden" aria-hidden="true">
+            <div class="animate-marquee flex shrink-0 items-center gap-8 pr-8 whitespace-nowrap">
+              <For each={[...marqueeWords, ...marqueeWords]}>
+                {(word) => (
+                  <span class="flex items-center gap-8 font-mono text-sm font-medium tracking-[0.25em] text-muted uppercase">
+                    {word}
+                    <span class="text-beat">♪</span>
+                  </span>
+                )}
+              </For>
+            </div>
+            <div class="animate-marquee flex shrink-0 items-center gap-8 pr-8 whitespace-nowrap">
+              <For each={[...marqueeWords, ...marqueeWords]}>
+                {(word) => (
+                  <span class="flex items-center gap-8 font-mono text-sm font-medium tracking-[0.25em] text-muted uppercase">
+                    {word}
+                    <span class="text-beat">♪</span>
+                  </span>
+                )}
+              </For>
+            </div>
+          </div>
         </div>
       </main>
     </>

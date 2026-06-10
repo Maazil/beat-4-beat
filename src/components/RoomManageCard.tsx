@@ -17,15 +17,15 @@ const RoomManageCard: Component<RoomManageCardProps> = (props) => {
 
   const statusBadge = () =>
     props.room.isActive
-      ? "bg-green-100 text-green-700 border border-green-200"
-      : "bg-neutral-100 text-neutral-600 border border-neutral-200";
+      ? "bg-beat-soft text-beat-deep border border-beat/20"
+      : "bg-sand text-muted border border-line";
 
-  const statusLabel = () => (props.room.isActive ? "Aktiv" : "Inaktiv");
+  const statusLabel = () => (props.room.isActive ? "Active" : "Inactive");
 
   const handleCopyLink = () => {
     const shareUrl = `${window.location.origin}/rooms/${props.room.id}/play`;
     navigator.clipboard.writeText(shareUrl);
-    alert("Lenke kopiert! Del denne med spillere: " + shareUrl);
+    alert("Link copied! Share it with players: " + shareUrl);
   };
 
   const handleDelete = () => {
@@ -36,32 +36,31 @@ const RoomManageCard: Component<RoomManageCardProps> = (props) => {
   };
 
   return (
-    <article class="rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm transition hover:shadow-md">
+    <article class="rounded-2xl border border-line bg-paper p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
       {/* Header */}
       <div class="mb-3 flex items-start justify-between">
         <div class="flex min-w-0 flex-wrap items-center gap-2">
-          <h3 class="text-lg font-semibold text-neutral-900">{props.room.roomName}</h3>
+          <h3 class="font-display text-lg font-bold text-ink">{props.room.roomName}</h3>
           <Show when={!isHost()}>
-            <span class="rounded-full border border-blue-200 bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700">
-              Medeier
+            <span class="rounded-full border border-line bg-cream px-2.5 py-0.5 text-xs font-medium text-muted">
+              Co-owner
             </span>
           </Show>
         </div>
-        <span class={`rounded-full px-2.5 py-0.5 text-xs font-medium ${statusBadge()}`}>
+        <span class={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${statusBadge()}`}>
           {statusLabel()}
         </span>
       </div>
 
       {/* Info */}
-      <div class="mb-4 space-y-1 text-sm text-neutral-500">
+      <div class="mb-4 space-y-1 font-mono text-xs text-muted">
         <p>
-          <span class="font-medium text-neutral-700">Kategorier:</span>{" "}
-          {props.room.categories.length}
+          <span class="font-semibold text-ink">Categories:</span> {props.room.categories.length}
         </p>
         {props.room.createdAt && (
           <p>
-            <span class="font-medium text-neutral-700">Opprettet:</span>{" "}
-            {new Date(props.room.createdAt).toLocaleString("no-NO", {
+            <span class="font-semibold text-ink">Created:</span>{" "}
+            {new Date(props.room.createdAt).toLocaleString("en-GB", {
               dateStyle: "short",
             })}
           </p>
@@ -70,22 +69,22 @@ const RoomManageCard: Component<RoomManageCardProps> = (props) => {
 
       {/* Actions */}
       {showDeleteConfirm() ? (
-        <div class="rounded-lg border border-red-200 bg-red-50 p-3">
-          <p class="mb-3 text-sm text-red-700">Er du sikker på at du vil slette dette rommet?</p>
+        <div class="rounded-xl border border-beat/30 bg-beat-soft p-3">
+          <p class="mb-3 text-sm text-beat-deep">Are you sure you want to delete this room?</p>
           <div class="flex gap-2">
             <button
               type="button"
-              class="flex-1 rounded-lg bg-red-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-red-700"
+              class="flex-1 rounded-full bg-beat px-3 py-2 text-sm font-bold text-white transition hover:bg-beat-deep"
               onClick={handleDelete}
             >
-              Ja, slett
+              Yes, delete
             </button>
             <button
               type="button"
-              class="flex-1 rounded-lg border border-neutral-300 px-3 py-2 text-sm font-medium text-neutral-700 transition hover:bg-neutral-100"
+              class="flex-1 rounded-full border border-line bg-paper px-3 py-2 text-sm font-semibold text-ink transition hover:bg-sand"
               onClick={() => setShowDeleteConfirm(false)}
             >
-              Avbryt
+              Cancel
             </button>
           </div>
         </div>
@@ -93,16 +92,16 @@ const RoomManageCard: Component<RoomManageCardProps> = (props) => {
         <div class="flex flex-wrap gap-2">
           <button
             type="button"
-            class="flex-1 rounded-lg bg-neutral-900 px-3 py-2 text-sm font-medium text-white transition hover:bg-neutral-700"
+            class="flex-1 rounded-full bg-beat px-3 py-2 text-sm font-bold text-white transition hover:bg-beat-deep"
             onClick={() => navigate(`/rooms/${props.room.id}/play`)}
           >
             Start
           </button>
           <button
             type="button"
-            class="rounded-lg border border-neutral-300 px-3 py-2 text-sm font-medium text-neutral-700 transition hover:border-neutral-400 hover:bg-neutral-50"
+            class="rounded-full border border-line px-3 py-2 text-sm font-medium text-muted transition hover:border-beat hover:text-beat"
             onClick={handleCopyLink}
-            title="Kopier spillerlenke"
+            title="Copy player link"
           >
             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -115,9 +114,9 @@ const RoomManageCard: Component<RoomManageCardProps> = (props) => {
           </button>
           <button
             type="button"
-            class="rounded-lg border border-neutral-300 px-3 py-2 text-sm font-medium text-neutral-700 transition hover:border-neutral-400 hover:bg-neutral-50"
+            class="rounded-full border border-line px-3 py-2 text-sm font-medium text-muted transition hover:border-beat hover:text-beat"
             onClick={() => navigate(`/dashboard/create?edit=${props.room.id}`)}
-            title="Rediger rom"
+            title="Edit room"
           >
             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -131,9 +130,9 @@ const RoomManageCard: Component<RoomManageCardProps> = (props) => {
           <Show when={isHost()}>
             <button
               type="button"
-              class="rounded-lg border border-red-200 px-3 py-2 text-sm font-medium text-red-600 transition hover:border-red-300 hover:bg-red-50"
+              class="rounded-full border border-beat/30 px-3 py-2 text-sm font-medium text-beat transition hover:bg-beat-soft"
               onClick={() => setShowDeleteConfirm(true)}
-              title="Slett rom"
+              title="Delete room"
             >
               <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path

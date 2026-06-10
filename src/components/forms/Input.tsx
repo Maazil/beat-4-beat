@@ -47,11 +47,11 @@ const Input: Component<InputProps> = (props) => {
 
   // Default variant: standard form input styling
   const defaultClass = () =>
-    `w-full rounded-lg border bg-white px-3 py-2 text-neutral-900 placeholder-neutral-400 transition-colors focus:ring-2 focus:ring-offset-1 focus:outline-none ${
+    `w-full rounded-xl border bg-paper px-3 py-2 text-ink placeholder-muted/60 transition-colors focus:ring-2 focus:ring-offset-1 focus:outline-none ${
       local.error
-        ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
-        : "border-neutral-300 focus:border-blue-500 focus:ring-blue-500/20"
-    } disabled:cursor-not-allowed disabled:bg-neutral-100 disabled:text-neutral-500`;
+        ? "border-beat focus:border-beat focus:ring-beat/20"
+        : "border-line focus:border-beat focus:ring-beat/20"
+    } disabled:cursor-not-allowed disabled:bg-sand disabled:text-muted`;
 
   const inputClass = () => `${isGhost() ? ghostClass : defaultClass()} ${local.class || ""}`;
 
@@ -62,9 +62,9 @@ const Input: Component<InputProps> = (props) => {
     >
       <div class="flex flex-col gap-1">
         <Show when={local.label}>
-          <label for={inputId()} class="text-sm font-medium text-neutral-700">
+          <label for={inputId()} class="text-sm font-medium text-ink">
             {local.label}
-            {inputProps.required && <span class="ml-1 text-red-500">*</span>}
+            {inputProps.required && <span class="ml-1 text-beat">*</span>}
           </label>
         </Show>
         <input
@@ -81,12 +81,12 @@ const Input: Component<InputProps> = (props) => {
           }
         />
         <Show when={local.error}>
-          <p id={`${inputId()}-error`} class="text-sm text-red-500" role="alert">
+          <p id={`${inputId()}-error`} class="text-sm text-beat" role="alert">
             {local.error}
           </p>
         </Show>
         <Show when={local.helperText && !local.error}>
-          <p id={`${inputId()}-helper`} class="text-sm text-neutral-500">
+          <p id={`${inputId()}-helper`} class="text-sm text-muted">
             {local.helperText}
           </p>
         </Show>
