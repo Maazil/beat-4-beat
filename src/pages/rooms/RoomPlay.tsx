@@ -281,7 +281,6 @@ const RoomPlayInner: Component = () => {
             {/* Scoreboard — local per session, not shared */}
             <Scoreboard
               scores={scores()}
-              pendingPoints={currentItemInfo()?.level}
               currentRound={currentRound()}
               onUpdateScores={setScores}
             />

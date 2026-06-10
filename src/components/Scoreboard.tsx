@@ -3,8 +3,6 @@ import type { Score } from "../model/score";
 
 interface ScoreboardProps {
   scores: Score[];
-  /** Point value of the song currently in play — enables one-tap awarding. */
-  pendingPoints?: number;
   /** Index of the round (song) currently in play; awards land on this round. */
   currentRound?: number;
   onUpdateScores: (scores: Score[]) => void;
@@ -176,7 +174,6 @@ const Scoreboard: Component<ScoreboardProps> = (props) => {
           <Show when={props.currentRound != null && props.scores.length > 0}>
             <span class="rounded-full border border-beat/30 bg-beat-soft px-3 py-1 font-mono text-xs font-bold text-beat-deep">
               Round {props.currentRound! + 1}
-              <Show when={props.pendingPoints != null}> · {props.pendingPoints} pts</Show>
             </span>
           </Show>
           <Show when={props.scores.length > 0}>
@@ -322,19 +319,7 @@ const Scoreboard: Component<ScoreboardProps> = (props) => {
                   </Show>
                 </div>
 
-                {/* One-tap award for the song currently in play */}
-                <Show when={props.pendingPoints != null && props.currentRound != null}>
-                  <button
-                    type="button"
-                    onClick={() => handleAward(index(), props.pendingPoints!)}
-                    title={`Award ${props.pendingPoints} points this round`}
-                    class="shrink-0 rounded-full bg-beat px-3.5 py-1.5 font-mono text-sm font-bold text-white shadow-[2px_2px_0_var(--color-beat-deep)] transition hover:bg-beat-deep active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
-                  >
-                    +{props.pendingPoints}
-                  </button>
-                </Show>
-
-                {/* Manual adjust — always targets the round in play */}
+                {/* Point buttons — always target the round in play */}
                 <div class="flex shrink-0 items-center gap-1">
                   <button
                     type="button"
