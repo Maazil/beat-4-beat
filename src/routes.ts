@@ -65,6 +65,11 @@ export const routes: RouteDefinition[] = [
       },
     ],
   },
+  // Co-owner invite links (require authentication)
+  {
+    path: "/invite/:roomId/:token",
+    component: lazy(() => import("./pages/invite/InviteAccept")),
+  },
   {
     path: "/profile",
     component: lazy(() => import("./pages/profile/ProfileWrapper")),

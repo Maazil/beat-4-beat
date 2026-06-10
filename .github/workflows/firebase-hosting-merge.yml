@@ -37,6 +37,18 @@ jobs:
 
       - run: pnpm build
 
+      # Deploy Firestore rules before hosting so new rules are live before
+      # the frontend that depends on them.
+      - name: Deploy Firestore rules
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_BEAT_4_BEAT }}
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/firebase-sa.json
+        run: |
+          printf '%s' "$FIREBASE_SERVICE_ACCOUNT" > "$GOOGLE_APPLICATION_CREDENTIALS"
+          npx firebase-tools@14 deploy --only firestore:rules --project beat-4-beat
+          rm -f "$GOOGLE_APPLICATION_CREDENTIALS"
+
       - if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:

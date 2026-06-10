@@ -1,4 +1,5 @@
 // src/services/roomsService.ts
+import { FirebaseError } from "firebase/app";
 import {
   addDoc,
   arrayRemove,
@@ -11,6 +12,7 @@ import {
   onSnapshot,
   query,
   serverTimestamp,
+  setDoc,
   Timestamp,
   updateDoc,
   where,
@@ -22,13 +24,14 @@ import { auth, db } from "../lib/firebase";
 import type { Category } from "../model/category";
 import type { CreateRoomData, Room } from "../model/room";
 import type { SongItem } from "../model/songItem";
-import { findUserByEmail } from "./usersService";
 
 // Collection reference
 const roomsCollection = collection(db, "rooms");
 
-// Document reference helper
+// Document reference helpers
 const roomDoc = (roomId: string): DocumentReference => doc(db, "rooms", roomId);
+const joinRequestDoc = (roomId: string, uid: string): DocumentReference =>
+  doc(db, "rooms", roomId, "joinRequests", uid);
 
 /**
  * Convert Firestore document data to Room with proper Date conversion
@@ -85,6 +88,7 @@ export async function createRoom(roomData: CreateRoomData): Promise<string> {
     hostId: user.uid,
     hostName: roomData.hostName || user.displayName || "Host",
     editorIds: [],
+    inviteToken: null,
     showCategories: roomData.showCategories ?? true,
     isActive: roomData.isActive ?? false,
     createdAt: serverTimestamp(),
@@ -207,12 +211,12 @@ export function subscribeToRoom(
 
 /**
  * Update a room (host or co-editors can update content).
- * Editor membership is managed via addRoomEditor/removeRoomEditor, so it can't
- * be changed through this generic update.
+ * Editor membership and invites are managed via the dedicated co-owner
+ * functions below, so they can't be changed through this generic update.
  */
 export async function updateRoom(
   roomId: string,
-  updates: Partial<Omit<Room, "id" | "hostId" | "editorIds" | "createdAt">>,
+  updates: Partial<Omit<Room, "id" | "hostId" | "editorIds" | "inviteToken" | "createdAt">>,
 ): Promise<void> {
   const user = auth.currentUser;
 
@@ -287,60 +291,113 @@ export function canEditRoom(room: Room): boolean {
   return room.hostId === user.uid || (room.editorIds?.includes(user.uid) ?? false);
 }
 
-/**
- * Add a co-owner to a room by their account email (host only).
- * The person must already have a user account (signed in at least once).
- */
-export async function addRoomEditor(roomId: string, email: string): Promise<void> {
+/** Display info for a co-owner, snapshotted from their join request. */
+export type RoomEditor = {
+  uid: string;
+  displayName: string | null;
+  email: string | null;
+};
+
+async function requireHostedRoom(roomId: string): Promise<Room> {
   const user = auth.currentUser;
 
   if (!user) {
-    throw new Error("Must be logged in to manage co-owners");
+    throw new Error("Du må være logget inn for å administrere medeiere");
   }
 
   const room = await getRoom(roomId);
   if (!room) {
-    throw new Error("Room not found");
+    throw new Error("Fant ikke rommet");
   }
 
   if (room.hostId !== user.uid) {
-    throw new Error("Only the host can manage co-owners");
+    throw new Error("Kun verten kan administrere medeiere");
   }
 
-  const target = await findUserByEmail(email);
-  if (!target) {
-    throw new Error("Fant ingen bruker med denne e-postadressen");
+  return room;
+}
+
+/**
+ * Resolve co-owner uids to display info from their join requests (host only —
+ * security rules limit join requests to the host and the requester). Editors
+ * whose join request is missing fall back to showing just the uid.
+ */
+export async function getRoomEditors(roomId: string, editorIds: string[]): Promise<RoomEditor[]> {
+  const snapshots = await Promise.all(editorIds.map((uid) => getDoc(joinRequestDoc(roomId, uid))));
+
+  return snapshots.map((snapshot, i) => {
+    const data = snapshot.exists() ? snapshot.data() : null;
+    return {
+      uid: editorIds[i],
+      displayName: (data?.displayName as string | null) ?? null,
+      email: (data?.email as string | null) ?? null,
+    };
+  });
+}
+
+/**
+ * Create or rotate the invite link token for a room (host only).
+ * Anyone who opens an invite link built from this token becomes a co-owner,
+ * so rotating it invalidates previously shared links.
+ */
+export async function generateRoomInvite(roomId: string): Promise<string> {
+  await requireHostedRoom(roomId);
+
+  const token = crypto.randomUUID();
+  await updateDoc(roomDoc(roomId), { inviteToken: token });
+  return token;
+}
+
+/**
+ * Deactivate the room's invite link (host only).
+ */
+export async function revokeRoomInvite(roomId: string): Promise<void> {
+  await requireHostedRoom(roomId);
+  await updateDoc(roomDoc(roomId), { inviteToken: null });
+}
+
+/**
+ * Accept an invite link as the current user. Proves possession of the token
+ * by writing it to the room's joinRequests (where security rules compare it
+ * against the room's current invite token), then adds the user to editorIds.
+ * Both writes are rejected by the rules if the token is invalid or revoked.
+ */
+export async function acceptRoomInvite(roomId: string, token: string): Promise<void> {
+  const user = auth.currentUser;
+
+  if (!user) {
+    throw new Error("Du må være logget inn for å godta en invitasjon");
   }
 
-  if (target.uid === room.hostId) {
-    throw new Error("Verten er allerede eier av rommet");
+  // If the user can already edit the room (host or existing co-owner),
+  // there is nothing to accept.
+  try {
+    const room = await getRoom(roomId);
+    if (room && canEditRoom(room)) return;
+  } catch {
+    // Room not readable yet — the expected case for a new invitee.
   }
 
-  if (room.editorIds?.includes(target.uid)) {
-    throw new Error("Denne brukeren er allerede medeier");
+  try {
+    await setDoc(joinRequestDoc(roomId, user.uid), {
+      token,
+      displayName: user.displayName ?? null,
+      email: user.email ?? null,
+    });
+    await updateDoc(roomDoc(roomId), { editorIds: arrayUnion(user.uid) });
+  } catch (err) {
+    if (err instanceof FirebaseError && err.code === "permission-denied") {
+      throw new Error("Invitasjonslenken er ugyldig eller har blitt deaktivert");
+    }
+    throw err;
   }
-
-  await updateDoc(roomDoc(roomId), { editorIds: arrayUnion(target.uid) });
 }
 
 /**
  * Remove a co-owner from a room by their user ID (host only).
  */
 export async function removeRoomEditor(roomId: string, uid: string): Promise<void> {
-  const user = auth.currentUser;
-
-  if (!user) {
-    throw new Error("Must be logged in to manage co-owners");
-  }
-
-  const room = await getRoom(roomId);
-  if (!room) {
-    throw new Error("Room not found");
-  }
-
-  if (room.hostId !== user.uid) {
-    throw new Error("Only the host can manage co-owners");
-  }
-
+  await requireHostedRoom(roomId);
   await updateDoc(roomDoc(roomId), { editorIds: arrayRemove(uid) });
+  await deleteDoc(joinRequestDoc(roomId, uid));
 }

@@ -1,4 +1,4 @@
-import { useNavigate } from "@solidjs/router";
+import { useLocation, useNavigate } from "@solidjs/router";
 import { ParentComponent, Show, createEffect } from "solid-js";
 import { useAuth } from "../context/AuthContext";
 
@@ -10,12 +10,16 @@ interface ProtectedRouteProps {
 const ProtectedRoute: ParentComponent<ProtectedRouteProps> = (props) => {
   const auth = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   createEffect(() => {
     if (auth.state.isLoading) return;
 
     if (!auth.isAuthenticated()) {
-      navigate("/login", { replace: true });
+      // Preserve the page the user tried to open (e.g. an invite link) so
+      // Login can return them there after signing in.
+      const target = location.pathname + location.search;
+      navigate(`/login?redirect=${encodeURIComponent(target)}`, { replace: true });
       return;
     }
 

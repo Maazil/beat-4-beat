@@ -13,7 +13,7 @@ const RoomManageCard: Component<RoomManageCardProps> = (props) => {
   const auth = useAuth();
   const [showDeleteConfirm, setShowDeleteConfirm] = createSignal(false);
 
-  const isHost = () => auth.state.user?.uid === props.room.hostId;
+  const isHost = () => auth.isRoomHost(props.room.hostId);
 
   const statusBadge = () =>
     props.room.isActive
