@@ -1,0 +1,78 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // User profiles are private: only the owner can read or write their own.
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    match /rooms/{roomId} {
+      function isSignedIn() {
+        return request.auth != null;
+      }
+
+      // editorIds is optional on rooms created before the co-owner feature
+      function editorsOf(data) {
+        return ('editorIds' in data && data.editorIds is list) ? data.editorIds : [];
+      }
+
+      function isHost() {
+        return isSignedIn() && request.auth.uid == resource.data.hostId;
+      }
+
+      function isEditor() {
+        return isSignedIn() && request.auth.uid in editorsOf(resource.data);
+      }
+
+      function changedKeys() {
+        return request.resource.data.diff(resource.data).affectedKeys();
+      }
+
+      // Co-owners may change room content, but never ownership, membership or
+      // the invite token.
+      function isEditorContentUpdate() {
+        return isEditor() && !changedKeys().hasAny(['hostId', 'editorIds', 'inviteToken']);
+      }
+
+      // A user who proved they hold the current invite token (by creating a
+      // join request, validated below) may add exactly their own uid to
+      // editorIds and change nothing else.
+      function isSelfJoin() {
+        return isSignedIn()
+          && request.auth.uid != resource.data.hostId
+          && 'inviteToken' in resource.data
+          && resource.data.inviteToken is string
+          && changedKeys().hasOnly(['editorIds'])
+          && request.resource.data.editorIds is list
+          && request.resource.data.editorIds.toSet().hasAll(editorsOf(resource.data))
+          && request.resource.data.editorIds.toSet().difference(editorsOf(resource.data).toSet()).hasOnly([request.auth.uid])
+          && get(/databases/$(database)/documents/rooms/$(roomId)/joinRequests/$(request.auth.uid)).data.token == resource.data.inviteToken;
+      }
+
+      allow create: if isSignedIn() && request.resource.data.hostId == request.auth.uid;
+      allow read: if resource.data.isPublic == true || isHost() || isEditor();
+      allow update: if isHost() || isEditorContentUpdate() || isSelfJoin();
+      allow delete: if isHost();
+
+      // Invite handshake: an invitee writes the token from their invite link
+      // here, and the rules compare it against the room's current token —
+      // without ever letting them read the room. The doc doubles as the
+      // co-owner's display info, since user profiles are private.
+      match /joinRequests/{userId} {
+        function roomData() {
+          return get(/databases/$(database)/documents/rooms/$(roomId)).data;
+        }
+
+        allow create, update: if request.auth != null
+          && request.auth.uid == userId
+          && request.resource.data.keys().hasOnly(['token', 'displayName', 'email'])
+          && request.resource.data.token is string
+          && request.resource.data.token == roomData().inviteToken;
+
+        allow read, delete: if request.auth != null
+          && (request.auth.uid == userId || request.auth.uid == roomData().hostId);
+      }
+    }
+  }
+}

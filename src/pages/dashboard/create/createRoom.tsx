@@ -4,14 +4,16 @@ import { useAuth } from "../../../context/AuthContext";
 import type { Category } from "../../../model/category";
 import type { SongItem } from "../../../model/songItem";
 import {
-  addRoomEditor,
   canEditRoom,
   createRoom as createRoomInFirestore,
+  generateRoomInvite,
   getRoom,
+  getRoomEditors,
   removeRoomEditor,
+  revokeRoomInvite,
   updateRoom as updateRoomInFirestore,
+  type RoomEditor,
 } from "../../../services/roomsService";
-import { getUsersByIds, type UserSummary } from "../../../services/usersService";
 import {
   isSpotifyLoggedIn,
   getMySpotifyPlaylists,
@@ -41,33 +43,62 @@ const CreateRoom: Component = () => {
 
   // Co-owner (medeier) management state — edit mode, host only
   const [roomHostId, setRoomHostId] = createSignal<string | null>(null);
-  const [editors, setEditors] = createSignal<UserSummary[]>([]);
-  const [editorEmail, setEditorEmail] = createSignal("");
+  const [editors, setEditors] = createSignal<RoomEditor[]>([]);
+  const [inviteToken, setInviteToken] = createSignal<string | null>(null);
+  const [inviteCopied, setInviteCopied] = createSignal(false);
   const [editorError, setEditorError] = createSignal<string | null>(null);
   const [editorBusy, setEditorBusy] = createSignal(false);
 
-  const isHost = () => !!roomHostId() && auth.state.user?.uid === roomHostId();
+  const isHost = () => auth.isRoomHost(roomHostId() ?? undefined);
 
-  const loadEditors = async (editorIds: string[]) => {
-    setEditors(editorIds.length > 0 ? await getUsersByIds(editorIds) : []);
+  const inviteLink = () => {
+    const roomId = editRoomId();
+    const token = inviteToken();
+    return roomId && token ? `${window.location.origin}/invite/${roomId}/${token}` : null;
   };
 
-  const handleAddEditor = async () => {
+  const handleGenerateInvite = async () => {
     const roomId = editRoomId();
-    const email = editorEmail().trim();
-    if (!roomId || !email) return;
+    if (!roomId || editorBusy()) return;
 
     setEditorBusy(true);
     setEditorError(null);
     try {
-      await addRoomEditor(roomId, email);
-      setEditorEmail("");
-      const room = await getRoom(roomId);
-      await loadEditors(room?.editorIds ?? []);
+      setInviteToken(await generateRoomInvite(roomId));
+      setInviteCopied(false);
     } catch (err) {
-      setEditorError(err instanceof Error ? err.message : "Kunne ikke legge til medeier");
+      setEditorError(err instanceof Error ? err.message : "Kunne ikke lage invitasjonslenke");
     } finally {
       setEditorBusy(false);
+    }
+  };
+
+  const handleRevokeInvite = async () => {
+    const roomId = editRoomId();
+    if (!roomId || editorBusy()) return;
+
+    setEditorBusy(true);
+    setEditorError(null);
+    try {
+      await revokeRoomInvite(roomId);
+      setInviteToken(null);
+      setInviteCopied(false);
+    } catch (err) {
+      setEditorError(err instanceof Error ? err.message : "Kunne ikke deaktivere lenken");
+    } finally {
+      setEditorBusy(false);
+    }
+  };
+
+  const handleCopyInvite = async () => {
+    const link = inviteLink();
+    if (!link) return;
+
+    try {
+      await navigator.clipboard.writeText(link);
+      setInviteCopied(true);
+    } catch {
+      setEditorError("Kunne ikke kopiere lenken — merk teksten og kopier manuelt");
     }
   };
 
@@ -236,7 +267,13 @@ const CreateRoom: Component = () => {
       setIsPublic(room.isPublic);
       setCategories(room.categories);
       setRoomHostId(room.hostId);
-      await loadEditors(room.editorIds ?? []);
+
+      // Co-owner management is host-only (rules also restrict join requests)
+      if (auth.state.user?.uid === room.hostId) {
+        setInviteToken(room.inviteToken ?? null);
+        const editorIds = room.editorIds ?? [];
+        setEditors(editorIds.length > 0 ? await getRoomEditors(roomId, editorIds) : []);
+      }
 
       // Register existing category hues so new ones get distinct colors
       for (const cat of room.categories) {
@@ -549,7 +586,7 @@ const CreateRoom: Component = () => {
                     {(editor) => (
                       <li class="flex items-center justify-between rounded-lg bg-neutral-50 px-3 py-2 text-sm">
                         <span class="min-w-0 truncate text-neutral-700">
-                          {editor.email || editor.displayName || editor.uid}
+                          {editor.displayName || editor.email || editor.uid}
                         </span>
                         <button
                           type="button"
@@ -566,25 +603,59 @@ const CreateRoom: Component = () => {
                 </ul>
               </Show>
 
-              {/* Add co-owner by email */}
-              <div class="flex gap-2">
-                <input
-                  type="email"
-                  value={editorEmail()}
-                  onInput={(e) => setEditorEmail(e.currentTarget.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleAddEditor()}
-                  placeholder="E-post til medeier..."
-                  class="min-w-0 flex-1 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-neutral-900 outline-none focus:border-blue-400"
-                />
-                <button
-                  type="button"
-                  disabled={editorBusy() || !editorEmail().trim()}
-                  onClick={handleAddEditor}
-                  class="rounded-lg bg-neutral-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-neutral-700 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  Legg til
-                </button>
-              </div>
+              {/* Invite link */}
+              <Show
+                when={inviteLink()}
+                fallback={
+                  <button
+                    type="button"
+                    disabled={editorBusy()}
+                    onClick={handleGenerateInvite}
+                    class="rounded-lg bg-neutral-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-neutral-700 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Lag invitasjonslenke
+                  </button>
+                }
+              >
+                <div class="flex gap-2">
+                  <input
+                    type="text"
+                    readOnly
+                    value={inviteLink() ?? ""}
+                    onFocus={(e) => e.currentTarget.select()}
+                    class="min-w-0 flex-1 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-neutral-900 outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleCopyInvite}
+                    class="shrink-0 rounded-lg bg-neutral-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-neutral-700"
+                  >
+                    {inviteCopied() ? "Kopiert!" : "Kopier"}
+                  </button>
+                </div>
+                <div class="mt-2 flex gap-4 text-sm">
+                  <button
+                    type="button"
+                    disabled={editorBusy()}
+                    onClick={handleGenerateInvite}
+                    class="text-neutral-500 transition hover:text-neutral-900 disabled:opacity-50"
+                  >
+                    Lag ny lenke
+                  </button>
+                  <button
+                    type="button"
+                    disabled={editorBusy()}
+                    onClick={handleRevokeInvite}
+                    class="text-neutral-500 transition hover:text-red-600 disabled:opacity-50"
+                  >
+                    Deaktiver lenke
+                  </button>
+                </div>
+                <p class="mt-2 text-xs text-neutral-400">
+                  Alle med lenken kan bli medeier. Lag en ny lenke for å gjøre delte lenker
+                  ugyldige.
+                </p>
+              </Show>
 
               <Show when={editorError()}>
                 <p class="mt-2 text-sm text-red-600">{editorError()}</p>

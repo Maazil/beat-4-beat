@@ -1,18 +1,28 @@
-import { useNavigate } from "@solidjs/router";
+import { useNavigate, useSearchParams } from "@solidjs/router";
 import { Component, createEffect, createSignal, Show } from "solid-js";
 import { useAuth } from "../../context/AuthContext";
 
 const Login: Component = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const auth = useAuth();
   const [error, setError] = createSignal("");
   const [loading, setLoading] = createSignal(false);
+
+  // Only allow in-app paths as redirect targets
+  const redirectTarget = () => {
+    const target = searchParams.redirect;
+    // "//host" is a protocol-relative external URL — reject it
+    return typeof target === "string" && target.startsWith("/") && !target.startsWith("//")
+      ? target
+      : "/dashboard";
+  };
 
   createEffect(() => {
     if (auth.state.isLoading) return;
 
     if (auth.isAuthenticated()) {
-      navigate("/dashboard", { replace: true });
+      navigate(redirectTarget(), { replace: true });
     }
   });
 
@@ -21,7 +31,7 @@ const Login: Component = () => {
     setLoading(true);
     try {
       await auth.signInWithGoogle();
-      navigate("/dashboard");
+      navigate(redirectTarget());
     } catch (err: any) {
       setError(err?.message || "Kunne ikke logge inn med Google");
     } finally {
