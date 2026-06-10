@@ -18,7 +18,7 @@ interface NowPlayingBarProps {
 
 const NowPlayingBar: Component<NowPlayingBarProps> = (props) => {
   return (
-    <div class="fixed right-0 bottom-0 left-0 z-50 border-t border-line bg-paper shadow-[0_-12px_30px_-20px_rgba(26,20,24,0.3)]">
+    <div class="fixed right-0 bottom-0 left-0 z-50 border-t-2 border-ink bg-paper">
       {/* Progress / seek bar */}
       <Show when={props.durationMs > 0}>
         <SeekBar
@@ -77,10 +77,10 @@ const NowPlayingBar: Component<NowPlayingBarProps> = (props) => {
         <button
           type="button"
           onClick={() => props.onToggleTrackInfo()}
-          class={`flex items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-semibold transition ${
+          class={`flex items-center gap-1.5 rounded-full border-2 px-4 py-1.5 text-sm font-bold transition ${
             props.showTrackInfo
               ? "border-beat/30 bg-beat-soft text-beat-deep"
-              : "border-line text-muted hover:border-beat hover:text-beat"
+              : "border-ink text-ink shadow-[2px_2px_0_var(--color-ink)] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[3px_3px_0_var(--color-ink)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
           }`}
         >
           <Show
@@ -133,7 +133,7 @@ const NowPlayingBar: Component<NowPlayingBarProps> = (props) => {
         <button
           type="button"
           onClick={() => (props.isPlaying ? props.onPause() : props.onResume())}
-          class="flex h-10 w-10 items-center justify-center rounded-full bg-beat text-white shadow-[0_8px_20px_-8px_rgba(232,38,74,0.6)] transition hover:bg-beat-deep"
+          class="flex h-10 w-10 items-center justify-center rounded-full bg-beat text-white shadow-[2px_2px_0_var(--color-beat-deep)] transition hover:bg-beat-deep active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
         >
           <Show
             when={props.isPlaying}

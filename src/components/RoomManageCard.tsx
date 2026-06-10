@@ -36,18 +36,20 @@ const RoomManageCard: Component<RoomManageCardProps> = (props) => {
   };
 
   return (
-    <article class="rounded-2xl border border-line bg-paper p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+    <article class="rounded-2xl border-2 border-line bg-paper p-5 transition hover:-translate-x-0.5 hover:-translate-y-0.5 hover:border-ink hover:shadow-[4px_4px_0_var(--color-ink)]">
       {/* Header */}
       <div class="mb-3 flex items-start justify-between">
         <div class="flex min-w-0 flex-wrap items-center gap-2">
           <h3 class="font-display text-lg font-bold text-ink">{props.room.roomName}</h3>
           <Show when={!isHost()}>
-            <span class="rounded-full border border-line bg-cream px-2.5 py-0.5 text-xs font-medium text-muted">
+            <span class="rounded-full border border-line bg-cream px-2.5 py-0.5 font-mono text-[10px] font-bold tracking-wide text-muted uppercase">
               Co-owner
             </span>
           </Show>
         </div>
-        <span class={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${statusBadge()}`}>
+        <span
+          class={`rounded-full px-2.5 py-0.5 font-mono text-[10px] font-bold tracking-wide uppercase ${statusBadge()}`}
+        >
           {statusLabel()}
         </span>
       </div>
@@ -92,7 +94,7 @@ const RoomManageCard: Component<RoomManageCardProps> = (props) => {
         <div class="flex flex-wrap gap-2">
           <button
             type="button"
-            class="flex-1 rounded-full bg-beat px-3 py-2 text-sm font-bold text-white transition hover:bg-beat-deep"
+            class="flex-1 rounded-full bg-beat px-3 py-2 text-sm font-bold text-white shadow-[2px_2px_0_var(--color-beat-deep)] transition hover:bg-beat-deep active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
             onClick={() => navigate(`/rooms/${props.room.id}/play`)}
           >
             Start

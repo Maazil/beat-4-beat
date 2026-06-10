@@ -38,7 +38,7 @@ const App: Component = () => {
           <button
             type="button"
             onClick={() => navigate("/login")}
-            class="animate-rise-in rounded-full border border-line bg-paper px-5 py-2 text-sm font-semibold text-ink transition hover:border-beat hover:text-beat"
+            class="animate-rise-in rounded-full border-2 border-line bg-paper px-5 py-2 text-sm font-semibold text-ink transition hover:-translate-x-0.5 hover:-translate-y-0.5 hover:border-ink hover:shadow-[3px_3px_0_var(--color-ink)] active:translate-x-0 active:translate-y-0 active:shadow-none"
             style={{ "animation-delay": "80ms" }}
           >
             Sign in
@@ -60,7 +60,9 @@ const App: Component = () => {
           >
             Guess the track.
             <br />
-            <span class="text-beat">Beat the room.</span>
+            <span class="mt-3 inline-block -rotate-1 bg-beat px-4 pb-2 text-white shadow-[6px_6px_0_var(--color-ink)]">
+              Beat the room.
+            </span>
           </h1>
 
           <p
@@ -78,7 +80,7 @@ const App: Component = () => {
             <button
               type="button"
               onClick={() => navigate("/login")}
-              class="group inline-flex items-center gap-3 rounded-full bg-beat px-8 py-3.5 text-base font-bold text-white shadow-[0_12px_30px_-10px_rgba(232,38,74,0.55)] transition duration-300 hover:bg-beat-deep focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-beat"
+              class="group inline-flex items-center gap-3 rounded-full bg-beat px-8 py-3.5 text-base font-bold text-white shadow-[4px_4px_0_var(--color-ink)] transition duration-200 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:bg-beat-deep hover:shadow-[5px_5px_0_var(--color-ink)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-beat"
             >
               <span>Start playing</span>
               <span class="flex h-6 w-6 items-center justify-center rounded-full bg-white/20 transition duration-300 group-hover:translate-x-0.5">
@@ -102,7 +104,7 @@ const App: Component = () => {
             <button
               type="button"
               onClick={() => navigate("/market")}
-              class="rounded-full border border-line bg-paper px-7 py-3.5 text-base font-semibold text-ink transition hover:border-beat hover:text-beat"
+              class="rounded-full border-2 border-ink bg-paper px-7 py-3 text-base font-semibold text-ink shadow-[4px_4px_0_var(--color-ink)] transition duration-200 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[5px_5px_0_var(--color-ink)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
             >
               Explore public rooms
             </button>
