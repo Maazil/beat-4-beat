@@ -67,7 +67,7 @@ const CreateRoom: Component = () => {
       setInviteToken(await generateRoomInvite(roomId));
       setInviteCopied(false);
     } catch (err) {
-      setEditorError(err instanceof Error ? err.message : "Kunne ikke lage invitasjonslenke");
+      setEditorError(err instanceof Error ? err.message : "Could not create the invite link");
     } finally {
       setEditorBusy(false);
     }
@@ -84,7 +84,7 @@ const CreateRoom: Component = () => {
       setInviteToken(null);
       setInviteCopied(false);
     } catch (err) {
-      setEditorError(err instanceof Error ? err.message : "Kunne ikke deaktivere lenken");
+      setEditorError(err instanceof Error ? err.message : "Could not disable the link");
     } finally {
       setEditorBusy(false);
     }
@@ -98,7 +98,7 @@ const CreateRoom: Component = () => {
       await navigator.clipboard.writeText(link);
       setInviteCopied(true);
     } catch {
-      setEditorError("Kunne ikke kopiere lenken — merk teksten og kopier manuelt");
+      setEditorError("Could not copy the link — select the text and copy it manually");
     }
   };
 
@@ -112,7 +112,7 @@ const CreateRoom: Component = () => {
       await removeRoomEditor(roomId, uid);
       setEditors(editors().filter((e) => e.uid !== uid));
     } catch (err) {
-      setEditorError(err instanceof Error ? err.message : "Kunne ikke fjerne medeier");
+      setEditorError(err instanceof Error ? err.message : "Could not remove the co-owner");
     } finally {
       setEditorBusy(false);
     }
@@ -163,7 +163,7 @@ const CreateRoom: Component = () => {
     try {
       const tracks = await getOwnPlaylistTracks(playlist.id);
       if (tracks.length === 0) {
-        alert("Spillelisten har ingen spor.");
+        alert("The playlist has no tracks.");
         return;
       }
 
@@ -211,7 +211,7 @@ const CreateRoom: Component = () => {
 
           cats.push({
             id: crypto.randomUUID(),
-            name: `Runde ${cats.length + 1}`,
+            name: `Round ${cats.length + 1}`,
             items,
           });
         }
@@ -230,7 +230,7 @@ const CreateRoom: Component = () => {
       setImportMode(null);
     } catch (err) {
       console.error("Failed to import playlist:", err);
-      alert("Kunne ikke importere spillelisten. Prøv igjen.");
+      alert("Could not import the playlist. Please try again.");
     } finally {
       setImportLoading(false);
     }
@@ -250,14 +250,14 @@ const CreateRoom: Component = () => {
     try {
       const room = await getRoom(roomId);
       if (!room) {
-        alert("Rommet ble ikke funnet.");
+        alert("Room not found.");
         navigate("/dashboard");
         return;
       }
 
       // Only the host or a co-owner may edit this room
       if (!canEditRoom(room)) {
-        alert("Du har ikke tilgang til å redigere dette rommet.");
+        alert("You don't have permission to edit this room.");
         navigate("/dashboard");
         return;
       }
@@ -281,7 +281,7 @@ const CreateRoom: Component = () => {
       }
     } catch (err) {
       console.error("Failed to load room for editing:", err);
-      alert("Kunne ikke laste rommet. Prøv igjen.");
+      alert("Could not load the room. Please try again.");
       navigate("/dashboard");
     } finally {
       setIsLoadingRoom(false);
@@ -305,7 +305,7 @@ const CreateRoom: Component = () => {
 
     const newCategory: Category = {
       id: `cat-${Date.now()}`,
-      name: "Ny kategori",
+      name: "New category",
       items: [
         {
           id: `item-${Date.now()}`,
@@ -406,18 +406,18 @@ const CreateRoom: Component = () => {
     const name = roomName().trim();
 
     if (!name) {
-      alert("Vennligst skriv inn et romnavn");
+      alert("Please enter a room name");
       return;
     }
 
     if (categories().length === 0) {
-      alert("Legg til minst én kategori");
+      alert("Add at least one category");
       return;
     }
 
     const hasEmptyCategories = categories().some((c) => c.items.length === 0);
     if (hasEmptyCategories) {
-      alert("Alle kategorier må ha minst én sang");
+      alert("Every category needs at least one song");
       return;
     }
 
@@ -425,7 +425,7 @@ const CreateRoom: Component = () => {
     const emptyCount = countEmptySongUrls();
     if (emptyCount > 0) {
       const confirmed = confirm(
-        `Du har ${emptyCount} sang${emptyCount > 1 ? "er" : ""} uten URL. Vil du fortsette uten å legge til URL-er?`,
+        `You have ${emptyCount} song${emptyCount > 1 ? "s" : ""} without a URL. Continue without adding URLs?`,
       );
       if (!confirmed) {
         return;
@@ -440,7 +440,7 @@ const CreateRoom: Component = () => {
         // Edit mode — update existing room
         await updateRoomInFirestore(roomId, {
           roomName: name,
-          hostName: auth.djName() || auth.state.user?.displayName || "Anonym",
+          hostName: auth.djName() || auth.state.user?.displayName || "Anonymous",
           categories: categories(),
           isPublic: isPublic(),
         });
@@ -448,7 +448,7 @@ const CreateRoom: Component = () => {
         // Create mode — create new room
         await createRoomInFirestore({
           roomName: name,
-          hostName: auth.djName() || auth.state.user?.displayName || "Anonym",
+          hostName: auth.djName() || auth.state.user?.displayName || "Anonymous",
           categories: categories(),
           isPublic: isPublic(),
           isActive: true,
@@ -460,8 +460,8 @@ const CreateRoom: Component = () => {
       console.error(`Failed to ${isEditMode() ? "update" : "create"} room:`, error);
       alert(
         isEditMode()
-          ? "Kunne ikke oppdatere rommet. Prøv igjen."
-          : "Kunne ikke opprette rom. Prøv igjen.",
+          ? "Could not update the room. Please try again."
+          : "Could not create the room. Please try again.",
       );
     } finally {
       setIsSubmitting(false);
@@ -472,19 +472,19 @@ const CreateRoom: Component = () => {
     <Show
       when={!isLoadingRoom()}
       fallback={
-        <div class="flex min-h-screen items-center justify-center bg-[#f4f6f8]">
-          <div class="h-8 w-8 animate-spin rounded-full border-4 border-neutral-300 border-t-neutral-900" />
+        <div class="bg-stage flex min-h-screen items-center justify-center">
+          <div class="h-8 w-8 animate-spin rounded-full border-4 border-line border-t-beat" />
         </div>
       }
     >
-      <div class="min-h-screen bg-[#f4f6f8] p-6">
+      <div class="bg-stage min-h-screen p-6">
         <div class="mx-auto max-w-7xl">
           {/* Header */}
           <div class="mb-6 flex items-center justify-between">
             <button
               type="button"
               onClick={() => navigate("/dashboard")}
-              class="flex items-center gap-2 text-neutral-600 transition hover:text-neutral-900"
+              class="flex items-center gap-2 text-muted transition hover:text-beat"
             >
               <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
@@ -494,7 +494,7 @@ const CreateRoom: Component = () => {
                   d="M10 19l-7-7m0 0l7-7m-7 7h18"
                 />
               </svg>
-              <span class="font-medium">Tilbake</span>
+              <span class="font-medium">Back</span>
             </button>
 
             <div class="flex items-center gap-3">
@@ -502,8 +502,10 @@ const CreateRoom: Component = () => {
               <button
                 type="button"
                 onClick={() => setIsPublic(!isPublic())}
-                class={`flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition ${
-                  isPublic() ? "bg-green-100 text-green-700" : "bg-neutral-200 text-neutral-600"
+                class={`flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition ${
+                  isPublic()
+                    ? "border-beat/30 bg-beat-soft text-beat-deep"
+                    : "border-line bg-sand text-muted"
                 }`}
               >
                 <Show
@@ -528,7 +530,7 @@ const CreateRoom: Component = () => {
                     />
                   </svg>
                 </Show>
-                {isPublic() ? "Offentlig rom" : "Privat rom"}
+                {isPublic() ? "Public room" : "Private room"}
               </button>
 
               {/* Submit button */}
@@ -536,15 +538,15 @@ const CreateRoom: Component = () => {
                 type="button"
                 onClick={handleSubmit}
                 disabled={isSubmitting() || !canCreateRoom()}
-                class="rounded-lg bg-neutral-900 px-6 py-2 font-semibold text-white transition hover:bg-neutral-700 disabled:cursor-not-allowed disabled:opacity-50"
+                class="rounded-full bg-beat px-6 py-2 font-bold text-white shadow-[0_10px_24px_-10px_rgba(232,38,74,0.55)] transition hover:bg-beat-deep disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {isSubmitting()
                   ? isEditMode()
-                    ? "Lagrer..."
-                    : "Oppretter..."
+                    ? "Saving…"
+                    : "Creating…"
                   : isEditMode()
-                    ? "Lagre endringer"
-                    : "Opprett rom"}
+                    ? "Save changes"
+                    : "Create room"}
               </button>
             </div>
           </div>
@@ -555,14 +557,14 @@ const CreateRoom: Component = () => {
               type="text"
               value={roomName()}
               onInput={(e) => setRoomName(e.currentTarget.value)}
-              placeholder="Skriv inn romnavn..."
-              class="w-full max-w-md border-b-2 border-neutral-300 bg-transparent pb-2 text-3xl font-bold text-neutral-900 placeholder-neutral-400 outline-none focus:border-blue-500"
+              placeholder="Enter a room name…"
+              class="font-display w-full max-w-md border-b-2 border-line bg-transparent pb-2 text-3xl font-bold text-ink placeholder-muted/50 outline-none focus:border-beat"
             />
-            <p class="mt-2 text-neutral-500">
-              Klikk på + for å legge til kategorier og sanger
+            <p class="mt-2 text-muted">
+              Click + to add categories and songs
               <Show when={categories().length > 0}>
-                <span class="ml-2 text-neutral-400">
-                  ({categories().length}/{MAX_CATEGORIES} kategorier)
+                <span class="ml-2 font-mono text-sm text-muted/70">
+                  ({categories().length}/{MAX_CATEGORIES} categories)
                 </span>
               </Show>
             </p>
@@ -570,30 +572,30 @@ const CreateRoom: Component = () => {
 
           {/* Co-owners (medeiere) — host only, edit mode */}
           <Show when={isEditMode() && isHost()}>
-            <div class="mb-8 max-w-md rounded-xl border border-neutral-200 bg-white p-4 shadow-sm">
-              <h3 class="mb-1 font-semibold text-neutral-900">Medeiere</h3>
-              <p class="mb-3 text-sm text-neutral-500">
-                Medeiere kan redigere rommet, men ikke slette det eller endre medeier-listen.
+            <div class="mb-8 max-w-md rounded-2xl border border-line bg-paper p-4 shadow-sm">
+              <h3 class="font-display mb-1 font-bold text-ink">Co-owners</h3>
+              <p class="mb-3 text-sm text-muted">
+                Co-owners can edit the room, but not delete it or change the co-owner list.
               </p>
 
               {/* Existing co-owners */}
               <Show
                 when={editors().length > 0}
-                fallback={<p class="mb-3 text-sm text-neutral-400">Ingen medeiere ennå.</p>}
+                fallback={<p class="mb-3 text-sm text-muted/70">No co-owners yet.</p>}
               >
                 <ul class="mb-3 space-y-1">
                   <For each={editors()}>
                     {(editor) => (
-                      <li class="flex items-center justify-between rounded-lg bg-neutral-50 px-3 py-2 text-sm">
-                        <span class="min-w-0 truncate text-neutral-700">
+                      <li class="flex items-center justify-between rounded-xl bg-cream px-3 py-2 text-sm">
+                        <span class="min-w-0 truncate text-ink">
                           {editor.displayName || editor.email || editor.uid}
                         </span>
                         <button
                           type="button"
                           disabled={editorBusy()}
                           onClick={() => handleRemoveEditor(editor.uid)}
-                          class="ml-3 shrink-0 text-neutral-400 transition hover:text-red-600 disabled:opacity-50"
-                          title="Fjern medeier"
+                          class="ml-3 shrink-0 text-muted transition hover:text-beat disabled:opacity-50"
+                          title="Remove co-owner"
                         >
                           ✕
                         </button>
@@ -611,9 +613,9 @@ const CreateRoom: Component = () => {
                     type="button"
                     disabled={editorBusy()}
                     onClick={handleGenerateInvite}
-                    class="rounded-lg bg-neutral-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-neutral-700 disabled:cursor-not-allowed disabled:opacity-50"
+                    class="rounded-full bg-beat px-4 py-2 text-sm font-bold text-white transition hover:bg-beat-deep disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    Lag invitasjonslenke
+                    Create invite link
                   </button>
                 }
               >
@@ -623,14 +625,14 @@ const CreateRoom: Component = () => {
                     readOnly
                     value={inviteLink() ?? ""}
                     onFocus={(e) => e.currentTarget.select()}
-                    class="min-w-0 flex-1 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-neutral-900 outline-none"
+                    class="min-w-0 flex-1 rounded-xl border border-line bg-cream px-3 py-2 font-mono text-sm text-ink outline-none"
                   />
                   <button
                     type="button"
                     onClick={handleCopyInvite}
-                    class="shrink-0 rounded-lg bg-neutral-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-neutral-700"
+                    class="shrink-0 rounded-full bg-beat px-4 py-2 text-sm font-bold text-white transition hover:bg-beat-deep"
                   >
-                    {inviteCopied() ? "Kopiert!" : "Kopier"}
+                    {inviteCopied() ? "Copied!" : "Copy"}
                   </button>
                 </div>
                 <div class="mt-2 flex gap-4 text-sm">
@@ -638,27 +640,27 @@ const CreateRoom: Component = () => {
                     type="button"
                     disabled={editorBusy()}
                     onClick={handleGenerateInvite}
-                    class="text-neutral-500 transition hover:text-neutral-900 disabled:opacity-50"
+                    class="text-muted transition hover:text-ink disabled:opacity-50"
                   >
-                    Lag ny lenke
+                    Create new link
                   </button>
                   <button
                     type="button"
                     disabled={editorBusy()}
                     onClick={handleRevokeInvite}
-                    class="text-neutral-500 transition hover:text-red-600 disabled:opacity-50"
+                    class="text-muted transition hover:text-beat disabled:opacity-50"
                   >
-                    Deaktiver lenke
+                    Disable link
                   </button>
                 </div>
-                <p class="mt-2 text-xs text-neutral-400">
-                  Alle med lenken kan bli medeier. Lag en ny lenke for å gjøre delte lenker
-                  ugyldige.
+                <p class="mt-2 text-xs text-muted/70">
+                  Anyone with the link can become a co-owner. Create a new link to invalidate shared
+                  ones.
                 </p>
               </Show>
 
               <Show when={editorError()}>
-                <p class="mt-2 text-sm text-red-600">{editorError()}</p>
+                <p class="mt-2 text-sm text-beat-deep">{editorError()}</p>
               </Show>
             </div>
           </Show>
@@ -669,10 +671,10 @@ const CreateRoom: Component = () => {
               <Show
                 when={!showPlaylistPicker()}
                 fallback={
-                  <div class="rounded-xl border border-neutral-200 bg-white p-4 shadow-sm">
+                  <div class="rounded-2xl border border-line bg-paper p-4 shadow-sm">
                     {/* Header with close */}
                     <div class="mb-3 flex items-center justify-between">
-                      <h3 class="font-semibold text-neutral-900">Velg spilleliste</h3>
+                      <h3 class="font-display font-bold text-ink">Choose a playlist</h3>
                       <button
                         type="button"
                         onClick={() => {
@@ -680,9 +682,9 @@ const CreateRoom: Component = () => {
                           setSelectedPlaylist(null);
                           setImportMode(null);
                         }}
-                        class="text-sm text-neutral-500 hover:text-neutral-700"
+                        class="text-sm text-muted hover:text-ink"
                       >
-                        Lukk
+                        Close
                       </button>
                     </div>
 
@@ -691,14 +693,14 @@ const CreateRoom: Component = () => {
                       type="text"
                       value={playlistSearch()}
                       onInput={(e) => setPlaylistSearch(e.currentTarget.value)}
-                      placeholder="Søk i spillelister..."
-                      class="mb-3 w-full rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-neutral-900 outline-none focus:border-blue-400"
+                      placeholder="Search playlists…"
+                      class="mb-3 w-full rounded-xl border border-line bg-cream px-3 py-2 text-sm text-ink outline-none focus:border-beat"
                     />
 
                     {/* Loading */}
                     <Show when={playlistsLoading()}>
                       <div class="flex justify-center py-8">
-                        <div class="h-6 w-6 animate-spin rounded-full border-2 border-neutral-300 border-t-neutral-700" />
+                        <div class="h-6 w-6 animate-spin rounded-full border-2 border-line border-t-beat" />
                       </div>
                     </Show>
 
@@ -709,14 +711,14 @@ const CreateRoom: Component = () => {
                           {(playlist) => (
                             <button
                               type="button"
-                              class={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition ${
+                              class={`flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left transition ${
                                 selectedPlaylist()?.id === playlist.id
-                                  ? "bg-blue-50 ring-2 ring-blue-400"
-                                  : "hover:bg-neutral-50"
+                                  ? "bg-beat-soft ring-2 ring-beat"
+                                  : "hover:bg-cream"
                               }`}
                               onClick={() => handlePlaylistSelect(playlist)}
                             >
-                              <div class="h-10 w-10 shrink-0 overflow-hidden rounded bg-neutral-200">
+                              <div class="h-10 w-10 shrink-0 overflow-hidden rounded bg-sand">
                                 <Show when={playlist.images?.[0]?.url}>
                                   <img
                                     src={playlist.images[0].url}
@@ -726,11 +728,11 @@ const CreateRoom: Component = () => {
                                 </Show>
                               </div>
                               <div class="min-w-0 flex-1">
-                                <p class="truncate text-sm font-medium text-neutral-900">
+                                <p class="truncate text-sm font-semibold text-ink">
                                   {playlist.name}
                                 </p>
-                                <p class="text-xs text-neutral-500">
-                                  {playlist.items?.total ?? "?"} spor
+                                <p class="text-xs text-muted">
+                                  {playlist.items?.total ?? "?"} tracks
                                 </p>
                               </div>
                             </button>
@@ -738,51 +740,49 @@ const CreateRoom: Component = () => {
                         </For>
 
                         <Show when={filteredPlaylists().length === 0 && !playlistsLoading()}>
-                          <p class="py-4 text-center text-sm text-neutral-500">
-                            Ingen spillelister funnet
-                          </p>
+                          <p class="py-4 text-center text-sm text-muted">No playlists found</p>
                         </Show>
                       </div>
 
                       {/* Mode picker — shown when a playlist is selected */}
                       <Show when={selectedPlaylist()}>
-                        <div class="mt-4 border-t border-neutral-100 pt-4">
-                          <p class="mb-3 text-sm font-medium text-neutral-700">
-                            Hvordan vil du importere «{selectedPlaylist()!.name}»?
+                        <div class="mt-4 border-t border-line pt-4">
+                          <p class="mb-3 text-sm font-semibold text-ink">
+                            How do you want to import "{selectedPlaylist()!.name}"?
                           </p>
                           <div class="flex gap-3">
                             <button
                               type="button"
                               disabled={importLoading()}
                               onClick={() => handleImport("single")}
-                              class="flex-1 rounded-lg border border-neutral-200 px-4 py-3 text-sm font-medium text-neutral-700 transition hover:border-blue-400 hover:bg-blue-50 disabled:opacity-50"
+                              class="flex-1 rounded-xl border border-line px-4 py-3 text-sm font-semibold text-ink transition hover:border-beat hover:bg-beat-soft/40 disabled:opacity-50"
                             >
                               <Show
                                 when={!(importLoading() && importMode() === "single")}
                                 fallback={
                                   <div class="flex justify-center">
-                                    <div class="h-4 w-4 animate-spin rounded-full border-2 border-neutral-300 border-t-neutral-700" />
+                                    <div class="h-4 w-4 animate-spin rounded-full border-2 border-line border-t-beat" />
                                   </div>
                                 }
                               >
-                                Alle i én kategori
+                                All in one category
                               </Show>
                             </button>
                             <button
                               type="button"
                               disabled={importLoading()}
                               onClick={() => handleImport("genres")}
-                              class="flex-1 rounded-lg border border-neutral-200 px-4 py-3 text-sm font-medium text-neutral-700 transition hover:border-purple-400 hover:bg-purple-50 disabled:opacity-50"
+                              class="flex-1 rounded-xl border border-line px-4 py-3 text-sm font-semibold text-ink transition hover:border-beat hover:bg-beat-soft/40 disabled:opacity-50"
                             >
                               <Show
                                 when={!(importLoading() && importMode() === "genres")}
                                 fallback={
                                   <div class="flex justify-center">
-                                    <div class="h-4 w-4 animate-spin rounded-full border-2 border-neutral-300 border-t-neutral-700" />
+                                    <div class="h-4 w-4 animate-spin rounded-full border-2 border-line border-t-beat" />
                                   </div>
                                 }
                               >
-                                Delt i kategorier
+                                Split into categories
                               </Show>
                             </button>
                           </div>
@@ -795,12 +795,12 @@ const CreateRoom: Component = () => {
                 <button
                   type="button"
                   onClick={openPlaylistPicker}
-                  class="flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-4 py-2.5 text-sm font-medium text-green-700 transition hover:bg-green-100"
+                  class="flex items-center gap-2 rounded-full border border-spotify/30 bg-spotify/10 px-4 py-2.5 text-sm font-semibold text-ink transition hover:bg-spotify/20"
                 >
-                  <svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                  <svg class="h-5 w-5 text-spotify" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z" />
                   </svg>
-                  Importer fra Spotify
+                  Import from Spotify
                 </button>
               </Show>
             </div>
@@ -845,9 +845,7 @@ const CreateRoom: Component = () => {
           {/* Help text */}
           <Show when={categories().length === 0}>
             <div class="mt-12 text-center">
-              <p class="text-lg text-neutral-500">
-                Klikk på "Legg til kategori" for å begynne å bygge ditt spillbrett
-              </p>
+              <p class="text-lg text-muted">Click "Add category" to start building your board</p>
             </div>
           </Show>
         </div>

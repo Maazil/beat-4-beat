@@ -4,7 +4,7 @@ import ProtectedRoute from "../../components/ProtectedRoute";
 const MarketWrapper: ParentComponent = (props) => {
   return (
     <ProtectedRoute>
-      <div class="bg-ambient min-h-screen text-neutral-100">{props.children}</div>
+      <div class="bg-stage min-h-screen text-ink">{props.children}</div>
     </ProtectedRoute>
   );
 };

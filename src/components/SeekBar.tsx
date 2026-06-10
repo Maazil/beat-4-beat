@@ -27,23 +27,25 @@ const SeekBar: Component<SeekBarProps> = (props) => {
 
   return (
     <div class="flex items-center gap-2 px-6 pt-3">
-      <span class="w-10 text-right text-xs tabular-nums text-neutral-500">
+      <span class="w-10 text-right font-mono text-xs tabular-nums text-muted">
         {formatTime(props.positionMs)}
       </span>
       <div
-        class="group relative h-1.5 flex-1 cursor-pointer rounded-full bg-neutral-200"
+        class="group relative h-1.5 flex-1 cursor-pointer rounded-full bg-sand"
         onClick={handleClick}
       >
         <div
-          class="absolute top-0 left-0 h-full rounded-full bg-neutral-900 transition-[width] duration-200"
+          class="absolute top-0 left-0 h-full rounded-full bg-beat transition-[width] duration-200"
           style={{ width: `${progressPct()}%` }}
         />
         <div
-          class="absolute top-1/2 h-3 w-3 -translate-y-1/2 rounded-full bg-neutral-900 opacity-0 shadow transition group-hover:opacity-100"
+          class="absolute top-1/2 h-3 w-3 -translate-y-1/2 rounded-full bg-beat opacity-0 shadow transition group-hover:opacity-100"
           style={{ left: `${progressPct()}%` }}
         />
       </div>
-      <span class="w-10 text-xs tabular-nums text-neutral-500">{formatTime(props.durationMs)}</span>
+      <span class="w-10 font-mono text-xs tabular-nums text-muted">
+        {formatTime(props.durationMs)}
+      </span>
     </div>
   );
 };

@@ -302,16 +302,16 @@ async function requireHostedRoom(roomId: string): Promise<Room> {
   const user = auth.currentUser;
 
   if (!user) {
-    throw new Error("Du må være logget inn for å administrere medeiere");
+    throw new Error("You must be signed in to manage co-owners");
   }
 
   const room = await getRoom(roomId);
   if (!room) {
-    throw new Error("Fant ikke rommet");
+    throw new Error("Room not found");
   }
 
   if (room.hostId !== user.uid) {
-    throw new Error("Kun verten kan administrere medeiere");
+    throw new Error("Only the host can manage co-owners");
   }
 
   return room;
@@ -366,7 +366,7 @@ export async function acceptRoomInvite(roomId: string, token: string): Promise<v
   const user = auth.currentUser;
 
   if (!user) {
-    throw new Error("Du må være logget inn for å godta en invitasjon");
+    throw new Error("You must be signed in to accept an invite");
   }
 
   // If the user can already edit the room (host or existing co-owner),
@@ -387,7 +387,7 @@ export async function acceptRoomInvite(roomId: string, token: string): Promise<v
     await updateDoc(roomDoc(roomId), { editorIds: arrayUnion(user.uid) });
   } catch (err) {
     if (err instanceof FirebaseError && err.code === "permission-denied") {
-      throw new Error("Invitasjonslenken er ugyldig eller har blitt deaktivert");
+      throw new Error("The invite link is invalid or has been disabled");
     }
     throw err;
   }

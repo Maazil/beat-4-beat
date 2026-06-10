@@ -38,28 +38,28 @@ const ProtectedRoute: ParentComponent<ProtectedRouteProps> = (props) => {
     <Show
       when={!auth.state.isLoading}
       fallback={
-        <div class="flex min-h-screen items-center justify-center bg-[#f4f6f8]">
-          <div class="h-8 w-8 animate-spin rounded-full border-4 border-neutral-300 border-t-neutral-700" />
+        <div class="bg-stage flex min-h-screen items-center justify-center">
+          <div class="h-8 w-8 animate-spin rounded-full border-4 border-line border-t-beat" />
         </div>
       }
     >
       <Show
         when={hasAccess()}
         fallback={
-          <div class="flex min-h-screen items-center justify-center bg-[#f4f6f8]">
+          <div class="bg-stage flex min-h-screen items-center justify-center">
             <div class="text-center">
-              <h2 class="mb-4 text-2xl font-bold text-neutral-900">Tilgang nektet</h2>
-              <p class="mb-6 text-neutral-600">
+              <h2 class="font-display mb-4 text-2xl font-bold text-ink">Access denied</h2>
+              <p class="mb-6 text-muted">
                 {!auth.isAuthenticated()
-                  ? "Du må være logget inn for å se denne siden."
-                  : "Kun rom-verten har tilgang til denne siden."}
+                  ? "You need to be signed in to view this page."
+                  : "Only the room host can access this page."}
               </p>
               <button
                 type="button"
                 onClick={() => navigate(auth.isAuthenticated() ? "/" : "/login")}
-                class="rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700"
+                class="rounded-full bg-beat px-6 py-3 font-bold text-white transition hover:bg-beat-deep"
               >
-                Gå til forsiden
+                Go to the front page
               </button>
             </div>
           </div>

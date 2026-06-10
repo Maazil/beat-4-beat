@@ -11,7 +11,7 @@ const Rooms: Component = () => {
       <button
         type="button"
         onClick={() => navigate("/dashboard")}
-        class="mb-6 flex items-center gap-2 text-neutral-600 transition hover:cursor-pointer hover:text-neutral-900"
+        class="mb-6 flex items-center gap-2 text-muted transition hover:cursor-pointer hover:text-beat"
       >
         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
@@ -21,13 +21,13 @@ const Rooms: Component = () => {
             d="M10 19l-7-7m0 0l7-7m-7 7h18"
           />
         </svg>
-        <span class="font-medium">Tilbake til Dashboard</span>
+        <span class="font-medium">Back to dashboard</span>
       </button>
 
-      <h1 class="mb-8 text-3xl font-semibold text-neutral-900">Alle rom</h1>
+      <h1 class="font-display mb-8 text-3xl font-bold tracking-tight text-ink">All rooms</h1>
 
       <Show when={error()}>
-        <div class="mb-4 rounded-lg border border-red-200 bg-red-50 p-4 text-red-700">
+        <div class="mb-4 rounded-xl border border-beat/30 bg-beat-soft p-4 text-beat-deep">
           {error()}
         </div>
       </Show>
@@ -36,50 +36,48 @@ const Rooms: Component = () => {
         when={!isLoading()}
         fallback={
           <div class="flex items-center justify-center py-12">
-            <div class="h-8 w-8 animate-spin rounded-full border-4 border-neutral-300 border-t-neutral-900" />
+            <div class="h-8 w-8 animate-spin rounded-full border-4 border-line border-t-beat" />
           </div>
         }
       >
-        <div class="grid gap-6 lg:grid-cols-[repeat(auto-fit,minmax(280px,1fr))]">
+        <div class="grid gap-5 lg:grid-cols-[repeat(auto-fit,minmax(280px,1fr))]">
           <For
             each={rooms()}
             fallback={
-              <p class="col-span-full text-center text-neutral-500">
-                Ingen offentlige rom tilgjengelig ennå.
-              </p>
+              <p class="col-span-full text-center text-muted">No public rooms available yet.</p>
             }
           >
             {(room) => (
               <article
-                class="group cursor-pointer rounded-2xl border border-neutral-200 bg-white p-6 shadow-sm transition hover:border-neutral-300 hover:shadow-md"
+                class="group cursor-pointer rounded-2xl border border-line bg-paper p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-beat/40 hover:shadow-md"
                 onClick={() => navigate(`/rooms/${room.id}`)}
               >
-                <div class="mb-3 flex items-start justify-between">
-                  <h2 class="text-lg font-semibold text-neutral-900 group-hover:text-neutral-700">
+                <div class="mb-3 flex items-start justify-between gap-3">
+                  <h2 class="font-display text-lg font-bold text-ink transition group-hover:text-beat">
                     {room.roomName}
                   </h2>
                   <span
-                    class={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                    class={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold ${
                       room.isActive
-                        ? "bg-green-100 text-green-800"
-                        : "bg-neutral-100 text-neutral-600"
+                        ? "border border-beat/20 bg-beat-soft text-beat-deep"
+                        : "border border-line bg-sand text-muted"
                     }`}
                   >
-                    {room.isActive ? "Aktiv" : "Inaktiv"}
+                    {room.isActive ? "Active" : "Inactive"}
                   </span>
                 </div>
-                <div class="space-y-2 text-sm text-neutral-500">
+                <div class="space-y-1 font-mono text-xs text-muted">
                   {room.categories.length > 0 && (
                     <p>
-                      <span class="font-medium text-neutral-700">Antall kategorier:</span>{" "}
+                      <span class="font-semibold text-ink">Categories:</span>{" "}
                       {room.categories.length}
                     </p>
                   )}
 
                   {room.createdAt && (
                     <p>
-                      <span class="font-medium text-neutral-700">Opprettet:</span>{" "}
-                      {new Date(room.createdAt).toLocaleString("no-NO", {
+                      <span class="font-semibold text-ink">Created:</span>{" "}
+                      {new Date(room.createdAt).toLocaleString("en-GB", {
                         dateStyle: "short",
                         timeStyle: "short",
                       })}

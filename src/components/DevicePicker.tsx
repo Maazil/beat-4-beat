@@ -61,19 +61,17 @@ interface DevicePickerProps {
 /** Device picker shown before the game starts. */
 const DevicePicker: Component<DevicePickerProps> = (props) => {
   return (
-    <div class="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
+    <div class="rounded-2xl border border-line bg-paper p-6 shadow-sm">
       <div class="mb-4 flex items-center justify-between">
         <div>
-          <h3 class="text-lg font-semibold text-neutral-900">Velg avspillingsenhet</h3>
-          <p class="text-sm text-neutral-500">
-            Sang spilles av på valgt enhet (telefon, PC, høyttaler)
-          </p>
+          <h3 class="font-display text-lg font-bold text-ink">Choose a playback device</h3>
+          <p class="text-sm text-muted">Songs play on the selected device (phone, PC, speaker)</p>
         </div>
         <button
           type="button"
           onClick={() => props.onRefresh()}
           disabled={props.isLoading}
-          class="flex items-center gap-1.5 rounded-lg border border-neutral-200 px-3 py-1.5 text-sm text-neutral-600 transition hover:bg-neutral-50 disabled:opacity-50"
+          class="flex items-center gap-1.5 rounded-full border border-line px-3 py-1.5 text-sm text-muted transition hover:border-beat hover:text-beat disabled:opacity-50"
         >
           <svg
             class={`h-4 w-4 ${props.isLoading ? "animate-spin" : ""}`}
@@ -88,7 +86,7 @@ const DevicePicker: Component<DevicePickerProps> = (props) => {
               d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
             />
           </svg>
-          Oppdater
+          Refresh
         </button>
       </div>
 
@@ -96,16 +94,15 @@ const DevicePicker: Component<DevicePickerProps> = (props) => {
         when={!props.isLoading}
         fallback={
           <div class="flex items-center justify-center py-8">
-            <div class="h-6 w-6 animate-spin rounded-full border-2 border-neutral-300 border-t-neutral-900" />
+            <div class="h-6 w-6 animate-spin rounded-full border-2 border-line border-t-beat" />
           </div>
         }
       >
         <Show
           when={props.devices.length > 0}
           fallback={
-            <div class="rounded-lg border border-amber-200 bg-amber-50 p-4 text-center text-sm text-amber-700">
-              Ingen enheter funnet. Åpne Spotify-appen på telefonen eller datamaskinen og prøv
-              igjen.
+            <div class="rounded-xl border border-line bg-sand p-4 text-center text-sm text-ink">
+              No devices found. Open the Spotify app on your phone or computer and try again.
             </div>
           }
         >
@@ -115,22 +112,22 @@ const DevicePicker: Component<DevicePickerProps> = (props) => {
                 <button
                   type="button"
                   onClick={() => props.onSelect(device)}
-                  class={`flex items-center gap-3 rounded-lg border px-4 py-3 text-left transition hover:border-neutral-400 hover:bg-neutral-50 ${
-                    device.is_active ? "border-green-300 bg-green-50" : "border-neutral-200"
+                  class={`flex items-center gap-3 rounded-xl border px-4 py-3 text-left transition hover:border-beat hover:bg-beat-soft/40 ${
+                    device.is_active ? "border-spotify/40 bg-spotify/10" : "border-line"
                   }`}
                 >
-                  <span class={device.is_active ? "text-green-600" : "text-neutral-400"}>
+                  <span class={device.is_active ? "text-spotify" : "text-muted"}>
                     {deviceIcon(device.type)}
                   </span>
                   <div class="min-w-0 flex-1">
-                    <p class="text-sm font-medium text-neutral-900">{device.name}</p>
-                    <p class="text-xs text-neutral-500">
+                    <p class="text-sm font-semibold text-ink">{device.name}</p>
+                    <p class="text-xs text-muted">
                       {device.type}
-                      {device.is_active && <span class="ml-1.5 text-green-600">• Aktiv</span>}
+                      {device.is_active && <span class="ml-1.5 text-spotify">• Active</span>}
                     </p>
                   </div>
                   <svg
-                    class="h-4 w-4 text-neutral-400"
+                    class="h-4 w-4 text-muted"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"

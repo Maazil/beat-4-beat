@@ -138,7 +138,7 @@ const SongItemCard: Component<SongItemCardProps> = (props) => {
         {/* Song URL indicator */}
         <Show when={props.item.songUrl && !props.isEditing}>
           <div class="absolute right-1 bottom-1">
-            <svg class="h-4 w-4 text-green-500" fill="currentColor" viewBox="0 0 24 24">
+            <svg class="h-4 w-4 text-spotify" fill="currentColor" viewBox="0 0 24 24">
               <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
             </svg>
           </div>
@@ -245,14 +245,14 @@ const SongItemCard: Component<SongItemCardProps> = (props) => {
               {/* Modal card */}
               <div
                 data-modal-card
-                class="relative z-10 w-full max-w-md rounded-xl border-2 bg-white p-5 shadow-2xl"
+                class="relative z-10 w-full max-w-md rounded-xl border-2 bg-paper p-5 shadow-2xl"
                 style={{ "border-color": props.colorScheme.border }}
               >
                 {/* Close button */}
                 <button
                   type="button"
                   onClick={() => props.onBlur()}
-                  class="absolute top-3 right-3 flex h-7 w-7 items-center justify-center rounded-full text-neutral-400 transition hover:bg-neutral-100 hover:text-neutral-700"
+                  class="absolute top-3 right-3 flex h-7 w-7 items-center justify-center rounded-full text-muted transition hover:bg-sand hover:text-ink"
                 >
                   <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
@@ -278,9 +278,9 @@ const SongItemCard: Component<SongItemCardProps> = (props) => {
                     </span>
                   </div>
                   <div class="min-w-0 flex-1">
-                    <p class="text-sm font-semibold text-neutral-900">Nivå {props.item.level}</p>
+                    <p class="text-sm font-semibold text-ink">Level {props.item.level}</p>
                     <Show when={props.item.title}>
-                      <p class="truncate text-xs text-neutral-500">
+                      <p class="truncate text-xs text-muted">
                         {props.item.title}
                         {props.item.artist ? ` — ${props.item.artist}` : ""}
                       </p>
@@ -298,16 +298,16 @@ const SongItemCard: Component<SongItemCardProps> = (props) => {
                         value={localUrl()}
                         onInput={(e) => setLocalUrl(e.currentTarget.value)}
                         onKeyPress={(e) => e.key === "Enter" && handleUrlSubmit()}
-                        placeholder="Lim inn sang-URL..."
-                        class="w-full rounded-lg border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm text-neutral-900 transition outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+                        placeholder="Paste a song URL…"
+                        class="w-full rounded-xl border border-line bg-cream px-4 py-3 text-sm text-ink transition outline-none focus:border-beat focus:ring-2 focus:ring-beat/20"
                         autofocus
                       />
                       <button
                         type="button"
                         onClick={handleUrlSubmit}
-                        class="self-end rounded-lg bg-neutral-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-neutral-700"
+                        class="self-end rounded-full bg-beat px-4 py-2 text-sm font-bold text-white transition hover:bg-beat-deep"
                       >
-                        Lagre
+                        Save
                       </button>
                     </div>
                   }
@@ -317,22 +317,22 @@ const SongItemCard: Component<SongItemCardProps> = (props) => {
                       type="text"
                       value={searchQuery()}
                       onInput={(e) => handleSearchInput(e.currentTarget.value)}
-                      placeholder="Søk etter sang..."
-                      class="w-full rounded-lg border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm text-neutral-900 transition outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+                      placeholder="Search for a song…"
+                      class="w-full rounded-xl border border-line bg-cream px-4 py-3 text-sm text-ink transition outline-none focus:border-beat focus:ring-2 focus:ring-beat/20"
                       autofocus
                     />
 
                     {/* Search results */}
                     <Show when={searchResults().length > 0 || isSearching()}>
-                      <div class="max-h-64 overflow-y-auto rounded-lg border border-neutral-200 bg-white">
+                      <div class="max-h-64 overflow-y-auto rounded-xl border border-line bg-paper">
                         <Show when={isSearching()}>
-                          <div class="px-3 py-3 text-center text-xs text-neutral-400">Søker...</div>
+                          <div class="px-3 py-3 text-center text-xs text-muted">Searching…</div>
                         </Show>
                         <For each={searchResults()}>
                           {(track) => (
                             <button
                               type="button"
-                              class="flex w-full items-center gap-3 px-3 py-2.5 text-left transition hover:bg-neutral-50"
+                              class="flex w-full items-center gap-3 px-3 py-2.5 text-left transition hover:bg-cream"
                               onClick={() => handleSelectTrack(track)}
                             >
                               <Show when={track.albumArt}>
@@ -343,10 +343,8 @@ const SongItemCard: Component<SongItemCardProps> = (props) => {
                                 />
                               </Show>
                               <div class="min-w-0 flex-1">
-                                <p class="truncate text-sm font-medium text-neutral-900">
-                                  {track.name}
-                                </p>
-                                <p class="truncate text-xs text-neutral-500">{track.artist}</p>
+                                <p class="truncate text-sm font-semibold text-ink">{track.name}</p>
+                                <p class="truncate text-xs text-muted">{track.artist}</p>
                               </div>
                             </button>
                           )}

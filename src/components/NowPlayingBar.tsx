@@ -18,7 +18,7 @@ interface NowPlayingBarProps {
 
 const NowPlayingBar: Component<NowPlayingBarProps> = (props) => {
   return (
-    <div class="fixed right-0 bottom-0 left-0 z-50 border-t border-neutral-200 bg-white shadow-lg">
+    <div class="fixed right-0 bottom-0 left-0 z-50 border-t border-line bg-paper shadow-[0_-12px_30px_-20px_rgba(26,20,24,0.3)]">
       {/* Progress / seek bar */}
       <Show when={props.durationMs > 0}>
         <SeekBar
@@ -35,9 +35,9 @@ const NowPlayingBar: Component<NowPlayingBarProps> = (props) => {
             when={props.showTrackInfo && (props.trackTitle || props.trackArtist)}
             fallback={
               <div class="flex items-center gap-2">
-                <div class="flex h-10 w-10 items-center justify-center rounded bg-neutral-100">
+                <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-sand">
                   <svg
-                    class="h-5 w-5 text-neutral-400"
+                    class="h-5 w-5 text-muted"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -51,25 +51,23 @@ const NowPlayingBar: Component<NowPlayingBarProps> = (props) => {
                   </svg>
                 </div>
                 <div>
-                  <p class="text-sm font-medium text-neutral-900">Sang spilles...</p>
-                  <p class="text-xs text-neutral-500">Trykk avsløre for å vise</p>
+                  <p class="text-sm font-semibold text-ink">Song playing…</p>
+                  <p class="text-xs text-muted">Press reveal to show</p>
                 </div>
               </div>
             }
           >
             <div class="flex items-center gap-2">
-              <div class="flex h-10 w-10 items-center justify-center rounded bg-green-100">
-                <svg class="h-5 w-5 text-green-600" fill="currentColor" viewBox="0 0 24 24">
+              <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-beat-soft">
+                <svg class="h-5 w-5 text-beat" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2z" />
                 </svg>
               </div>
               <div>
-                <p class="truncate text-sm font-medium text-neutral-900">
-                  {props.trackTitle || "Ukjent sang"}
+                <p class="truncate text-sm font-semibold text-ink">
+                  {props.trackTitle || "Unknown song"}
                 </p>
-                <p class="truncate text-xs text-neutral-500">
-                  {props.trackArtist || "Ukjent artist"}
-                </p>
+                <p class="truncate text-xs text-muted">{props.trackArtist || "Unknown artist"}</p>
               </div>
             </div>
           </Show>
@@ -79,10 +77,10 @@ const NowPlayingBar: Component<NowPlayingBarProps> = (props) => {
         <button
           type="button"
           onClick={() => props.onToggleTrackInfo()}
-          class={`flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm font-medium transition ${
+          class={`flex items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-semibold transition ${
             props.showTrackInfo
-              ? "border-green-300 bg-green-50 text-green-700"
-              : "border-neutral-200 text-neutral-600 hover:bg-neutral-50"
+              ? "border-beat/30 bg-beat-soft text-beat-deep"
+              : "border-line text-muted hover:border-beat hover:text-beat"
           }`}
         >
           <Show
@@ -113,14 +111,14 @@ const NowPlayingBar: Component<NowPlayingBarProps> = (props) => {
               />
             </svg>
           </Show>
-          {props.showTrackInfo ? "Skjul" : "Avsløre"}
+          {props.showTrackInfo ? "Hide" : "Reveal"}
         </button>
 
         {/* Skip back 10s */}
         <button
           type="button"
           onClick={() => props.onSkipBackward()}
-          class="flex h-8 w-8 items-center justify-center rounded-full text-neutral-600 transition hover:bg-neutral-100 hover:text-neutral-900"
+          class="flex h-8 w-8 items-center justify-center rounded-full text-muted transition hover:bg-sand hover:text-ink"
           title="-10s"
         >
           <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
@@ -135,7 +133,7 @@ const NowPlayingBar: Component<NowPlayingBarProps> = (props) => {
         <button
           type="button"
           onClick={() => (props.isPlaying ? props.onPause() : props.onResume())}
-          class="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-900 text-white transition hover:bg-neutral-700"
+          class="flex h-10 w-10 items-center justify-center rounded-full bg-beat text-white shadow-[0_8px_20px_-8px_rgba(232,38,74,0.6)] transition hover:bg-beat-deep"
         >
           <Show
             when={props.isPlaying}
@@ -155,7 +153,7 @@ const NowPlayingBar: Component<NowPlayingBarProps> = (props) => {
         <button
           type="button"
           onClick={() => props.onSkipForward()}
-          class="flex h-8 w-8 items-center justify-center rounded-full text-neutral-600 transition hover:bg-neutral-100 hover:text-neutral-900"
+          class="flex h-8 w-8 items-center justify-center rounded-full text-muted transition hover:bg-sand hover:text-ink"
           title="+10s"
         >
           <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
