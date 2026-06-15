@@ -7,11 +7,12 @@
 //   4. Exchange the code + verifier for an access_token & refresh_token.
 //   5. On expiry, silently refresh using the refresh_token (no user prompt).
 //
-// Tokens are persisted in sessionStorage so the Spotify connection
-// survives page reloads within the same browser tab/session.
-// The PKCE verifier is also stored in sessionStorage for the brief
-// redirect round-trip — it is deleted immediately after use.
+// Tokens are persisted in localStorage so the Spotify connection
+// survives reloads, new tabs, and browser restarts (until logout or
+// refresh-token revocation). The PKCE verifier is kept in sessionStorage
+// for the brief same-tab redirect round-trip and deleted right after use.
 
+import { createSignal } from "solid-js";
 import {
   SPOTIFY_AUTH_URL,
   SPOTIFY_CLIENT_ID,
@@ -20,19 +21,24 @@ import {
   SPOTIFY_TOKEN_URL,
 } from "./spotify.config";
 
-// ── Token store (sessionStorage-backed) ───────────────────────────────
+// ── Token store (localStorage-backed) ─────────────────────────────────
 
 const SK_ACCESS = "spotify_access_token";
 const SK_REFRESH = "spotify_refresh_token";
 const SK_EXPIRES = "spotify_token_expires_at";
 
-let accessToken: string | null = sessionStorage.getItem(SK_ACCESS);
-let refreshToken: string | null = sessionStorage.getItem(SK_REFRESH);
-let tokenExpiresAt = Number(sessionStorage.getItem(SK_EXPIRES)) || 0;
+let accessToken: string | null = localStorage.getItem(SK_ACCESS);
+let refreshToken: string | null = localStorage.getItem(SK_REFRESH);
+let tokenExpiresAt = Number(localStorage.getItem(SK_EXPIRES)) || 0;
+
+// Reactive mirror of login state so consumers (e.g. the song search in the
+// create/edit room flow) update the instant tokens are stored or cleared,
+// without importing the token internals.
+const [loggedIn, setLoggedIn] = createSignal(accessToken !== null);
 
 // Allow external modules to check login state without importing internals
 export function isSpotifyLoggedIn(): boolean {
-  return accessToken !== null;
+  return loggedIn();
 }
 
 // ── PKCE helpers ──────────────────────────────────────────────────────
@@ -159,14 +165,15 @@ export async function getAccessToken(): Promise<string> {
   return accessToken;
 }
 
-/** Disconnect: clear all tokens from memory and sessionStorage. */
+/** Disconnect: clear all tokens from memory and localStorage. */
 export function logoutSpotify(): void {
   accessToken = null;
   refreshToken = null;
   tokenExpiresAt = 0;
-  sessionStorage.removeItem(SK_ACCESS);
-  sessionStorage.removeItem(SK_REFRESH);
-  sessionStorage.removeItem(SK_EXPIRES);
+  localStorage.removeItem(SK_ACCESS);
+  localStorage.removeItem(SK_REFRESH);
+  localStorage.removeItem(SK_EXPIRES);
+  setLoggedIn(false);
 }
 
 // ── Internal helpers ──────────────────────────────────────────────────
@@ -176,9 +183,10 @@ function storeTokens(access: string, refresh: string, expiresIn: number) {
   refreshToken = refresh;
   tokenExpiresAt = Date.now() + expiresIn * 1000;
 
-  sessionStorage.setItem(SK_ACCESS, access);
-  sessionStorage.setItem(SK_REFRESH, refresh);
-  sessionStorage.setItem(SK_EXPIRES, String(tokenExpiresAt));
+  localStorage.setItem(SK_ACCESS, access);
+  localStorage.setItem(SK_REFRESH, refresh);
+  localStorage.setItem(SK_EXPIRES, String(tokenExpiresAt));
+  setLoggedIn(true);
 }
 
 async function silentRefresh(): Promise<void> {
