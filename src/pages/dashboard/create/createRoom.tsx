@@ -16,7 +16,7 @@ import {
 } from "../../../services/roomsService";
 import {
   isSpotifyLoggedIn,
-  loginWithSpotify,
+  loginWithSpotifyPopup,
   getMySpotifyPlaylists,
   getOwnPlaylistTracks,
 } from "../../../lib/spotify";
@@ -673,7 +673,7 @@ const CreateRoom: Component = () => {
               <div class="mb-6">
                 <button
                   type="button"
-                  onClick={() => loginWithSpotify()}
+                  onClick={() => loginWithSpotifyPopup()}
                   class="flex items-center gap-2 rounded-full border border-spotify/30 bg-spotify/10 px-4 py-2.5 text-sm font-semibold text-ink transition hover:bg-spotify/20"
                 >
                   <svg class="h-5 w-5 text-spotify" viewBox="0 0 24 24" fill="currentColor">
