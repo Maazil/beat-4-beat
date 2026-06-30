@@ -6,6 +6,7 @@ import {
   arrayUnion,
   collection,
   deleteDoc,
+  deleteField,
   doc,
   getDoc,
   getDocs,
@@ -24,6 +25,7 @@ import { auth, db } from "../lib/firebase";
 import type { Category } from "../model/category";
 import type { CreateRoomData, Room } from "../model/room";
 import type { SongItem } from "../model/songItem";
+import { getUserDjName } from "./usersService";
 
 // Collection reference
 const roomsCollection = collection(db, "rooms");
@@ -88,6 +90,7 @@ export async function createRoom(roomData: CreateRoomData): Promise<string> {
     hostId: user.uid,
     hostName: roomData.hostName || user.displayName || "Host",
     editorIds: [],
+    editorNames: {},
     inviteToken: null,
     showCategories: roomData.showCategories ?? true,
     isActive: roomData.isActive ?? false,
@@ -216,7 +219,9 @@ export function subscribeToRoom(
  */
 export async function updateRoom(
   roomId: string,
-  updates: Partial<Omit<Room, "id" | "hostId" | "editorIds" | "inviteToken" | "createdAt">>,
+  updates: Partial<
+    Omit<Room, "id" | "hostId" | "editorIds" | "editorNames" | "inviteToken" | "createdAt">
+  >,
 ): Promise<void> {
   const user = auth.currentUser;
 
@@ -378,13 +383,23 @@ export async function acceptRoomInvite(roomId: string, token: string): Promise<v
     // Room not readable yet — the expected case for a new invitee.
   }
 
+  // Prefer the co-owner's DJ name, falling back to their account display name —
+  // the same precedence the host's name uses when a room is created.
+  const djName = await getUserDjName(user.uid);
+  const editorName = djName?.trim() || user.displayName?.trim() || "Co-host";
+
   try {
     await setDoc(joinRequestDoc(roomId, user.uid), {
       token,
-      displayName: user.displayName ?? null,
+      displayName: editorName,
       email: user.email ?? null,
     });
-    await updateDoc(roomDoc(roomId), { editorIds: arrayUnion(user.uid) });
+    // editorNames is denormalized onto the room so the public host label can
+    // show co-owner names without reading the host-only joinRequests.
+    await updateDoc(roomDoc(roomId), {
+      editorIds: arrayUnion(user.uid),
+      [`editorNames.${user.uid}`]: editorName,
+    });
   } catch (err) {
     if (err instanceof FirebaseError && err.code === "permission-denied") {
       throw new Error("The invite link is invalid or has been disabled");
@@ -398,6 +413,9 @@ export async function acceptRoomInvite(roomId: string, token: string): Promise<v
  */
 export async function removeRoomEditor(roomId: string, uid: string): Promise<void> {
   await requireHostedRoom(roomId);
-  await updateDoc(roomDoc(roomId), { editorIds: arrayRemove(uid) });
+  await updateDoc(roomDoc(roomId), {
+    editorIds: arrayRemove(uid),
+    [`editorNames.${uid}`]: deleteField(),
+  });
   await deleteDoc(joinRequestDoc(roomId, uid));
 }

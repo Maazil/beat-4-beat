@@ -1,6 +1,7 @@
 import { useNavigate, useParams } from "@solidjs/router";
 import { Show, type Component } from "solid-js";
 import { useRoom } from "../../hooks/useRoom";
+import { formatNameList, roomHostNames } from "../../lib/roomHosts";
 
 const RoomView: Component = () => {
   const params = useParams();
@@ -65,8 +66,10 @@ const RoomView: Component = () => {
                 <h2 class="font-display mb-4 text-lg font-bold text-ink">Room info</h2>
                 <dl class="space-y-3 text-sm">
                   <div>
-                    <dt class="font-semibold text-ink">Host</dt>
-                    <dd class="mt-1 text-muted">{room.hostName}</dd>
+                    <dt class="font-semibold text-ink">
+                      {roomHostNames(room).length > 1 ? "Hosts" : "Host"}
+                    </dt>
+                    <dd class="mt-1 text-muted">{formatNameList(roomHostNames(room))}</dd>
                   </div>
                   <div>
                     <dt class="font-semibold text-ink">Number of categories</dt>

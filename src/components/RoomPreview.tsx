@@ -1,5 +1,6 @@
 import { useNavigate } from "@solidjs/router";
 import { Component, For } from "solid-js";
+import { formatNameList, roomHostNames } from "../lib/roomHosts";
 import type { Room } from "../model/room";
 
 interface RoomPreviewProps {
@@ -8,6 +9,8 @@ interface RoomPreviewProps {
 
 const RoomPreview: Component<RoomPreviewProps> = (props) => {
   const navigate = useNavigate();
+
+  const hostNames = () => roomHostNames(props.room);
 
   // Derive status from isActive
   const getStatus = () => (props.room.isActive ? "live" : "inactive");
@@ -49,7 +52,8 @@ const RoomPreview: Component<RoomPreviewProps> = (props) => {
       </div>
       <div class="space-y-1 font-mono text-xs text-muted">
         <p>
-          <span class="font-semibold text-ink">Host:</span> {props.room.hostName}
+          <span class="font-semibold text-ink">{hostNames().length > 1 ? "Hosts:" : "Host:"}</span>{" "}
+          {formatNameList(hostNames())}
         </p>
         {props.room.categories.length > 0 && (
           <p>
