@@ -56,7 +56,9 @@ jobs:
           # Fail early with a clear message if the credentials aren't valid JSON.
           node -e "JSON.parse(require('fs').readFileSync(process.env.GOOGLE_APPLICATION_CREDENTIALS,'utf8'))" \
             || { echo "::error::FIREBASE_SERVICE_ACCOUNT did not decode to valid JSON"; exit 1; }
-          npx firebase-tools@14 deploy --only firestore:rules --project beat-4-beat
+          # --debug surfaces the real auth error; requireAuth otherwise masks
+          # causes like "invalid_grant" behind "have you run firebase login?".
+          npx firebase-tools@14 deploy --only firestore:rules --project beat-4-beat --debug
           rm -f "$GOOGLE_APPLICATION_CREDENTIALS"
 
       - if: github.event_name == 'push' && github.ref == 'refs/heads/main'
