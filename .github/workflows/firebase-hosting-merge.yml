@@ -16,6 +16,9 @@ jobs:
 
       - uses: pnpm/action-setup@v5
 
+      # .nvmrc is pinned to 24.16.0: Node 24.17+ breaks firebase deploy's OAuth
+      # token fetch with "Premature close" (nodejs/node#63989). Unpin once that
+      # regression is fixed upstream.
       - uses: actions/setup-node@v5
         with:
           node-version-file: .nvmrc
