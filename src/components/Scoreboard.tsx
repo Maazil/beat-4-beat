@@ -5,6 +5,10 @@ import type { Score } from "../model/score";
 interface RoundLabel {
   title?: string;
   artist?: string;
+  /** Fallbacks for URL-only songs that have no title/artist set. */
+  category?: string;
+  level?: number;
+  songUrl?: string;
 }
 
 interface ScoreboardProps {
@@ -514,6 +518,15 @@ const Scoreboard: Component<ScoreboardProps> = (props) => {
                 <For each={allRounds()}>
                   {(round) => {
                     const label = () => props.roundLabels?.[round];
+                    // Tile descriptor for URL-only songs that carry no title
+                    const tileText = () => {
+                      const l = label();
+                      if (!l) return undefined;
+                      const parts: string[] = [];
+                      if (l.category) parts.push(l.category);
+                      if (l.level != null) parts.push(`Level ${l.level}`);
+                      return parts.length > 0 ? parts.join(" · ") : undefined;
+                    };
                     return (
                       <tr class="border-t border-line/60">
                         <td class="sticky left-0 z-10 bg-paper px-2 py-1.5 align-top">
@@ -521,7 +534,30 @@ const Scoreboard: Component<ScoreboardProps> = (props) => {
                             <span class="shrink-0 font-mono text-xs font-bold text-beat-deep">
                               R{round + 1}
                             </span>
-                            <Show when={label()?.title}>
+                            <Show
+                              when={label()?.title}
+                              fallback={
+                                <Show when={tileText() || label()?.songUrl}>
+                                  <Show
+                                    when={label()?.songUrl}
+                                    fallback={
+                                      <span class="block max-w-44 truncate text-xs font-semibold text-ink">
+                                        {tileText()}
+                                      </span>
+                                    }
+                                  >
+                                    <a
+                                      href={label()!.songUrl}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      class="block max-w-44 truncate text-xs font-semibold text-beat-deep underline decoration-dotted underline-offset-2 transition hover:text-beat"
+                                    >
+                                      {tileText() ?? "Open song"}
+                                    </a>
+                                  </Show>
+                                </Show>
+                              }
+                            >
                               <span class="min-w-0">
                                 <span class="block max-w-44 truncate text-xs font-semibold text-ink">
                                   {label()!.title}

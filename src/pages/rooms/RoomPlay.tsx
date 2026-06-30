@@ -158,17 +158,20 @@ const RoomPlayInner: Component = () => {
     }
   };
 
-  // Look up a song by id across all categories
-  const itemById = (id: string) => {
+  // Look up a song and its category by id across all categories
+  const locateItem = (id: string) => {
     const room = currentRoom();
     if (!room) return undefined;
-    for (const cat of room.categories) {
-      for (const item of cat.items) {
-        if (item.id === id) return item;
+    for (const category of room.categories) {
+      for (const item of category.items) {
+        if (item.id === id) return { item, category };
       }
     }
     return undefined;
   };
+
+  // Look up a song by id across all categories
+  const itemById = (id: string) => locateItem(id)?.item;
 
   // Find the currently playing item's stored info
   const currentItemInfo = () => {
@@ -176,11 +179,19 @@ const RoomPlayInner: Component = () => {
     return id ? (itemById(id) ?? null) : null;
   };
 
-  // Song played on each round (by play order) — labels the revealed breakdown
+  // Song played on each round (by play order) — labels the revealed breakdown.
+  // Carries category/level/link so URL-only songs (no title) stay identifiable.
   const roundLabels = () =>
     playOrder().map((id) => {
-      const item = itemById(id);
-      return { title: item?.title, artist: item?.artist };
+      const found = locateItem(id);
+      const item = found?.item;
+      return {
+        title: item?.title,
+        artist: item?.artist,
+        category: found?.category.name,
+        level: item?.level,
+        songUrl: item?.songUrl,
+      };
     });
 
   return (
