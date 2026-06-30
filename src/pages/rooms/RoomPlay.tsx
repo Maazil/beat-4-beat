@@ -158,19 +158,30 @@ const RoomPlayInner: Component = () => {
     }
   };
 
-  // Find the currently playing item's stored info
-  const currentItemInfo = () => {
-    const id = currentItemId();
-    if (!id) return null;
+  // Look up a song by id across all categories
+  const itemById = (id: string) => {
     const room = currentRoom();
-    if (!room) return null;
+    if (!room) return undefined;
     for (const cat of room.categories) {
       for (const item of cat.items) {
         if (item.id === id) return item;
       }
     }
-    return null;
+    return undefined;
   };
+
+  // Find the currently playing item's stored info
+  const currentItemInfo = () => {
+    const id = currentItemId();
+    return id ? (itemById(id) ?? null) : null;
+  };
+
+  // Song played on each round (by play order) — labels the revealed breakdown
+  const roundLabels = () =>
+    playOrder().map((id) => {
+      const item = itemById(id);
+      return { title: item?.title, artist: item?.artist };
+    });
 
   return (
     <div class="bg-stage min-h-screen p-6 pb-24">
@@ -282,6 +293,7 @@ const RoomPlayInner: Component = () => {
             <Scoreboard
               scores={scores()}
               currentRound={currentRound()}
+              roundLabels={roundLabels()}
               onUpdateScores={setScores}
             />
 
