@@ -7,6 +7,7 @@ export interface Room {
   hostId: string; // User ID of host
   hostName: string; // Optional: Host display name
   editorIds?: string[]; // User IDs of additional editors (co-owners), excluding the host
+  editorNames?: Record<string, string>; // uid -> display name for co-owners, denormalized for public host labels
   inviteToken?: string | null; // Active co-owner invite link token (null = no active link)
   categories: Category[]; // Music categories (Pop, 80s, etc.)
   showCategories?: boolean; // Optional: whether categories are shown

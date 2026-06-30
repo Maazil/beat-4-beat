@@ -17,6 +17,12 @@ service cloud.firestore {
         return ('editorIds' in data && data.editorIds is list) ? data.editorIds : [];
       }
 
+      // editorNames (uid -> display name) is optional on rooms created before
+      // the co-owner-label feature
+      function editorNamesOf(data) {
+        return ('editorNames' in data && data.editorNames is map) ? data.editorNames : {};
+      }
+
       function isHost() {
         return isSignedIn() && request.auth.uid == resource.data.hostId;
       }
@@ -29,24 +35,27 @@ service cloud.firestore {
         return request.resource.data.diff(resource.data).affectedKeys();
       }
 
-      // Co-owners may change room content, but never ownership, membership or
-      // the invite token.
+      // Co-owners may change room content, but never ownership, membership,
+      // the co-owner name map or the invite token.
       function isEditorContentUpdate() {
-        return isEditor() && !changedKeys().hasAny(['hostId', 'editorIds', 'inviteToken']);
+        return isEditor() && !changedKeys().hasAny(['hostId', 'editorIds', 'editorNames', 'inviteToken']);
       }
 
       // A user who proved they hold the current invite token (by creating a
       // join request, validated below) may add exactly their own uid to
-      // editorIds and change nothing else.
+      // editorIds, write their own entry in editorNames, and change nothing
+      // else.
       function isSelfJoin() {
         return isSignedIn()
           && request.auth.uid != resource.data.hostId
           && 'inviteToken' in resource.data
           && resource.data.inviteToken is string
-          && changedKeys().hasOnly(['editorIds'])
+          && changedKeys().hasOnly(['editorIds', 'editorNames'])
           && request.resource.data.editorIds is list
           && request.resource.data.editorIds.toSet().hasAll(editorsOf(resource.data))
           && request.resource.data.editorIds.toSet().difference(editorsOf(resource.data).toSet()).hasOnly([request.auth.uid])
+          && request.resource.data.editorNames is map
+          && request.resource.data.editorNames.diff(editorNamesOf(resource.data)).affectedKeys().hasOnly([request.auth.uid])
           && get(/databases/$(database)/documents/rooms/$(roomId)/joinRequests/$(request.auth.uid)).data.token == resource.data.inviteToken;
       }
 

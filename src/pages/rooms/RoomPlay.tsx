@@ -2,6 +2,7 @@ import { useParams } from "@solidjs/router";
 import { Component, createSignal, For, Show } from "solid-js";
 import { useRoom } from "../../hooks/useRoom";
 import { usePlaybackProgress } from "../../hooks/usePlaybackProgress";
+import { roomHostNames } from "../../lib/roomHosts";
 import {
   isSpotifyLoggedIn,
   getAccessToken,
@@ -31,6 +32,11 @@ const pressVars = (ink: PosterInk) => ({
 const RoomPlayInner: Component = () => {
   const params = useParams();
   const { room: currentRoom, isLoading } = useRoom(() => params.id);
+
+  const hostNames = () => {
+    const room = currentRoom();
+    return room ? roomHostNames(room) : [];
+  };
 
   // Device selection (restore from sessionStorage)
   const [devices, setDevices] = createSignal<SpotifyDevice[]>([]);
@@ -232,11 +238,15 @@ const RoomPlayInner: Component = () => {
                 <h1 class="font-display text-3xl font-bold tracking-tight text-ink">
                   {currentRoom()?.roomName}
                 </h1>
-                <h2 class="flex items-center gap-2 font-medium text-muted">
-                  Hosted by{" "}
-                  <span class="inline-block rounded-full bg-beat px-4 py-1 text-sm font-bold tracking-wide text-white shadow-md">
-                    {currentRoom()?.hostName}
-                  </span>
+                <h2 class="flex flex-wrap items-center gap-2 font-medium text-muted">
+                  Hosted by
+                  <For each={hostNames()}>
+                    {(name) => (
+                      <span class="inline-block rounded-full bg-beat px-4 py-1 text-sm font-bold tracking-wide text-white shadow-md">
+                        {name}
+                      </span>
+                    )}
+                  </For>
                 </h2>
               </div>
 
