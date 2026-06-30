@@ -5,6 +5,7 @@ export { SPOTIFY_CLIENT_ID, SPOTIFY_REDIRECT_URI, SPOTIFY_SCOPES } from "./spoti
 
 export {
   loginWithSpotify,
+  loginWithSpotifyPopup,
   handleSpotifyCallback,
   getAccessToken,
   logoutSpotify,
