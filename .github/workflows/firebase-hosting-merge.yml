@@ -44,9 +44,6 @@ jobs:
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_BEAT_4_BEAT }}
           GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/firebase-sa.json
-          # Runners hit "Premature close" on googleapis.com's OAuth token
-          # endpoint via Node's IPv6 Happy-Eyeballs path; prefer IPv4.
-          NODE_OPTIONS: --dns-result-order=ipv4first
         run: |
           # The secret may be raw JSON or base64-encoded. FirebaseExtended's
           # hosting action (below) accepts both; mirror that here so the rules
@@ -59,12 +56,12 @@ jobs:
           # Fail early with a clear message if the credentials aren't valid JSON.
           node -e "JSON.parse(require('fs').readFileSync(process.env.GOOGLE_APPLICATION_CREDENTIALS,'utf8'))" \
             || { echo "::error::FIREBASE_SERVICE_ACCOUNT did not decode to valid JSON"; exit 1; }
-          # --debug surfaces the real auth error; requireAuth otherwise masks
-          # causes like "invalid_grant" behind "have you run firebase login?".
-          # Retry to ride out transient "Premature close" token-fetch drops.
+          # firebase-tools >= 15.22.3 disables keep-alive in google-auth-library
+          # to avoid false "Premature close" token-fetch failures on Node 24.17+
+          # (nodejs/node#63989). Retry guards against transient network drops.
           ok=0
           for attempt in 1 2 3; do
-            if npx firebase-tools@14 deploy --only firestore:rules --project beat-4-beat --debug; then
+            if npx firebase-tools@15 deploy --only firestore:rules --project beat-4-beat; then
               ok=1; break
             fi
             echo "rules deploy attempt $attempt failed; retrying in 5s"
