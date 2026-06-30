@@ -37,43 +37,27 @@ jobs:
 
       - run: pnpm build
 
-      # Deploy Firestore rules before hosting so new rules are live before
-      # the frontend that depends on them.
-      - name: Deploy Firestore rules
+      # Deploy Firestore rules before hosting so new rules are live before the
+      # frontend that depends on them. Both use firebase-tools >= 15.22.3, which
+      # retries without keep-alive to dodge the Node 24.17+ node-fetch
+      # "Premature close" token-fetch bug (nodejs/node#63989). This replaces
+      # FirebaseExtended/action-hosting-deploy, whose whole-deploy retry collided
+      # with that bug ("supplied version is the current active version").
+      - name: Deploy Firestore rules and hosting
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_BEAT_4_BEAT }}
           GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/firebase-sa.json
         run: |
-          # The secret may be raw JSON or base64-encoded. FirebaseExtended's
-          # hosting action (below) accepts both; mirror that here so the rules
-          # deploy authenticates with the same credentials.
+          # The secret may be raw JSON or base64-encoded; accept both.
           if printf '%s' "$FIREBASE_SERVICE_ACCOUNT" | head -c 1 | grep -q '{'; then
             printf '%s' "$FIREBASE_SERVICE_ACCOUNT" > "$GOOGLE_APPLICATION_CREDENTIALS"
           else
             printf '%s' "$FIREBASE_SERVICE_ACCOUNT" | base64 -d > "$GOOGLE_APPLICATION_CREDENTIALS"
           fi
+          trap 'rm -f "$GOOGLE_APPLICATION_CREDENTIALS"' EXIT
           # Fail early with a clear message if the credentials aren't valid JSON.
           node -e "JSON.parse(require('fs').readFileSync(process.env.GOOGLE_APPLICATION_CREDENTIALS,'utf8'))" \
             || { echo "::error::FIREBASE_SERVICE_ACCOUNT did not decode to valid JSON"; exit 1; }
-          # firebase-tools >= 15.22.3 disables keep-alive in google-auth-library
-          # to avoid false "Premature close" token-fetch failures on Node 24.17+
-          # (nodejs/node#63989). Retry guards against transient network drops.
-          ok=0
-          for attempt in 1 2 3; do
-            if npx firebase-tools@15 deploy --only firestore:rules --project beat-4-beat; then
-              ok=1; break
-            fi
-            echo "rules deploy attempt $attempt failed; retrying in 5s"
-            sleep 5
-          done
-          rm -f "$GOOGLE_APPLICATION_CREDENTIALS"
-          [ "$ok" = 1 ] || { echo "::error::firestore rules deploy failed after 3 attempts"; exit 1; }
-
-      - if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: FirebaseExtended/action-hosting-deploy@v0
-        with:
-          repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_BEAT_4_BEAT }}
-          channelId: live
-          projectId: beat-4-beat
+          npx firebase-tools@15 deploy --only firestore:rules --project beat-4-beat
+          npx firebase-tools@15 deploy --only hosting --project beat-4-beat
