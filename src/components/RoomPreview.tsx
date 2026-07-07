@@ -1,7 +1,9 @@
 import { useNavigate } from "@solidjs/router";
-import { Component, For } from "solid-js";
+import { Component, createSignal, For, Show } from "solid-js";
+import { useAuth } from "../context/AuthContext";
 import { formatNameList, roomHostNames } from "../lib/roomHosts";
 import type { Room } from "../model/room";
+import { duplicateRoom } from "../services/roomsService";
 
 interface RoomPreviewProps {
   room: Room;
@@ -9,8 +11,25 @@ interface RoomPreviewProps {
 
 const RoomPreview: Component<RoomPreviewProps> = (props) => {
   const navigate = useNavigate();
+  const auth = useAuth();
 
   const hostNames = () => roomHostNames(props.room);
+
+  const [saveState, setSaveState] = createSignal<"idle" | "saving" | "saved">("idle");
+
+  const handleSave = async (e: MouseEvent) => {
+    e.stopPropagation(); // the whole card navigates to play on click
+    if (saveState() !== "idle") return;
+    setSaveState("saving");
+    try {
+      await duplicateRoom(props.room.id);
+      setSaveState("saved");
+    } catch (err) {
+      console.error("[RoomPreview] Save to my rooms failed:", err);
+      alert("Could not save the room. Please try again.");
+      setSaveState("idle");
+    }
+  };
 
   // Derive status from isActive
   const getStatus = () => (props.room.isActive ? "live" : "inactive");
@@ -80,18 +99,38 @@ const RoomPreview: Component<RoomPreviewProps> = (props) => {
           </For>
         </div>
       )}
-      <p class="mt-5 inline-flex items-center gap-1.5 text-sm font-bold text-beat opacity-0 transition duration-300 group-hover:opacity-100">
-        Play now
-        <svg class="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-          <path
-            d="M5.333 3.556 10.667 8l-5.334 4.444"
-            stroke="currentColor"
-            stroke-width="1.6"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-        </svg>
-      </p>
+      <div class="mt-5 flex items-center justify-between gap-3">
+        <p class="inline-flex items-center gap-1.5 text-sm font-bold text-beat opacity-0 transition duration-300 group-hover:opacity-100">
+          Play now
+          <svg class="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path
+              d="M5.333 3.556 10.667 8l-5.334 4.444"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </p>
+        <Show when={auth.isAuthenticated()}>
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={saveState() !== "idle"}
+            class={`rounded-full border px-2.5 py-1 text-xs font-semibold transition ${
+              saveState() === "saved"
+                ? "border-beat/30 bg-beat-soft text-beat-deep"
+                : "border-line text-muted hover:border-beat hover:text-beat disabled:opacity-60"
+            }`}
+          >
+            {saveState() === "saved"
+              ? "Saved to my rooms ✓"
+              : saveState() === "saving"
+                ? "Saving…"
+                : "Save to my rooms"}
+          </button>
+        </Show>
+      </div>
     </article>
   );
 };

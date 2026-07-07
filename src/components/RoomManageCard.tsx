@@ -2,6 +2,7 @@ import { useNavigate } from "@solidjs/router";
 import { Component, createSignal, Show } from "solid-js";
 import { useAuth } from "../context/AuthContext";
 import type { Room } from "../model/room";
+import { duplicateRoom } from "../services/roomsService";
 
 interface RoomManageCardProps {
   room: Room;
@@ -12,6 +13,21 @@ const RoomManageCard: Component<RoomManageCardProps> = (props) => {
   const navigate = useNavigate();
   const auth = useAuth();
   const [showDeleteConfirm, setShowDeleteConfirm] = createSignal(false);
+  const [isDuplicating, setIsDuplicating] = createSignal(false);
+
+  // The copy shows up on the dashboard by itself via the my-rooms subscription
+  const handleDuplicate = async () => {
+    if (isDuplicating()) return;
+    setIsDuplicating(true);
+    try {
+      await duplicateRoom(props.room.id);
+    } catch (err) {
+      console.error("[RoomManageCard] Duplicate failed:", err);
+      alert("Could not duplicate the room. Please try again.");
+    } finally {
+      setIsDuplicating(false);
+    }
+  };
 
   const isHost = () => auth.isRoomHost(props.room.hostId);
 
@@ -126,6 +142,27 @@ const RoomManageCard: Component<RoomManageCardProps> = (props) => {
                 stroke-linejoin="round"
                 stroke-width="2"
                 d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+              />
+            </svg>
+          </button>
+          <button
+            type="button"
+            class="rounded-full border border-line px-3 py-2 text-sm font-medium text-muted transition hover:border-beat hover:text-beat disabled:opacity-50"
+            onClick={handleDuplicate}
+            disabled={isDuplicating()}
+            title="Duplicate room"
+          >
+            <svg
+              class={`h-4 w-4 ${isDuplicating() ? "animate-pulse" : ""}`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
               />
             </svg>
           </button>
