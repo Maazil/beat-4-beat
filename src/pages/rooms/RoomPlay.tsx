@@ -4,6 +4,7 @@ import { useRoom } from "../../hooks/useRoom";
 import { useGameState } from "../../hooks/useGameState";
 import { usePlaybackProgress } from "../../hooks/usePlaybackProgress";
 import { roomHostNames } from "../../lib/roomHosts";
+import { parseYouTubeUrl } from "../../lib/youtube";
 import {
   isSpotifyLoggedIn,
   getAccessToken,
@@ -20,6 +21,7 @@ import GuessTimer from "../../components/GuessTimer";
 import NowPlayingBar from "../../components/NowPlayingBar";
 import Scoreboard from "../../components/Scoreboard";
 import TurnTracker from "../../components/TurnTracker";
+import YouTubePlayer from "../../components/YouTubePlayer";
 import { posterInk } from "../../theme/palette";
 import type { PosterInk } from "../../theme/palette";
 
@@ -57,6 +59,12 @@ const RoomPlayInner: Component = () => {
   const isItemRevealed = (id: string) => playOrder().includes(id);
 
   const [showTrackInfo, setShowTrackInfo] = createSignal(false);
+
+  // Embedded YouTube playback for songs without a Spotify link
+  const [youtubeVideo, setYoutubeVideo] = createSignal<{
+    videoId: string;
+    start: number;
+  } | null>(null);
 
   // Guess timer — 0 = off; duration persists across sessions
   const TIMER_CHOICES = [0, 15, 30, 45, 60];
@@ -116,6 +124,7 @@ const RoomPlayInner: Component = () => {
     if (spotifyConnected() && device) {
       const uri = spotifyUrlToUri(songUrl);
       if (uri) {
+        setYoutubeVideo(null); // switching to Spotify stops any YouTube playback
         try {
           const posMs = startTime != null && startTime > 0 ? startTime * 1000 : 0;
           await playOnDevice(uri, device.id, posMs);
@@ -123,14 +132,24 @@ const RoomPlayInner: Component = () => {
           playback.startPolling(posMs);
         } catch (err) {
           console.error("[RoomPlay] Play failed:", err);
-          window.open(songUrl, "_blank");
+          window.open(songUrl, "_blank", "noopener");
         }
         return;
       }
     }
 
-    // Fallback: open externally if no device or not a Spotify URL
-    window.open(songUrl, "_blank");
+    // YouTube links play in the embedded bottom-bar player instead of a new tab.
+    // The item's cue point wins over any t= param in the URL itself.
+    const youtube = parseYouTubeUrl(songUrl);
+    if (youtube) {
+      const start = startTime != null && startTime > 0 ? startTime : (youtube.startSeconds ?? 0);
+      setYoutubeVideo(null); // remount the iframe even when replaying the same video
+      setYoutubeVideo({ videoId: youtube.videoId, start });
+      return;
+    }
+
+    // Fallback: open externally if no device or not a recognized URL
+    window.open(songUrl, "_blank", "noopener");
   };
 
   // Anything on the board or scoreboard worth resetting?
@@ -506,8 +525,19 @@ const RoomPlayInner: Component = () => {
         <GuessTimer durationSec={timerSec()} runId={timerRunId()} />
       </Show>
 
+      {/* Embedded YouTube player — replaces the Spotify bar for YouTube songs */}
+      <Show when={youtubeVideo()}>
+        {(video) => (
+          <YouTubePlayer
+            videoId={video().videoId}
+            startSeconds={video().start}
+            onClose={() => setYoutubeVideo(null)}
+          />
+        )}
+      </Show>
+
       {/* Bottom control bar — shown when a song is playing */}
-      <Show when={currentItemId()}>
+      <Show when={currentItemId() && !youtubeVideo()}>
         <NowPlayingBar
           positionMs={playback.positionMs()}
           durationMs={playback.durationMs()}
