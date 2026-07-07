@@ -35,6 +35,19 @@ service cloud.firestore {
         return request.resource.data.diff(resource.data).affectedKeys();
       }
 
+      // Cap the categories list so a hostile client can't bloat a (public)
+      // room document toward the 1 MB limit — every viewer downloads the
+      // full doc via onSnapshot. The app allows 6 categories; 12 leaves
+      // headroom. Per-category fields (imageUrl, songUrl) can't be
+      // validated here (rules can't iterate lists); the client validates
+      // them and the hosting CSP (img-src) plus link sanitizing in the app
+      // neutralize hostile values written via the raw API.
+      function categoriesValid() {
+        return !('categories' in request.resource.data)
+          || (request.resource.data.categories is list
+              && request.resource.data.categories.size() <= 12);
+      }
+
       // Co-owners may change room content, but never ownership, membership,
       // the co-owner name map or the invite token.
       function isEditorContentUpdate() {
@@ -59,9 +72,11 @@ service cloud.firestore {
           && get(/databases/$(database)/documents/rooms/$(roomId)/joinRequests/$(request.auth.uid)).data.token == resource.data.inviteToken;
       }
 
-      allow create: if isSignedIn() && request.resource.data.hostId == request.auth.uid;
+      allow create: if isSignedIn() && request.resource.data.hostId == request.auth.uid
+        && categoriesValid();
       allow read: if resource.data.isPublic == true || isHost() || isEditor();
-      allow update: if isHost() || isEditorContentUpdate() || isSelfJoin();
+      allow update: if (isHost() || isEditorContentUpdate() || isSelfJoin())
+        && categoriesValid();
       allow delete: if isHost();
 
       // Invite handshake: an invitee writes the token from their invite link

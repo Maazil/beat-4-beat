@@ -1,4 +1,5 @@
 import { Component, createMemo, createSignal, For, Show } from "solid-js";
+import { isSafeSongHref } from "../lib/externalUrl";
 import { computeStandings, totalOf } from "../lib/standings";
 import type { Score } from "../model/score";
 
@@ -527,8 +528,9 @@ const Scoreboard: Component<ScoreboardProps> = (props) => {
                               when={label()?.title}
                               fallback={
                                 <Show when={tileText() || label()?.songUrl}>
+                                  {/* songUrl is host-provided — never link unsafe schemes */}
                                   <Show
-                                    when={label()?.songUrl}
+                                    when={label()?.songUrl && isSafeSongHref(label()!.songUrl!)}
                                     fallback={
                                       <span class="block max-w-44 truncate text-xs font-semibold text-ink">
                                         {tileText()}
