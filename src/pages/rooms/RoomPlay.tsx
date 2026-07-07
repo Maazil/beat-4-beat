@@ -234,7 +234,7 @@ const RoomPlayInner: Component = () => {
     });
 
   return (
-    <div class="bg-stage min-h-screen p-6 pb-24">
+    <div class="bg-stage min-h-screen p-4 pb-24 sm:p-6 sm:pb-24">
       <div class="mx-auto max-w-7xl">
         <button
           type="button"
@@ -429,15 +429,17 @@ const RoomPlayInner: Component = () => {
 
                 {/* Multi-category: column grid with category headers */}
                 <Show when={(currentRoom()?.categories.length ?? 0) > 1}>
+                  {/* Phones: horizontally scrollable snap columns (equal-width
+                      columns would crush with 4+ categories). md+: the grid. */}
                   <div
-                    class="grid gap-6"
+                    class="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 sm:-mx-6 sm:px-6 md:mx-0 md:grid md:gap-6 md:overflow-x-visible md:px-0 md:pb-0"
                     style={`grid-template-columns: repeat(${currentRoom()?.categories.length ?? 1}, minmax(0, 1fr))`}
                   >
                     <For each={currentRoom()?.categories}>
                       {(category, index) => {
                         const ink = () => posterInk(index());
                         return (
-                          <div class="flex flex-col gap-4">
+                          <div class="flex w-40 shrink-0 snap-start flex-col gap-4 md:w-auto md:shrink">
                             <Show
                               when={category.imageUrl}
                               fallback={
