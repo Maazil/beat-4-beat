@@ -16,6 +16,7 @@ import {
 } from "../../lib/spotify";
 import type { SpotifyDevice } from "../../lib/spotify";
 import DevicePicker, { deviceIcon } from "../../components/DevicePicker";
+import GuessTimer from "../../components/GuessTimer";
 import NowPlayingBar from "../../components/NowPlayingBar";
 import Scoreboard from "../../components/Scoreboard";
 import TurnTracker from "../../components/TurnTracker";
@@ -57,6 +58,20 @@ const RoomPlayInner: Component = () => {
 
   const [showTrackInfo, setShowTrackInfo] = createSignal(false);
 
+  // Guess timer — 0 = off; duration persists across sessions
+  const TIMER_CHOICES = [0, 15, 30, 45, 60];
+  const storedTimerSec = Number(localStorage.getItem("b4b_guess_timer_sec"));
+  const [timerSec, setTimerSec] = createSignal(
+    TIMER_CHOICES.includes(storedTimerSec) ? storedTimerSec : 0,
+  );
+  const [timerRunId, setTimerRunId] = createSignal(0);
+
+  const chooseTimer = (sec: number) => {
+    setTimerSec(sec);
+    localStorage.setItem("b4b_guess_timer_sec", String(sec));
+    if (sec === 0) setTimerRunId(0);
+  };
+
   const currentRound = () => {
     const id = currentItemId();
     if (!id) return undefined;
@@ -93,6 +108,7 @@ const RoomPlayInner: Component = () => {
       currentItemId: itemId,
     });
     setShowTrackInfo(false);
+    if (timerSec() > 0) setTimerRunId((n) => n + 1);
 
     if (!songUrl) return;
 
@@ -346,15 +362,38 @@ const RoomPlayInner: Component = () => {
               <div class="py-4 pb-16">
                 <div class="mb-4 flex flex-wrap items-center justify-between gap-2">
                   <p class="text-muted">Click a tile to play a song</p>
-                  <Show when={gameStarted()}>
-                    <button
-                      type="button"
-                      onClick={handleNewGame}
-                      class="rounded-full border-2 border-ink px-3 py-1 text-xs font-bold text-ink shadow-[2px_2px_0_var(--color-ink)] transition hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[3px_3px_0_var(--color-ink)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
-                    >
-                      New game
-                    </button>
-                  </Show>
+                  <div class="flex flex-wrap items-center gap-3">
+                    {/* Guess timer setting — countdown starts on each tile click */}
+                    <div class="flex items-center gap-1.5">
+                      <span class="mr-1 font-mono text-xs tracking-wide text-muted uppercase">
+                        Timer
+                      </span>
+                      <For each={TIMER_CHOICES}>
+                        {(sec) => (
+                          <button
+                            type="button"
+                            onClick={() => chooseTimer(sec)}
+                            class={`rounded-full border-2 px-2.5 py-0.5 font-mono text-xs font-bold transition ${
+                              timerSec() === sec
+                                ? "border-ink bg-ink text-cream shadow-[2px_2px_0_var(--color-beat)]"
+                                : "border-line text-muted hover:border-ink hover:text-ink"
+                            }`}
+                          >
+                            {sec === 0 ? "Off" : `${sec}s`}
+                          </button>
+                        )}
+                      </For>
+                    </div>
+                    <Show when={gameStarted()}>
+                      <button
+                        type="button"
+                        onClick={handleNewGame}
+                        class="rounded-full border-2 border-ink px-3 py-1 text-xs font-bold text-ink shadow-[2px_2px_0_var(--color-ink)] transition hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[3px_3px_0_var(--color-ink)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
+                      >
+                        New game
+                      </button>
+                    </Show>
+                  </div>
                 </div>
                 {/* Single-category: full-width grid, one ink for the whole board */}
                 <Show when={(currentRoom()?.categories.length ?? 0) === 1}>
@@ -459,6 +498,11 @@ const RoomPlayInner: Component = () => {
           </div>
         </Show>
       </div>
+
+      {/* Guess countdown — floats above the control bar while a round runs */}
+      <Show when={timerSec() > 0}>
+        <GuessTimer durationSec={timerSec()} runId={timerRunId()} />
+      </Show>
 
       {/* Bottom control bar — shown when a song is playing */}
       <Show when={currentItemId()}>
