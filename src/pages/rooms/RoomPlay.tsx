@@ -3,6 +3,7 @@ import { Component, createSignal, For, Show } from "solid-js";
 import { useRoom } from "../../hooks/useRoom";
 import { useGameState } from "../../hooks/useGameState";
 import { usePlaybackProgress } from "../../hooks/usePlaybackProgress";
+import { openSongUrl } from "../../lib/externalUrl";
 import { roomHostNames } from "../../lib/roomHosts";
 import { parseYouTubeUrl } from "../../lib/youtube";
 import {
@@ -132,7 +133,7 @@ const RoomPlayInner: Component = () => {
           playback.startPolling(posMs);
         } catch (err) {
           console.error("[RoomPlay] Play failed:", err);
-          window.open(songUrl, "_blank", "noopener");
+          openSongUrl(songUrl);
         }
         return;
       }
@@ -149,7 +150,7 @@ const RoomPlayInner: Component = () => {
     }
 
     // Fallback: open externally if no device or not a recognized URL
-    window.open(songUrl, "_blank", "noopener");
+    openSongUrl(songUrl);
   };
 
   // Anything on the board or scoreboard worth resetting?
