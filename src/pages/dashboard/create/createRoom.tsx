@@ -325,6 +325,19 @@ const CreateRoom: Component = () => {
     setCategories(categories().map((c) => (c.id === categoryId ? { ...c, name } : c)));
   };
 
+  // Set or clear a category's header image. Clearing strips the key
+  // entirely — Firestore rejects undefined field values.
+  const updateCategoryImage = (categoryId: string, imageUrl?: string) => {
+    setCategories(
+      categories().map((c) => {
+        if (c.id !== categoryId) return c;
+        const next = { ...c };
+        delete next.imageUrl;
+        return imageUrl ? { ...next, imageUrl } : next;
+      }),
+    );
+  };
+
   // Remove a category
   const removeCategory = (categoryId: string) => {
     setCategories(categories().filter((c) => c.id !== categoryId));
@@ -854,6 +867,7 @@ const CreateRoom: Component = () => {
                     editingItemId={editingItem()}
                     onEditName={() => setEditingCategory(category.id)}
                     onUpdateName={(name) => updateCategoryName(category.id, name)}
+                    onUpdateImage={(imageUrl) => updateCategoryImage(category.id, imageUrl)}
                     onBlurName={() => setEditingCategory(null)}
                     onRemove={() => removeCategory(category.id)}
                     onAddItem={() => addItem(category.id)}

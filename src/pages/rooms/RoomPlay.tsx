@@ -367,14 +367,25 @@ const RoomPlayInner: Component = () => {
                         const ink = () => posterInk(index());
                         return (
                           <div class="flex flex-col gap-4">
-                            <div
-                              class="rounded-lg px-4 py-3 text-center shadow-[3px_3px_0_rgba(26,20,24,0.85)]"
-                              style={{ background: ink().ink }}
+                            <Show
+                              when={category.imageUrl}
+                              fallback={
+                                <div
+                                  class="rounded-lg px-4 py-3 text-center shadow-[3px_3px_0_rgba(26,20,24,0.85)]"
+                                  style={{ background: ink().ink }}
+                                >
+                                  <h2 class="font-display text-lg font-bold tracking-tight text-white">
+                                    {category.name}
+                                  </h2>
+                                </div>
+                              }
                             >
-                              <h2 class="font-display text-lg font-bold tracking-tight text-white">
-                                {category.name}
-                              </h2>
-                            </div>
+                              <img
+                                src={category.imageUrl}
+                                alt={category.name}
+                                class="h-20 w-full rounded-lg object-cover shadow-[3px_3px_0_rgba(26,20,24,0.85)]"
+                              />
+                            </Show>
 
                             <div class="flex flex-col gap-3">
                               <For each={category.items}>
