@@ -18,6 +18,7 @@ import type { SpotifyDevice } from "../../lib/spotify";
 import DevicePicker, { deviceIcon } from "../../components/DevicePicker";
 import NowPlayingBar from "../../components/NowPlayingBar";
 import Scoreboard from "../../components/Scoreboard";
+import TurnTracker from "../../components/TurnTracker";
 import { posterInk } from "../../theme/palette";
 import type { PosterInk } from "../../theme/palette";
 
@@ -332,6 +333,12 @@ const RoomPlayInner: Component = () => {
               currentRound={currentRound()}
               roundLabels={roundLabels()}
               onUpdateScores={(next) => updateGame({ scores: next })}
+            />
+
+            {/* Whose turn — rotates with the rounds, click a team to override */}
+            <TurnTracker
+              teamNames={scores().map((s) => s.teamName)}
+              roundsStarted={playOrder().length}
             />
 
             {/* Game board */}
