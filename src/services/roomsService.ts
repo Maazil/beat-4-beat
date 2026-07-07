@@ -254,6 +254,42 @@ export async function updateRoomGameState(roomId: string, gameState: GameState):
 }
 
 /**
+ * Copy a room into the current user's dashboard. Works on any room the
+ * user can read (their own, co-edited, or public). The copy gets fresh ids
+ * (via createRoom), the current user as host, no co-owners, a clean board
+ * (isRevealed reset), and starts private.
+ */
+export async function duplicateRoom(roomId: string): Promise<string> {
+  const user = auth.currentUser;
+
+  if (!user) {
+    throw new Error("Must be logged in to copy a room");
+  }
+
+  const room = await getRoom(roomId);
+  if (!room) {
+    throw new Error("Room not found");
+  }
+
+  const categories = room.categories.map((category) => ({
+    ...category,
+    items: category.items.map((item) => ({ ...item, isRevealed: false })),
+  }));
+
+  const djName = await getUserDjName(user.uid);
+
+  return createRoom({
+    // "(copy)" only when duplicating your own room — a market room keeps its name
+    roomName: canEditRoom(room) ? `${room.roomName} (copy)` : room.roomName,
+    hostName: djName?.trim() || user.displayName || "Host",
+    categories,
+    isPublic: false,
+    isActive: true,
+    createdAt: Date.now(),
+  });
+}
+
+/**
  * Delete a room (only host can delete)
  */
 export async function deleteRoom(roomId: string): Promise<void> {
