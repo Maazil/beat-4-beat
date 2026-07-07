@@ -1,4 +1,5 @@
 import { Component, createMemo, createSignal, For, Show } from "solid-js";
+import { computeStandings, totalOf } from "../lib/standings";
 import type { Score } from "../model/score";
 
 /** Song played on a given round, used to label the revealed breakdown. */
@@ -38,8 +39,6 @@ const Scoreboard: Component<ScoreboardProps> = (props) => {
   const rowEls = new Map<string, HTMLElement>();
   const chipEls = new Map<string, HTMLElement>();
 
-  const totalOf = (score: Score) => score.roundPoints.reduce((sum, p) => sum + p, 0);
-
   const roundValue = (score: Score) =>
     props.currentRound != null ? (score.roundPoints[props.currentRound] ?? 0) : 0;
 
@@ -52,17 +51,7 @@ const Scoreboard: Component<ScoreboardProps> = (props) => {
     );
 
   // name → revealed position and rank (ties share a rank, insertion order breaks them)
-  const standings = createMemo(() => {
-    const entries = props.scores.map((s, i) => ({ name: s.teamName, total: totalOf(s), i }));
-    entries.sort((a, b) => b.total - a.total || a.i - b.i);
-    const map = new Map<string, { order: number; rank: number; total: number }>();
-    entries.forEach((entry, idx) => {
-      const prev = idx > 0 ? map.get(entries[idx - 1].name) : undefined;
-      const rank = prev && prev.total === entry.total ? prev.rank : idx + 1;
-      map.set(entry.name, { order: idx, rank, total: entry.total });
-    });
-    return map;
-  });
+  const standings = createMemo(() => computeStandings(props.scores));
 
   const isLeader = (name: string) => {
     const standing = standings().get(name);
