@@ -2,7 +2,8 @@ import { SongItem } from "./songItem";
 
 export interface Category {
   id: string; // Random or auto-generated
-  name: string; // e.g. "Pop", "Rock", "Norske Hits"
+  name: string; // e.g. "Pop", "Rock", "Norske Hits" — kept as fallback/label even with an image
+  imageUrl?: string; // Small compressed data-URL image shown instead of the name in headers
   items: SongItem[]; // List of songs in this category
 }
 

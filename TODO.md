@@ -4,16 +4,16 @@
 
 ### Category Image Upload
 
-- [ ] Allow users to upload a square image (100x100px recommended) for each category
-- [ ] Image acts as the category "title" header instead of text
-- [ ] Requirements:
+- [x] Allow users to upload an image for each category
+- [x] Image acts as the category "title" header instead of text
+- [x] Requirements:
   - File upload component (accept: image/\*)
-  - Image cropping/resizing to 100x100px
-  - Store image in Firebase Storage (or similar)
+  - Image cover-cropped/resized to 400x200 (2:1 header shape)
+  - Stored as a compressed WebP data URL inline on the room document (no Firebase Storage needed — ~5–15 KB per image, far under Firestore's 1 MB doc limit)
   - Display image in category header on RoomPlay.tsx
   - Fallback to text title if no image uploaded
-- [ ] Consider adding image preview during room creation
-- [ ] Add image compression before upload to reduce storage costs
+- [x] Image preview during room creation (shown in the builder header; click to replace, hover to remove)
+- [x] Image compression before upload (canvas → WebP q0.8, JPEG fallback)
 
 ### Future Considerations
 
