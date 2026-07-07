@@ -23,6 +23,7 @@ import {
 } from "firebase/firestore";
 import { auth, db } from "../lib/firebase";
 import type { Category } from "../model/category";
+import type { GameState } from "../model/gameState";
 import type { CreateRoomData, Room } from "../model/room";
 import type { SongItem } from "../model/songItem";
 import { getUserDjName } from "./usersService";
@@ -240,6 +241,16 @@ export async function updateRoom(
   }
 
   await updateDoc(roomDoc(roomId), updates);
+}
+
+/**
+ * Save the live game state (board + scores) on the room document.
+ * Unlike updateRoom, this skips the ownership pre-read — it runs on every
+ * tile click and score award, and the security rules already restrict
+ * writes to the host and co-owners.
+ */
+export async function updateRoomGameState(roomId: string, gameState: GameState): Promise<void> {
+  await updateDoc(roomDoc(roomId), { gameState });
 }
 
 /**

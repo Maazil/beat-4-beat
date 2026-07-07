@@ -1,6 +1,7 @@
 import { useParams } from "@solidjs/router";
 import { Component, createSignal, For, Show } from "solid-js";
 import { useRoom } from "../../hooks/useRoom";
+import { useGameState } from "../../hooks/useGameState";
 import { usePlaybackProgress } from "../../hooks/usePlaybackProgress";
 import { roomHostNames } from "../../lib/roomHosts";
 import {
@@ -17,7 +18,6 @@ import type { SpotifyDevice } from "../../lib/spotify";
 import DevicePicker, { deviceIcon } from "../../components/DevicePicker";
 import NowPlayingBar from "../../components/NowPlayingBar";
 import Scoreboard from "../../components/Scoreboard";
-import type { Score } from "../../model/score";
 import { posterInk } from "../../theme/palette";
 import type { PosterInk } from "../../theme/palette";
 
@@ -47,16 +47,14 @@ const RoomPlayInner: Component = () => {
     storedDevice ? (JSON.parse(storedDevice) as SpotifyDevice) : null,
   );
 
-  // Local scores — per-session, not shared across users
-  const [scores, setScores] = createSignal<Score[]>([]);
+  // Game state — synced to the room doc for hosts/co-owners, localStorage otherwise
+  const { game, updateGame } = useGameState(() => params.id, currentRoom);
+  const scores = () => game().scores;
+  const playOrder = () => game().playOrder;
+  const currentItemId = () => game().currentItemId;
+  const isItemRevealed = (id: string) => playOrder().includes(id);
 
-  // Playback state
-  const [revealedItems, setRevealedItems] = createSignal<Set<string>>(new Set());
-  const [currentItemId, setCurrentItemId] = createSignal<string | null>(null);
   const [showTrackInfo, setShowTrackInfo] = createSignal(false);
-
-  // Songs in the order they were played — each one is a scoring round
-  const [playOrder, setPlayOrder] = createSignal<string[]>([]);
 
   const currentRound = () => {
     const id = currentItemId();
@@ -88,9 +86,11 @@ const RoomPlayInner: Component = () => {
   };
 
   const handleItemClick = async (itemId: string, songUrl?: string, startTime?: number) => {
-    setRevealedItems((prev) => new Set(prev).add(itemId));
-    setPlayOrder((prev) => (prev.includes(itemId) ? prev : [...prev, itemId]));
-    setCurrentItemId(itemId);
+    const order = playOrder();
+    updateGame({
+      playOrder: order.includes(itemId) ? order : [...order, itemId],
+      currentItemId: itemId,
+    });
     setShowTrackInfo(false);
 
     if (!songUrl) return;
@@ -114,6 +114,22 @@ const RoomPlayInner: Component = () => {
 
     // Fallback: open externally if no device or not a Spotify URL
     window.open(songUrl, "_blank");
+  };
+
+  // Anything on the board or scoreboard worth resetting?
+  const gameStarted = () =>
+    playOrder().length > 0 || scores().some((s) => s.roundPoints.length > 0);
+
+  /** Reset the board and zero all scores, keeping the teams. */
+  const handleNewGame = () => {
+    if (!confirm("Start a new game? The board resets and scores go back to zero.")) return;
+    updateGame({
+      playOrder: [],
+      currentItemId: null,
+      scores: scores().map((s) => ({ ...s, roundPoints: [] })),
+    });
+    setShowTrackInfo(false);
+    if (playback.isPlaying()) void handlePause();
   };
 
   const handlePause = async () => {
@@ -310,18 +326,29 @@ const RoomPlayInner: Component = () => {
               )}
             </Show>
 
-            {/* Scoreboard — local per session, not shared */}
+            {/* Scoreboard — synced via the room doc for hosts, local otherwise */}
             <Scoreboard
               scores={scores()}
               currentRound={currentRound()}
               roundLabels={roundLabels()}
-              onUpdateScores={setScores}
+              onUpdateScores={(next) => updateGame({ scores: next })}
             />
 
             {/* Game board */}
             <Show when={selectedDevice() || !spotifyConnected()}>
               <div class="py-4 pb-16">
-                <p class="mb-4 text-muted">Click a tile to play a song</p>
+                <div class="mb-4 flex flex-wrap items-center justify-between gap-2">
+                  <p class="text-muted">Click a tile to play a song</p>
+                  <Show when={gameStarted()}>
+                    <button
+                      type="button"
+                      onClick={handleNewGame}
+                      class="rounded-full border-2 border-ink px-3 py-1 text-xs font-bold text-ink shadow-[2px_2px_0_var(--color-ink)] transition hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[3px_3px_0_var(--color-ink)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
+                    >
+                      New game
+                    </button>
+                  </Show>
+                </div>
                 {/* Single-category: full-width grid, one ink for the whole board */}
                 <Show when={(currentRoom()?.categories.length ?? 0) === 1}>
                   <div class="grid grid-cols-2 gap-6 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
@@ -332,19 +359,17 @@ const RoomPlayInner: Component = () => {
                           <button
                             type="button"
                             class={`flex h-20 w-full cursor-pointer items-center justify-center rounded-xl sm:h-24 ${
-                              revealedItems().has(item.id)
+                              isItemRevealed(item.id)
                                 ? "border-2 border-dashed border-line bg-sand/50"
                                 : "press-card"
                             }`}
-                            style={revealedItems().has(item.id) ? undefined : pressVars(ink)}
+                            style={isItemRevealed(item.id) ? undefined : pressVars(ink)}
                             onClick={() => handleItemClick(item.id, item.songUrl, item.startTime)}
                           >
                             <span
                               class="font-mono text-2xl font-bold"
                               style={{
-                                color: revealedItems().has(item.id)
-                                  ? "var(--color-muted)"
-                                  : ink.deep,
+                                color: isItemRevealed(item.id) ? "var(--color-muted)" : ink.deep,
                               }}
                             >
                               {item.level}
@@ -382,13 +407,11 @@ const RoomPlayInner: Component = () => {
                                   <button
                                     type="button"
                                     class={`flex h-16 w-full cursor-pointer items-center justify-center rounded-lg ${
-                                      revealedItems().has(item.id)
+                                      isItemRevealed(item.id)
                                         ? "border-2 border-dashed border-line bg-sand/50"
                                         : "press-card"
                                     }`}
-                                    style={
-                                      revealedItems().has(item.id) ? undefined : pressVars(ink())
-                                    }
+                                    style={isItemRevealed(item.id) ? undefined : pressVars(ink())}
                                     onClick={() =>
                                       handleItemClick(item.id, item.songUrl, item.startTime)
                                     }
@@ -396,7 +419,7 @@ const RoomPlayInner: Component = () => {
                                     <span
                                       class="font-mono text-2xl font-bold"
                                       style={{
-                                        color: revealedItems().has(item.id)
+                                        color: isItemRevealed(item.id)
                                           ? "var(--color-muted)"
                                           : ink().deep,
                                       }}

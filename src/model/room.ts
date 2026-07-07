@@ -1,4 +1,5 @@
 import type { Category } from "./category";
+import type { GameState } from "./gameState";
 import type { Score } from "./score";
 
 export interface Room {
@@ -12,6 +13,7 @@ export interface Room {
   categories: Category[]; // Music categories (Pop, 80s, etc.)
   showCategories?: boolean; // Optional: whether categories are shown
   scores?: Score[]; // Optional: team score tracking
+  gameState?: GameState; // Live game progress (board + scores), synced while playing
   isActive: boolean; // Game running state
   createdAt: Date | number; // Timestamp
   isPublic: boolean;
