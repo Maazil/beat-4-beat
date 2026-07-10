@@ -1,0 +1,563 @@
+/*
+  Landing page — "Stage Night" theme.
+  Scoped to .stage-night: these dark tokens are landing-only and must not
+  leak into the light "gig poster" system used inside the app.
+  Reference: docs/landing-redesign/demo-a-stage-night.html
+*/
+
+.stage-night {
+  --bg: #02182b;
+  --surface: #062741;
+  --surface-2: #0a314f;
+  --line: rgba(198, 216, 255, 0.15);
+  --text: #fef9ff;
+  --stage-muted: rgba(198, 216, 255, 0.78);
+  --peri: #c6d8ff;
+  --gold: #eac435;
+  --gold-deep: #c7a41c;
+  --magenta: #820263;
+  --magenta-hot: #c2158f;
+  --disp: "Bricolage Grotesque", system-ui, sans-serif;
+  --mono: "Spline Sans Mono", ui-monospace, monospace;
+  --body-face: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+  position: relative;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--body-face);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+.stage-night ::selection {
+  background: var(--gold);
+  color: var(--bg);
+}
+
+.stage-night a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.stage-night .wrap {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.stage-night .mono {
+  font-family: var(--mono);
+}
+
+.stage-night :is(a, button):focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ── Ambient stage glow ────────────────────────────────────── */
+
+.stage-night .stage-glow {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.stage-night .stage-glow::before,
+.stage-night .stage-glow::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(110px);
+}
+
+.stage-night .stage-glow::before {
+  width: 560px;
+  height: 560px;
+  top: -180px;
+  left: 50%;
+  transform: translateX(-70%);
+  background: rgba(234, 196, 53, 0.1);
+}
+
+.stage-night .stage-glow::after {
+  width: 520px;
+  height: 520px;
+  top: -140px;
+  left: 50%;
+  transform: translateX(10%);
+  background: rgba(194, 21, 143, 0.1);
+}
+
+.stage-night main {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Nav ───────────────────────────────────────────────────── */
+
+.stage-night nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22px 0;
+}
+
+.stage-night .wordmark {
+  font-family: var(--disp);
+  font-weight: 800;
+  font-size: 20px;
+  letter-spacing: 0.01em;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.stage-night .wordmark .tick {
+  display: inline-block;
+  width: 10px;
+  height: 22px;
+  background: var(--gold);
+  border-radius: 2px;
+}
+
+.stage-night .navlinks {
+  display: flex;
+  gap: 28px;
+  align-items: center;
+  font-size: 14.5px;
+  color: var(--stage-muted);
+}
+
+.stage-night .navlinks a:hover {
+  color: var(--text);
+}
+
+.stage-night .btn-signin {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 7px 18px;
+  color: var(--text);
+  background: transparent;
+  font: 600 14px var(--body-face);
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    background 0.15s;
+}
+
+.stage-night .btn-signin:hover {
+  border-color: var(--gold);
+  background: rgba(234, 196, 53, 0.08);
+}
+
+@media (max-width: 720px) {
+  .stage-night .navlinks a {
+    display: none;
+  }
+}
+
+/* ── Hero ──────────────────────────────────────────────────── */
+
+.stage-night .hero {
+  text-align: center;
+  padding: 64px 0 28px;
+}
+
+.stage-night .badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  border: 1px solid var(--line);
+  background: rgba(6, 39, 65, 0.7);
+  border-radius: 999px;
+  padding: 7px 16px;
+  font: 500 12.5px var(--mono);
+  letter-spacing: 0.08em;
+  color: var(--peri);
+}
+
+.stage-night .badge .dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 0 0 10px var(--gold);
+}
+
+.stage-night h1 {
+  font-family: var(--disp);
+  font-weight: 800;
+  font-size: clamp(44px, 7.4vw, 84px);
+  line-height: 1;
+  letter-spacing: -0.015em;
+  margin: 26px auto 0;
+  max-width: 14ch;
+  text-wrap: balance;
+}
+
+.stage-night h1 .glow {
+  background: linear-gradient(100deg, var(--gold) 15%, #f5e08a 45%, var(--magenta-hot) 90%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0 28px rgba(234, 196, 53, 0.28));
+}
+
+.stage-night .sub {
+  max-width: 56ch;
+  margin: 22px auto 0;
+  color: var(--stage-muted);
+  font-size: 18px;
+  text-wrap: pretty;
+}
+
+.stage-night .ctas {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 34px;
+}
+
+.stage-night .btn {
+  display: inline-block;
+  font: 700 16px var(--body-face);
+  border-radius: 999px;
+  padding: 14px 30px;
+  cursor: pointer;
+  border: none;
+  transition:
+    transform 0.15s,
+    box-shadow 0.15s,
+    background 0.15s;
+}
+
+.stage-night .btn-gold {
+  background: var(--gold);
+  color: var(--bg);
+  box-shadow: 0 8px 30px rgba(234, 196, 53, 0.28);
+}
+
+.stage-night .btn-gold:hover {
+  transform: translateY(-2px);
+  background: #f2d157;
+  box-shadow: 0 12px 36px rgba(234, 196, 53, 0.38);
+}
+
+.stage-night .btn-ghost {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--line);
+  padding: 13px 29px;
+}
+
+.stage-night .btn-ghost:hover {
+  border-color: var(--peri);
+  background: rgba(198, 216, 255, 0.06);
+}
+
+.stage-night .hero-note {
+  margin-top: 18px;
+  font: 500 12px var(--mono);
+  letter-spacing: 0.14em;
+  color: rgba(198, 216, 255, 0.5);
+  text-transform: uppercase;
+}
+
+/* ── Sim window ────────────────────────────────────────────── */
+
+.stage-night .sim-frame {
+  margin: 54px auto 0;
+  max-width: 980px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: linear-gradient(180deg, var(--surface) 0%, #04203595 100%);
+  box-shadow:
+    0 30px 80px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(2, 24, 43, 0.8);
+  overflow: hidden;
+}
+
+.stage-night .sim-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.stage-night .sim-bar .led {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.stage-night .sim-bar .t {
+  margin-left: 10px;
+  font: 500 11.5px var(--mono);
+  letter-spacing: 0.16em;
+  color: rgba(198, 216, 255, 0.55);
+  text-transform: uppercase;
+}
+
+.stage-night .sim-live {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font: 500 11px var(--mono);
+  letter-spacing: 0.14em;
+  color: var(--gold);
+}
+
+.stage-night .sim-live .pulse {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--gold);
+  animation: sim-blink 1.2s infinite;
+}
+
+@keyframes sim-blink {
+  50% {
+    opacity: 0.25;
+  }
+}
+
+.stage-night .sim {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16/9.4;
+  background: transparent;
+  touch-action: manipulation;
+}
+
+/* ── Section scaffolding ───────────────────────────────────── */
+
+.stage-night section {
+  padding: 96px 0 0;
+}
+
+.stage-night .eyebrow {
+  font: 500 12.5px var(--mono);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.stage-night h2 {
+  font-family: var(--disp);
+  font-weight: 800;
+  font-size: clamp(30px, 4.4vw, 46px);
+  line-height: 1.06;
+  letter-spacing: -0.01em;
+  margin-top: 14px;
+  text-wrap: balance;
+}
+
+.stage-night .lede {
+  color: var(--stage-muted);
+  max-width: 58ch;
+  margin-top: 14px;
+  font-size: 17px;
+}
+
+/* ── Steps ─────────────────────────────────────────────────── */
+
+.stage-night .steps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-top: 44px;
+}
+
+.stage-night .step {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(6, 39, 65, 0.55);
+  padding: 24px 22px;
+  position: relative;
+}
+
+.stage-night .step .num {
+  font: 500 13px var(--mono);
+  color: var(--gold);
+  letter-spacing: 0.1em;
+}
+
+.stage-night .step h3 {
+  font-family: var(--disp);
+  font-weight: 800;
+  font-size: 20px;
+  margin: 12px 0 8px;
+  line-height: 1.2;
+}
+
+.stage-night .step p {
+  color: var(--stage-muted);
+  font-size: 14.5px;
+}
+
+.stage-night .step::after {
+  content: "";
+  position: absolute;
+  left: 22px;
+  right: 22px;
+  top: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--gold), transparent);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.stage-night .step:hover::after {
+  opacity: 1;
+}
+
+@media (max-width: 900px) {
+  .stage-night .steps {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 560px) {
+  .stage-night .steps {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Features ──────────────────────────────────────────────── */
+
+.stage-night .features {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-top: 44px;
+}
+
+.stage-night .feat {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(6, 39, 65, 0.55);
+  padding: 26px 24px;
+  transition:
+    border-color 0.2s,
+    transform 0.2s;
+}
+
+.stage-night .feat:hover {
+  border-color: rgba(234, 196, 53, 0.45);
+  transform: translateY(-2px);
+}
+
+.stage-night .feat .ic {
+  width: 42px;
+  height: 42px;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 18px;
+  background: rgba(234, 196, 53, 0.12);
+}
+
+.stage-night .feat:nth-child(3n + 2) .ic {
+  background: rgba(194, 21, 143, 0.14);
+}
+
+.stage-night .feat:nth-child(3n) .ic {
+  background: rgba(198, 216, 255, 0.12);
+}
+
+.stage-night .feat h3 {
+  font-family: var(--disp);
+  font-weight: 800;
+  font-size: 19px;
+  margin-bottom: 8px;
+  line-height: 1.25;
+}
+
+.stage-night .feat p {
+  color: var(--stage-muted);
+  font-size: 14.5px;
+}
+
+@media (max-width: 900px) {
+  .stage-night .features {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 560px) {
+  .stage-night .features {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── CTA band + footer ─────────────────────────────────────── */
+
+.stage-night .cta-band {
+  margin-top: 110px;
+  background: linear-gradient(120deg, var(--magenta) 0%, #5a0245 100%);
+  border-top: 1px solid rgba(198, 216, 255, 0.2);
+}
+
+.stage-night .cta-inner {
+  padding: 84px 24px;
+  text-align: center;
+}
+
+.stage-night .cta-band h2 {
+  max-width: 20ch;
+  margin: 14px auto 0;
+}
+
+.stage-night .cta-band .lede {
+  margin: 16px auto 0;
+  color: rgba(254, 249, 255, 0.8);
+}
+
+.stage-night .cta-band .ctas {
+  margin-top: 32px;
+}
+
+.stage-night .cta-band .btn-ghost {
+  border-color: rgba(254, 249, 255, 0.4);
+}
+
+.stage-night footer {
+  border-top: 1px solid rgba(198, 216, 255, 0.14);
+  background: #01111f;
+}
+
+.stage-night .foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 30px 0;
+  font-size: 13.5px;
+  color: rgba(198, 216, 255, 0.5);
+}
+
+.stage-night .foot .wordmark {
+  font-size: 16px;
+}
+
+.stage-night .foot .wordmark .tick {
+  height: 16px;
+  width: 7px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stage-night *,
+  .stage-night *::before,
+  .stage-night *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
