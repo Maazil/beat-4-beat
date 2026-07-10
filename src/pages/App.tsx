@@ -1,17 +1,8 @@
 import { Meta, Title } from "@solidjs/meta";
 import { useNavigate } from "@solidjs/router";
-import { For, type Component } from "solid-js";
-import Logo from "../components/Logo";
-import RandomVisualizer from "../components/RandomVisualizer";
-
-const marqueeWords = [
-  "Guess the track",
-  "Steal the points",
-  "Pick your team",
-  "Hit play",
-  "Beat the room",
-  "One more round",
-];
+import type { Component } from "solid-js";
+import SimBoard from "../components/landing/SimBoard";
+import "./stage-night.css";
 
 const App: Component = () => {
   const navigate = useNavigate();
@@ -24,126 +15,260 @@ const App: Component = () => {
         content="Beat 4 Beat is the ultimate music quiz party game. Build game boards from your Spotify playlists, gather your friends, guess the track, and beat the room."
       />
 
-      <main class="bg-stage relative flex min-h-screen flex-col overflow-hidden">
-        {/* Texture + soft floating glows */}
-        <div class="pointer-events-none absolute inset-0">
-          <div class="bg-halftone absolute inset-0 opacity-60" />
-          <div class="animate-ambient-float absolute top-24 -left-28 h-72 w-72 rounded-full bg-beat/10 blur-[120px]" />
-          <div class="animate-ambient-float absolute -right-24 bottom-32 h-80 w-80 rounded-full bg-beat/8 blur-[140px]" />
-        </div>
-
-        {/* Header */}
-        <header class="relative z-10 mx-auto flex w-full max-w-6xl items-center justify-between px-6 pt-8">
-          <Logo class="animate-rise-in h-9 w-auto" />
-          <button
-            type="button"
-            onClick={() => navigate("/login")}
-            class="animate-rise-in rounded-full border-2 border-line bg-paper px-5 py-2 text-sm font-semibold text-ink transition hover:-translate-x-0.5 hover:-translate-y-0.5 hover:border-ink hover:shadow-[3px_3px_0_var(--color-ink)] active:translate-x-0 active:translate-y-0 active:shadow-none"
-            style={{ "animation-delay": "80ms" }}
-          >
-            Sign in
-          </button>
-        </header>
-
-        {/* Hero */}
-        <section class="relative z-10 mx-auto flex w-full max-w-6xl flex-1 flex-col justify-center px-6 py-16">
-          <p
-            class="animate-rise-in mb-6 font-mono text-xs font-semibold tracking-[0.35em] text-beat uppercase"
-            style={{ "animation-delay": "120ms" }}
-          >
-            ♪ The music quiz party game
-          </p>
-
-          <h1
-            class="animate-rise-in font-display max-w-4xl text-6xl leading-[0.95] font-extrabold tracking-tight text-balance text-ink sm:text-7xl lg:text-8xl"
-            style={{ "animation-delay": "200ms" }}
-          >
-            Guess the track.
-            <br />
-            <span class="mt-3 inline-block -rotate-1 bg-beat px-4 pb-2 text-white shadow-[6px_6px_0_var(--color-ink)]">
-              Beat the room.
-            </span>
-          </h1>
-
-          <p
-            class="animate-rise-in mt-8 max-w-[52ch] text-lg text-pretty text-muted"
-            style={{ "animation-delay": "320ms" }}
-          >
-            Build a game board from your Spotify playlists, gather your friends, and find out who
-            really knows their music. First to name the tune takes the points.
-          </p>
-
-          <div
-            class="animate-rise-in mt-10 flex flex-wrap items-center gap-4"
-            style={{ "animation-delay": "440ms" }}
-          >
-            <button
-              type="button"
-              onClick={() => navigate("/login")}
-              class="group inline-flex items-center gap-3 rounded-full bg-beat px-8 py-3.5 text-base font-bold text-white shadow-[4px_4px_0_var(--color-ink)] transition duration-200 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:bg-beat-deep hover:shadow-[5px_5px_0_var(--color-ink)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-beat"
-            >
-              <span>Start playing</span>
-              <span class="flex h-6 w-6 items-center justify-center rounded-full bg-white/20 transition duration-300 group-hover:translate-x-0.5">
-                <svg
-                  class="h-3.5 w-3.5"
-                  viewBox="0 0 16 16"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                  aria-hidden="true"
+      <div class="stage-night">
+        <div class="stage-glow" aria-hidden="true" />
+        <main>
+          <div class="wrap">
+            <nav>
+              <a class="wordmark" href="/">
+                <span class="tick" />
+                BEAT 4 BEAT
+              </a>
+              <div class="navlinks">
+                <a href="#how">How it plays</a>
+                <a href="#features">Features</a>
+                <a
+                  href="/market"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    navigate("/market");
+                  }}
                 >
-                  <path
-                    d="M5.333 3.556 10.667 8l-5.334 4.444"
-                    stroke="currentColor"
-                    stroke-width="1.6"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
+                  Marketplace
+                </a>
+                <button type="button" class="btn-signin" onClick={() => navigate("/login")}>
+                  Sign in
+                </button>
+              </div>
+            </nav>
+
+            <header class="hero">
+              <span class="badge">
+                <span class="dot" />
+                NEW · A MARKETPLACE OF PUBLIC BOARDS
               </span>
-            </button>
-            <button
-              type="button"
-              onClick={() => navigate("/market")}
-              class="rounded-full border-2 border-ink bg-paper px-7 py-3 text-base font-semibold text-ink shadow-[4px_4px_0_var(--color-ink)] transition duration-200 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[5px_5px_0_var(--color-ink)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
-            >
-              Explore public rooms
-            </button>
+              <h1>
+                Guess the track. <span class="glow">Beat the room.</span>
+              </h1>
+              <p class="sub">
+                The music quiz party game. Build a game board from your Spotify playlists, gather
+                your friends, and find out who really knows their music — first to name the tune
+                takes the points.
+              </p>
+              <div class="ctas">
+                <button type="button" class="btn btn-gold" onClick={() => navigate("/login")}>
+                  Start a game
+                </button>
+                <button type="button" class="btn btn-ghost" onClick={() => navigate("/market")}>
+                  Explore public boards
+                </button>
+              </div>
+              <p class="hero-note">Free to play · runs in the browser · nothing to install</p>
+
+              <SimBoard />
+            </header>
+
+            <section id="how">
+              <p class="eyebrow">How a round works</p>
+              <h2>Four beats to every game night</h2>
+              <div class="steps">
+                <div class="step">
+                  <span class="num mono">STEP 1</span>
+                  <h3>Build your board</h3>
+                  <p>
+                    Pick your categories and pull songs straight from your Spotify playlists. Set a
+                    point level on every track.
+                  </p>
+                </div>
+                <div class="step">
+                  <span class="num mono">STEP 2</span>
+                  <h3>Pick a tile, hit play</h3>
+                  <p>
+                    Teams take turns choosing a category and a stake. The host controls the snippet
+                    — nobody touches the aux.
+                  </p>
+                </div>
+                <div class="step">
+                  <span class="num mono">STEP 3</span>
+                  <h3>Shout it out</h3>
+                  <p>
+                    Title and artist score separately. Miss the artist? Another team can steal that
+                    point right off your round.
+                  </p>
+                </div>
+                <div class="step">
+                  <span class="num mono">STEP 4</span>
+                  <h3>Reveal the standings</h3>
+                  <p>
+                    Totals stay hidden while you play. One reveal at the end, maximum drama, one
+                    winner.
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            <section id="features">
+              <p class="eyebrow">Built for the living room</p>
+              <h2>Everything a host needs, nothing they don't</h2>
+              <div class="features">
+                <div class="feat">
+                  <div class="ic">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                      <circle cx="10" cy="10" r="8" stroke="#EAC435" stroke-width="1.6" />
+                      <path
+                        d="M6.5 8.2c2.6-.8 5-.6 7 .6M7 11c2-.6 3.8-.4 5.4.5"
+                        stroke="#EAC435"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                      />
+                    </svg>
+                  </div>
+                  <h3>Boards from your playlists</h3>
+                  <p>
+                    Search Spotify and drop tracks straight onto the board. No Spotify link? YouTube
+                    playback fills the gaps.
+                  </p>
+                </div>
+                <div class="feat">
+                  <div class="ic">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                      <rect
+                        x="2"
+                        y="4"
+                        width="11"
+                        height="9"
+                        rx="1.5"
+                        stroke="#C2158F"
+                        stroke-width="1.6"
+                      />
+                      <rect
+                        x="13.5"
+                        y="8"
+                        width="4.5"
+                        height="8"
+                        rx="1.2"
+                        stroke="#C2158F"
+                        stroke-width="1.6"
+                      />
+                    </svg>
+                  </div>
+                  <h3>Live on every screen</h3>
+                  <p>
+                    Rooms sync in real time. Put the board on the TV, run the controls from your
+                    phone.
+                  </p>
+                </div>
+                <div class="feat">
+                  <div class="ic">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                      <path
+                        d="M3 7l7-4 7 4-7 4-7-4Z"
+                        stroke="#C6D8FF"
+                        stroke-width="1.5"
+                        stroke-linejoin="round"
+                      />
+                      <path
+                        d="M3 7v6l7 4 7-4V7"
+                        stroke="#C6D8FF"
+                        stroke-width="1.5"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                  </div>
+                  <h3>A marketplace of boards</h3>
+                  <p>
+                    Short on prep time? Grab a public board, duplicate it to your dashboard, and
+                    remix the categories.
+                  </p>
+                </div>
+                <div class="feat">
+                  <div class="ic">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                      <path
+                        d="M4 16V9M10 16V4M16 16v-6"
+                        stroke="#EAC435"
+                        stroke-width="1.8"
+                        stroke-linecap="round"
+                      />
+                    </svg>
+                  </div>
+                  <h3>Title + artist scoring</h3>
+                  <p>
+                    Every song is worth two calls. Nail the title, fumble the artist, and watch a
+                    rival steal the difference.
+                  </p>
+                </div>
+                <div class="feat">
+                  <div class="ic">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                      <rect
+                        x="3"
+                        y="8"
+                        width="14"
+                        height="9"
+                        rx="2"
+                        stroke="#C2158F"
+                        stroke-width="1.6"
+                      />
+                      <path d="M7 8V6a3 3 0 0 1 6 0v2" stroke="#C2158F" stroke-width="1.6" />
+                    </svg>
+                  </div>
+                  <h3>Standings stay secret</h3>
+                  <p>
+                    No live leaderboard to kill the tension. Scores stay masked until the host hits
+                    reveal.
+                  </p>
+                </div>
+                <div class="feat">
+                  <div class="ic">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                      <path
+                        d="M6 4.5v11l9-5.5-9-5.5Z"
+                        stroke="#C6D8FF"
+                        stroke-width="1.6"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                  </div>
+                  <h3>The host runs the show</h3>
+                  <p>
+                    Start and stop snippets, set the start time on tricky intros, award points, keep
+                    the chaos on the rails.
+                  </p>
+                </div>
+              </div>
+            </section>
           </div>
 
-          <div class="animate-rise-in mt-14 max-w-xl" style={{ "animation-delay": "560ms" }}>
-            <RandomVisualizer />
-          </div>
-        </section>
-
-        {/* Marquee footer */}
-        <div
-          class="animate-rise-in relative z-10 border-t border-line bg-paper/80 py-4 backdrop-blur-sm"
-          style={{ "animation-delay": "680ms" }}
-        >
-          <div class="flex overflow-hidden" aria-hidden="true">
-            <div class="animate-marquee flex shrink-0 items-center gap-8 pr-8 whitespace-nowrap">
-              <For each={[...marqueeWords, ...marqueeWords]}>
-                {(word) => (
-                  <span class="flex items-center gap-8 font-mono text-sm font-medium tracking-[0.25em] text-muted uppercase">
-                    {word}
-                    <span class="text-beat">♪</span>
-                  </span>
-                )}
-              </For>
-            </div>
-            <div class="animate-marquee flex shrink-0 items-center gap-8 pr-8 whitespace-nowrap">
-              <For each={[...marqueeWords, ...marqueeWords]}>
-                {(word) => (
-                  <span class="flex items-center gap-8 font-mono text-sm font-medium tracking-[0.25em] text-muted uppercase">
-                    {word}
-                    <span class="text-beat">♪</span>
-                  </span>
-                )}
-              </For>
+          <div class="cta-band">
+            <div class="cta-inner wrap">
+              <p class="eyebrow">Tonight's the night</p>
+              <h2>Your playlists are already a game. Deal the board.</h2>
+              <p class="lede">
+                Sign in with Google, build your first board in minutes, and settle who really knows
+                their music.
+              </p>
+              <div class="ctas">
+                <button type="button" class="btn btn-gold" onClick={() => navigate("/login")}>
+                  Start playing free
+                </button>
+                <button type="button" class="btn btn-ghost" onClick={() => navigate("/market")}>
+                  Browse the marketplace
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      </main>
+          <footer>
+            <div class="wrap foot">
+              <a class="wordmark" href="/">
+                <span class="tick" />
+                BEAT 4 BEAT
+              </a>
+              <span>Made for game night · free to play</span>
+            </div>
+          </footer>
+        </main>
+      </div>
     </>
   );
 };
