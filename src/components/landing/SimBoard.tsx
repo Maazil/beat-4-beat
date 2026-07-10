@@ -16,7 +16,9 @@ const TEXT = "#FEF9FF";
 const NAVY = "#02182B";
 
 const CATS = ["ONE-HIT WONDERS", "MOVIE THEMES", "2000s POP", "SLOW JAMS", "COVER SONGS"];
-const LEVELS = [100, 200, 300, 400];
+// Songs per category — tiles carry plain 1–N numbers like the real board,
+// and every title/artist call is worth one point.
+const ROWS = 4;
 const TEAM_DEFS = [
   { name: "VINYL VILLAINS", c: GOLD },
   { name: "KEY SMASHERS", c: PERI },
@@ -130,7 +132,7 @@ const SimBoard: Component = () => {
     function reset(now: number) {
       tiles = [];
       for (let c = 0; c < CATS.length; c++)
-        for (let l = 0; l < LEVELS.length; l++) tiles.push({ c, l, rev: false });
+        for (let l = 0; l < ROWS; l++) tiles.push({ c, l, rev: false });
       teams = TEAM_DEFS.map((t) => ({
         name: t.name,
         c: t.c,
@@ -162,7 +164,7 @@ const SimBoard: Component = () => {
       const gw = W - pad * 2;
       const gh = H - gy - pad;
       const cw = gw / CATS.length;
-      const rh = gh / LEVELS.length;
+      const rh = gh / ROWS;
       return { pad, chipH, headerH, catH, gx, gy, gw, gh, cw, rh };
     }
 
@@ -306,7 +308,7 @@ const SimBoard: Component = () => {
           c.fillStyle = GOLD;
           c.globalAlpha = active ? 1 : 0.92;
           c.font = `500 ${Math.max(12, r.h * 0.32)}px "Spline Sans Mono",monospace`;
-          c.fillText(String(LEVELS[t.l]), x + r.w / 2, y + r.h / 2);
+          c.fillText(String(t.l + 1), x + r.w / 2, y + r.h / 2);
           c.globalAlpha = 1;
         }
       }
@@ -436,10 +438,9 @@ const SimBoard: Component = () => {
       if (!cur) return;
       const g = grid();
       const r = tileRect(g, cur);
-      const pts = LEVELS[cur.l];
       const wi = Math.floor(Math.random() * teams.length);
       const winner = teams[wi];
-      winner.score += pts;
+      winner.score += 1;
       winner.pulse = 1;
       winner.pulseT = now + 300;
       if (animate)
@@ -450,14 +451,14 @@ const SimBoard: Component = () => {
           y1: winner.cy,
           t0: now,
           dur: 900,
-          label: `+${pts} TITLE`,
+          label: "+1 TITLE",
           color: winner.c,
         });
       if (Math.random() < 0.35) {
         // artist point stolen by another team
         const si = (wi + 1 + Math.floor(Math.random() * (teams.length - 1))) % teams.length;
         const thief = teams[si];
-        thief.score += pts;
+        thief.score += 1;
         thief.pulse = 1;
         thief.pulseT = now + 520;
         if (animate)
@@ -468,7 +469,7 @@ const SimBoard: Component = () => {
             y1: thief.cy,
             t0: now + 240,
             dur: 950,
-            label: `STEAL +${pts} ARTIST`,
+            label: "STEAL +1 ARTIST",
             color: thief.c,
           });
       }
