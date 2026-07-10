@@ -264,6 +264,7 @@ const App: Component = () => {
                 <span class="tick" />
                 BEAT 4 BEAT
               </a>
+              <span>Made by Matthew Ling</span>
               <span>Made for game night · free to play</span>
             </div>
           </footer>
