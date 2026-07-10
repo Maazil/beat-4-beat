@@ -6,8 +6,7 @@ import { createSignal, onCleanup, onMount, type Component } from "solid-js";
  * (with steals) fly to a team → standings stay masked until the final reveal.
  *
  * The sim is self-contained imperative canvas code, deliberately kept outside
- * Solid's reactivity — no signals inside the rAF loop. Reference:
- * docs/landing-redesign/demo-a-stage-night.html
+ * Solid's reactivity — no signals inside the rAF loop.
  */
 
 const GOLD = "#EAC435";

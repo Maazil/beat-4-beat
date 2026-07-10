@@ -2,7 +2,6 @@
   Landing page — "Stage Night" theme.
   Scoped to .stage-night: these dark tokens are landing-only and must not
   leak into the light "gig poster" system used inside the app.
-  Reference: docs/landing-redesign/demo-a-stage-night.html
 */
 
 .stage-night {
