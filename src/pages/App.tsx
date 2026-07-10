@@ -12,7 +12,7 @@ const App: Component = () => {
       <Title>Beat 4 Beat — The music quiz party game</Title>
       <Meta
         name="description"
-        content="Beat 4 Beat is the ultimate music quiz party game. Build game boards from your Spotify playlists, gather your friends, guess the track, and beat the room."
+        content="Beat 4 Beat is the ultimate music quiz party game. Fill game boards with your favorite Spotify songs, gather your friends, guess the track, and beat the room."
       />
 
       <div class="stage-night">
@@ -51,9 +51,9 @@ const App: Component = () => {
                 Guess the track. <span class="glow">Beat the room.</span>
               </h1>
               <p class="sub">
-                The music quiz party game. Build a game board from your Spotify playlists, gather
-                your friends, and find out who really knows their music — first to name the tune
-                takes the points.
+                The music quiz party game. Fill a game board with your favorite Spotify songs,
+                gather your friends, and find out who really knows their music — first to name the
+                tune takes the points.
               </p>
               <div class="ctas">
                 <button type="button" class="btn btn-gold" onClick={() => navigate("/login")}>
@@ -76,16 +76,16 @@ const App: Component = () => {
                   <span class="num mono">STEP 1</span>
                   <h3>Build your board</h3>
                   <p>
-                    Pick your categories and pull songs straight from your Spotify playlists. Set a
-                    point level on every track.
+                    Pick your categories and place your Spotify songs on the board, one by one —
+                    every tile hides a track.
                   </p>
                 </div>
                 <div class="step">
                   <span class="num mono">STEP 2</span>
                   <h3>Pick a tile, hit play</h3>
                   <p>
-                    Teams take turns choosing a category and a stake. The host controls the snippet
-                    — nobody touches the aux.
+                    Teams take turns choosing which song to open. The host controls the snippet —
+                    nobody touches the aux.
                   </p>
                 </div>
                 <div class="step">
@@ -123,10 +123,10 @@ const App: Component = () => {
                       />
                     </svg>
                   </div>
-                  <h3>Boards from your playlists</h3>
+                  <h3>Boards built song by song</h3>
                   <p>
-                    Search Spotify and drop tracks straight onto the board. No Spotify link? YouTube
-                    playback fills the gaps.
+                    Search Spotify and place each track on the board yourself. No Spotify link?
+                    YouTube playback fills the gaps.
                   </p>
                 </div>
                 <div class="feat">
@@ -194,8 +194,8 @@ const App: Component = () => {
                   </div>
                   <h3>Title + artist scoring</h3>
                   <p>
-                    Every song is worth two calls. Nail the title, fumble the artist, and watch a
-                    rival steal the difference.
+                    Every song is worth two calls — title and artist. Nail one, fumble the other,
+                    and a rival team can steal it.
                   </p>
                 </div>
                 <div class="feat">
