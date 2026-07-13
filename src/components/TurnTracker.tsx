@@ -29,7 +29,7 @@ const TurnTracker: Component<TurnTrackerProps> = (props) => {
 
   return (
     <Show when={count() >= 2}>
-      <section class="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-2xl border border-line bg-paper px-4 py-3 shadow-sm">
+      <section class="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-2xl border border-line bg-surface px-4 py-3">
         <h3 class="font-display text-sm font-bold tracking-wide text-ink uppercase">Turn</h3>
 
         <div class="flex flex-wrap items-center gap-2">
@@ -39,12 +39,12 @@ const TurnTracker: Component<TurnTrackerProps> = (props) => {
                 type="button"
                 title={index() === nextIndex() ? undefined : `Give ${name} the next pick`}
                 onClick={() => makeNext(index())}
-                class={`flex items-center gap-1.5 rounded-full border-2 px-3 py-1 text-xs font-bold transition ${
+                class={`flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-bold transition ${
                   index() === nowIndex()
-                    ? "border-beat bg-beat text-white shadow-[2px_2px_0_var(--color-ink)]"
+                    ? "border-beat bg-beat text-night"
                     : index() === nextIndex()
-                      ? "border-ink bg-paper text-ink shadow-[2px_2px_0_var(--color-ink)]"
-                      : "border-line text-muted hover:border-ink hover:text-ink"
+                      ? "border-beat/40 bg-beat-soft text-beat-bright"
+                      : "border-line text-muted hover:border-beat hover:text-ink"
                 }`}
               >
                 <Show when={index() === nowIndex()}>

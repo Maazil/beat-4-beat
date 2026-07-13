@@ -44,7 +44,7 @@ const Profile: Component = () => {
         </div>
 
         {/* DJ Name section */}
-        <section class="rounded-2xl border border-line bg-paper p-5 shadow-sm">
+        <section class="rounded-2xl border border-line bg-surface p-5">
           <h3 class="mb-3 font-mono text-xs font-semibold tracking-[0.2em] text-muted uppercase">
             DJ name
           </h3>
@@ -78,21 +78,21 @@ const Profile: Component = () => {
                 value={djNameInput()}
                 onInput={(e) => setDjNameInput(e.currentTarget.value)}
                 placeholder="E.g. DJ Mustard"
-                class="w-full rounded-xl border border-line bg-cream px-3 py-2 text-sm text-ink outline-none focus:border-beat focus:ring-2 focus:ring-beat/20"
+                class="w-full rounded-xl border border-line bg-surface-2 px-3 py-2 text-sm text-ink placeholder:text-muted/60 outline-none focus:border-beat focus:ring-2 focus:ring-beat/20"
                 autofocus
               />
               <div class="flex gap-2">
                 <button
                   type="submit"
                   disabled={isSaving()}
-                  class="rounded-full bg-beat px-5 py-2 text-sm font-bold text-white transition hover:bg-beat-deep disabled:opacity-50"
+                  class="rounded-full bg-beat px-5 py-2 text-sm font-bold text-night transition hover:bg-beat-bright disabled:opacity-50"
                 >
                   {isSaving() ? "Saving…" : "Save"}
                 </button>
                 <button
                   type="button"
                   onClick={() => setEditingDjName(false)}
-                  class="rounded-full border border-line px-5 py-2 text-sm font-semibold text-ink transition hover:bg-sand"
+                  class="rounded-full border border-line px-5 py-2 text-sm font-semibold text-ink transition hover:bg-surface-2"
                 >
                   Cancel
                 </button>
@@ -105,14 +105,14 @@ const Profile: Component = () => {
         <section class="flex flex-col gap-3">
           <button
             type="button"
-            class="inline-flex w-full items-center justify-center rounded-full bg-beat px-5 py-2.5 text-sm font-bold text-white transition hover:bg-beat-deep"
+            class="inline-flex w-full items-center justify-center rounded-full bg-beat px-5 py-2.5 text-sm font-bold text-night transition hover:bg-beat-bright"
             onClick={() => navigate("/dashboard")}
           >
             Go to dashboard
           </button>
           <button
             type="button"
-            class="inline-flex w-full items-center justify-center rounded-full border border-line bg-paper px-5 py-2.5 text-sm font-semibold text-ink transition hover:border-beat hover:text-beat"
+            class="inline-flex w-full items-center justify-center rounded-full border border-line px-5 py-2.5 text-sm font-semibold text-ink transition hover:border-beat hover:bg-beat-soft"
             onClick={logoutAndRedirect}
           >
             Sign out

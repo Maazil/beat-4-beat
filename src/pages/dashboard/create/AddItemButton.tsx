@@ -11,7 +11,7 @@ const AddItemButton: Component<AddItemButtonProps> = (props) => {
     <button
       type="button"
       onClick={() => props.onClick()}
-      class="flex h-16 w-full items-center justify-center rounded-lg border-2 border-dashed transition sm:h-20"
+      class="flex h-16 w-full items-center justify-center rounded-lg border border-dashed transition sm:h-20"
       style={{
         "border-color": props.colorScheme.border,
       }}

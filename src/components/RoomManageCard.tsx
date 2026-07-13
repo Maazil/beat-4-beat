@@ -33,8 +33,8 @@ const RoomManageCard: Component<RoomManageCardProps> = (props) => {
 
   const statusBadge = () =>
     props.room.isActive
-      ? "bg-beat-soft text-beat-deep border border-beat/20"
-      : "bg-sand text-muted border border-line";
+      ? "bg-beat-soft text-beat-bright border border-beat/30"
+      : "bg-surface-2 text-muted border border-line";
 
   const statusLabel = () => (props.room.isActive ? "Active" : "Inactive");
 
@@ -52,13 +52,13 @@ const RoomManageCard: Component<RoomManageCardProps> = (props) => {
   };
 
   return (
-    <article class="rounded-2xl border-2 border-line bg-paper p-5 transition hover:-translate-x-0.5 hover:-translate-y-0.5 hover:border-ink hover:shadow-[4px_4px_0_var(--color-ink)]">
+    <article class="rounded-2xl border border-line bg-surface p-5 transition hover:-translate-y-0.5 hover:border-beat/40">
       {/* Header */}
       <div class="mb-3 flex items-start justify-between">
         <div class="flex min-w-0 flex-wrap items-center gap-2">
           <h3 class="font-display text-lg font-bold text-ink">{props.room.roomName}</h3>
           <Show when={!isHost()}>
-            <span class="rounded-full border border-line bg-cream px-2.5 py-0.5 font-mono text-[10px] font-bold tracking-wide text-muted uppercase">
+            <span class="rounded-full border border-line bg-surface-2 px-2.5 py-0.5 font-mono text-[10px] font-bold tracking-wide text-muted uppercase">
               Co-owner
             </span>
           </Show>
@@ -87,19 +87,19 @@ const RoomManageCard: Component<RoomManageCardProps> = (props) => {
 
       {/* Actions */}
       {showDeleteConfirm() ? (
-        <div class="rounded-xl border border-beat/30 bg-beat-soft p-3">
-          <p class="mb-3 text-sm text-beat-deep">Are you sure you want to delete this room?</p>
+        <div class="rounded-xl border border-magenta-hot/40 bg-magenta-hot/10 p-3">
+          <p class="mb-3 text-sm text-ink">Are you sure you want to delete this room?</p>
           <div class="flex gap-2">
             <button
               type="button"
-              class="flex-1 rounded-full bg-beat px-3 py-2 text-sm font-bold text-white transition hover:bg-beat-deep"
+              class="flex-1 rounded-full bg-magenta-hot px-3 py-2 text-sm font-bold text-ink transition hover:brightness-110"
               onClick={handleDelete}
             >
               Yes, delete
             </button>
             <button
               type="button"
-              class="flex-1 rounded-full border border-line bg-paper px-3 py-2 text-sm font-semibold text-ink transition hover:bg-sand"
+              class="flex-1 rounded-full border border-line bg-surface px-3 py-2 text-sm font-semibold text-ink transition hover:bg-surface-2"
               onClick={() => setShowDeleteConfirm(false)}
             >
               Cancel
@@ -110,7 +110,7 @@ const RoomManageCard: Component<RoomManageCardProps> = (props) => {
         <div class="flex flex-wrap gap-2">
           <button
             type="button"
-            class="flex-1 rounded-full bg-beat px-3 py-2 text-sm font-bold text-white shadow-[2px_2px_0_var(--color-beat-deep)] transition hover:bg-beat-deep active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
+            class="flex-1 rounded-full bg-beat px-3 py-2 text-sm font-bold text-night transition hover:bg-beat-bright"
             onClick={() => navigate(`/rooms/${props.room.id}/play`)}
           >
             Start
@@ -169,7 +169,7 @@ const RoomManageCard: Component<RoomManageCardProps> = (props) => {
           <Show when={isHost()}>
             <button
               type="button"
-              class="rounded-full border border-beat/30 px-3 py-2 text-sm font-medium text-beat transition hover:bg-beat-soft"
+              class="rounded-full border border-magenta-hot/40 px-3 py-2 text-sm font-medium text-magenta-hot transition hover:border-magenta-hot hover:bg-magenta-hot/10"
               onClick={() => setShowDeleteConfirm(true)}
               title="Delete room"
             >

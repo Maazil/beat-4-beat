@@ -31,7 +31,7 @@ const Market: Component = () => {
       </div>
 
       <Show when={roomsError()}>
-        <div class="mb-4 rounded-xl border border-beat/30 bg-beat-soft p-4 text-beat-deep">
+        <div class="mb-4 rounded-xl border border-magenta-hot/40 bg-magenta/15 p-4 text-ink">
           {roomsError()}
         </div>
       </Show>
@@ -43,7 +43,7 @@ const Market: Component = () => {
       </Show>
 
       <Show when={!roomsLoading() && rooms().length === 0}>
-        <div class="rounded-2xl border border-dashed border-line bg-paper/60 p-8 text-center">
+        <div class="rounded-2xl border border-dashed border-line bg-night/50 p-8 text-center">
           <p class="text-muted">No public rooms available yet.</p>
         </div>
       </Show>

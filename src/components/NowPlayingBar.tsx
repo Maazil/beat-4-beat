@@ -18,7 +18,7 @@ interface NowPlayingBarProps {
 
 const NowPlayingBar: Component<NowPlayingBarProps> = (props) => {
   return (
-    <div class="fixed right-0 bottom-0 left-0 z-50 border-t-2 border-ink bg-paper">
+    <div class="fixed right-0 bottom-0 left-0 z-50 border-t border-line bg-surface/95 backdrop-blur">
       {/* Progress / seek bar */}
       <Show when={props.durationMs > 0}>
         <SeekBar
@@ -35,7 +35,7 @@ const NowPlayingBar: Component<NowPlayingBarProps> = (props) => {
             when={props.showTrackInfo && (props.trackTitle || props.trackArtist)}
             fallback={
               <div class="flex items-center gap-2">
-                <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-sand">
+                <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-surface-2">
                   <svg
                     class="h-5 w-5 text-muted"
                     fill="none"
@@ -77,10 +77,10 @@ const NowPlayingBar: Component<NowPlayingBarProps> = (props) => {
         <button
           type="button"
           onClick={() => props.onToggleTrackInfo()}
-          class={`flex items-center gap-1.5 rounded-full border-2 px-4 py-1.5 text-sm font-bold transition ${
+          class={`flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-sm font-bold transition ${
             props.showTrackInfo
-              ? "border-beat/30 bg-beat-soft text-beat-deep"
-              : "border-ink text-ink shadow-[2px_2px_0_var(--color-ink)] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[3px_3px_0_var(--color-ink)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
+              ? "border-beat/30 bg-beat-soft text-beat-bright"
+              : "border-line text-ink hover:border-beat hover:bg-beat-soft"
           }`}
         >
           <Show
@@ -118,7 +118,7 @@ const NowPlayingBar: Component<NowPlayingBarProps> = (props) => {
         <button
           type="button"
           onClick={() => props.onSkipBackward()}
-          class="flex h-8 w-8 items-center justify-center rounded-full text-muted transition hover:bg-sand hover:text-ink"
+          class="flex h-8 w-8 items-center justify-center rounded-full text-muted transition hover:bg-surface-2 hover:text-ink"
           title="-10s"
         >
           <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
@@ -133,7 +133,7 @@ const NowPlayingBar: Component<NowPlayingBarProps> = (props) => {
         <button
           type="button"
           onClick={() => (props.isPlaying ? props.onPause() : props.onResume())}
-          class="flex h-10 w-10 items-center justify-center rounded-full bg-beat text-white shadow-[2px_2px_0_var(--color-beat-deep)] transition hover:bg-beat-deep active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
+          class="flex h-10 w-10 items-center justify-center rounded-full bg-beat text-night shadow-[0_8px_30px_rgba(234,196,53,0.28)] transition hover:bg-beat-bright"
         >
           <Show
             when={props.isPlaying}
@@ -153,7 +153,7 @@ const NowPlayingBar: Component<NowPlayingBarProps> = (props) => {
         <button
           type="button"
           onClick={() => props.onSkipForward()}
-          class="flex h-8 w-8 items-center justify-center rounded-full text-muted transition hover:bg-sand hover:text-ink"
+          class="flex h-8 w-8 items-center justify-center rounded-full text-muted transition hover:bg-surface-2 hover:text-ink"
           title="+10s"
         >
           <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">

@@ -1,7 +1,7 @@
 /*
   Landing page — "Stage Night" theme.
-  Scoped to .stage-night: these dark tokens are landing-only and must not
-  leak into the light "gig poster" system used inside the app.
+  Scoped to .stage-night so these marketing-page styles stay self-contained;
+  the app shares the same palette via the tokens in src/index.css.
 */
 
 .stage-night {

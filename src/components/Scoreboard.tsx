@@ -173,7 +173,7 @@ const Scoreboard: Component<ScoreboardProps> = (props) => {
   };
 
   return (
-    <section class="rounded-2xl border border-line bg-paper p-4 shadow-sm sm:p-5">
+    <section class="rounded-2xl border border-line bg-surface p-4 sm:p-5">
       <div class="mb-4 flex flex-wrap items-center justify-between gap-2">
         <div class="flex items-baseline gap-3">
           <h3 class="font-display text-lg font-bold text-ink">Scoreboard</h3>
@@ -185,7 +185,7 @@ const Scoreboard: Component<ScoreboardProps> = (props) => {
         </div>
         <div class="flex flex-wrap items-center gap-2">
           <Show when={props.currentRound != null && props.scores.length > 0}>
-            <span class="rounded-full border border-beat/30 bg-beat-soft px-3 py-1 font-mono text-xs font-bold text-beat-deep">
+            <span class="rounded-full border border-beat/30 bg-beat-soft px-3 py-1 font-mono text-xs font-bold text-beat-bright">
               Round {props.currentRound! + 1}
             </span>
           </Show>
@@ -193,10 +193,10 @@ const Scoreboard: Component<ScoreboardProps> = (props) => {
             <button
               type="button"
               onClick={() => withFlip(() => setRevealed(!revealed()))}
-              class={`flex items-center gap-1.5 rounded-full border-2 px-3 py-1 text-xs font-bold transition ${
+              class={`flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-bold transition ${
                 revealed()
-                  ? "border-beat/30 bg-beat-soft text-beat-deep"
-                  : "border-ink text-ink shadow-[2px_2px_0_var(--color-ink)] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[3px_3px_0_var(--color-ink)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
+                  ? "border-beat/30 bg-beat-soft text-beat-bright"
+                  : "border-line text-ink hover:border-beat hover:bg-beat-soft"
               }`}
             >
               <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -244,15 +244,15 @@ const Scoreboard: Component<ScoreboardProps> = (props) => {
                 style={{ order: orderOf(score.teamName, index()) }}
                 class={`group flex items-center gap-2 rounded-xl border px-3 py-2.5 transition-colors sm:gap-3 sm:px-4 ${
                   leader()
-                    ? "border-beat bg-beat-soft/50 shadow-[3px_3px_0_var(--color-beat)]"
-                    : "border-line bg-cream/70"
+                    ? "border-beat/40 bg-beat-soft"
+                    : "border-line bg-night/70"
                 }`}
               >
                 {/* Rank — only once standings are revealed */}
                 <Show when={revealed()}>
                   <span
                     class={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full font-mono text-sm font-bold ${
-                      leader() ? "bg-beat text-white" : "border border-line bg-paper text-muted"
+                      leader() ? "bg-beat text-night" : "border border-line bg-surface text-muted"
                     }`}
                   >
                     {standings().get(score.teamName)?.rank}
@@ -301,7 +301,7 @@ const Scoreboard: Component<ScoreboardProps> = (props) => {
                         onBlur={() => commitRename(index())}
                         onKeyDown={(e) => e.key === "Escape" && setEditingTeam(null)}
                         maxLength={24}
-                        class="w-full max-w-52 rounded-lg border border-beat bg-paper px-2 py-0.5 font-display text-base font-bold text-ink outline-none"
+                        class="w-full max-w-52 rounded-lg border border-beat bg-surface px-2 py-0.5 font-display text-base font-bold text-ink outline-none"
                         autofocus
                       />
                     </form>
@@ -318,7 +318,7 @@ const Scoreboard: Component<ScoreboardProps> = (props) => {
                           <span
                             class={
                               round.isCurrent
-                                ? "font-bold text-beat-deep"
+                                ? "font-bold text-beat-bright"
                                 : round.value > 0
                                   ? "text-ink"
                                   : "text-muted/60"
@@ -383,7 +383,7 @@ const Scoreboard: Component<ScoreboardProps> = (props) => {
                     title="Points this round"
                     class={`flex h-8 min-w-9 shrink-0 items-center justify-center rounded-lg border px-1.5 font-mono text-sm font-bold tabular-nums ${
                       roundValue(score) > 0
-                        ? "border-beat/40 bg-beat-soft text-beat-deep"
+                        ? "border-beat/40 bg-beat-soft text-beat-bright"
                         : "border-line text-muted"
                     }`}
                   >
@@ -450,13 +450,13 @@ const Scoreboard: Component<ScoreboardProps> = (props) => {
                 onKeyDown={(e) => e.key === "Escape" && setIsAdding(false)}
                 placeholder="Team name…"
                 maxLength={24}
-                class="flex-1 rounded-xl border border-line bg-cream px-3 py-2 text-sm text-ink outline-none focus:border-beat focus:ring-2 focus:ring-beat/20"
+                class="flex-1 rounded-xl border border-line bg-surface-2 px-3 py-2 text-sm text-ink placeholder:text-muted/60 outline-none focus:border-beat focus:ring-2 focus:ring-beat/20"
                 autofocus
               />
               <button
                 type="submit"
                 disabled={!newTeamName().trim()}
-                class="rounded-full bg-beat px-5 py-2 text-sm font-bold text-white transition hover:bg-beat-deep disabled:opacity-50"
+                class="rounded-full bg-beat px-5 py-2 text-sm font-bold text-night transition hover:bg-beat-bright disabled:opacity-50"
               >
                 Add
               </button>
@@ -490,7 +490,7 @@ const Scoreboard: Component<ScoreboardProps> = (props) => {
             <table class="w-full border-collapse text-left">
               <thead>
                 <tr>
-                  <th class="sticky left-0 z-10 bg-paper px-2 py-1.5 font-mono text-[11px] font-bold tracking-wide text-muted uppercase">
+                  <th class="sticky left-0 z-10 bg-surface px-2 py-1.5 font-mono text-[11px] font-bold tracking-wide text-muted uppercase">
                     Round
                   </th>
                   <For each={breakdownTeams()}>
@@ -519,9 +519,9 @@ const Scoreboard: Component<ScoreboardProps> = (props) => {
                     };
                     return (
                       <tr class="border-t border-line/60">
-                        <td class="sticky left-0 z-10 bg-paper px-2 py-1.5 align-top">
+                        <td class="sticky left-0 z-10 bg-surface px-2 py-1.5 align-top">
                           <div class="flex items-baseline gap-1.5">
-                            <span class="shrink-0 font-mono text-xs font-bold text-beat-deep">
+                            <span class="shrink-0 font-mono text-xs font-bold text-beat-bright">
                               R{round + 1}
                             </span>
                             <Show
@@ -541,7 +541,7 @@ const Scoreboard: Component<ScoreboardProps> = (props) => {
                                       href={label()!.songUrl}
                                       target="_blank"
                                       rel="noopener noreferrer"
-                                      class="block max-w-44 truncate text-xs font-semibold text-beat-deep underline decoration-dotted underline-offset-2 transition hover:text-beat"
+                                      class="block max-w-44 truncate text-xs font-semibold text-beat-bright underline decoration-dotted underline-offset-2 transition hover:text-beat"
                                     >
                                       {tileText() ?? "Open song"}
                                     </a>
@@ -569,7 +569,7 @@ const Scoreboard: Component<ScoreboardProps> = (props) => {
                               <td class="px-2 py-1.5 text-center">
                                 <span
                                   class={`inline-flex h-6 min-w-6 items-center justify-center rounded-md px-1 font-mono text-xs font-bold tabular-nums ${
-                                    pts() > 0 ? "bg-beat-soft text-beat-deep" : "text-muted/40"
+                                    pts() > 0 ? "bg-beat-soft text-beat-bright" : "text-muted/40"
                                   }`}
                                 >
                                   {pts() > 0 ? `+${pts()}` : "·"}
@@ -584,8 +584,8 @@ const Scoreboard: Component<ScoreboardProps> = (props) => {
                 </For>
               </tbody>
               <tfoot>
-                <tr class="border-t-2 border-ink">
-                  <td class="sticky left-0 z-10 bg-paper px-2 py-2 font-mono text-[11px] font-bold tracking-wide text-muted uppercase">
+                <tr class="border-t-2 border-line">
+                  <td class="sticky left-0 z-10 bg-surface px-2 py-2 font-mono text-[11px] font-bold tracking-wide text-muted uppercase">
                     Total
                   </td>
                   <For each={breakdownTeams()}>

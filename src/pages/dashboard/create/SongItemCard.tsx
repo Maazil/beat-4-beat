@@ -103,11 +103,11 @@ const SongItemCard: Component<SongItemCardProps> = (props) => {
       {/* In-place card — always visible */}
       <div
         ref={cardRef}
-        class="press-card flex h-16 w-full items-center justify-center rounded-lg sm:h-20"
+        class="stage-card flex h-16 w-full items-center justify-center rounded-lg sm:h-20"
         style={{
-          "--press-ink": props.colorScheme.border,
-          "--press-tint": props.colorScheme.itemBg,
-          "--press-tint-hover": props.colorScheme.itemBgHover,
+          "--stage-ink": props.colorScheme.border,
+          "--stage-tint": props.colorScheme.itemBg,
+          "--stage-tint-hover": props.colorScheme.itemBgHover,
           opacity: props.isEditing ? 0.5 : 1,
         }}
       >
@@ -143,7 +143,7 @@ const SongItemCard: Component<SongItemCardProps> = (props) => {
           <button
             type="button"
             onClick={() => props.onRemove()}
-            class="absolute -top-2 -right-2 hidden h-5 w-5 items-center justify-center rounded-full bg-ink text-cream shadow-md transition group-hover:flex hover:bg-beat"
+            class="absolute -top-2 -right-2 hidden h-5 w-5 items-center justify-center rounded-full bg-ink text-night transition group-hover:flex hover:bg-beat"
           >
             <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -234,19 +234,19 @@ const SongItemCard: Component<SongItemCardProps> = (props) => {
           <Show when={props.isEditing}>
             <div class="fixed inset-0 z-[100] flex items-center justify-center">
               {/* Subtle backdrop — click to close */}
-              <div class="absolute inset-0 bg-black/25" onClick={() => props.onBlur()} />
+              <div class="absolute inset-0 bg-night/80" onClick={() => props.onBlur()} />
 
               {/* Modal card */}
               <div
                 data-modal-card
-                class="relative z-10 w-full max-w-md rounded-xl border-2 bg-paper p-5 shadow-2xl"
+                class="relative z-10 w-full max-w-md rounded-xl border bg-surface p-5 shadow-[0_30px_80px_rgba(0,0,0,0.5)]"
                 style={{ "border-color": props.colorScheme.border }}
               >
                 {/* Close button */}
                 <button
                   type="button"
                   onClick={() => props.onBlur()}
-                  class="absolute top-3 right-3 flex h-7 w-7 items-center justify-center rounded-full text-muted transition hover:bg-sand hover:text-ink"
+                  class="absolute top-3 right-3 flex h-7 w-7 items-center justify-center rounded-full text-muted transition hover:bg-surface-2 hover:text-ink"
                 >
                   <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
@@ -261,7 +261,7 @@ const SongItemCard: Component<SongItemCardProps> = (props) => {
                 {/* Header with level number */}
                 <div class="mb-4 flex items-center gap-3">
                   <div
-                    class="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border-2"
+                    class="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border"
                     style={{
                       "background-color": props.colorScheme.itemBg,
                       "border-color": props.colorScheme.border,
@@ -296,13 +296,13 @@ const SongItemCard: Component<SongItemCardProps> = (props) => {
                         onInput={(e) => setLocalUrl(e.currentTarget.value)}
                         onKeyPress={(e) => e.key === "Enter" && handleUrlSubmit()}
                         placeholder="Paste a song URL…"
-                        class="w-full rounded-xl border border-line bg-cream px-4 py-3 text-sm text-ink transition outline-none focus:border-beat focus:ring-2 focus:ring-beat/20"
+                        class="w-full rounded-xl border border-line bg-surface-2 px-4 py-3 text-sm text-ink placeholder:text-muted/60 transition outline-none focus:border-beat focus:ring-2 focus:ring-beat/20"
                         autofocus
                       />
                       <button
                         type="button"
                         onClick={handleUrlSubmit}
-                        class="self-end rounded-full bg-beat px-4 py-2 text-sm font-bold text-white transition hover:bg-beat-deep"
+                        class="self-end rounded-full bg-beat px-4 py-2 text-sm font-bold text-night transition hover:bg-beat-bright"
                       >
                         Save
                       </button>
@@ -315,13 +315,13 @@ const SongItemCard: Component<SongItemCardProps> = (props) => {
                       value={searchQuery()}
                       onInput={(e) => handleSearchInput(e.currentTarget.value)}
                       placeholder="Search for a song…"
-                      class="w-full rounded-xl border border-line bg-cream px-4 py-3 text-sm text-ink transition outline-none focus:border-beat focus:ring-2 focus:ring-beat/20"
+                      class="w-full rounded-xl border border-line bg-surface-2 px-4 py-3 text-sm text-ink placeholder:text-muted/60 transition outline-none focus:border-beat focus:ring-2 focus:ring-beat/20"
                       autofocus
                     />
 
                     {/* Search results */}
                     <Show when={searchResults().length > 0 || isSearching()}>
-                      <div class="max-h-64 overflow-y-auto rounded-xl border border-line bg-paper">
+                      <div class="max-h-64 overflow-y-auto rounded-xl border border-line bg-surface">
                         <Show when={isSearching()}>
                           <div class="px-3 py-3 text-center text-xs text-muted">Searching…</div>
                         </Show>
@@ -329,7 +329,7 @@ const SongItemCard: Component<SongItemCardProps> = (props) => {
                           {(track) => (
                             <button
                               type="button"
-                              class="flex w-full items-center gap-3 px-3 py-2.5 text-left transition hover:bg-cream"
+                              class="flex w-full items-center gap-3 px-3 py-2.5 text-left transition hover:bg-surface-2"
                               onClick={() => handleSelectTrack(track)}
                             >
                               <Show when={track.albumArt}>

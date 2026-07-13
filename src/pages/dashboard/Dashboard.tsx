@@ -52,7 +52,7 @@ const Dashboard: Component = () => {
 
           <button
             type="button"
-            class="inline-flex items-center justify-center gap-2 rounded-full bg-beat px-5 py-2.5 text-sm font-bold text-white shadow-[3px_3px_0_var(--color-ink)] transition hover:-translate-x-0.5 hover:-translate-y-0.5 hover:bg-beat-deep hover:shadow-[4px_4px_0_var(--color-ink)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
+            class="inline-flex items-center justify-center gap-2 rounded-full bg-beat px-5 py-2.5 text-sm font-bold text-night shadow-[0_8px_30px_rgba(234,196,53,0.28)] transition hover:-translate-y-0.5 hover:bg-beat-bright"
             onClick={() => navigate("create")}
           >
             New room
@@ -65,7 +65,7 @@ const Dashboard: Component = () => {
           <h2 class="font-display mb-4 text-xl font-bold text-ink">My rooms</h2>
 
           {error() && (
-            <div class="mb-4 rounded-xl border border-beat/30 bg-beat-soft p-4 text-beat-deep">
+            <div class="mb-4 rounded-xl border border-magenta-hot/40 bg-magenta-hot/10 p-4 text-magenta-hot">
               {error()}
             </div>
           )}
@@ -79,7 +79,7 @@ const Dashboard: Component = () => {
               <For
                 each={myRooms()}
                 fallback={
-                  <div class="col-span-full rounded-2xl border border-dashed border-line bg-paper/60 p-8 text-center">
+                  <div class="col-span-full rounded-2xl border border-dashed border-line bg-night/50 p-8 text-center">
                     <p class="text-muted">
                       You don't have any rooms yet.{" "}
                       <button
@@ -104,7 +104,7 @@ const Dashboard: Component = () => {
           id="quick-actions"
           class="grid gap-6 lg:grid-cols-[repeat(auto-fit,minmax(240px,1fr))]"
         >
-          <article class="rounded-2xl border border-line bg-paper p-6 shadow-sm">
+          <article class="rounded-2xl border border-line bg-surface p-6">
             <h2 class="font-display text-lg font-bold text-ink">Spotify</h2>
             <p class="mt-2 text-sm text-muted">
               Connect your Spotify Premium account to play music directly in the browser during the
@@ -115,7 +115,7 @@ const Dashboard: Component = () => {
               fallback={
                 <button
                   type="button"
-                  class="mt-6 inline-flex items-center justify-center rounded-full bg-spotify px-5 py-2 text-sm font-bold text-white shadow-[3px_3px_0_var(--color-ink)] transition hover:-translate-x-0.5 hover:-translate-y-0.5 hover:brightness-110 hover:shadow-[4px_4px_0_var(--color-ink)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
+                  class="mt-6 inline-flex items-center justify-center rounded-full bg-spotify px-5 py-2 text-sm font-bold text-ink transition hover:-translate-y-0.5 hover:brightness-110"
                   onClick={() => loginWithSpotify()}
                 >
                   Connect Spotify
@@ -139,14 +139,14 @@ const Dashboard: Component = () => {
             </Show>
           </article>
 
-          <article class="rounded-2xl border border-line bg-paper p-6 shadow-sm">
+          <article class="rounded-2xl border border-line bg-surface p-6">
             <h2 class="font-display text-lg font-bold text-ink">Marketplace</h2>
             <p class="mt-2 text-sm text-muted">
               Explore public rooms made by other players and jump into a session.
             </p>
             <button
               type="button"
-              class="mt-6 inline-flex items-center justify-center rounded-full border-2 border-line bg-cream px-5 py-2 text-sm font-semibold text-ink transition hover:-translate-x-0.5 hover:-translate-y-0.5 hover:border-ink hover:shadow-[3px_3px_0_var(--color-ink)] active:translate-x-0 active:translate-y-0 active:shadow-none"
+              class="mt-6 inline-flex items-center justify-center rounded-full border border-line px-5 py-2 text-sm font-semibold text-ink transition hover:border-beat hover:bg-beat-soft"
               onClick={() => navigate("/market")}
             >
               Explore rooms

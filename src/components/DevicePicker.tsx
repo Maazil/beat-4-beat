@@ -61,7 +61,7 @@ interface DevicePickerProps {
 /** Device picker shown before the game starts. */
 const DevicePicker: Component<DevicePickerProps> = (props) => {
   return (
-    <div class="rounded-2xl border border-line bg-paper p-6 shadow-sm">
+    <div class="rounded-2xl border border-line bg-surface p-6">
       <div class="mb-4 flex items-center justify-between">
         <div>
           <h3 class="font-display text-lg font-bold text-ink">Choose a playback device</h3>
@@ -101,7 +101,7 @@ const DevicePicker: Component<DevicePickerProps> = (props) => {
         <Show
           when={props.devices.length > 0}
           fallback={
-            <div class="rounded-xl border border-line bg-sand p-4 text-center text-sm text-ink">
+            <div class="rounded-xl border border-line bg-surface-2 p-4 text-center text-sm text-ink">
               No devices found. Open the Spotify app on your phone or computer and try again.
             </div>
           }
@@ -112,8 +112,8 @@ const DevicePicker: Component<DevicePickerProps> = (props) => {
                 <button
                   type="button"
                   onClick={() => props.onSelect(device)}
-                  class={`flex items-center gap-3 rounded-xl border-2 px-4 py-3 text-left transition hover:-translate-x-0.5 hover:-translate-y-0.5 hover:border-beat hover:shadow-[3px_3px_0_var(--color-beat)] active:translate-x-0 active:translate-y-0 active:shadow-none ${
-                    device.is_active ? "border-spotify/40 bg-spotify/10" : "border-line bg-paper"
+                  class={`flex items-center gap-3 rounded-xl border px-4 py-3 text-left transition hover:-translate-y-0.5 hover:border-beat active:translate-y-0 ${
+                    device.is_active ? "border-spotify/40 bg-spotify/10" : "border-line bg-surface-2"
                   }`}
                 >
                   <span class={device.is_active ? "text-spotify" : "text-muted"}>

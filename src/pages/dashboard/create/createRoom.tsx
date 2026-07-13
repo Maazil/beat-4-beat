@@ -518,8 +518,8 @@ const CreateRoom: Component = () => {
                 onClick={() => setIsPublic(!isPublic())}
                 class={`flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition ${
                   isPublic()
-                    ? "border-beat/30 bg-beat-soft text-beat-deep"
-                    : "border-line bg-sand text-muted"
+                    ? "border-beat/30 bg-beat-soft text-beat-bright"
+                    : "border-line bg-surface-2 text-muted"
                 }`}
               >
                 <Show
@@ -552,7 +552,7 @@ const CreateRoom: Component = () => {
                 type="button"
                 onClick={handleSubmit}
                 disabled={isSubmitting() || !canCreateRoom()}
-                class="rounded-full bg-beat px-6 py-2 font-bold text-white shadow-[0_10px_24px_-10px_rgba(232,38,74,0.55)] transition hover:bg-beat-deep disabled:cursor-not-allowed disabled:opacity-50"
+                class="rounded-full bg-beat px-6 py-2 font-bold text-night shadow-[0_8px_30px_rgba(234,196,53,0.28)] transition hover:bg-beat-bright disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {isSubmitting()
                   ? isEditMode()
@@ -586,7 +586,7 @@ const CreateRoom: Component = () => {
 
           {/* Co-owners (medeiere) — host only, edit mode */}
           <Show when={isEditMode() && isHost()}>
-            <div class="mb-8 max-w-md rounded-2xl border border-line bg-paper p-4 shadow-sm">
+            <div class="mb-8 max-w-md rounded-2xl border border-line bg-surface p-4">
               <h3 class="font-display mb-1 font-bold text-ink">Co-owners</h3>
               <p class="mb-3 text-sm text-muted">
                 Co-owners can edit the room, but not delete it or change the co-owner list.
@@ -600,7 +600,7 @@ const CreateRoom: Component = () => {
                 <ul class="mb-3 space-y-1">
                   <For each={editors()}>
                     {(editor) => (
-                      <li class="flex items-center justify-between rounded-xl bg-cream px-3 py-2 text-sm">
+                      <li class="flex items-center justify-between rounded-xl bg-night px-3 py-2 text-sm">
                         <span class="min-w-0 truncate text-ink">
                           {editor.displayName || editor.email || editor.uid}
                         </span>
@@ -608,7 +608,7 @@ const CreateRoom: Component = () => {
                           type="button"
                           disabled={editorBusy()}
                           onClick={() => handleRemoveEditor(editor.uid)}
-                          class="ml-3 shrink-0 text-muted transition hover:text-beat disabled:opacity-50"
+                          class="ml-3 shrink-0 text-muted transition hover:text-magenta-hot disabled:opacity-50"
                           title="Remove co-owner"
                         >
                           ✕
@@ -627,7 +627,7 @@ const CreateRoom: Component = () => {
                     type="button"
                     disabled={editorBusy()}
                     onClick={handleGenerateInvite}
-                    class="rounded-full bg-beat px-4 py-2 text-sm font-bold text-white transition hover:bg-beat-deep disabled:cursor-not-allowed disabled:opacity-50"
+                    class="rounded-full bg-beat px-4 py-2 text-sm font-bold text-night transition hover:bg-beat-bright disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     Create invite link
                   </button>
@@ -639,12 +639,12 @@ const CreateRoom: Component = () => {
                     readOnly
                     value={inviteLink() ?? ""}
                     onFocus={(e) => e.currentTarget.select()}
-                    class="min-w-0 flex-1 rounded-xl border border-line bg-cream px-3 py-2 font-mono text-sm text-ink outline-none"
+                    class="min-w-0 flex-1 rounded-xl border border-line bg-surface-2 px-3 py-2 font-mono text-sm text-ink outline-none focus:border-beat focus:ring-2 focus:ring-beat/20"
                   />
                   <button
                     type="button"
                     onClick={handleCopyInvite}
-                    class="shrink-0 rounded-full bg-beat px-4 py-2 text-sm font-bold text-white transition hover:bg-beat-deep"
+                    class="shrink-0 rounded-full bg-beat px-4 py-2 text-sm font-bold text-night transition hover:bg-beat-bright"
                   >
                     {inviteCopied() ? "Copied!" : "Copy"}
                   </button>
@@ -662,7 +662,7 @@ const CreateRoom: Component = () => {
                     type="button"
                     disabled={editorBusy()}
                     onClick={handleRevokeInvite}
-                    class="text-muted transition hover:text-beat disabled:opacity-50"
+                    class="text-muted transition hover:text-magenta-hot disabled:opacity-50"
                   >
                     Disable link
                   </button>
@@ -674,7 +674,7 @@ const CreateRoom: Component = () => {
               </Show>
 
               <Show when={editorError()}>
-                <p class="mt-2 text-sm text-beat-deep">{editorError()}</p>
+                <p class="mt-2 text-sm text-magenta-hot">{editorError()}</p>
               </Show>
             </div>
           </Show>
@@ -715,7 +715,7 @@ const CreateRoom: Component = () => {
                 <Show
                   when={!showPlaylistPicker()}
                   fallback={
-                    <div class="rounded-2xl border border-line bg-paper p-4 shadow-sm">
+                    <div class="rounded-2xl border border-line bg-surface p-4">
                       {/* Header with close */}
                       <div class="mb-3 flex items-center justify-between">
                         <h3 class="font-display font-bold text-ink">Choose a playlist</h3>
@@ -738,7 +738,7 @@ const CreateRoom: Component = () => {
                         value={playlistSearch()}
                         onInput={(e) => setPlaylistSearch(e.currentTarget.value)}
                         placeholder="Search playlists…"
-                        class="mb-3 w-full rounded-xl border border-line bg-cream px-3 py-2 text-sm text-ink outline-none focus:border-beat"
+                        class="mb-3 w-full rounded-xl border border-line bg-surface-2 px-3 py-2 text-sm text-ink placeholder:text-muted/60 outline-none focus:border-beat focus:ring-2 focus:ring-beat/20"
                       />
 
                       {/* Loading */}
@@ -758,11 +758,11 @@ const CreateRoom: Component = () => {
                                 class={`flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left transition ${
                                   selectedPlaylist()?.id === playlist.id
                                     ? "bg-beat-soft ring-2 ring-beat"
-                                    : "hover:bg-cream"
+                                    : "hover:bg-surface-2"
                                 }`}
                                 onClick={() => handlePlaylistSelect(playlist)}
                               >
-                                <div class="h-10 w-10 shrink-0 overflow-hidden rounded bg-sand">
+                                <div class="h-10 w-10 shrink-0 overflow-hidden rounded bg-surface-2">
                                   <Show when={playlist.images?.[0]?.url}>
                                     <img
                                       src={playlist.images[0].url}

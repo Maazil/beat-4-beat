@@ -19,7 +19,7 @@ const NotFound: Component = () => {
       <button
         type="button"
         onClick={() => navigate("/")}
-        class="relative mt-8 rounded-full bg-beat px-7 py-3 font-bold text-white transition hover:bg-beat-deep"
+        class="relative mt-8 rounded-full bg-beat px-7 py-3 font-bold text-night shadow-[0_8px_30px_rgba(234,196,53,0.28)] transition hover:bg-beat-bright"
       >
         Back to the front page
       </button>

@@ -10,10 +10,17 @@ const Logo = (props: JSX.SvgSVGAttributes<SVGSVGElement>) => (
     {...props}
   >
     <title id="beat4beat-logo">Beat 4 Beat</title>
-    <circle cx="16" cy="16" r="14" stroke="#e8264a" stroke-width="2.4" fill="#fffdfa" />
+    <circle
+      cx="16"
+      cy="16"
+      r="14"
+      stroke="var(--color-beat)"
+      stroke-width="2.4"
+      fill="var(--color-night)"
+    />
     <path
       d="M6 16h4l3-6 4 12 4-8 3 6h4"
-      stroke="#e8264a"
+      stroke="var(--color-beat)"
       stroke-width="2"
       stroke-linecap="round"
       stroke-linejoin="round"
@@ -21,7 +28,7 @@ const Logo = (props: JSX.SvgSVGAttributes<SVGSVGElement>) => (
     <text
       x="40"
       y="22"
-      fill="#1a1418"
+      fill="var(--color-ink)"
       style={{
         "font-family": "'Bricolage Grotesque', 'Schibsted Grotesk', sans-serif",
         "font-size": "17px",
@@ -29,7 +36,7 @@ const Logo = (props: JSX.SvgSVGAttributes<SVGSVGElement>) => (
         "letter-spacing": "1px",
       }}
     >
-      Beat <tspan fill="#e8264a">4</tspan> Beat
+      Beat <tspan fill="var(--color-beat)">4</tspan> Beat
     </text>
   </svg>
 );

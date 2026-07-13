@@ -27,7 +27,7 @@ const Rooms: Component = () => {
       <h1 class="font-display mb-8 text-3xl font-bold tracking-tight text-ink">All rooms</h1>
 
       <Show when={error()}>
-        <div class="mb-4 rounded-xl border border-beat/30 bg-beat-soft p-4 text-beat-deep">
+        <div class="mb-4 rounded-xl border border-magenta-hot/40 bg-magenta/15 p-4 text-ink">
           {error()}
         </div>
       </Show>
@@ -49,7 +49,7 @@ const Rooms: Component = () => {
           >
             {(room) => (
               <article
-                class="group cursor-pointer rounded-2xl border border-line bg-paper p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-beat/40 hover:shadow-md"
+                class="group cursor-pointer rounded-2xl border border-line bg-surface p-6 transition hover:-translate-y-0.5 hover:border-beat hover:shadow-[0_8px_24px_rgba(234,196,53,0.18)]"
                 onClick={() => navigate(`/rooms/${room.id}`)}
               >
                 <div class="mb-3 flex items-start justify-between gap-3">
@@ -57,10 +57,10 @@ const Rooms: Component = () => {
                     {room.roomName}
                   </h2>
                   <span
-                    class={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                    class={`shrink-0 rounded-full px-2.5 py-0.5 font-mono text-xs ${
                       room.isActive
-                        ? "border border-beat/20 bg-beat-soft text-beat-deep"
-                        : "border border-line bg-sand text-muted"
+                        ? "border border-beat/30 bg-beat-soft text-beat-bright"
+                        : "border border-line bg-surface-2 text-muted"
                     }`}
                   >
                     {room.isActive ? "Active" : "Inactive"}

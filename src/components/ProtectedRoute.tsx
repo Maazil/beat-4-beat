@@ -57,7 +57,7 @@ const ProtectedRoute: ParentComponent<ProtectedRouteProps> = (props) => {
               <button
                 type="button"
                 onClick={() => navigate(auth.isAuthenticated() ? "/" : "/login")}
-                class="rounded-full bg-beat px-6 py-3 font-bold text-white transition hover:bg-beat-deep"
+                class="rounded-full bg-beat px-6 py-3 font-bold text-night transition hover:bg-beat-bright"
               >
                 Go to the front page
               </button>

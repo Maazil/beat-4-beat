@@ -23,14 +23,14 @@ import NowPlayingBar from "../../components/NowPlayingBar";
 import Scoreboard from "../../components/Scoreboard";
 import TurnTracker from "../../components/TurnTracker";
 import YouTubePlayer from "../../components/YouTubePlayer";
-import { posterInk } from "../../theme/palette";
-import type { PosterInk } from "../../theme/palette";
+import { stageInk } from "../../theme/palette";
+import type { StageInk } from "../../theme/palette";
 
-/** Tile CSS vars for the screen-print press treatment. */
-const pressVars = (ink: PosterInk) => ({
-  "--press-ink": ink.ink,
-  "--press-tint": ink.tint,
-  "--press-tint-hover": ink.tintHover,
+/** Tile CSS vars for the stage-card treatment. */
+const stageVars = (ink: StageInk) => ({
+  "--stage-ink": ink.ink,
+  "--stage-tint": ink.tint,
+  "--stage-tint-hover": ink.tintHover,
 });
 
 /** Main room play page. */
@@ -280,7 +280,7 @@ const RoomPlayInner: Component = () => {
 
         <Show when={!isLoading() && !currentRoom()}>
           <div class="rounded-2xl border border-beat/30 bg-beat-soft p-8 text-center">
-            <p class="text-beat-deep">Room not found</p>
+            <p class="text-beat-bright">Room not found</p>
           </div>
         </Show>
 
@@ -295,7 +295,7 @@ const RoomPlayInner: Component = () => {
                   Hosted by
                   <For each={hostNames()}>
                     {(name) => (
-                      <span class="inline-block rounded-full bg-beat px-4 py-1 text-sm font-bold tracking-wide text-white shadow-md">
+                      <span class="inline-block rounded-full bg-beat px-4 py-1 text-sm font-bold tracking-wide text-night">
                         {name}
                       </span>
                     )}
@@ -305,7 +305,7 @@ const RoomPlayInner: Component = () => {
 
               {/* Spotify connection status */}
               <Show when={!spotifyConnected()}>
-                <div class="rounded-xl border border-line bg-sand px-4 py-2 text-sm text-ink">
+                <div class="rounded-xl border border-line bg-surface-2 px-4 py-2 text-sm text-ink">
                   Spotify is not connected. Connect Spotify from the dashboard to play songs
                   directly.
                 </div>
@@ -323,7 +323,7 @@ const RoomPlayInner: Component = () => {
                       <button
                         type="button"
                         onClick={fetchDevices}
-                        class="rounded-full bg-spotify px-6 py-2.5 font-bold text-white transition hover:brightness-110"
+                        class="rounded-full bg-spotify px-6 py-2.5 font-bold text-ink transition hover:brightness-110"
                       >
                         Find devices
                       </button>
@@ -393,10 +393,10 @@ const RoomPlayInner: Component = () => {
                           <button
                             type="button"
                             onClick={() => chooseTimer(sec)}
-                            class={`rounded-full border-2 px-2.5 py-0.5 font-mono text-xs font-bold transition ${
+                            class={`rounded-full border px-2.5 py-0.5 font-mono text-xs font-bold transition ${
                               timerSec() === sec
-                                ? "border-ink bg-ink text-cream shadow-[2px_2px_0_var(--color-beat)]"
-                                : "border-line text-muted hover:border-ink hover:text-ink"
+                                ? "border-beat bg-beat-soft text-beat-bright"
+                                : "border-line text-muted hover:border-beat"
                             }`}
                           >
                             {sec === 0 ? "Off" : `${sec}s`}
@@ -408,7 +408,7 @@ const RoomPlayInner: Component = () => {
                       <button
                         type="button"
                         onClick={handleNewGame}
-                        class="rounded-full border-2 border-ink px-3 py-1 text-xs font-bold text-ink shadow-[2px_2px_0_var(--color-ink)] transition hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[3px_3px_0_var(--color-ink)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
+                        class="rounded-full border border-line px-3 py-1 text-xs font-bold text-ink transition hover:border-beat hover:bg-beat-soft"
                       >
                         New game
                       </button>
@@ -420,22 +420,22 @@ const RoomPlayInner: Component = () => {
                   <div class="grid grid-cols-2 gap-6 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
                     <For each={currentRoom()?.categories[0]?.items}>
                       {(item) => {
-                        const ink = posterInk(0);
+                        const ink = stageInk(0);
                         return (
                           <button
                             type="button"
                             class={`flex h-20 w-full cursor-pointer items-center justify-center rounded-xl sm:h-24 ${
                               isItemRevealed(item.id)
-                                ? "border-2 border-dashed border-line bg-sand/50"
-                                : "press-card"
+                                ? "border border-dashed border-line bg-night/50"
+                                : "stage-card"
                             }`}
-                            style={isItemRevealed(item.id) ? undefined : pressVars(ink)}
+                            style={isItemRevealed(item.id) ? undefined : stageVars(ink)}
                             onClick={() => handleItemClick(item.id, item.songUrl, item.startTime)}
                           >
                             <span
                               class="font-mono text-2xl font-bold"
                               style={{
-                                color: isItemRevealed(item.id) ? "var(--color-muted)" : ink.deep,
+                                color: isItemRevealed(item.id) ? "var(--color-muted)" : ink.bright,
                               }}
                             >
                               {item.level}
@@ -457,17 +457,17 @@ const RoomPlayInner: Component = () => {
                   >
                     <For each={currentRoom()?.categories}>
                       {(category, index) => {
-                        const ink = () => posterInk(index());
+                        const ink = () => stageInk(index());
                         return (
                           <div class="flex w-40 shrink-0 snap-start flex-col gap-4 md:w-auto md:shrink">
                             <Show
                               when={category.imageUrl}
                               fallback={
                                 <div
-                                  class="rounded-lg px-4 py-3 text-center shadow-[3px_3px_0_rgba(26,20,24,0.85)]"
+                                  class="rounded-lg px-4 py-3 text-center"
                                   style={{ background: ink().ink }}
                                 >
-                                  <h2 class="font-display text-lg font-bold tracking-tight text-white">
+                                  <h2 class="font-display text-lg font-bold tracking-tight text-night">
                                     {category.name}
                                   </h2>
                                 </div>
@@ -476,7 +476,7 @@ const RoomPlayInner: Component = () => {
                               <img
                                 src={category.imageUrl}
                                 alt={category.name}
-                                class="h-20 w-full rounded-lg object-cover shadow-[3px_3px_0_rgba(26,20,24,0.85)]"
+                                class="h-20 w-full rounded-lg border border-line object-cover"
                               />
                             </Show>
 
@@ -487,10 +487,10 @@ const RoomPlayInner: Component = () => {
                                     type="button"
                                     class={`flex h-16 w-full cursor-pointer items-center justify-center rounded-lg ${
                                       isItemRevealed(item.id)
-                                        ? "border-2 border-dashed border-line bg-sand/50"
-                                        : "press-card"
+                                        ? "border border-dashed border-line bg-night/50"
+                                        : "stage-card"
                                     }`}
-                                    style={isItemRevealed(item.id) ? undefined : pressVars(ink())}
+                                    style={isItemRevealed(item.id) ? undefined : stageVars(ink())}
                                     onClick={() =>
                                       handleItemClick(item.id, item.songUrl, item.startTime)
                                     }
@@ -500,7 +500,7 @@ const RoomPlayInner: Component = () => {
                                       style={{
                                         color: isItemRevealed(item.id)
                                           ? "var(--color-muted)"
-                                          : ink().deep,
+                                          : ink().bright,
                                       }}
                                     >
                                       {item.level}
