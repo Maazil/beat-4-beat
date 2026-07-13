@@ -2,8 +2,9 @@
 
 /*
   Beat 4 Beat — design system
-  "Concert poster, daylight edition": warm cream paper, ink text,
-  one vivid coral accent for every CTA and highlight.
+  "Stage Night": deep navy stage, periwinkle hairlines, one gold spotlight
+  accent, hot magenta for the big moments. The landing page (stage-night.css)
+  and the app share this palette.
 */
 @theme {
   --font-display: "Bricolage Grotesque", "Schibsted Grotesk", ui-sans-serif, system-ui, sans-serif;
@@ -11,34 +12,44 @@
   --font-mono: "Spline Sans Mono", ui-monospace, "SF Mono", monospace;
 
   /* Surfaces */
-  --color-cream: #fbf7f2;
-  --color-paper: #fffdfa;
-  --color-sand: #f3e9dc;
-  --color-line: #e7daca;
+  --color-night: #02182b;
+  --color-surface: #062741;
+  --color-surface-2: #0a314f;
+  --color-line: rgba(198, 216, 255, 0.15);
 
   /* Text */
-  --color-ink: #1a1418;
-  --color-muted: #6e6266;
+  --color-ink: #fef9ff;
+  --color-muted: rgba(198, 216, 255, 0.78);
+  --color-peri: #c6d8ff;
 
-  /* The one accent */
-  --color-beat: #e8264a;
-  --color-beat-deep: #c2153a;
-  --color-beat-soft: #fce7eb;
+  /* The one accent — spotlight gold */
+  --color-beat: #eac435;
+  --color-beat-bright: #f2d157;
+  --color-beat-soft: rgba(234, 196, 53, 0.12);
+
+  /* Support accent for the wild moments */
+  --color-magenta: #820263;
+  --color-magenta-hot: #c2158f;
 
   /* Spotify-only green (connection states) */
   --color-spotify: #1db954;
 }
 
 :root {
-  color-scheme: light;
+  color-scheme: dark;
 }
 
 body {
   margin: 0;
   font-family: var(--font-sans);
-  background-color: var(--color-cream);
+  background-color: var(--color-night);
   color: var(--color-ink);
   min-height: 100vh;
+}
+
+::selection {
+  background: var(--color-beat);
+  color: var(--color-night);
 }
 
 button {
@@ -123,18 +134,17 @@ button {
 /* ── Utilities ─────────────────────────────────────────────── */
 
 @layer utilities {
-  /* Warm paper backdrop with soft coral stage-glows */
+  /* Navy stage backdrop with gold + magenta spotlight glows from above */
   .bg-stage {
     background:
-      radial-gradient(circle at 12% 8%, rgba(232, 38, 74, 0.07) 0, rgba(251, 247, 242, 0) 42%),
-      radial-gradient(circle at 88% 16%, rgba(232, 38, 74, 0.05) 0, rgba(251, 247, 242, 0) 38%),
-      radial-gradient(circle at 50% 110%, rgba(243, 233, 220, 0.9) 0, rgba(251, 247, 242, 0) 55%),
-      var(--color-cream);
+      radial-gradient(circle at 32% -12%, rgba(234, 196, 53, 0.1) 0, rgba(2, 24, 43, 0) 42%),
+      radial-gradient(circle at 72% -8%, rgba(194, 21, 143, 0.1) 0, rgba(2, 24, 43, 0) 38%),
+      var(--color-night);
   }
 
-  /* Subtle halftone dots — printed-poster texture */
+  /* Subtle halftone dots — stage-scrim texture */
   .bg-halftone {
-    background-image: radial-gradient(rgba(26, 20, 24, 0.05) 1px, transparent 1px);
+    background-image: radial-gradient(rgba(198, 216, 255, 0.05) 1px, transparent 1px);
     background-size: 22px 22px;
   }
 
@@ -151,28 +161,29 @@ button {
   }
 
   /*
-    Screen-print press: flat fill, solid ink border, hard offset shadow.
-    Set --press-ink / --press-tint / --press-tint-hover inline to recolor.
-    Hover lifts the card off the paper; active presses it flat.
+    Stage card: translucent navy fill, 1px ink hairline, soft glow on hover.
+    Set --stage-ink / --stage-tint / --stage-tint-hover inline to recolor.
+    Hover lifts the card toward the lights; active sets it back down.
   */
-  .press-card {
-    border: 2px solid var(--press-ink, var(--color-ink));
-    background-color: var(--press-tint, var(--color-paper));
-    box-shadow: 3px 3px 0 var(--press-ink, var(--color-ink));
+  .stage-card {
+    border: 1px solid color-mix(in srgb, var(--stage-ink, var(--color-peri)) 40%, transparent);
+    background-color: var(--stage-tint, var(--color-surface));
     transition:
       transform 0.15s ease,
       box-shadow 0.15s ease,
+      border-color 0.15s ease,
       background-color 0.15s ease;
   }
 
-  .press-card:hover {
-    transform: translate(-2px, -2px);
-    box-shadow: 5px 5px 0 var(--press-ink, var(--color-ink));
-    background-color: var(--press-tint-hover, var(--press-tint, var(--color-paper)));
+  .stage-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--stage-ink, var(--color-beat));
+    background-color: var(--stage-tint-hover, var(--stage-tint, var(--color-surface-2)));
+    box-shadow: 0 8px 24px color-mix(in srgb, var(--stage-ink, var(--color-beat)) 22%, transparent);
   }
 
-  .press-card:active {
-    transform: translate(2px, 2px);
-    box-shadow: 0 0 0 var(--press-ink, var(--color-ink));
+  .stage-card:active {
+    transform: translateY(0);
+    box-shadow: none;
   }
 }

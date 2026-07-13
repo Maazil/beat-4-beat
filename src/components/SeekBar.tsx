@@ -31,7 +31,7 @@ const SeekBar: Component<SeekBarProps> = (props) => {
         {formatTime(props.positionMs)}
       </span>
       <div
-        class="group relative h-1.5 flex-1 cursor-pointer rounded-full bg-sand"
+        class="group relative h-1.5 flex-1 cursor-pointer rounded-full bg-surface-2"
         onClick={handleClick}
       >
         <div
@@ -39,7 +39,7 @@ const SeekBar: Component<SeekBarProps> = (props) => {
           style={{ width: `${progressPct()}%` }}
         />
         <div
-          class="absolute top-1/2 h-3 w-3 -translate-y-1/2 rounded-full bg-beat opacity-0 shadow transition group-hover:opacity-100"
+          class="absolute top-1/2 h-3 w-3 -translate-y-1/2 rounded-full bg-beat opacity-0 shadow-[0_0_10px_rgba(234,196,53,0.45)] transition group-hover:opacity-100"
           style={{ left: `${progressPct()}%` }}
         />
       </div>

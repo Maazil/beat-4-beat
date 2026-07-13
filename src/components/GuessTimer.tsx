@@ -12,8 +12,8 @@ const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
 /**
  * Floating countdown ring for the guessing phase. Restarts whenever runId
- * changes (each played song), drains clockwise, turns red for the last
- * five seconds and pulses on zero.
+ * changes (each played song), drains clockwise, turns hot magenta for the
+ * last five seconds and pulses on zero.
  */
 const GuessTimer: Component<GuessTimerProps> = (props) => {
   const [remaining, setRemaining] = createSignal(0);
@@ -43,7 +43,7 @@ const GuessTimer: Component<GuessTimerProps> = (props) => {
   return (
     <Show when={props.runId > 0 && !dismissed()}>
       <div
-        class={`fixed right-6 bottom-24 z-40 flex h-28 w-28 items-center justify-center rounded-full border-2 border-ink bg-paper shadow-[4px_4px_0_var(--color-ink)] ${
+        class={`fixed right-6 bottom-24 z-40 flex h-28 w-28 items-center justify-center rounded-full border border-line bg-surface shadow-[0_8px_30px_rgba(0,0,0,0.5)] ${
           expired() ? "animate-pulse" : ""
         }`}
       >
@@ -61,7 +61,7 @@ const GuessTimer: Component<GuessTimerProps> = (props) => {
             cy="50"
             r={RADIUS}
             fill="none"
-            stroke={urgent() || expired() ? "var(--color-beat)" : "var(--color-ink)"}
+            stroke={urgent() || expired() ? "var(--color-magenta-hot)" : "var(--color-beat)"}
             stroke-width="6"
             stroke-linecap="round"
             stroke-dasharray={`${CIRCUMFERENCE}`}
@@ -69,7 +69,7 @@ const GuessTimer: Component<GuessTimerProps> = (props) => {
           />
         </svg>
         <span
-          class={`font-mono text-3xl font-bold ${urgent() || expired() ? "text-beat" : "text-ink"}`}
+          class={`font-mono text-3xl font-bold ${urgent() || expired() ? "text-magenta-hot" : "text-ink"}`}
         >
           {expired() ? "0" : Math.ceil(remaining())}
         </span>
@@ -77,7 +77,7 @@ const GuessTimer: Component<GuessTimerProps> = (props) => {
           type="button"
           title="Hide timer"
           onClick={() => setDismissed(true)}
-          class="absolute -top-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-ink text-cream shadow-md transition hover:bg-beat"
+          class="absolute -top-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full border border-line bg-surface-2 text-muted transition hover:border-beat hover:text-beat"
         >
           <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path

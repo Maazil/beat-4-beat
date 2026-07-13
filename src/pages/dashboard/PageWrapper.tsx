@@ -24,7 +24,7 @@ const PageWrapper: ParentComponent = (props) => {
     <ProtectedRoute>
       <div class="bg-stage min-h-screen text-ink">
         <header
-          class="sticky top-0 z-20 border-b border-line bg-paper/90 backdrop-blur transition-transform duration-300"
+          class="sticky top-0 z-20 border-b border-line bg-night/85 backdrop-blur transition-transform duration-300"
           style={{
             transform: isAtTop() ? "translateY(0)" : "translateY(-100%)",
           }}
@@ -34,7 +34,7 @@ const PageWrapper: ParentComponent = (props) => {
               <Logo class="h-8 w-auto" />
             </A>
             <nav class="flex items-center gap-5 text-sm font-medium text-muted">
-              <A class="flex items-center gap-2 transition hover:text-beat" href="/profile">
+              <A class="flex items-center gap-2 transition hover:text-ink" href="/profile">
                 <p>Hi {auth.userNameSplit()}</p>
                 <img
                   src={auth.state.user?.photoURL || "/images/default-avatar.png"}

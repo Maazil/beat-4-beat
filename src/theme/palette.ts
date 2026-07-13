@@ -1,26 +1,62 @@
 /**
- * Screen-print ink palette — flat poster colors that sit on cream paper.
+ * Stage-light ink palette — bright hues that read on the deep navy stage.
  * Every category color in the app (game board, create page) draws from
- * this set so the whole product reads as one printed piece.
+ * this set so the whole product reads as one night under the lights.
  */
-export interface PosterInk {
+export interface StageInk {
   name: string;
-  /** Solid print color: headers, borders, hard offset shadows. */
+  /** Full-strength hue: category headers, borders, tile numbers. */
   ink: string;
-  /** Darker press of the same ink: text on tints, hover states. */
-  deep: string;
-  /** Light wash: tile fills. */
+  /** Brighter lift of the same hue: text on tints, hover states. */
+  bright: string;
+  /** Translucent wash over the navy: tile fills. */
   tint: string;
   tintHover: string;
 }
 
-export const POSTER_INKS: PosterInk[] = [
-  { name: "coral", ink: "#e8264a", deep: "#a51330", tint: "#fbdde3", tintHover: "#f8ccd6" },
-  { name: "marigold", ink: "#d98a0f", deep: "#7c5204", tint: "#f9e9c8", tintHover: "#f5dfae" },
-  { name: "teal", ink: "#11857a", deep: "#0b5c54", tint: "#d8efe9", tintHover: "#c3e8df" },
-  { name: "cobalt", ink: "#2e5bc7", deep: "#1e3d8c", tint: "#dee5f9", tintHover: "#cdd9f5" },
-  { name: "plum", ink: "#a23b8f", deep: "#722762", tint: "#f3def0", tintHover: "#eccbe7" },
-  { name: "forest", ink: "#4c8a3c", deep: "#33632a", tint: "#e2efda", tintHover: "#d2e6c6" },
+export const STAGE_INKS: StageInk[] = [
+  {
+    name: "gold",
+    ink: "#eac435",
+    bright: "#f2d157",
+    tint: "rgba(234, 196, 53, 0.1)",
+    tintHover: "rgba(234, 196, 53, 0.18)",
+  },
+  {
+    name: "peri",
+    ink: "#c6d8ff",
+    bright: "#dde7ff",
+    tint: "rgba(198, 216, 255, 0.1)",
+    tintHover: "rgba(198, 216, 255, 0.18)",
+  },
+  {
+    name: "magenta",
+    ink: "#c2158f",
+    bright: "#ea5ec4",
+    tint: "rgba(194, 21, 143, 0.16)",
+    tintHover: "rgba(194, 21, 143, 0.26)",
+  },
+  {
+    name: "teal",
+    ink: "#2ec4b6",
+    bright: "#66dfd3",
+    tint: "rgba(46, 196, 182, 0.12)",
+    tintHover: "rgba(46, 196, 182, 0.2)",
+  },
+  {
+    name: "coral",
+    ink: "#ff5d73",
+    bright: "#ff8b9b",
+    tint: "rgba(255, 93, 115, 0.12)",
+    tintHover: "rgba(255, 93, 115, 0.2)",
+  },
+  {
+    name: "violet",
+    ink: "#9d8cff",
+    bright: "#bcb0ff",
+    tint: "rgba(157, 140, 255, 0.12)",
+    tintHover: "rgba(157, 140, 255, 0.2)",
+  },
 ];
 
-export const posterInk = (index: number): PosterInk => POSTER_INKS[index % POSTER_INKS.length];
+export const stageInk = (index: number): StageInk => STAGE_INKS[index % STAGE_INKS.length];

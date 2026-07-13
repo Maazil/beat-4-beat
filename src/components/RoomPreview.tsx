@@ -37,9 +37,9 @@ const RoomPreview: Component<RoomPreviewProps> = (props) => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "live":
-        return "bg-beat-soft text-beat-deep border border-beat/20";
+        return "bg-beat-soft text-beat-bright border border-beat/30";
       default:
-        return "bg-sand text-muted border border-line";
+        return "bg-surface-2 text-muted border border-line";
     }
   };
 
@@ -56,7 +56,7 @@ const RoomPreview: Component<RoomPreviewProps> = (props) => {
 
   return (
     <article
-      class="group cursor-pointer rounded-2xl border border-line bg-paper p-6 shadow-sm transition duration-300 hover:-translate-y-0.5 hover:border-beat/40 hover:shadow-[0_16px_36px_-20px_rgba(232,38,74,0.45)]"
+      class="group cursor-pointer rounded-2xl border border-line bg-surface p-6 transition duration-300 hover:-translate-y-0.5 hover:border-beat hover:shadow-[0_8px_24px_rgba(234,196,53,0.18)]"
       onClick={() => navigate(`/rooms/${props.room.id}/play`)}
     >
       <div class="mb-3 flex items-start justify-between gap-3">
@@ -64,7 +64,7 @@ const RoomPreview: Component<RoomPreviewProps> = (props) => {
           {props.room.roomName}
         </h2>
         <span
-          class={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold ${getStatusBadge(getStatus())}`}
+          class={`shrink-0 rounded-full px-2.5 py-0.5 font-mono text-xs ${getStatusBadge(getStatus())}`}
         >
           {getStatusLabel(getStatus())}
         </span>
@@ -92,7 +92,7 @@ const RoomPreview: Component<RoomPreviewProps> = (props) => {
         <div class="mt-4 flex flex-wrap gap-1.5">
           <For each={props.room.categories.slice(0, 6)}>
             {(category) => (
-              <span class="rounded-full border border-line bg-cream px-2.5 py-0.5 text-xs font-medium text-muted">
+              <span class="rounded-full border border-line bg-surface-2 px-2.5 py-0.5 text-xs font-medium text-muted">
                 {category.name}
               </span>
             )}
@@ -119,7 +119,7 @@ const RoomPreview: Component<RoomPreviewProps> = (props) => {
             disabled={saveState() !== "idle"}
             class={`rounded-full border px-2.5 py-1 text-xs font-semibold transition ${
               saveState() === "saved"
-                ? "border-beat/30 bg-beat-soft text-beat-deep"
+                ? "border-beat/30 bg-beat-soft text-beat-bright"
                 : "border-line text-muted hover:border-beat hover:text-beat disabled:opacity-60"
             }`}
           >

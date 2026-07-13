@@ -10,8 +10,8 @@ const RoomView: Component = () => {
 
   const getStatusBadge = (isActive: boolean) => {
     return isActive
-      ? "bg-beat-soft text-beat-deep border border-beat/20"
-      : "bg-sand text-muted border border-line";
+      ? "bg-beat-soft text-beat-bright border border-beat/30"
+      : "bg-surface-2 text-muted border border-line";
   };
 
   const getStatusLabel = (isActive: boolean) => {
@@ -28,7 +28,7 @@ const RoomView: Component = () => {
 
       <Show when={!isLoading() && !currentRoom()}>
         <div class="rounded-2xl border border-beat/30 bg-beat-soft p-8 text-center">
-          <p class="text-beat-deep">Room not found</p>
+          <p class="text-beat-bright">Room not found</p>
           <button
             class="mt-4 text-sm text-muted hover:text-beat"
             onClick={() => navigate("/rooms")}
@@ -55,14 +55,14 @@ const RoomView: Component = () => {
                 <p class="mt-2 text-sm text-muted">Manage room settings and players.</p>
               </div>
               <span
-                class={`rounded-full px-3 py-1 text-sm font-semibold ${getStatusBadge(room.isActive)}`}
+                class={`rounded-full px-3 py-1 font-mono text-xs ${getStatusBadge(room.isActive)}`}
               >
                 {getStatusLabel(room.isActive)}
               </span>
             </div>
 
             <div class="grid gap-6 lg:grid-cols-2">
-              <section class="rounded-2xl border border-line bg-paper p-6 shadow-sm">
+              <section class="rounded-2xl border border-line bg-surface p-6">
                 <h2 class="font-display mb-4 text-lg font-bold text-ink">Room info</h2>
                 <dl class="space-y-3 text-sm">
                   <div>
@@ -90,23 +90,23 @@ const RoomView: Component = () => {
                 </dl>
               </section>
 
-              <section class="rounded-2xl border border-line bg-paper p-6 shadow-sm">
+              <section class="rounded-2xl border border-line bg-surface p-6">
                 <h2 class="font-display mb-2 text-lg font-bold text-ink">Actions</h2>
                 <p class="mb-4 text-sm text-muted">
                   Share the link:{" "}
-                  <code class="rounded bg-sand px-2 py-1 font-mono text-xs text-ink">
+                  <code class="rounded bg-surface-2 px-2 py-1 font-mono text-xs text-ink">
                     /rooms/{room.id}/play
                   </code>
                 </p>
                 <div class="flex flex-col gap-3">
                   <button
-                    class="w-full rounded-full bg-beat px-4 py-2.5 text-sm font-bold text-white transition hover:bg-beat-deep"
+                    class="w-full rounded-full bg-beat px-4 py-2.5 text-sm font-bold text-night shadow-[0_8px_30px_rgba(234,196,53,0.28)] transition hover:bg-beat-bright"
                     onClick={() => navigate("play")}
                   >
                     Start
                   </button>
                   <button
-                    class="w-full rounded-full border border-line px-4 py-2.5 text-sm font-semibold text-ink transition hover:border-beat hover:text-beat"
+                    class="w-full rounded-full border border-line px-4 py-2.5 text-sm font-semibold text-ink transition hover:border-beat hover:bg-beat-soft"
                     onClick={() => {
                       const shareUrl = `${window.location.origin}/rooms/${room.id}/play`;
                       navigator.clipboard.writeText(shareUrl);
@@ -115,10 +115,10 @@ const RoomView: Component = () => {
                   >
                     Copy player link
                   </button>
-                  <button class="w-full rounded-full border border-line px-4 py-2.5 text-sm font-semibold text-ink transition hover:border-beat hover:text-beat">
+                  <button class="w-full rounded-full border border-line px-4 py-2.5 text-sm font-semibold text-ink transition hover:border-beat hover:bg-beat-soft">
                     Edit settings
                   </button>
-                  <button class="w-full rounded-full border border-beat/30 px-4 py-2.5 text-sm font-semibold text-beat transition hover:bg-beat-soft">
+                  <button class="w-full rounded-full border border-magenta-hot/40 px-4 py-2.5 text-sm font-semibold text-magenta-hot transition hover:border-magenta-hot hover:bg-magenta/20">
                     Delete room
                   </button>
                 </div>

@@ -28,13 +28,13 @@ const InviteAccept: Component = () => {
           </div>
         }
       >
-        <div class="max-w-md rounded-3xl border border-line bg-paper p-8 text-center shadow-sm">
+        <div class="max-w-md rounded-3xl border border-line bg-surface p-8 text-center">
           <h2 class="font-display mb-4 text-2xl font-bold text-ink">Could not accept the invite</h2>
           <p class="mb-6 text-muted">{error()}</p>
           <button
             type="button"
             onClick={() => navigate("/dashboard")}
-            class="rounded-full bg-beat px-6 py-3 font-bold text-white transition hover:bg-beat-deep"
+            class="rounded-full bg-beat px-6 py-3 font-bold text-night transition hover:bg-beat-bright"
           >
             Go to dashboard
           </button>

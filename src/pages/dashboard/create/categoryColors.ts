@@ -1,4 +1,4 @@
-import { POSTER_INKS } from "../../../theme/palette";
+import { STAGE_INKS } from "../../../theme/palette";
 
 export interface CategoryColorScheme {
   // Computed style values
@@ -7,6 +7,7 @@ export interface CategoryColorScheme {
   itemBg: string;
   itemBgHover: string;
   border: string;
+  /** Bright accent for text sitting on the category's tint. */
   textDark: string;
 }
 
@@ -24,7 +25,7 @@ function getInkForCategory(categoryId: string): number {
     return assignedInks.get(categoryId)!;
   }
 
-  const index = nextInkIndex % POSTER_INKS.length;
+  const index = nextInkIndex % STAGE_INKS.length;
   assignedInks.set(categoryId, index);
   nextInkIndex++;
 
@@ -50,18 +51,18 @@ export function resetHueAssignments(): void {
 
 /**
  * Generate a color scheme for a category based on its unique ID.
- * All values come from the shared screen-print palette.
+ * All values come from the shared stage-light palette.
  */
 export function generateColorScheme(categoryId: string): CategoryColorScheme {
-  const ink = POSTER_INKS[getInkForCategory(categoryId)];
+  const ink = STAGE_INKS[getInkForCategory(categoryId)];
 
   return {
     titleBg: ink.ink,
-    titleBgHover: ink.deep,
+    titleBgHover: ink.bright,
     itemBg: ink.tint,
     itemBgHover: ink.tintHover,
     border: ink.ink,
-    textDark: ink.deep,
+    textDark: ink.bright,
   };
 }
 

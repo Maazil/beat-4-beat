@@ -1,10 +1,11 @@
 import { Component, createSignal, For, Index } from "solid-js";
+import { STAGE_INKS } from "../../theme/palette";
 
 /**
- * UI Design Exploration Page
+ * UI Design System Preview
  *
- * This page showcases different color palette options for Beat 4 Beat.
- * Run the dev server and navigate to /ui-preview to see these options.
+ * Dev-only showcase of the Stage Night design system for Beat 4 Beat.
+ * Run the dev server and navigate to /ui-preview to see it.
  */
 
 // Color Palette Options
