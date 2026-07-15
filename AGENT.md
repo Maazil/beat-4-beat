@@ -1,6 +1,7 @@
 ## Overview
 
 ## Project best practices
+
 Apply the [general coding guidelines](./.instructions.md) to all code.
 
 ## Tech stack

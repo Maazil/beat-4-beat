@@ -232,7 +232,7 @@ const SongItemCard: Component<SongItemCardProps> = (props) => {
           }}
         >
           <Show when={props.isEditing}>
-            <div class="fixed inset-0 z-[100] flex items-center justify-center">
+            <div class="fixed inset-0 z-100 flex items-center justify-center">
               {/* Subtle backdrop — click to close */}
               <div class="absolute inset-0 bg-night/80" onClick={() => props.onBlur()} />
 
@@ -267,10 +267,7 @@ const SongItemCard: Component<SongItemCardProps> = (props) => {
                       "border-color": props.colorScheme.border,
                     }}
                   >
-                    <span
-                      class="font-mono text-xl font-bold"
-                      style={{ color: "var(--color-ink)" }}
-                    >
+                    <span class="font-mono text-xl font-bold" style={{ color: "var(--color-ink)" }}>
                       {props.item.level}
                     </span>
                   </div>
