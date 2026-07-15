@@ -313,7 +313,7 @@ export const MusicArt: Component = () => (
 export const ScreenArt: Component = () => (
   <svg class="step-art" viewBox="0 0 216 96" aria-hidden="true">
     {laptop(20, 40, 52, 33, tiles(6, 6, 3, 2, 12, 9, 3, [1, 0]))}
-    {tv(126, 14, 76, 46, tiles(7, 7, 3, 2, 19, 13, 3.5, [1, 1]))}
+    {tv(126, 14, 76, 46, tiles(7, 7, 3, 2, 19, 13, 3.5, [1, 0]))}
     <path
       d="M76 34 C 88 20, 106 18, 122 27"
       fill="none"
@@ -375,7 +375,7 @@ export const SetupLegend: Component = () => (
 
 export const SetupAArt: Component = () => (
   <svg class="setup-art" viewBox="0 0 300 172" aria-hidden="true">
-    {tv(106, 8, 88, 52, tiles(8, 8, 4, 2, 17, 15, 3, [2, 0]))}
+    {tv(106, 8, 88, 52, tiles(10, 8, 3, 2, 22, 15, 4, [0, 1]))}
     {label(150, 86, "BIG SCREEN")}
     {laptop(36, 104, 56, 36, tiles(6, 6, 3, 2, 13, 10, 3, [0, 1]))}
     {label(64, 164, "GAME + MUSIC", true)}
@@ -397,7 +397,7 @@ export const SetupAArt: Component = () => (
 
 export const SetupBArt: Component = () => (
   <svg class="setup-art" viewBox="0 0 300 172" aria-hidden="true">
-    {tv(106, 8, 88, 52, tiles(8, 8, 4, 2, 17, 15, 3, [1, 0]))}
+    {tv(106, 8, 88, 52, tiles(10, 8, 3, 2, 22, 15, 4, [2, 0]))}
     {label(150, 86, "BIG SCREEN")}
     {laptop(30, 104, 56, 36, tiles(6, 6, 3, 2, 13, 10, 3, [2, 0]))}
     {label(58, 164, "GAME + MUSIC")}
@@ -429,7 +429,7 @@ export const SetupBArt: Component = () => (
 
 export const SetupCArt: Component = () => (
   <svg class="setup-art" viewBox="0 0 300 172" aria-hidden="true">
-    {tv(106, 8, 88, 52, tiles(8, 8, 4, 2, 17, 15, 3, [3, 1]))}
+    {tv(106, 8, 88, 52, tiles(10, 8, 3, 2, 22, 15, 4, [1, 1]))}
     {label(150, 86, "BIG SCREEN")}
     {laptop(28, 104, 56, 36, tiles(6, 6, 3, 2, 13, 10, 3, [1, 1]))}
     {label(56, 164, "GAME")}
