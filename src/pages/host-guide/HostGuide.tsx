@@ -3,6 +3,17 @@ import { useNavigate } from "@solidjs/router";
 import type { Component } from "solid-js";
 import "../stage-night.css";
 import "./host-guide.css";
+import {
+  BoardArt,
+  FlowStrip,
+  MusicArt,
+  ScreenArt,
+  SetupAArt,
+  SetupBArt,
+  SetupCArt,
+  SetupLegend,
+  SoundArt,
+} from "./guide-art";
 
 const HostGuide: Component = () => {
   const navigate = useNavigate();
@@ -46,6 +57,7 @@ const HostGuide: Component = () => {
                 Ten minutes of prep is all it takes: build a board, sort your music, get the game on
                 the big screen, and decide how the sound flows. Here's the full walkthrough.
               </p>
+              <FlowStrip />
             </header>
 
             <section id="prep">
@@ -53,6 +65,7 @@ const HostGuide: Component = () => {
               <h2>Four things to sort ahead of game night</h2>
               <div class="steps guide-steps">
                 <div class="step">
+                  <BoardArt />
                   <span class="num mono">PREP 1</span>
                   <h3>Build your board</h3>
                   <p>
@@ -65,6 +78,7 @@ const HostGuide: Component = () => {
                   </p>
                 </div>
                 <div class="step">
+                  <MusicArt />
                   <span class="num mono">PREP 2</span>
                   <h3>Sort your music source</h3>
                   <p>
@@ -75,6 +89,7 @@ const HostGuide: Component = () => {
                   </p>
                 </div>
                 <div class="step">
+                  <ScreenArt />
                   <span class="num mono">PREP 3</span>
                   <h3>Put the game on the big screen</h3>
                   <p>
@@ -85,6 +100,7 @@ const HostGuide: Component = () => {
                   </p>
                 </div>
                 <div class="step">
+                  <SoundArt />
                   <span class="num mono">PREP 4</span>
                   <h3>Wire up the sound</h3>
                   <p>
@@ -105,10 +121,12 @@ const HostGuide: Component = () => {
                 the audio comes out and where you control it from. Pick by how your speaker is
                 connected and how mobile you want to be.
               </p>
+              <SetupLegend />
               <div class="features">
                 <div class="feat">
                   <span class="setup-tag">Setup A · Simplest</span>
                   <h3>Everything from the computer</h3>
+                  <SetupAArt />
                   <p class="setup-when">
                     <span class="mono">Best when:</span> one host at the keyboard, and the speaker
                     or TV audio is plugged into the computer.
@@ -129,6 +147,7 @@ const HostGuide: Component = () => {
                 <div class="feat">
                   <span class="setup-tag">Setup B · Recommended</span>
                   <h3>Phone as the music remote</h3>
+                  <SetupBArt />
                   <p class="setup-when">
                     <span class="mono">Best when:</span> you want to walk the room and keep full
                     control of the music from your pocket.
@@ -154,6 +173,7 @@ const HostGuide: Component = () => {
                 <div class="feat">
                   <span class="setup-tag">Setup C · Phone speaker</span>
                   <h3>Speaker hangs off the phone</h3>
+                  <SetupCArt />
                   <p class="setup-when">
                     <span class="mono">Best when:</span> the speaker is Bluetooth-paired to your
                     phone, or the computer can't reach it.
