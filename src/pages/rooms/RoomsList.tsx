@@ -27,7 +27,7 @@ const Rooms: Component = () => {
       <h1 class="font-display mb-8 text-3xl font-bold tracking-tight text-ink">All rooms</h1>
 
       <Show when={error()}>
-        <div class="mb-4 rounded-xl border border-magenta-hot/40 bg-magenta/15 p-4 text-ink">
+        <div class="mb-4 rounded-xl border border-magenta-hot/40 bg-magenta-hot/10 p-4 text-magenta-hot">
           {error()}
         </div>
       </Show>

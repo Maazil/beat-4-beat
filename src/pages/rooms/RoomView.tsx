@@ -118,7 +118,7 @@ const RoomView: Component = () => {
                   <button class="w-full rounded-full border border-line px-4 py-2.5 text-sm font-semibold text-ink transition hover:border-beat hover:bg-beat-soft">
                     Edit settings
                   </button>
-                  <button class="w-full rounded-full border border-magenta-hot/40 px-4 py-2.5 text-sm font-semibold text-magenta-hot transition hover:border-magenta-hot hover:bg-magenta/20">
+                  <button class="w-full rounded-full border border-magenta-hot/40 px-4 py-2.5 text-sm font-semibold text-magenta-hot transition hover:border-magenta-hot hover:bg-magenta-hot/10">
                     Delete room
                   </button>
                 </div>

@@ -31,7 +31,7 @@ const Market: Component = () => {
       </div>
 
       <Show when={roomsError()}>
-        <div class="mb-4 rounded-xl border border-magenta-hot/40 bg-magenta/15 p-4 text-ink">
+        <div class="mb-4 rounded-xl border border-magenta-hot/40 bg-magenta-hot/10 p-4 text-magenta-hot">
           {roomsError()}
         </div>
       </Show>

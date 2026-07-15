@@ -33,6 +33,10 @@
 
   /* Spotify-only green (connection states) */
   --color-spotify: #1db954;
+
+  /* Text-selection only — never reused as a component background, so it
+     can't collide with a category tile that happens to share the hue. */
+  --color-select: #3ea6ff;
 }
 
 :root {
@@ -48,7 +52,7 @@ body {
 }
 
 ::selection {
-  background: var(--color-beat);
+  background: var(--color-select);
   color: var(--color-night);
 }
 

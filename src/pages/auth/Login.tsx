@@ -59,8 +59,8 @@ const Login: Component = () => {
           fallback={<p class="text-center text-muted">Loading account…</p>}
         >
           <Show when={error()}>
-            <div class="mb-6 rounded-xl border border-magenta-hot/40 bg-magenta/15 p-3">
-              <p class="text-sm text-ink">{error()}</p>
+            <div class="mb-6 rounded-xl border border-magenta-hot/40 bg-magenta-hot/10 p-3">
+              <p class="text-sm text-magenta-hot">{error()}</p>
             </div>
           </Show>
 
