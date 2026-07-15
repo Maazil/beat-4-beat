@@ -291,16 +291,49 @@ const RoomPlayInner: Component = () => {
                 <h1 class="font-display text-3xl font-bold tracking-tight text-ink">
                   {currentRoom()?.roomName}
                 </h1>
-                <h2 class="flex flex-wrap items-center gap-2 font-medium text-muted">
-                  Hosted by
-                  <For each={hostNames()}>
-                    {(name) => (
-                      <span class="inline-block rounded-full bg-beat px-4 py-1 text-sm font-bold tracking-wide text-night">
-                        {name}
-                      </span>
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                  <h2 class="flex flex-wrap items-center gap-2 font-medium text-muted">
+                    Hosted by
+                    <For each={hostNames()}>
+                      {(name) => (
+                        <span class="inline-block rounded-full bg-beat px-4 py-1 text-sm font-bold tracking-wide text-night">
+                          {name}
+                        </span>
+                      )}
+                    </For>
+                  </h2>
+
+                  {/* Selected Spotify device */}
+                  <Show when={selectedDevice()}>
+                    {(device) => (
+                      <div class="flex items-center gap-3 rounded-xl border border-spotify/30 bg-spotify/10 px-3 py-1.5">
+                        <span class="text-spotify">{deviceIcon(device().type)}</span>
+                        <p class="text-sm font-semibold text-ink">Playing on: {device().name}</p>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedDevice(null);
+                            sessionStorage.removeItem("spotify_selected_device");
+                            fetchDevices();
+                          }}
+                          class="text-xs text-muted underline transition hover:text-ink"
+                        >
+                          Switch device
+                        </button>
+                      </div>
                     )}
-                  </For>
-                </h2>
+                  </Show>
+
+                  <Show when={gameStarted()}>
+                    <button
+                      type="button"
+                      onClick={handleNewGame}
+                      class="rounded-full border border-line px-3 py-1 text-xs font-bold text-ink transition hover:border-beat hover:bg-beat-soft"
+                    >
+                      New game
+                    </button>
+                  </Show>
+                </div>
               </div>
 
               {/* Spotify connection status */}
@@ -338,29 +371,6 @@ const RoomPlayInner: Component = () => {
                   />
                 </Show>
               </div>
-            </Show>
-
-            {/* Selected device indicator */}
-            <Show when={selectedDevice()}>
-              {(device) => (
-                <div class="flex items-center gap-3 rounded-xl border border-spotify/30 bg-spotify/10 px-4 py-2">
-                  <span class="text-spotify">{deviceIcon(device().type)}</span>
-                  <div class="min-w-0 flex-1">
-                    <p class="text-sm font-semibold text-ink">Playing on: {device().name}</p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSelectedDevice(null);
-                      sessionStorage.removeItem("spotify_selected_device");
-                      fetchDevices();
-                    }}
-                    class="text-xs text-muted underline transition hover:text-ink"
-                  >
-                    Switch device
-                  </button>
-                </div>
-              )}
             </Show>
 
             {/* Scoreboard — synced via the room doc for hosts, local otherwise */}
@@ -404,15 +414,6 @@ const RoomPlayInner: Component = () => {
                         )}
                       </For>
                     </div>
-                    <Show when={gameStarted()}>
-                      <button
-                        type="button"
-                        onClick={handleNewGame}
-                        class="rounded-full border border-line px-3 py-1 text-xs font-bold text-ink transition hover:border-beat hover:bg-beat-soft"
-                      >
-                        New game
-                      </button>
-                    </Show>
                   </div>
                 </div>
                 {/* Single-category: full-width grid, one ink for the whole board */}
