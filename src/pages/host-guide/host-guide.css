@@ -1,0 +1,87 @@
+/*
+  Host setup guide — extends the "Stage Night" landing styles.
+  Only guide-specific tweaks live here; everything else reuses stage-night.css.
+*/
+
+.stage-night .guide-hero {
+  text-align: center;
+  padding: 56px 0 12px;
+}
+
+.stage-night .guide-hero h1 {
+  font-size: clamp(36px, 5.6vw, 62px);
+  max-width: 18ch;
+}
+
+.stage-night .guide-steps {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+@media (max-width: 560px) {
+  .stage-night .guide-steps {
+    grid-template-columns: 1fr;
+  }
+}
+
+.stage-night .setup-tag {
+  display: inline-block;
+  font: 500 12px var(--mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 10px;
+}
+
+.stage-night .setup-when {
+  margin: 0 0 12px;
+  font-size: 13.5px;
+  color: var(--peri);
+}
+
+.stage-night .setup-when .mono {
+  font-size: 11.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(198, 216, 255, 0.55);
+}
+
+.stage-night .guide-list {
+  list-style: none;
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.stage-night .guide-list li {
+  position: relative;
+  padding-left: 20px;
+  color: var(--stage-muted);
+  font-size: 14.5px;
+}
+
+.stage-night .guide-list li::before {
+  content: "";
+  position: absolute;
+  left: 2px;
+  top: 9px;
+  width: 8px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--gold);
+}
+
+.stage-night .guide-note {
+  margin-top: 28px;
+  border: 1px solid rgba(234, 196, 53, 0.35);
+  border-radius: 14px;
+  background: rgba(234, 196, 53, 0.07);
+  padding: 20px 22px;
+  font-size: 14.5px;
+  color: var(--stage-muted);
+  max-width: 72ch;
+}
+
+.stage-night .guide-note strong {
+  color: var(--text);
+}
