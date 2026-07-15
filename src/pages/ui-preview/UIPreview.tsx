@@ -78,7 +78,7 @@ const UIPreview: Component = () => {
             </button>
             <button
               type="button"
-              class="rounded-full border border-magenta-hot/50 px-6 py-2.5 font-semibold text-magenta-hot transition hover:bg-magenta-hot/10"
+              class="rounded-full border border-magenta-hot/40 px-6 py-2.5 font-semibold text-magenta-hot transition hover:bg-magenta-hot/10"
             >
               Destructive
             </button>

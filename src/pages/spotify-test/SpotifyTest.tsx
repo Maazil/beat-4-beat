@@ -63,7 +63,7 @@ export default function SpotifyTest() {
               setLoggedIn(false);
               setStatus("Logged out");
             }}
-            class="rounded-full border border-magenta-hot/50 px-6 py-2 font-semibold text-magenta-hot hover:bg-magenta-hot/10"
+            class="rounded-full border border-magenta-hot/40 px-6 py-2 font-semibold text-magenta-hot hover:bg-magenta-hot/10"
           >
             Logout
           </button>

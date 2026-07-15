@@ -435,7 +435,9 @@ const RoomPlayInner: Component = () => {
                             <span
                               class="font-mono text-2xl font-bold"
                               style={{
-                                color: isItemRevealed(item.id) ? "var(--color-muted)" : ink.bright,
+                                color: isItemRevealed(item.id)
+                                  ? "var(--color-muted)"
+                                  : "var(--color-ink)",
                               }}
                             >
                               {item.level}
@@ -500,7 +502,7 @@ const RoomPlayInner: Component = () => {
                                       style={{
                                         color: isItemRevealed(item.id)
                                           ? "var(--color-muted)"
-                                          : ink().bright,
+                                          : "var(--color-ink)",
                                       }}
                                     >
                                       {item.level}

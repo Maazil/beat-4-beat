@@ -7,8 +7,6 @@ export interface CategoryColorScheme {
   itemBg: string;
   itemBgHover: string;
   border: string;
-  /** Bright accent for text sitting on the category's tint. */
-  textDark: string;
 }
 
 // Store assigned ink indices to avoid duplicates
@@ -62,7 +60,6 @@ export function generateColorScheme(categoryId: string): CategoryColorScheme {
     itemBg: ink.tint,
     itemBgHover: ink.tintHover,
     border: ink.ink,
-    textDark: ink.bright,
   };
 }
 

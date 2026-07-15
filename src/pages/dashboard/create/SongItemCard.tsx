@@ -116,13 +116,13 @@ const SongItemCard: Component<SongItemCardProps> = (props) => {
           class="flex h-full w-full flex-col items-center justify-center"
           onClick={() => !props.isEditing && props.onEdit()}
         >
-          <span class="font-mono text-2xl font-bold" style={{ color: props.colorScheme.textDark }}>
+          <span class="font-mono text-2xl font-bold" style={{ color: "var(--color-ink)" }}>
             {props.item.level}
           </span>
           <Show when={props.item.title && !props.isEditing}>
             <span
               class="max-w-full truncate px-1 text-[10px] leading-tight opacity-70"
-              style={{ color: props.colorScheme.textDark }}
+              style={{ color: "var(--color-ink)" }}
             >
               {props.item.title}
             </span>
@@ -269,7 +269,7 @@ const SongItemCard: Component<SongItemCardProps> = (props) => {
                   >
                     <span
                       class="font-mono text-xl font-bold"
-                      style={{ color: props.colorScheme.textDark }}
+                      style={{ color: "var(--color-ink)" }}
                     >
                       {props.item.level}
                     </span>

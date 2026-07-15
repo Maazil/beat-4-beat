@@ -24,7 +24,7 @@ const AddItemButton: Component<AddItemButtonProps> = (props) => {
     >
       <svg
         class="h-8 w-8 opacity-50"
-        style={{ color: props.colorScheme.textDark }}
+        style={{ color: "var(--color-ink)" }}
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"

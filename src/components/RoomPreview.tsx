@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { formatNameList, roomHostNames } from "../lib/roomHosts";
 import type { Room } from "../model/room";
 import { duplicateRoom } from "../services/roomsService";
+import { stageInk } from "../theme/palette";
 
 interface RoomPreviewProps {
   room: Room;
@@ -91,16 +92,22 @@ const RoomPreview: Component<RoomPreviewProps> = (props) => {
       {props.room.categories.length > 0 && props.room.showCategories && (
         <div class="mt-4 flex flex-wrap gap-1.5">
           <For each={props.room.categories.slice(0, 6)}>
-            {(category) => (
-              <span class="rounded-full border border-line bg-surface-2 px-2.5 py-0.5 text-xs font-medium text-muted">
-                {category.name}
-              </span>
-            )}
+            {(category, index) => {
+              const ink = stageInk(index());
+              return (
+                <span
+                  class="rounded-full border px-2.5 py-0.5 text-xs font-medium text-ink"
+                  style={{ "background-color": ink.tint, "border-color": ink.ink }}
+                >
+                  {category.name}
+                </span>
+              );
+            }}
           </For>
         </div>
       )}
       <div class="mt-5 flex items-center justify-between gap-3">
-        <p class="inline-flex items-center gap-1.5 text-sm font-bold text-beat opacity-0 transition duration-300 group-hover:opacity-100">
+        <p class="inline-flex items-center gap-1.5 text-sm font-bold text-beat">
           Play now
           <svg class="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" aria-hidden="true">
             <path
@@ -117,10 +124,10 @@ const RoomPreview: Component<RoomPreviewProps> = (props) => {
             type="button"
             onClick={handleSave}
             disabled={saveState() !== "idle"}
-            class={`rounded-full border px-2.5 py-1 text-xs font-semibold transition ${
+            class={`rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
               saveState() === "saved"
                 ? "border-beat/30 bg-beat-soft text-beat-bright"
-                : "border-line text-muted hover:border-beat hover:text-beat disabled:opacity-60"
+                : "border-line bg-surface-2 text-ink hover:border-beat hover:bg-beat-soft hover:text-beat disabled:opacity-60"
             }`}
           >
             {saveState() === "saved"
