@@ -17,6 +17,8 @@ const SCREEN = "#041f36";
 const SHELL = "#0a314f";
 const GOLD = "var(--gold)";
 const MAGENTA = "var(--magenta-hot)";
+/* Brand color, not a Stage Night token: Spotify green so the icon reads as the actual app. */
+const SPOTIFY_GREEN = "#1db954";
 
 /* ── Shared drawing helpers ────────────────────────────────── */
 
@@ -287,8 +289,8 @@ export const MusicArt: Component = () => (
       fill="rgba(6, 39, 65, 0.9)"
       stroke={TILE_STROKE}
     />
-    <circle cx={57} cy={40} r={11} fill="none" stroke={GOLD} stroke-width={1.6} />
-    <g fill="none" stroke={GOLD} stroke-width={1.6} stroke-linecap="round">
+    <circle cx={57} cy={40} r={11} fill="none" stroke={SPOTIFY_GREEN} stroke-width={1.6} />
+    <g fill="none" stroke={SPOTIFY_GREEN} stroke-width={1.6} stroke-linecap="round">
       <path d="M51.5 36.5 q 5.5 -2.2 11 0" />
       <path d="M52.5 40.5 q 4.5 -1.8 9 0" />
       <path d="M53.5 44.5 q 3.5 -1.4 7 0" />
