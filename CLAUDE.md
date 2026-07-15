@@ -48,10 +48,12 @@ SolidJS Router. Route definitions in `src/routes.ts`:
 **Firestore collections:** `rooms/` and `users/`
 
 **Service layer** in `src/services/`:
+
 - `roomsService.ts` — Room CRUD + real-time subscriptions (`onSnapshot`)
 - `usersService.ts` — User profile sync to Firestore on auth state change
 
 **Custom hooks** in `src/hooks/`:
+
 - `useRoom(getRoomId)` — Subscribe to single room (reactive)
 - `useMyRooms()` — Subscribe to current user's rooms
 - `usePublicRooms()` — Subscribe to all public rooms
@@ -60,6 +62,7 @@ SolidJS Router. Route definitions in `src/routes.ts`:
 ### Authentication
 
 Firebase Auth via `src/context/AuthContext.tsx`:
+
 - **Google OAuth** — Authenticated users can create/manage rooms
 - Methods/accessors: `signInWithGoogle()`, `signOut()`, `isAuthenticated()`, `isRoomHost(roomHostId?)`, `userNameSplit()`
 - Route guards: `ProtectedRoute`, `RequireHost` components
@@ -89,6 +92,7 @@ Tailwind CSS v4 via Vite plugin. Dark theme with red accents. Custom animations 
 ### Environment Variables
 
 Firebase config via Vite env vars (`.env.local`):
+
 - `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_AUTH_DOMAIN`, `VITE_FIREBASE_PROJECT_ID`
 - `VITE_FIREBASE_STORAGE_BUCKET`, `VITE_FIREBASE_MESSAGING_SENDER_ID`
 - `VITE_FIREBASE_APP_ID`, `VITE_FIREBASE_MEASUREMENT_ID`
@@ -162,12 +166,12 @@ Effects are for external side-effects (DOM manipulation, third-party libs). Neve
 ```tsx
 // WRONG — fetching in an effect
 createEffect(async () => {
-  const data = await fetch("/api/posts").then(r => r.json());
+  const data = await fetch("/api/posts").then((r) => r.json());
   setPosts(data);
 });
 
 // RIGHT — use createResource
-const [posts] = createResource(() => fetch("/api/posts").then(r => r.json()));
+const [posts] = createResource(() => fetch("/api/posts").then((r) => r.json()));
 
 // WRONG — syncing derived state via effect
 createEffect(() => setFullName(`${firstName()} ${lastName()}`));
@@ -198,5 +202,5 @@ Signals replace entire objects on update. Stores provide fine-grained reactivity
 setBoard({ ...board(), notes: [...board().notes, "Note 3"] });
 
 // Store — surgical update
-setBoard("notes", notes => [...notes, "Note 3"]);
+setBoard("notes", (notes) => [...notes, "Note 3"]);
 ```
