@@ -59,8 +59,9 @@ const HostGuide: Component = () => {
                     Sign in with Google, head to your dashboard, and create a board. Add categories
                     and drop a song on every tile. Paste Spotify links for the best experience, or
                     YouTube links where Spotify doesn't have the track. Set a start time on songs
-                    with slow intros. Short on time? Duplicate a public board from the marketplace
-                    and remix it.
+                    with slow intros. No time to prep? Explore and discover public boards in the
+                    marketplace: play one straight away, or duplicate it to your dashboard and remix
+                    it.
                   </p>
                 </div>
                 <div class="step">
