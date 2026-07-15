@@ -14,6 +14,10 @@ export const routes: RouteDefinition[] = [
     path: "/login",
     component: lazy(() => import("./pages/auth/Login")),
   },
+  {
+    path: "/host-guide",
+    component: lazy(() => import("./pages/host-guide/HostGuide")),
+  },
 
   // Protected routes (require authentication)
   {

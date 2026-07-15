@@ -28,6 +28,15 @@ const App: Component = () => {
                 <a href="#how">How it plays</a>
                 <a href="#features">Features</a>
                 <a
+                  href="/host-guide"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    navigate("/host-guide");
+                  }}
+                >
+                  Host setup
+                </a>
+                <a
                   href="/market"
                   onClick={(e) => {
                     e.preventDefault();
@@ -263,6 +272,15 @@ const App: Component = () => {
               <a class="wordmark" href="/">
                 <span class="tick" />
                 BEAT 4 BEAT
+              </a>
+              <a
+                href="/host-guide"
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigate("/host-guide");
+                }}
+              >
+                How to set up for the host
               </a>
               <span>Made by Matthew Ling</span>
               <span>Made for game night · free to play</span>

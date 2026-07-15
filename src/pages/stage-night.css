@@ -543,6 +543,10 @@
   color: rgba(198, 216, 255, 0.5);
 }
 
+.stage-night .foot a:not(.wordmark):hover {
+  color: var(--text);
+}
+
 .stage-night .foot .wordmark {
   font-size: 16px;
 }
