@@ -57,7 +57,7 @@ const HostGuide: Component = () => {
                   <h3>Build your board</h3>
                   <p>
                     Sign in with Google, head to your dashboard, and create a board. Add categories
-                    and drop a song on every tile — paste Spotify links for the best experience, or
+                    and drop a song on every tile. Paste Spotify links for the best experience, or
                     YouTube links where Spotify doesn't have the track. Set a start time on songs
                     with slow intros. Short on time? Duplicate a public board from the marketplace
                     and remix it.
@@ -68,9 +68,9 @@ const HostGuide: Component = () => {
                   <h3>Sort your music source</h3>
                   <p>
                     With a <strong>Spotify Premium</strong> account, connect Spotify from the play
-                    view and songs fire automatically when tiles are revealed — you pick which
-                    device they play on. No Premium? Songs with YouTube links play in a built-in
-                    player right in the browser, no account needed.
+                    view and songs fire automatically when tiles are revealed, on whichever device
+                    you pick. No Premium? Songs with YouTube links play in a built-in player right
+                    in the browser, no account needed.
                   </p>
                 </div>
                 <div class="step">
@@ -79,17 +79,18 @@ const HostGuide: Component = () => {
                   <p>
                     Connect your computer to a TV or projector with a compatible cable (HDMI, USB-C
                     to HDMI) or wireless mirroring (AirPlay, Chromecast). Anything that can show
-                    your computer screen works — the game runs in the browser. Mirror the display
-                    and put the browser in fullscreen.
+                    your computer screen works, since the game runs in the browser. Mirror the
+                    display and put the browser in fullscreen.
                   </p>
                 </div>
                 <div class="step">
                   <span class="num mono">PREP 4</span>
                   <h3>Wire up the sound</h3>
                   <p>
-                    The music needs to reach a proper speaker. Decide what feeds it: the computer
-                    (simplest — TV or speaker plugged straight in) or your phone (most flexible —
-                    control the music from anywhere in the room). The setups below cover both.
+                    The music needs to reach a proper speaker. Decide what feeds it: the computer is
+                    simplest, with the TV or speaker plugged straight in, while your phone is the
+                    most flexible and lets you control the music from anywhere in the room. The
+                    setups below cover both.
                   </p>
                 </div>
               </div>
@@ -100,7 +101,7 @@ const HostGuide: Component = () => {
               <h2>Three ways to run the sound</h2>
               <p class="lede">
                 Every setup plays the song the moment a tile is revealed. The difference is where
-                the audio comes out and where you control it from — pick by how your speaker is
+                the audio comes out and where you control it from. Pick by how your speaker is
                 connected and how mobile you want to be.
               </p>
               <div class="features">
@@ -108,14 +109,14 @@ const HostGuide: Component = () => {
                   <span class="setup-tag">Setup A · Simplest</span>
                   <h3>Everything from the computer</h3>
                   <p class="setup-when">
-                    <span class="mono">Best when</span> — one host at the keyboard, and the speaker
+                    <span class="mono">Best when:</span> one host at the keyboard, and the speaker
                     or TV audio is plugged into the computer.
                   </p>
                   <ul class="guide-list">
                     <li>Open your board's play view and connect Spotify (Premium).</li>
                     <li>In the device picker, choose this computer as the playback device.</li>
                     <li>
-                      Reveal a tile — the song plays instantly. Pause, resume, and scrub from the
+                      Reveal a tile and the song plays instantly. Pause, resume, and scrub from the
                       game's now-playing bar.
                     </li>
                     <li>
@@ -128,7 +129,7 @@ const HostGuide: Component = () => {
                   <span class="setup-tag">Setup B · Recommended</span>
                   <h3>Phone as the music remote</h3>
                   <p class="setup-when">
-                    <span class="mono">Best when</span> — you want to walk the room and keep full
+                    <span class="mono">Best when:</span> you want to walk the room and keep full
                     control of the music from your pocket.
                   </p>
                   <ul class="guide-list">
@@ -139,13 +140,13 @@ const HostGuide: Component = () => {
                     </li>
                     <li>Pick either device as the playback device in the game.</li>
                     <li>
-                      Reveal a tile and the song plays — then pause, skip, or continue from the
+                      Reveal a tile and the song plays. Then pause, skip, or continue from the
                       phone's Spotify app whenever it's smoother. Spotify keeps every device in
                       sync.
                     </li>
                     <li>
                       Because the phone is the remote, you can mirror your entire screen without
-                      ever exposing a Spotify window — no screen-splitting needed.
+                      ever exposing a Spotify window. No screen-splitting needed.
                     </li>
                   </ul>
                 </div>
@@ -153,7 +154,7 @@ const HostGuide: Component = () => {
                   <span class="setup-tag">Setup C · Phone speaker</span>
                   <h3>Speaker hangs off the phone</h3>
                   <p class="setup-when">
-                    <span class="mono">Best when</span> — the speaker is Bluetooth-paired to your
+                    <span class="mono">Best when:</span> the speaker is Bluetooth-paired to your
                     phone, or the computer can't reach it.
                   </p>
                   <ul class="guide-list">
@@ -163,16 +164,16 @@ const HostGuide: Component = () => {
                     </li>
                     <li>In the game's device picker, choose your phone.</li>
                     <li>
-                      Reveal tiles from the computer as usual — the music comes out of the phone and
+                      Reveal tiles from the computer as usual. The music comes out of the phone and
                       into the speaker, while the board stays fullscreen on the big screen.
                     </li>
-                    <li>Control the flow from the game or straight from the phone — both work.</li>
+                    <li>Control the flow from the game or straight from the phone. Both work.</li>
                   </ul>
                 </div>
               </div>
               <div class="guide-note">
                 <strong>No Premium?</strong> Fill your tiles with YouTube links instead. They play
-                in an embedded player inside the game, and the audio comes out of the computer — so
+                in an embedded player inside the game, and the audio comes out of the computer, so
                 plug the speaker into the computer and you're set. You can mix both: Spotify where
                 you have it, YouTube for the gaps.
               </div>
@@ -188,8 +189,8 @@ const HostGuide: Component = () => {
               <p class="eyebrow">Run the night</p>
               <h2>The two-host playbook</h2>
               <p class="lede">
-                Beat 4 Beat runs fine solo with Setup A, but with two hosts the night flows better —
-                one runs the board, one works the room.
+                Beat 4 Beat runs fine solo with Setup A, but with two hosts the night flows better.
+                One runs the board, one works the room.
               </p>
               <div class="steps guide-steps">
                 <div class="step">
@@ -197,8 +198,8 @@ const HostGuide: Component = () => {
                   <h3>Runs the board</h3>
                   <p>
                     Writes the team names, reveals the tiles teams pick (the song fires
-                    automatically), awards title and artist points — including steals — and keeps
-                    the standings hidden until the final reveal.
+                    automatically), awards title and artist points, including steals, and keeps the
+                    standings hidden until the final reveal.
                   </p>
                 </div>
                 <div class="step">
@@ -206,7 +207,7 @@ const HostGuide: Component = () => {
                   <h3>Works the room</h3>
                   <p>
                     Keeps the turn order honest, hypes the teams, and carries the phone as the music
-                    remote (Setup B) — pausing the track the moment someone shouts an answer,
+                    remote (Setup B), pausing the track the moment someone shouts an answer and
                     replaying the intro when the room demands it.
                   </p>
                 </div>
