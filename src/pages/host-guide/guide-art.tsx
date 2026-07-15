@@ -17,8 +17,9 @@ const SCREEN = "#041f36";
 const SHELL = "#0a314f";
 const GOLD = "var(--gold)";
 const MAGENTA = "var(--magenta-hot)";
-/* Brand color, not a Stage Night token: Spotify green so the icon reads as the actual app. */
+/* Brand colors, not Stage Night tokens: so the icons read as the actual apps. */
 const SPOTIFY_GREEN = "#1db954";
+const YOUTUBE_RED = "#ff0033";
 
 /* ── Shared drawing helpers ────────────────────────────────── */
 
@@ -306,7 +307,7 @@ export const MusicArt: Component = () => (
       fill="rgba(6, 39, 65, 0.9)"
       stroke={TILE_STROKE}
     />
-    <rect x={145} y={31} width={28} height={19} rx={6} fill={MAGENTA} />
+    <rect x={145} y={31} width={28} height={19} rx={6} fill={YOUTUBE_RED} />
     <path d="M156 36.5 l 7 4 -7 4 z" fill="#fef9ff" />
     {label(159, 68, "YOUTUBE LINKS", false, true)}
   </svg>
