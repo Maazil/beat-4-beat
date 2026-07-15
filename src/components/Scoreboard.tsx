@@ -243,9 +243,7 @@ const Scoreboard: Component<ScoreboardProps> = (props) => {
                 ref={(el) => rowEls.set(score.teamName, el)}
                 style={{ order: orderOf(score.teamName, index()) }}
                 class={`group flex items-center gap-2 rounded-xl border px-3 py-2.5 transition-colors sm:gap-3 sm:px-4 ${
-                  leader()
-                    ? "border-beat/40 bg-beat-soft"
-                    : "border-line bg-night/70"
+                  leader() ? "border-beat/40 bg-beat-soft" : "border-line bg-night/70"
                 }`}
               >
                 {/* Rank — only once standings are revealed */}

@@ -37,12 +37,12 @@ export default function SpotifyTest() {
   });
 
   return (
-    <div class="min-h-screen bg-neutral-950 p-8 text-white">
+    <div class="min-h-screen bg-night p-8 text-ink">
       <h1 class="mb-6 text-2xl font-bold">Spotify Integration Test</h1>
 
       {/* Status */}
-      <div class="mb-6 rounded bg-neutral-900 p-4">
-        <p class="text-sm text-neutral-400">Status</p>
+      <div class="mb-6 rounded-xl border border-line bg-surface p-4">
+        <p class="text-sm text-muted">Status</p>
         <p class="text-lg">{status()}</p>
       </div>
 
@@ -51,7 +51,7 @@ export default function SpotifyTest() {
         <Show when={!loggedIn()}>
           <button
             onClick={() => loginWithSpotify()}
-            class="rounded bg-green-600 px-6 py-2 font-semibold hover:bg-green-500"
+            class="rounded-full bg-spotify px-6 py-2 font-semibold text-night hover:brightness-110"
           >
             Login with Spotify
           </button>
@@ -63,7 +63,7 @@ export default function SpotifyTest() {
               setLoggedIn(false);
               setStatus("Logged out");
             }}
-            class="rounded bg-red-600 px-6 py-2 font-semibold hover:bg-red-500"
+            class="rounded-full border border-magenta-hot/50 px-6 py-2 font-semibold text-magenta-hot hover:bg-magenta-hot/10"
           >
             Logout
           </button>
@@ -101,7 +101,7 @@ function PlaybackTest() {
   return (
     <div class="space-y-6">
       {/* Search */}
-      <div class="rounded bg-neutral-900 p-4">
+      <div class="rounded-xl border border-line bg-surface p-4">
         <h2 class="mb-3 text-lg font-semibold">Search Tracks</h2>
         <div class="flex gap-2">
           <input
@@ -110,32 +110,32 @@ function PlaybackTest() {
             onInput={(e) => setQuery(e.currentTarget.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSearch()}
             placeholder="Search for a song..."
-            class="flex-1 rounded bg-neutral-800 px-4 py-2 text-white outline-none focus:ring-2 focus:ring-green-500"
+            class="flex-1 rounded-xl border border-line bg-surface-2 px-4 py-2 text-ink outline-none focus:ring-2 focus:ring-spotify"
           />
           <button
             onClick={handleSearch}
-            class="rounded bg-green-600 px-4 py-2 font-semibold hover:bg-green-500"
+            class="rounded-full bg-spotify px-4 py-2 font-semibold text-night hover:brightness-110"
           >
             Search
           </button>
         </div>
         <Show when={searchError()}>
-          <p class="mt-2 text-red-400">{searchError()}</p>
+          <p class="mt-2 text-magenta-hot">{searchError()}</p>
         </Show>
 
         {/* Results */}
         <div class="mt-4 space-y-2">
           <For each={results()}>
             {(track) => (
-              <div class="flex items-center gap-3 rounded bg-neutral-800 p-3">
+              <div class="flex items-center gap-3 rounded-xl border border-line bg-surface-2 p-3">
                 <img src={track.albumArt} alt="" class="h-12 w-12 rounded object-cover" />
                 <div class="flex-1">
                   <p class="font-medium">{track.name}</p>
-                  <p class="text-sm text-neutral-400">{track.artist}</p>
+                  <p class="text-sm text-muted">{track.artist}</p>
                 </div>
                 <button
                   onClick={() => playSong(track.uri)}
-                  class="rounded bg-green-600 px-3 py-1 text-sm hover:bg-green-500"
+                  class="rounded-full bg-spotify px-3 py-1 text-sm text-night hover:brightness-110"
                 >
                   Play
                 </button>
@@ -148,30 +148,30 @@ function PlaybackTest() {
       {/* Now Playing */}
       <Show when={currentTrack()}>
         {(track) => (
-          <div class="rounded bg-neutral-900 p-4">
+          <div class="rounded-xl border border-line bg-surface p-4">
             <h2 class="mb-3 text-lg font-semibold">Now Playing</h2>
             <div class="flex items-center gap-4">
               <img src={track().albumArt} alt="" class="h-16 w-16 rounded object-cover" />
               <div class="flex-1">
                 <p class="text-lg font-medium">{track().name}</p>
-                <p class="text-neutral-400">{track().artist}</p>
+                <p class="text-muted">{track().artist}</p>
               </div>
               <div class="flex gap-2">
                 <button
                   onClick={() => pause()}
-                  class="rounded bg-neutral-700 px-4 py-2 hover:bg-neutral-600"
+                  class="rounded-full border border-line px-4 py-2 hover:border-beat hover:bg-beat-soft"
                 >
                   Pause
                 </button>
                 <button
                   onClick={() => resume()}
-                  class="rounded bg-neutral-700 px-4 py-2 hover:bg-neutral-600"
+                  class="rounded-full border border-line px-4 py-2 hover:border-beat hover:bg-beat-soft"
                 >
                   Resume
                 </button>
               </div>
             </div>
-            <div class="mt-3 text-sm text-neutral-400">
+            <div class="mt-3 text-sm text-muted">
               {Math.floor(playbackState().positionMs / 1000)}s /{" "}
               {Math.floor(playbackState().durationMs / 1000)}s
               {playbackState().isPlaying ? " — Playing" : " — Paused"}
