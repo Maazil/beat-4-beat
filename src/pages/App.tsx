@@ -121,12 +121,13 @@ const App: Component = () => {
               <h2>Everything a host needs, nothing they don't</h2>
               <div class="features">
                 <div class="feat">
-                  <div class="ic">
+                  {/* Brand color, not a Stage Night token: the icon reads as Spotify. */}
+                  <div class="ic" style={{ background: "rgba(29, 185, 84, 0.14)" }}>
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                      <circle cx="10" cy="10" r="8" stroke="#EAC435" stroke-width="1.6" />
+                      <circle cx="10" cy="10" r="8" stroke="#1DB954" stroke-width="1.6" />
                       <path
                         d="M6.5 8.2c2.6-.8 5-.6 7 .6M7 11c2-.6 3.8-.4 5.4.5"
-                        stroke="#EAC435"
+                        stroke="#1DB954"
                         stroke-width="1.5"
                         stroke-linecap="round"
                       />
@@ -229,11 +230,12 @@ const App: Component = () => {
                   </p>
                 </div>
                 <div class="feat">
-                  <div class="ic">
+                  {/* Brand color, not a Stage Night token: the play badge reads as YouTube. */}
+                  <div class="ic" style={{ background: "rgba(255, 0, 51, 0.14)" }}>
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
                       <path
                         d="M6 4.5v11l9-5.5-9-5.5Z"
-                        stroke="#C6D8FF"
+                        stroke="#FF0033"
                         stroke-width="1.6"
                         stroke-linejoin="round"
                       />
