@@ -39,8 +39,8 @@ export default defineConfig({
   plugins: [solid()],
   test: {
     include: ["src/**/*.test.{ts,tsx}"],
-    environment: "jsdom",   // or keep "node" globally and put
-                            // // @vitest-environment jsdom  atop .tsx test files
+    environment: "jsdom", // or keep "node" globally and put
+    // // @vitest-environment jsdom  atop .tsx test files
   },
   resolve: { conditions: ["development", "browser"] },
 });
@@ -65,7 +65,7 @@ test("reveals the song", async () => {
 ```
 
 - Query priority: `getByRole` > `getByLabelText` > `getByText` > … > `getByTestId` (last resort).
-- `getBy*` throws if missing; `queryBy*` returns null (use to assert absence); `findBy*` is async — required as the *first* query when using the `location` option or resource-driven components, since the router lazy-loads.
+- `getBy*` throws if missing; `queryBy*` returns null (use to assert absence); `findBy*` is async — required as the _first_ query when using the `location` option or resource-driven components, since the router lazy-loads.
 - **Routed components:** `render(() => <RoomView />, { location: "/rooms/abc" })` wraps in a router. Or render a `<Route>` definition and await `findByText`.
 - **Context (AuthContext):** pass a `wrapper`: `render(() => <Comp />, { wrapper: (p) => <AuthProvider {...p} /> })`. For tests, a fake provider with a stubbed user beats mocking Firebase.
 - **Portals** render outside the container — query via the `screen` export instead of the render result.

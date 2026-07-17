@@ -21,15 +21,22 @@ export function useThing(getId: () => string | undefined) {
   const [error, setError] = createSignal<string | null>(null);
 
   createEffect(() => {
-    const id = getId();               // tracked — effect re-runs when id changes
-    setData(null); setIsLoading(true); setError(null);  // reset on id change
-    if (!id) { setIsLoading(false); setError("No id"); return; }
+    const id = getId(); // tracked — effect re-runs when id changes
+    setData(null);
+    setIsLoading(true);
+    setError(null); // reset on id change
+    if (!id) {
+      setIsLoading(false);
+      setError("No id");
+      return;
+    }
 
     const unsubscribe = subscribeToThing(id, (d) => {
-      setData(d); setIsLoading(false);
+      setData(d);
+      setIsLoading(false);
       setError(d ? null : "Not found");
     });
-    onCleanup(() => unsubscribe());   // runs before each re-run AND on unmount
+    onCleanup(() => unsubscribe()); // runs before each re-run AND on unmount
   });
 
   return { data, isLoading, error };

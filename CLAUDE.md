@@ -12,12 +12,12 @@ Bias toward caution over speed; for trivial tasks, use judgment.
 
 - **Think before coding.** State assumptions explicitly. If multiple interpretations exist, present them — don't pick silently. If a simpler approach exists, say so.
 - **Simplicity first.** Minimum code that solves the problem. No speculative features, abstractions for single-use code, or configurability that wasn't asked for.
-- **Surgical changes.** Touch only what you must; match existing style. Remove imports/code that *your* change made unused, but don't refactor, "improve", or delete pre-existing code unless asked — mention it instead. Every changed line should trace to the request.
+- **Surgical changes.** Touch only what you must; match existing style. Remove imports/code that _your_ change made unused, but don't refactor, "improve", or delete pre-existing code unless asked — mention it instead. Every changed line should trace to the request.
 - **Verify before done.** Define what success looks like, then check it: `pnpm ts`, `pnpm lint:fix`, and `pnpm test` must pass before proposing changes.
 
 ## Project Skills (use them)
 
-Detailed, repo-specific conventions live in `.claude/skills/`. Invoke the matching skill *before* writing code in its area:
+Detailed, repo-specific conventions live in `.claude/skills/`. Invoke the matching skill _before_ writing code in its area:
 
 - **`solid-patterns`** — SolidJS reactivity beyond the basics: stores (path syntax, `produce`, `reconcile`, `unwrap`), memos vs effects, `on()`, `createResource`/Suspense, lifecycle. Use for any component, hook/primitive, or state logic.
 - **`firestore-data-layer`** — the services/hooks layering, the canonical subscription-hook shape, signals vs stores + `reconcile` for snapshot data. Use for anything that reads/writes Firestore.
