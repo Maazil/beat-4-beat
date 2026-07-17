@@ -1,4 +1,5 @@
 import { Component, For } from "solid-js";
+import Button from "../../components/forms/Button";
 import Input from "../../components/forms/Input";
 import { STAGE_INKS } from "../../theme/palette";
 
@@ -64,31 +65,13 @@ const UIPreview: Component = () => {
         <section class="stage-card rounded-2xl border border-line bg-surface p-6">
           <h2 class="mb-4 font-mono text-xs tracking-wide text-muted uppercase">Buttons</h2>
           <div class="flex flex-wrap items-center gap-4">
-            <button
-              type="button"
-              class="rounded-full bg-beat px-6 py-2.5 font-semibold text-night transition hover:bg-beat-bright"
-            >
-              Primary
-            </button>
-            <button
-              type="button"
-              class="rounded-full border border-line px-6 py-2.5 font-semibold text-ink transition hover:border-beat hover:bg-beat-soft"
-            >
-              Secondary
-            </button>
-            <button
-              type="button"
-              class="rounded-full border border-magenta-hot/40 px-6 py-2.5 font-semibold text-magenta-hot transition hover:bg-magenta-hot/10"
-            >
-              Destructive
-            </button>
-            <button
-              type="button"
-              disabled
-              class="rounded-full bg-beat px-6 py-2.5 font-semibold text-night opacity-40"
-            >
-              Disabled
-            </button>
+            <Button>Primary</Button>
+            <Button variant="secondary">Secondary</Button>
+            <Button variant="destructive">Destructive</Button>
+            <Button variant="spotify">Spotify</Button>
+            <Button disabled>Disabled</Button>
+            <Button size="sm">Small</Button>
+            <Button size="lg">Large</Button>
           </div>
         </section>
 

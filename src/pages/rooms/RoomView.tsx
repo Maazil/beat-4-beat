@@ -1,5 +1,6 @@
 import { useNavigate, useParams } from "@solidjs/router";
 import { Show, type Component } from "solid-js";
+import Button from "../../components/forms/Button";
 import { useRoom } from "../../hooks/useRoom";
 import { formatNameList, roomHostNames } from "../../lib/roomHosts";
 
@@ -99,14 +100,12 @@ const RoomView: Component = () => {
                   </code>
                 </p>
                 <div class="flex flex-col gap-3">
-                  <button
-                    class="w-full rounded-full bg-beat px-4 py-2.5 text-sm font-bold text-night shadow-[0_8px_30px_rgba(234,196,53,0.28)] transition hover:bg-beat-bright"
-                    onClick={() => navigate("play")}
-                  >
+                  <Button class="w-full" onClick={() => navigate("play")}>
                     Start
-                  </button>
-                  <button
-                    class="w-full rounded-full border border-line px-4 py-2.5 text-sm font-semibold text-ink transition hover:border-beat hover:bg-beat-soft"
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    class="w-full"
                     onClick={() => {
                       const shareUrl = `${window.location.origin}/rooms/${room.id}/play`;
                       navigator.clipboard.writeText(shareUrl);
@@ -114,13 +113,13 @@ const RoomView: Component = () => {
                     }}
                   >
                     Copy player link
-                  </button>
-                  <button class="w-full rounded-full border border-line px-4 py-2.5 text-sm font-semibold text-ink transition hover:border-beat hover:bg-beat-soft">
+                  </Button>
+                  <Button variant="secondary" class="w-full">
                     Edit settings
-                  </button>
-                  <button class="w-full rounded-full border border-magenta-hot/40 px-4 py-2.5 text-sm font-semibold text-magenta-hot transition hover:border-magenta-hot hover:bg-magenta-hot/10">
+                  </Button>
+                  <Button variant="destructive" class="w-full">
                     Delete room
-                  </button>
+                  </Button>
                 </div>
               </section>
             </div>

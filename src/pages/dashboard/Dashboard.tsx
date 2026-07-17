@@ -1,5 +1,6 @@
 import { useNavigate } from "@solidjs/router";
 import { createSignal, For, onMount, Show, type Component } from "solid-js";
+import Button from "../../components/forms/Button";
 import RoomManageCard from "../../components/RoomManageCard";
 import { useMyRooms } from "../../hooks/useMyRooms";
 import { deleteRoom } from "../../services/roomsService";
@@ -50,14 +51,10 @@ const Dashboard: Component = () => {
             </p>
           </div>
 
-          <button
-            type="button"
-            class="inline-flex items-center justify-center gap-2 rounded-full bg-beat px-5 py-2.5 text-sm font-bold text-night shadow-[0_8px_30px_rgba(234,196,53,0.28)] transition hover:-translate-y-0.5 hover:bg-beat-bright"
-            onClick={() => navigate("create")}
-          >
+          <Button class="hover:-translate-y-0.5" onClick={() => navigate("create")}>
             New room
             <span class="text-base leading-none">+</span>
-          </button>
+          </Button>
         </section>
 
         {/* My Rooms Section */}
@@ -113,13 +110,13 @@ const Dashboard: Component = () => {
             <Show
               when={spotifyConnected()}
               fallback={
-                <button
-                  type="button"
-                  class="mt-6 inline-flex items-center justify-center rounded-full bg-spotify px-5 py-2 text-sm font-bold text-ink transition hover:-translate-y-0.5 hover:brightness-110"
+                <Button
+                  variant="spotify"
+                  class="mt-6 hover:-translate-y-0.5"
                   onClick={() => loginWithSpotify()}
                 >
                   Connect Spotify
-                </button>
+                </Button>
               }
             >
               <div class="mt-6 flex items-center gap-3">

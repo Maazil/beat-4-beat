@@ -9,6 +9,7 @@ import {
   createRoom as createRoomInFirestore,
   updateRoom as updateRoomInFirestore,
 } from "../../../services/roomsService";
+import Button from "../../../components/forms/Button";
 import AddCategoryButton from "./AddCategoryButton";
 import {
   generateColorScheme,
@@ -242,12 +243,7 @@ const CreateRoom: Component = () => {
               </button>
 
               {/* Submit button */}
-              <button
-                type="button"
-                onClick={handleSubmit}
-                disabled={isSubmitting() || !editor.canCreateRoom()}
-                class="rounded-full bg-beat px-6 py-2 font-bold text-night shadow-[0_8px_30px_rgba(234,196,53,0.28)] transition hover:bg-beat-bright disabled:cursor-not-allowed disabled:opacity-50"
-              >
+              <Button onClick={handleSubmit} disabled={isSubmitting() || !editor.canCreateRoom()}>
                 {isSubmitting()
                   ? isEditMode()
                     ? "Saving…"
@@ -255,7 +251,7 @@ const CreateRoom: Component = () => {
                   : isEditMode()
                     ? "Save changes"
                     : "Create room"}
-              </button>
+              </Button>
             </div>
           </div>
 
