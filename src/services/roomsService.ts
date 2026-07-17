@@ -158,22 +158,6 @@ export async function getPublicRoomsPage(
 }
 
 /**
- * Get all rooms owned by the current user
- */
-export async function getMyRooms(): Promise<Room[]> {
-  const user = auth.currentUser;
-
-  if (!user) {
-    throw new Error("Must be logged in to get your rooms");
-  }
-
-  const q = query(roomsCollection, where("hostId", "==", user.uid));
-  const snapshot = await getDocs(q);
-
-  return snapshot.docs.map((doc) => docToRoom(doc.id, doc.data()));
-}
-
-/**
  * Subscribe to real-time updates for the current user's rooms — both the rooms
  * they host and the rooms they co-edit. Runs two queries (hostId and
  * editorIds) and emits the merged, deduped result on either update. Rooms

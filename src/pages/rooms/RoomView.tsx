@@ -1,22 +1,26 @@
 import { useNavigate, useParams } from "@solidjs/router";
 import { Show, type Component } from "solid-js";
 import Button from "../../components/forms/Button";
+import RoomStatusBadge from "../../components/RoomStatusBadge";
 import { useRoom } from "../../hooks/useRoom";
+import { formatRoomDate } from "../../lib/roomDates";
 import { formatNameList, roomHostNames } from "../../lib/roomHosts";
+import { canEditRoom, deleteRoom, isRoomHost } from "../../services/roomsService";
 
 const RoomView: Component = () => {
   const params = useParams();
   const navigate = useNavigate();
   const { room: currentRoom, isLoading } = useRoom(() => params.id);
 
-  const getStatusBadge = (isActive: boolean) => {
-    return isActive
-      ? "bg-beat-soft text-beat-bright border border-beat/30"
-      : "bg-surface-2 text-muted border border-line";
-  };
-
-  const getStatusLabel = (isActive: boolean) => {
-    return isActive ? "Live" : "Inactive";
+  const handleDelete = async (roomId: string) => {
+    if (!confirm("Are you sure you want to delete this room?")) return;
+    try {
+      await deleteRoom(roomId);
+      navigate("/dashboard");
+    } catch (err) {
+      console.error("Failed to delete room:", err);
+      alert("Could not delete the room. Please try again.");
+    }
   };
 
   return (
@@ -55,11 +59,7 @@ const RoomView: Component = () => {
                 </h1>
                 <p class="mt-2 text-sm text-muted">Manage room settings and players.</p>
               </div>
-              <span
-                class={`rounded-full px-3 py-1 font-mono text-xs ${getStatusBadge(room.isActive)}`}
-              >
-                {getStatusLabel(room.isActive)}
-              </span>
+              <RoomStatusBadge active={room.isActive} />
             </div>
 
             <div class="grid gap-6 lg:grid-cols-2">
@@ -78,15 +78,7 @@ const RoomView: Component = () => {
                   </div>
                   <div>
                     <dt class="font-semibold text-ink">Created</dt>
-                    <dd class="mt-1 text-muted">
-                      {room.createdAt instanceof Date
-                        ? room.createdAt.toLocaleString("en-GB", {
-                            dateStyle: "short",
-                          })
-                        : new Date(room.createdAt).toLocaleString("en-GB", {
-                            dateStyle: "short",
-                          })}
-                    </dd>
+                    <dd class="mt-1 text-muted">{formatRoomDate(room.createdAt)}</dd>
                   </div>
                 </dl>
               </section>
@@ -114,12 +106,24 @@ const RoomView: Component = () => {
                   >
                     Copy player link
                   </Button>
-                  <Button variant="secondary" class="w-full">
-                    Edit settings
-                  </Button>
-                  <Button variant="destructive" class="w-full">
-                    Delete room
-                  </Button>
+                  <Show when={canEditRoom(room)}>
+                    <Button
+                      variant="secondary"
+                      class="w-full"
+                      onClick={() => navigate(`/dashboard/create?edit=${room.id}`)}
+                    >
+                      Edit settings
+                    </Button>
+                  </Show>
+                  <Show when={isRoomHost(room)}>
+                    <Button
+                      variant="destructive"
+                      class="w-full"
+                      onClick={() => void handleDelete(room.id)}
+                    >
+                      Delete room
+                    </Button>
+                  </Show>
                 </div>
               </section>
             </div>

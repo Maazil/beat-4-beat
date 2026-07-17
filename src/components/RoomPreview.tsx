@@ -1,10 +1,12 @@
 import { useNavigate } from "@solidjs/router";
 import { Component, createSignal, For, Show } from "solid-js";
 import { useAuth } from "../context/AuthContext";
+import { formatRoomDate } from "../lib/roomDates";
 import { formatNameList, roomHostNames } from "../lib/roomHosts";
 import type { Room } from "../model/room";
 import { duplicateRoom } from "../services/roomsService";
 import { stageInk } from "../theme/palette";
+import RoomStatusBadge from "./RoomStatusBadge";
 
 interface RoomPreviewProps {
   room: Room;
@@ -32,29 +34,6 @@ const RoomPreview: Component<RoomPreviewProps> = (props) => {
     }
   };
 
-  // Derive status from isActive
-  const getStatus = () => (props.room.isActive ? "live" : "inactive");
-
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "live":
-        return "bg-beat-soft text-beat-bright border border-beat/30";
-      default:
-        return "bg-surface-2 text-muted border border-line";
-    }
-  };
-
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case "live":
-        return "Live";
-      case "inactive":
-        return "Inactive";
-      default:
-        return status;
-    }
-  };
-
   return (
     <article
       class="group cursor-pointer rounded-2xl border border-line bg-surface p-6 transition duration-300 hover:-translate-y-0.5 hover:border-beat hover:shadow-[0_8px_24px_rgba(234,196,53,0.18)]"
@@ -64,11 +43,7 @@ const RoomPreview: Component<RoomPreviewProps> = (props) => {
         <h2 class="font-display text-lg font-bold text-ink transition group-hover:text-beat">
           {props.room.roomName}
         </h2>
-        <span
-          class={`shrink-0 rounded-full px-2.5 py-0.5 font-mono text-xs ${getStatusBadge(getStatus())}`}
-        >
-          {getStatusLabel(getStatus())}
-        </span>
+        <RoomStatusBadge active={props.room.isActive} />
       </div>
       <div class="space-y-1 font-mono text-xs text-muted">
         <p>
@@ -83,9 +58,7 @@ const RoomPreview: Component<RoomPreviewProps> = (props) => {
         {props.room.createdAt && (
           <p>
             <span class="font-semibold text-ink">Created:</span>{" "}
-            {new Date(props.room.createdAt).toLocaleString("en-GB", {
-              dateStyle: "short",
-            })}
+            {formatRoomDate(props.room.createdAt)}
           </p>
         )}
       </div>

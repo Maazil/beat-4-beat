@@ -1,8 +1,10 @@
 import { useNavigate } from "@solidjs/router";
 import { Component, createSignal, Show } from "solid-js";
 import { useAuth } from "../context/AuthContext";
+import { formatRoomDate } from "../lib/roomDates";
 import type { Room } from "../model/room";
 import { duplicateRoom } from "../services/roomsService";
+import RoomStatusBadge from "./RoomStatusBadge";
 
 interface RoomManageCardProps {
   room: Room;
@@ -31,13 +33,6 @@ const RoomManageCard: Component<RoomManageCardProps> = (props) => {
 
   const isHost = () => auth.isRoomHost(props.room.hostId);
 
-  const statusBadge = () =>
-    props.room.isActive
-      ? "bg-beat-soft text-beat-bright border border-beat/30"
-      : "bg-surface-2 text-muted border border-line";
-
-  const statusLabel = () => (props.room.isActive ? "Active" : "Inactive");
-
   const handleCopyLink = () => {
     const shareUrl = `${window.location.origin}/rooms/${props.room.id}/play`;
     navigator.clipboard.writeText(shareUrl);
@@ -63,11 +58,7 @@ const RoomManageCard: Component<RoomManageCardProps> = (props) => {
             </span>
           </Show>
         </div>
-        <span
-          class={`rounded-full px-2.5 py-0.5 font-mono text-[10px] font-bold tracking-wide uppercase ${statusBadge()}`}
-        >
-          {statusLabel()}
-        </span>
+        <RoomStatusBadge active={props.room.isActive} />
       </div>
 
       {/* Info */}
@@ -78,9 +69,7 @@ const RoomManageCard: Component<RoomManageCardProps> = (props) => {
         {props.room.createdAt && (
           <p>
             <span class="font-semibold text-ink">Created:</span>{" "}
-            {new Date(props.room.createdAt).toLocaleString("en-GB", {
-              dateStyle: "short",
-            })}
+            {formatRoomDate(props.room.createdAt)}
           </p>
         )}
       </div>
