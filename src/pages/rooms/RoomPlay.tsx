@@ -1,7 +1,9 @@
 import { useParams } from "@solidjs/router";
-import { Component, createSignal, For, Show } from "solid-js";
+import { Component, createMemo, createSignal, For, Show } from "solid-js";
 import { useRoom } from "../../hooks/useRoom";
 import { useGameState } from "../../hooks/useGameState";
+import type { Category } from "../../model/category";
+import type { SongItem } from "../../model/songItem";
 import { usePlaybackProgress } from "../../hooks/usePlaybackProgress";
 import { openSongUrl } from "../../lib/externalUrl";
 import { roomHostNames } from "../../lib/roomHosts";
@@ -217,17 +219,20 @@ const RoomPlayInner: Component = () => {
     }
   };
 
-  // Look up a song and its category by id across all categories
-  const locateItem = (id: string) => {
-    const room = currentRoom();
-    if (!room) return undefined;
-    for (const category of room.categories) {
+  // id → song + category index, rebuilt only when the board content changes —
+  // lookups during play stay O(1) instead of scanning every category.
+  const itemIndex = createMemo(() => {
+    const index = new Map<string, { item: SongItem; category: Category }>();
+    for (const category of currentRoom()?.categories ?? []) {
       for (const item of category.items) {
-        if (item.id === id) return { item, category };
+        index.set(item.id, { item, category });
       }
     }
-    return undefined;
-  };
+    return index;
+  });
+
+  // Look up a song and its category by id across all categories
+  const locateItem = (id: string) => itemIndex().get(id);
 
   // Look up a song by id across all categories
   const itemById = (id: string) => locateItem(id)?.item;
@@ -240,7 +245,7 @@ const RoomPlayInner: Component = () => {
 
   // Song played on each round (by play order) — labels the revealed breakdown.
   // Carries category/level/link so URL-only songs (no title) stay identifiable.
-  const roundLabels = () =>
+  const roundLabels = createMemo(() =>
     playOrder().map((id) => {
       const found = locateItem(id);
       const item = found?.item;
@@ -251,7 +256,8 @@ const RoomPlayInner: Component = () => {
         level: item?.level,
         songUrl: item?.songUrl,
       };
-    });
+    }),
+  );
 
   return (
     <div class="bg-stage min-h-screen p-4 pb-24 sm:p-6 sm:pb-24">

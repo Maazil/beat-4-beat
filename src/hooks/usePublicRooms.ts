@@ -1,4 +1,5 @@
 import { createEffect, createSignal, onCleanup } from "solid-js";
+import { createStore, reconcile } from "solid-js/store";
 import type { Room } from "../model/room";
 import { subscribeToPublicRooms } from "../services/roomsService";
 
@@ -18,14 +19,16 @@ export interface UsePublicRoomsResult {
  * const { rooms, isLoading, error } = usePublicRooms();
  */
 export function usePublicRooms(): UsePublicRoomsResult {
-  const [rooms, setRooms] = createSignal<Room[]>([]);
+  // Store + reconcile (keyed by id) so a snapshot only updates the rooms
+  // that changed — the other market cards keep their DOM nodes.
+  const [state, setState] = createStore<{ rooms: Room[] }>({ rooms: [] });
   const [isLoading, setIsLoading] = createSignal(true);
   const [error, setError] = createSignal<string | null>(null);
 
   createEffect(() => {
     try {
       const unsubscribe = subscribeToPublicRooms((roomsData) => {
-        setRooms(roomsData);
+        setState("rooms", reconcile(roomsData));
         setIsLoading(false);
         setError(null);
       });
@@ -37,5 +40,5 @@ export function usePublicRooms(): UsePublicRoomsResult {
     }
   });
 
-  return { rooms, isLoading, error };
+  return { rooms: () => state.rooms, isLoading, error };
 }

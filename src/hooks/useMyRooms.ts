@@ -1,4 +1,5 @@
 import { createEffect, createSignal, onCleanup } from "solid-js";
+import { createStore, reconcile } from "solid-js/store";
 import { useAuth } from "../context/AuthContext";
 import type { Room } from "../model/room";
 import { subscribeToMyRooms } from "../services/roomsService";
@@ -21,7 +22,9 @@ export interface UseMyRoomsResult {
  */
 export function useMyRooms(): UseMyRoomsResult {
   const auth = useAuth();
-  const [rooms, setRooms] = createSignal<Room[]>([]);
+  // Store + reconcile (keyed by id) so a snapshot only updates the rooms
+  // that changed — the other dashboard cards keep their DOM nodes.
+  const [state, setState] = createStore<{ rooms: Room[] }>({ rooms: [] });
   const [isLoading, setIsLoading] = createSignal(true);
   const [error, setError] = createSignal<string | null>(null);
 
@@ -31,7 +34,7 @@ export function useMyRooms(): UseMyRoomsResult {
 
     // If not authenticated, don't try to fetch
     if (!auth.isAuthenticated()) {
-      setRooms([]);
+      setState("rooms", reconcile([]));
       setIsLoading(false);
       setError(null);
       return;
@@ -39,7 +42,7 @@ export function useMyRooms(): UseMyRoomsResult {
 
     try {
       const unsubscribe = subscribeToMyRooms((roomsData) => {
-        setRooms(roomsData);
+        setState("rooms", reconcile(roomsData));
         setIsLoading(false);
         setError(null);
       });
@@ -51,5 +54,5 @@ export function useMyRooms(): UseMyRoomsResult {
     }
   });
 
-  return { rooms, isLoading, error };
+  return { rooms: () => state.rooms, isLoading, error };
 }

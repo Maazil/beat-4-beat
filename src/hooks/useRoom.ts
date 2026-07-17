@@ -1,4 +1,5 @@
 import { createEffect, createSignal, onCleanup } from "solid-js";
+import { createStore, reconcile } from "solid-js/store";
 import type { Room } from "../model/room";
 import { subscribeToRoom } from "../services/roomsService";
 
@@ -20,7 +21,10 @@ export interface UseRoomResult {
  * const { room, isLoading, error } = useRoom(() => params.id);
  */
 export function useRoom(getRoomId: () => string | undefined): UseRoomResult {
-  const [room, setRoom] = createSignal<Room | null>(null);
+  // Store + reconcile so each snapshot only notifies the changed subtree
+  // (usually gameState) instead of replacing the whole Room — unchanged
+  // categories and tiles keep their DOM nodes.
+  const [state, setState] = createStore<{ room: Room | null }>({ room: null });
   const [isLoading, setIsLoading] = createSignal(true);
   const [error, setError] = createSignal<string | null>(null);
 
@@ -28,7 +32,7 @@ export function useRoom(getRoomId: () => string | undefined): UseRoomResult {
     const roomId = getRoomId();
 
     // Reset state when roomId changes
-    setRoom(null);
+    setState("room", null);
     setIsLoading(true);
     setError(null);
 
@@ -40,7 +44,7 @@ export function useRoom(getRoomId: () => string | undefined): UseRoomResult {
 
     try {
       const unsubscribe = subscribeToRoom(roomId, (roomData) => {
-        setRoom(roomData);
+        setState("room", reconcile(roomData));
         setIsLoading(false);
         if (!roomData) {
           setError("Room not found");
@@ -56,5 +60,5 @@ export function useRoom(getRoomId: () => string | undefined): UseRoomResult {
     }
   });
 
-  return { room, isLoading, error };
+  return { room: () => state.room, isLoading, error };
 }

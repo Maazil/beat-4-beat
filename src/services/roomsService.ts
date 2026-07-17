@@ -249,9 +249,20 @@ export async function updateRoom(
  * Unlike updateRoom, this skips the ownership pre-read — it runs on every
  * tile click and score award, and the security rules already restrict
  * writes to the host and co-owners.
+ *
+ * Writes only the given fields via field paths, so a score write doesn't
+ * rewrite playOrder (and vice versa) — concurrent host/co-owner actions
+ * can't clobber each other's unrelated fields.
  */
-export async function updateRoomGameState(roomId: string, gameState: GameState): Promise<void> {
-  await updateDoc(roomDoc(roomId), { gameState });
+export async function updateRoomGameState(
+  roomId: string,
+  updates: Partial<GameState>,
+): Promise<void> {
+  const payload: Record<string, unknown> = {};
+  for (const [field, value] of Object.entries(updates)) {
+    payload[`gameState.${field}`] = value;
+  }
+  await updateDoc(roomDoc(roomId), payload);
 }
 
 /**

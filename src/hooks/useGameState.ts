@@ -1,4 +1,5 @@
 import { createSignal } from "solid-js";
+import { unwrap } from "solid-js/store";
 import { useAuth } from "../context/AuthContext";
 import { defaultGameState, type GameState } from "../model/gameState";
 import type { Room } from "../model/room";
@@ -64,19 +65,26 @@ export function useGameState(
   };
 
   const updateGame = (updates: Partial<GameState>) => {
-    const roomId = getRoom()?.id ?? getRoomId();
+    const room = getRoom();
+    const roomId = room?.id ?? getRoomId();
     if (!roomId) return;
-    const next = { ...game(), ...updates };
 
     if (isShared()) {
+      // Send only the changed fields (field-path write) so a score award
+      // can't clobber a concurrent tile click. The first write seeds the
+      // full gameState map so reads never see missing fields. unwrap()
+      // strips store proxies (values often come from the room store) before
+      // handing the data to Firestore.
       // Firestore latency compensation echoes the write back through the
       // room subscription immediately, so the UI updates without waiting.
-      updateRoomGameState(roomId, next).catch((err) =>
+      const payload = room?.gameState ? { ...updates } : { ...game(), ...updates };
+      updateRoomGameState(roomId, unwrap(payload)).catch((err) =>
         console.error("[useGameState] Failed to save game state:", err),
       );
       return;
     }
 
+    const next = { ...game(), ...updates };
     localCache.set(roomId, next);
     try {
       localStorage.setItem(storageKey(roomId), JSON.stringify(next));
