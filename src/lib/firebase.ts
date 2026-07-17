@@ -1,4 +1,4 @@
-import { getAnalytics, isSupported, type Analytics } from "firebase/analytics";
+import type { Analytics } from "firebase/analytics";
 import { getApp, getApps, initializeApp, type FirebaseOptions } from "firebase/app";
 import { getAuth } from "firebase/auth";
 
@@ -20,12 +20,26 @@ auth.useDeviceLanguage();
 
 let analytics: Analytics | undefined;
 
+// Analytics (and the googletagmanager request it triggers) stays off the
+// critical path: the module is imported lazily once the browser is idle,
+// keeping the entry chunk lean for the landing page.
 if (typeof window !== "undefined") {
-  void isSupported().then((supported) => {
-    if (supported) {
-      analytics = getAnalytics(app);
-    }
-  });
+  const loadAnalytics = () => {
+    void import("firebase/analytics").then(({ getAnalytics, isSupported }) =>
+      isSupported().then((supported) => {
+        if (supported) {
+          analytics = getAnalytics(app);
+        }
+      }),
+    );
+  };
+
+  if ("requestIdleCallback" in window) {
+    requestIdleCallback(loadAnalytics);
+  } else {
+    // Older Safari has no requestIdleCallback
+    setTimeout(loadAnalytics, 2000);
+  }
 }
 
 export { analytics, app, auth };
