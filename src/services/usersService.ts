@@ -8,7 +8,7 @@ import {
   updateDoc,
   type DocumentReference,
 } from "firebase/firestore";
-import { db } from "../lib/firebase";
+import { db } from "../lib/db";
 
 type UserProfile = {
   uid: string;

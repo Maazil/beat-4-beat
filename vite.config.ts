@@ -9,7 +9,6 @@ export default defineConfig({
     host: "127.0.0.1",
     port: 3000,
   },
-  build: {
-    target: "esnext",
-  },
+  // No build.target override: Vite's baseline default keeps the output
+  // parseable on older mobile Safari/Chrome (esnext syntax blanks the page).
 });

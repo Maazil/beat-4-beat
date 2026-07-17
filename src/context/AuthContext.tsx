@@ -16,7 +16,6 @@ import {
 } from "solid-js";
 import { createStore } from "solid-js/store";
 import { auth } from "../lib/firebase";
-import { getUserDjName, upsertUserProfile } from "../services/usersService";
 
 export interface AuthState {
   user: User | null;
@@ -79,6 +78,9 @@ export const AuthProvider: ParentComponent = (props) => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         try {
+          // Lazy import keeps Firestore out of the entry chunk — signed-out
+          // visitors (the landing page) never download it.
+          const { getUserDjName, upsertUserProfile } = await import("../services/usersService");
           await upsertUserProfile(user);
           const name = await getUserDjName(user.uid);
           setDjName(name);
