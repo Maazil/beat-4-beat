@@ -135,6 +135,15 @@ button {
   }
 }
 
+/* ── Keyboard focus ────────────────────────────────────────── */
+
+/* Fallback gold ring for controls without their own focus-visible
+   treatment — keyboard focus must stay visible on the navy stage. */
+:focus-visible {
+  outline: 2px solid var(--color-beat);
+  outline-offset: 2px;
+}
+
 /* ── Utilities ─────────────────────────────────────────────── */
 
 @layer utilities {

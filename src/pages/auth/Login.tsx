@@ -1,5 +1,6 @@
 import { useNavigate, useSearchParams } from "@solidjs/router";
 import { Component, createEffect, createSignal, Show } from "solid-js";
+import Button from "../../components/forms/Button";
 import Logo from "../../components/Logo";
 import { useAuth } from "../../context/AuthContext";
 
@@ -64,14 +65,9 @@ const Login: Component = () => {
             </div>
           </Show>
 
-          <button
-            type="button"
-            onClick={handleGoogleSignIn}
-            disabled={loading()}
-            class="flex w-full items-center justify-center gap-3 rounded-full bg-beat px-6 py-3 font-bold text-night shadow-[0_8px_30px_rgba(234,196,53,0.28)] transition duration-300 hover:bg-beat-bright disabled:cursor-not-allowed disabled:opacity-50"
-          >
+          <Button size="lg" class="w-full" onClick={handleGoogleSignIn} disabled={loading()}>
             {loading() ? "Signing in…" : "Sign in with Google"}
-          </button>
+          </Button>
 
           <button
             type="button"

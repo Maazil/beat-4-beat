@@ -1,4 +1,5 @@
 import { Component, Show } from "solid-js";
+import Button from "./forms/Button";
 import SeekBar from "./SeekBar";
 
 interface NowPlayingBarProps {
@@ -130,10 +131,9 @@ const NowPlayingBar: Component<NowPlayingBarProps> = (props) => {
         </button>
 
         {/* Play / Pause */}
-        <button
-          type="button"
+        <Button
+          size="icon"
           onClick={() => (props.isPlaying ? props.onPause() : props.onResume())}
-          class="flex h-10 w-10 items-center justify-center rounded-full bg-beat text-night shadow-[0_8px_30px_rgba(234,196,53,0.28)] transition hover:bg-beat-bright"
         >
           <Show
             when={props.isPlaying}
@@ -147,7 +147,7 @@ const NowPlayingBar: Component<NowPlayingBarProps> = (props) => {
               <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
             </svg>
           </Show>
-        </button>
+        </Button>
 
         {/* Skip forward 10s */}
         <button

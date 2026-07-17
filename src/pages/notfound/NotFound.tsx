@@ -1,5 +1,6 @@
 import { useNavigate } from "@solidjs/router";
 import { Component } from "solid-js";
+import Button from "../../components/forms/Button";
 
 const NotFound: Component = () => {
   const navigate = useNavigate();
@@ -16,13 +17,9 @@ const NotFound: Component = () => {
       <p class="relative mt-4 max-w-sm text-muted">
         This page missed its cue. Let's get you back on track.
       </p>
-      <button
-        type="button"
-        onClick={() => navigate("/")}
-        class="relative mt-8 rounded-full bg-beat px-7 py-3 font-bold text-night shadow-[0_8px_30px_rgba(234,196,53,0.28)] transition hover:bg-beat-bright"
-      >
+      <Button size="lg" class="relative mt-8" onClick={() => navigate("/")}>
         Back to the front page
-      </button>
+      </Button>
     </main>
   );
 };
