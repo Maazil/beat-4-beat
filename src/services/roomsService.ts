@@ -10,15 +10,19 @@ import {
   doc,
   getDoc,
   getDocs,
+  limit,
   onSnapshot,
+  orderBy,
   query,
   serverTimestamp,
   setDoc,
+  startAfter,
   Timestamp,
   updateDoc,
   where,
   type DocumentData,
   type DocumentReference,
+  type QueryDocumentSnapshot,
   type Unsubscribe,
 } from "firebase/firestore";
 import { db } from "../lib/db";
@@ -118,14 +122,39 @@ export async function getRoom(roomId: string): Promise<Room | null> {
   return docToRoom(snapshot.id, snapshot.data());
 }
 
+/** Page size for the public-rooms list views (market, all rooms). */
+export const PUBLIC_ROOMS_PAGE_SIZE = 24;
+
+export interface PublicRoomsPage {
+  rooms: Room[];
+  /** Opaque cursor — pass back to getPublicRoomsPage for the next page. */
+  cursor: QueryDocumentSnapshot | null;
+  hasMore: boolean;
+}
+
 /**
- * Get all public rooms
+ * Fetch one page of public rooms, newest first. A bounded one-shot read:
+ * the list grids don't need a live listener, and an unbounded query would
+ * download every public room (full board payloads included) as the
+ * catalog grows. Requires the composite index in firestore.indexes.json.
  */
-export async function getPublicRooms(): Promise<Room[]> {
-  const q = query(roomsCollection, where("isPublic", "==", true));
+export async function getPublicRoomsPage(
+  cursor?: QueryDocumentSnapshot | null,
+): Promise<PublicRoomsPage> {
+  const q = query(
+    roomsCollection,
+    where("isPublic", "==", true),
+    orderBy("createdAt", "desc"),
+    ...(cursor ? [startAfter(cursor)] : []),
+    limit(PUBLIC_ROOMS_PAGE_SIZE),
+  );
   const snapshot = await getDocs(q);
 
-  return snapshot.docs.map((doc) => docToRoom(doc.id, doc.data()));
+  return {
+    rooms: snapshot.docs.map((doc) => docToRoom(doc.id, doc.data())),
+    cursor: snapshot.docs[snapshot.docs.length - 1] ?? null,
+    hasMore: snapshot.docs.length === PUBLIC_ROOMS_PAGE_SIZE,
+  };
 }
 
 /**
@@ -142,18 +171,6 @@ export async function getMyRooms(): Promise<Room[]> {
   const snapshot = await getDocs(q);
 
   return snapshot.docs.map((doc) => docToRoom(doc.id, doc.data()));
-}
-
-/**
- * Subscribe to real-time updates for public rooms
- */
-export function subscribeToPublicRooms(callback: (rooms: Room[]) => void): Unsubscribe {
-  const q = query(roomsCollection, where("isPublic", "==", true));
-
-  return onSnapshot(q, (snapshot) => {
-    const rooms = snapshot.docs.map((doc) => docToRoom(doc.id, doc.data()));
-    callback(rooms);
-  });
 }
 
 /**
