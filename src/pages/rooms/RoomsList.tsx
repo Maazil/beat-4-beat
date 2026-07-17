@@ -1,10 +1,9 @@
 import { useNavigate } from "@solidjs/router";
-import { Component, For, Show } from "solid-js";
-import { usePublicRooms } from "../../hooks/usePublicRooms";
+import { Component } from "solid-js";
+import PublicRoomsGrid from "../../components/PublicRoomsGrid";
 
 const Rooms: Component = () => {
   const navigate = useNavigate();
-  const { rooms, isLoading, isLoadingMore, hasMore, loadMore, error } = usePublicRooms();
 
   return (
     <div class="mx-auto w-full max-w-6xl px-6 py-12">
@@ -26,82 +25,7 @@ const Rooms: Component = () => {
 
       <h1 class="font-display mb-8 text-3xl font-bold tracking-tight text-ink">All rooms</h1>
 
-      <Show when={error()}>
-        <div class="mb-4 rounded-xl border border-magenta-hot/40 bg-magenta-hot/10 p-4 text-magenta-hot">
-          {error()}
-        </div>
-      </Show>
-
-      <Show
-        when={!isLoading()}
-        fallback={
-          <div class="flex items-center justify-center py-12">
-            <div class="h-8 w-8 animate-spin rounded-full border-4 border-line border-t-beat" />
-          </div>
-        }
-      >
-        <div class="grid gap-5 lg:grid-cols-[repeat(auto-fit,minmax(280px,1fr))]">
-          <For
-            each={rooms()}
-            fallback={
-              <p class="col-span-full text-center text-muted">No public rooms available yet.</p>
-            }
-          >
-            {(room) => (
-              <article
-                class="group cursor-pointer rounded-2xl border border-line bg-surface p-6 transition hover:-translate-y-0.5 hover:border-beat hover:shadow-[0_8px_24px_rgba(234,196,53,0.18)]"
-                onClick={() => navigate(`/rooms/${room.id}`)}
-              >
-                <div class="mb-3 flex items-start justify-between gap-3">
-                  <h2 class="font-display text-lg font-bold text-ink transition group-hover:text-beat">
-                    {room.roomName}
-                  </h2>
-                  <span
-                    class={`shrink-0 rounded-full px-2.5 py-0.5 font-mono text-xs ${
-                      room.isActive
-                        ? "border border-beat/30 bg-beat-soft text-beat-bright"
-                        : "border border-line bg-surface-2 text-muted"
-                    }`}
-                  >
-                    {room.isActive ? "Active" : "Inactive"}
-                  </span>
-                </div>
-                <div class="space-y-1 font-mono text-xs text-muted">
-                  {room.categories.length > 0 && (
-                    <p>
-                      <span class="font-semibold text-ink">Categories:</span>{" "}
-                      {room.categories.length}
-                    </p>
-                  )}
-
-                  {room.createdAt && (
-                    <p>
-                      <span class="font-semibold text-ink">Created:</span>{" "}
-                      {new Date(room.createdAt).toLocaleString("en-GB", {
-                        dateStyle: "short",
-                        timeStyle: "short",
-                      })}
-                    </p>
-                  )}
-                </div>
-              </article>
-            )}
-          </For>
-        </div>
-
-        <Show when={hasMore()}>
-          <div class="mt-8 flex justify-center">
-            <button
-              type="button"
-              disabled={isLoadingMore()}
-              onClick={() => void loadMore()}
-              class="rounded-full border border-line px-6 py-2.5 text-sm font-semibold text-ink transition hover:border-beat hover:bg-beat-soft disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {isLoadingMore() ? "Loading…" : "Load more rooms"}
-            </button>
-          </div>
-        </Show>
-      </Show>
+      <PublicRoomsGrid />
     </div>
   );
 };
