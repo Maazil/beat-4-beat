@@ -1,5 +1,5 @@
-import { createSignal, onCleanup } from "solid-js";
-import { getAccessToken, seekPlayback } from "../lib/spotify";
+import { createEffect, createSignal, onCleanup } from "solid-js";
+import { getPlaybackState, seekPlayback } from "../lib/spotify";
 
 export interface UsePlaybackProgressResult {
   positionMs: () => number;
@@ -11,49 +11,56 @@ export interface UsePlaybackProgressResult {
   seekTo: (ms: number) => Promise<void>;
 }
 
+const POLL_INTERVAL_MS = 1000;
+
 /**
  * Polls the Spotify Web API for playback progress and exposes
  * reactive signals for position, duration, and playing state.
+ *
+ * The poll only runs while polling has been requested, playback is
+ * playing, and the tab is visible — no requests while paused or hidden.
  */
 export function usePlaybackProgress(): UsePlaybackProgressResult {
   const [positionMs, setPositionMs] = createSignal(0);
   const [durationMs, setDurationMs] = createSignal(0);
   const [isPlaying, setIsPlaying] = createSignal(false);
   const [isSeeking, setIsSeeking] = createSignal(false);
+  const [isPollingRequested, setIsPollingRequested] = createSignal(false);
+  const [isTabVisible, setIsTabVisible] = createSignal(!document.hidden);
 
-  let pollInterval: ReturnType<typeof setInterval> | undefined;
+  const onVisibilityChange = () => setIsTabVisible(!document.hidden);
+  document.addEventListener("visibilitychange", onVisibilityChange);
+  onCleanup(() => document.removeEventListener("visibilitychange", onVisibilityChange));
 
-  const stopPolling = () => {
-    if (pollInterval != null) {
-      clearInterval(pollInterval);
-      pollInterval = undefined;
+  const poll = async () => {
+    if (isSeeking()) return;
+    try {
+      const state = await getPlaybackState();
+      if (state) {
+        setPositionMs(state.positionMs);
+        setDurationMs(state.durationMs);
+        setIsPlaying(state.isPlaying);
+      }
+    } catch {
+      // silently ignore poll errors
     }
   };
 
+  createEffect(() => {
+    if (!isPollingRequested() || !isPlaying() || !isTabVisible()) return;
+    const interval = setInterval(() => void poll(), POLL_INTERVAL_MS);
+    onCleanup(() => clearInterval(interval));
+  });
+
   const startPolling = (initialPositionMs?: number) => {
-    stopPolling();
     if (initialPositionMs != null) {
       setPositionMs(initialPositionMs);
       setDurationMs(0);
     }
-    pollInterval = setInterval(async () => {
-      if (isSeeking()) return;
-      try {
-        const token = await getAccessToken();
-        const res = await fetch("https://api.spotify.com/v1/me/player", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (res.ok) {
-          const data = await res.json();
-          setPositionMs(data.progress_ms ?? 0);
-          setDurationMs(data.item?.duration_ms ?? 0);
-          setIsPlaying(data.is_playing ?? false);
-        }
-      } catch {
-        // silently ignore poll errors
-      }
-    }, 1000);
+    setIsPollingRequested(true);
   };
+
+  const stopPolling = () => setIsPollingRequested(false);
 
   const seekTo = async (ms: number) => {
     setIsSeeking(true);
@@ -66,8 +73,6 @@ export function usePlaybackProgress(): UsePlaybackProgressResult {
       setIsSeeking(false);
     }
   };
-
-  onCleanup(stopPolling);
 
   return {
     positionMs,

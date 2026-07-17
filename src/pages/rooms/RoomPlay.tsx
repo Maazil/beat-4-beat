@@ -10,12 +10,11 @@ import { roomHostNames } from "../../lib/roomHosts";
 import { parseYouTubeUrl } from "../../lib/youtube";
 import {
   isSpotifyLoggedIn,
-  getAccessToken,
   getDevices,
   playOnDevice,
   pausePlayback,
   resumePlayback,
-  seekPlayback,
+  skipRelative,
   spotifyUrlToUri,
 } from "../../lib/spotify";
 import type { SpotifyDevice } from "../../lib/spotify";
@@ -189,33 +188,11 @@ const RoomPlayInner: Component = () => {
     }
   };
 
-  const handleSkipForward = async () => {
+  const handleSkip = async (deltaMs: number) => {
     try {
-      const token = await getAccessToken();
-      const res = await fetch("https://api.spotify.com/v1/me/player", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        const data = await res.json();
-        await seekPlayback(data.progress_ms + 10_000);
-      }
+      await skipRelative(deltaMs);
     } catch (err) {
-      console.error("[RoomPlay] Skip forward failed:", err);
-    }
-  };
-
-  const handleSkipBackward = async () => {
-    try {
-      const token = await getAccessToken();
-      const res = await fetch("https://api.spotify.com/v1/me/player", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        const data = await res.json();
-        await seekPlayback(Math.max(0, data.progress_ms - 10_000));
-      }
-    } catch (err) {
-      console.error("[RoomPlay] Skip backward failed:", err);
+      console.error("[RoomPlay] Skip failed:", err);
     }
   };
 
@@ -558,8 +535,8 @@ const RoomPlayInner: Component = () => {
           onToggleTrackInfo={() => setShowTrackInfo(!showTrackInfo())}
           onPause={handlePause}
           onResume={handleResume}
-          onSkipForward={handleSkipForward}
-          onSkipBackward={handleSkipBackward}
+          onSkipForward={() => handleSkip(10_000)}
+          onSkipBackward={() => handleSkip(-10_000)}
           onSeek={(ms) => playback.seekTo(ms)}
         />
       </Show>

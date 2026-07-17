@@ -23,6 +23,8 @@ export {
   pausePlayback,
   resumePlayback,
   seekPlayback,
+  getPlaybackState,
+  skipRelative,
   getMySpotifyPlaylists,
   getOwnPlaylistTracks,
 } from "./spotify.api";
