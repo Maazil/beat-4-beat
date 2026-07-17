@@ -1,4 +1,4 @@
-import { Component, createEffect, createSignal, For, Show } from "solid-js";
+import { Component, createSignal, For, Show } from "solid-js";
 import Input from "../../../components/forms/Input";
 import { fileToCategoryImage } from "../../../lib/categoryImage";
 import type { Category } from "../../../model/category";
@@ -25,13 +25,10 @@ interface CategoryColumnProps {
 }
 
 const CategoryColumn: Component<CategoryColumnProps> = (props) => {
-  // Local state for editing to avoid re-renders on every keystroke
-  const [localName, setLocalName] = createSignal("");
-
-  // Sync local state when category name changes (including initial value)
-  createEffect(() => {
-    setLocalName(props.category.name);
-  });
+  // Local draft of the name, committed on blur. Seeded once per category
+  // identity — the <For> row (and this component) is recreated when the
+  // category object changes, so no prop-mirroring effect is needed.
+  const [localName, setLocalName] = createSignal(props.category.name);
 
   const handleBlur = () => {
     props.onUpdateName(localName());
