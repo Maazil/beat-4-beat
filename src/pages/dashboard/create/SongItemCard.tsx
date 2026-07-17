@@ -1,4 +1,4 @@
-import { Component, createEffect, createSignal, For, onCleanup, Show } from "solid-js";
+import { Component, createEffect, createSignal, For, onCleanup, Show, untrack } from "solid-js";
 import { Portal } from "solid-js/web";
 import { Transition } from "solid-transition-group";
 import { isSpotifyLoggedIn, searchTracks } from "../../../lib/spotify";
@@ -17,19 +17,15 @@ interface SongItemCardProps {
 }
 
 const SongItemCard: Component<SongItemCardProps> = (props) => {
-  // Local state for editing
-  const [localUrl, setLocalUrl] = createSignal("");
+  // Local draft of the URL, committed on save. Seeded per item identity and
+  // re-seeded when the edit modal opens — no prop-mirroring effect.
+  const [localUrl, setLocalUrl] = createSignal(props.item.songUrl || "");
   const [searchQuery, setSearchQuery] = createSignal("");
   const [searchResults, setSearchResults] = createSignal<SpotifyTrack[]>([]);
   const [isSearching, setIsSearching] = createSignal(false);
   const [originRect, setOriginRect] = createSignal<DOMRect | null>(null);
   let debounceTimer: ReturnType<typeof setTimeout> | undefined;
   let cardRef: HTMLDivElement | undefined;
-
-  // Sync local state when item songUrl changes
-  createEffect(() => {
-    setLocalUrl(props.item.songUrl || "");
-  });
 
   // Capture card position when entering edit mode
   createEffect(() => {
@@ -38,11 +34,12 @@ const SongItemCard: Component<SongItemCardProps> = (props) => {
     }
   });
 
-  // Reset search state when editing state changes
+  // Reset search state and re-seed the URL draft when the modal opens
   createEffect(() => {
     if (props.isEditing) {
       setSearchQuery("");
       setSearchResults([]);
+      setLocalUrl(untrack(() => props.item.songUrl) || "");
     }
   });
 
