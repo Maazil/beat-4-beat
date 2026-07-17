@@ -131,10 +131,7 @@ const NowPlayingBar: Component<NowPlayingBarProps> = (props) => {
         </button>
 
         {/* Play / Pause */}
-        <Button
-          size="icon"
-          onClick={() => (props.isPlaying ? props.onPause() : props.onResume())}
-        >
+        <Button size="icon" onClick={() => (props.isPlaying ? props.onPause() : props.onResume())}>
           <Show
             when={props.isPlaying}
             fallback={

@@ -17,7 +17,7 @@ import { createStore, produce, reconcile, unwrap } from "solid-js/store";
 const [room, setRoom] = createStore<Room>(initialRoom);
 ```
 
-**Reading:** store properties are accessed *without* calling (`room.categories[0].name`), but only track inside a reactive scope (JSX, memo, effect). A bare read at component-body level runs once and never updates.
+**Reading:** store properties are accessed _without_ calling (`room.categories[0].name`), but only track inside a reactive scope (JSX, memo, effect). A bare read at component-body level runs once and never updates.
 
 **Path syntax — reach into nesting instead of spreading:**
 
@@ -45,11 +45,18 @@ setRoom("categories", 0, { name: "Renamed" });
 **`produce`** — several changes to one target as a mutable draft, one update:
 
 ```tsx
-setRoom("categories", 0, "items", idx, produce((item) => {
-  item.isRevealed = true;
-  item.startTime = 30;
-}));
+setRoom(
+  "categories",
+  0,
+  "items",
+  idx,
+  produce((item) => {
+    item.isRevealed = true;
+    item.startTime = 30;
+  }),
+);
 ```
+
 Works only on plain objects/arrays (not Map/Set).
 
 **`reconcile`** — diff an incoming snapshot into an existing store, updating only what changed. This is the right tool for Firestore `onSnapshot` payloads: without it every snapshot replaces the whole object and re-renders everything; with it, unchanged categories/items don't re-render. Array items match by `id` by default (Room, Category, SongItem all have `id`).
@@ -65,7 +72,7 @@ subscribeToRoom(roomId, (data) => setRoom(reconcile(data)));
 - `const isHost = () => room.hostId === user()?.uid` — cheap derivation: plain function.
 - `createMemo` when the computation is expensive or fans out to many readers; it caches, recomputes once per dependency change, and skips downstream updates when the result is `===`-equal.
 - Memos must be pure — setting a signal inside a memo risks infinite loops. Side effects go in `createEffect`; derived values never do.
-- Deriving beats effect-sync in granularity too: an effect re-runs on every dependency change, a memo only propagates when its *output* changes.
+- Deriving beats effect-sync in granularity too: an effect re-runs on every dependency change, a memo only propagates when its _output_ changes.
 
 ## Effects, when you must
 
@@ -75,10 +82,19 @@ subscribeToRoom(roomId, (data) => setRoom(reconcile(data)));
 ```tsx
 import { on } from "solid-js";
 
-createEffect(on(() => params.id, (id) => { /* only tracks params.id */ }));
+createEffect(
+  on(
+    () => params.id,
+    (id) => {
+      /* only tracks params.id */
+    },
+  ),
+);
 createEffect(on(activeSong, scrollToSong, { defer: true })); // skip first run
 ```
-  With stores, the dep must be a thunk: `on(() => room.isActive, ...)` — `on(room.isActive, ...)` silently never fires.
+
+With stores, the dep must be a thunk: `on(() => room.isActive, ...)` — `on(room.isActive, ...)` silently never fires.
+
 - Nested effects track independently; inner signals don't become outer deps.
 - `untrack(() => ...)` reads a signal inside a tracking scope without subscribing.
 - `batch(() => ...)` groups multiple setter calls into one update wave (store multi-setters and event handlers already batch).
@@ -86,7 +102,7 @@ createEffect(on(activeSong, scrollToSong, { defer: true })); // skip first run
 ## Lifecycle
 
 - `onMount` — run-once setup (analytics, focus, third-party init). Prefer it over a dep-less effect: intent is explicit and it's guaranteed once.
-- `onCleanup` — release subscriptions/timers. Registered inside an effect, it runs *before each re-run* of that effect as well as on disposal — which is exactly why the `useRoom` pattern (subscribe in effect + `onCleanup(unsubscribe)`) resubscribes cleanly when the id changes.
+- `onCleanup` — release subscriptions/timers. Registered inside an effect, it runs _before each re-run_ of that effect as well as on disposal — which is exactly why the `useRoom` pattern (subscribe in effect + `onCleanup(unsubscribe)`) resubscribes cleanly when the id changes.
 
 ## Async data: createResource + Suspense
 
@@ -94,7 +110,7 @@ For one-shot async (not live subscriptions — those stay in the hooks pattern, 
 
 ```tsx
 const [track, { mutate, refetch }] = createResource(
-  () => song.songUrl,           // source: falsy → fetcher doesn't run; change → refetch
+  () => song.songUrl, // source: falsy → fetcher doesn't run; change → refetch
   (url) => fetchTrackMeta(url), // fetcher
 );
 ```

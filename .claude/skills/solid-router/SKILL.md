@@ -19,12 +19,12 @@ Routes live in `src/routes.ts` as a `RouteDefinition[]` (config-based routing, n
 ```tsx
 import { useParams, useSearchParams, useNavigate, useLocation, A } from "@solidjs/router";
 
-const params = useParams();                    // reactive proxy: params.id
-const { room } = useRoom(() => params.id);     // pass as accessor, never params.id directly
+const params = useParams(); // reactive proxy: params.id
+const { room } = useRoom(() => params.id); // pass as accessor, never params.id directly
 
 const [searchParams, setSearchParams] = useSearchParams();
-searchParams.edit;                              // ?edit=roomId (dashboard/create edit mode)
-setSearchParams({ edit: roomId });              // merges; undefined/null/"" removes the key
+searchParams.edit; // ?edit=roomId (dashboard/create edit mode)
+setSearchParams({ edit: roomId }); // merges; undefined/null/"" removes the key
 setSearchParams({ edit: id }, { replace: true }); // no history entry
 
 const navigate = useNavigate();
