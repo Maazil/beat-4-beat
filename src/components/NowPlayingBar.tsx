@@ -18,7 +18,7 @@ interface NowPlayingBarProps {
 
 const NowPlayingBar: Component<NowPlayingBarProps> = (props) => {
   return (
-    <div class="fixed right-0 bottom-0 left-0 z-50 border-t border-line bg-surface/95 backdrop-blur">
+    <div class="fixed right-0 bottom-0 left-0 z-50 border-t border-line bg-surface/95 md:backdrop-blur">
       {/* Progress / seek bar */}
       <Show when={props.durationMs > 0}>
         <SeekBar

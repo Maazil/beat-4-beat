@@ -24,7 +24,7 @@ const PageWrapper: ParentComponent = (props) => {
     <ProtectedRoute>
       <div class="bg-stage min-h-screen text-ink">
         <header
-          class="sticky top-0 z-20 border-b border-line bg-night/85 backdrop-blur transition-transform duration-300"
+          class="sticky top-0 z-20 border-b border-line bg-night/95 transition-transform duration-300 md:bg-night/85 md:backdrop-blur"
           style={{
             transform: isAtTop() ? "translateY(0)" : "translateY(-100%)",
           }}

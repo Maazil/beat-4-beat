@@ -30,7 +30,7 @@ const YouTubePlayer: Component<YouTubePlayerProps> = (props) => {
     `?autoplay=1&start=${Math.max(0, Math.floor(props.startSeconds))}&enablejsapi=1&rel=0`;
 
   return (
-    <div class="fixed inset-x-0 bottom-0 z-50 border-t border-line bg-surface/95 px-4 py-3 backdrop-blur">
+    <div class="fixed inset-x-0 bottom-0 z-50 border-t border-line bg-surface/95 px-4 py-3 md:backdrop-blur">
       <div class="mx-auto flex max-w-7xl items-center gap-4">
         {/* Video box — covered until the host reveals it */}
         <div class="relative aspect-video h-24 shrink-0 overflow-hidden rounded-lg border border-line bg-night">
