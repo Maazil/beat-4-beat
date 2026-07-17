@@ -4,7 +4,14 @@ import RoomPreview from "../../components/RoomPreview";
 import { usePublicRooms } from "../../hooks/usePublicRooms";
 
 const Market: Component = () => {
-  const { rooms, isLoading: roomsLoading, error: roomsError } = usePublicRooms();
+  const {
+    rooms,
+    isLoading: roomsLoading,
+    isLoadingMore,
+    hasMore,
+    loadMore,
+    error: roomsError,
+  } = usePublicRooms();
   const navigate = useNavigate();
 
   return (
@@ -52,6 +59,19 @@ const Market: Component = () => {
         <div class="grid gap-5 lg:grid-cols-[repeat(auto-fit,minmax(280px,1fr))]">
           <For each={rooms()}>{(room) => <RoomPreview room={room} />}</For>
         </div>
+
+        <Show when={hasMore()}>
+          <div class="mt-8 flex justify-center">
+            <button
+              type="button"
+              disabled={isLoadingMore()}
+              onClick={() => void loadMore()}
+              class="rounded-full border border-line px-6 py-2.5 text-sm font-semibold text-ink transition hover:border-beat hover:bg-beat-soft disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {isLoadingMore() ? "Loading…" : "Load more rooms"}
+            </button>
+          </div>
+        </Show>
       </Show>
     </div>
   );

@@ -1,44 +1,64 @@
-import { createEffect, createSignal, onCleanup } from "solid-js";
-import { createStore, reconcile } from "solid-js/store";
+import { createSignal, onMount } from "solid-js";
 import type { Room } from "../model/room";
-import { subscribeToPublicRooms } from "../services/roomsService";
+import { getPublicRoomsPage, type PublicRoomsPage } from "../services/roomsService";
 
 export interface UsePublicRoomsResult {
   rooms: () => Room[];
   isLoading: () => boolean;
+  isLoadingMore: () => boolean;
+  hasMore: () => boolean;
+  loadMore: () => Promise<void>;
   error: () => string | null;
 }
 
 /**
- * Custom primitive for subscribing to public rooms from Firestore.
- * Handles loading state, error state, and cleanup automatically.
+ * Custom primitive for the public-rooms list views. Loads rooms one
+ * bounded page at a time (newest first) via one-shot reads — the grids
+ * don't need a live listener — and exposes loadMore for pagination.
  *
- * @returns Object with rooms array, isLoading, and error accessors
+ * @returns Object with rooms array, loading/pagination state, and error accessors
  *
  * @example
- * const { rooms, isLoading, error } = usePublicRooms();
+ * const { rooms, isLoading, hasMore, loadMore, error } = usePublicRooms();
  */
 export function usePublicRooms(): UsePublicRoomsResult {
-  // Store + reconcile (keyed by id) so a snapshot only updates the rooms
-  // that changed — the other market cards keep their DOM nodes.
-  const [state, setState] = createStore<{ rooms: Room[] }>({ rooms: [] });
+  const [rooms, setRooms] = createSignal<Room[]>([]);
   const [isLoading, setIsLoading] = createSignal(true);
+  const [isLoadingMore, setIsLoadingMore] = createSignal(false);
+  const [hasMore, setHasMore] = createSignal(false);
   const [error, setError] = createSignal<string | null>(null);
+  let cursor: PublicRoomsPage["cursor"] = null;
 
-  createEffect(() => {
+  const loadPage = async () => {
+    const page = await getPublicRoomsPage(cursor);
+    cursor = page.cursor;
+    setRooms([...rooms(), ...page.rooms]);
+    setHasMore(page.hasMore);
+    setError(null);
+  };
+
+  onMount(async () => {
     try {
-      const unsubscribe = subscribeToPublicRooms((roomsData) => {
-        setState("rooms", reconcile(roomsData));
-        setIsLoading(false);
-        setError(null);
-      });
-
-      onCleanup(() => unsubscribe());
+      await loadPage();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load rooms");
+    } finally {
       setIsLoading(false);
     }
   });
 
-  return { rooms: () => state.rooms, isLoading, error };
+  const loadMore = async () => {
+    if (isLoadingMore() || isLoading() || !hasMore()) return;
+
+    setIsLoadingMore(true);
+    try {
+      await loadPage();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load more rooms");
+    } finally {
+      setIsLoadingMore(false);
+    }
+  };
+
+  return { rooms, isLoading, isLoadingMore, hasMore, loadMore, error };
 }

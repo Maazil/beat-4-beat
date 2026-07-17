@@ -4,7 +4,7 @@ import { usePublicRooms } from "../../hooks/usePublicRooms";
 
 const Rooms: Component = () => {
   const navigate = useNavigate();
-  const { rooms, isLoading, error } = usePublicRooms();
+  const { rooms, isLoading, isLoadingMore, hasMore, loadMore, error } = usePublicRooms();
 
   return (
     <div class="mx-auto w-full max-w-6xl px-6 py-12">
@@ -88,6 +88,19 @@ const Rooms: Component = () => {
             )}
           </For>
         </div>
+
+        <Show when={hasMore()}>
+          <div class="mt-8 flex justify-center">
+            <button
+              type="button"
+              disabled={isLoadingMore()}
+              onClick={() => void loadMore()}
+              class="rounded-full border border-line px-6 py-2.5 text-sm font-semibold text-ink transition hover:border-beat hover:bg-beat-soft disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {isLoadingMore() ? "Loading…" : "Load more rooms"}
+            </button>
+          </div>
+        </Show>
       </Show>
     </div>
   );
