@@ -1,8 +1,16 @@
-import type { RouteDefinition } from "@solidjs/router";
+import type { RouteDefinition, RoutePreloadFuncArgs } from "@solidjs/router";
 import { lazy } from "solid-js";
 
 // Eager load - needed for initial render
 import App from "./pages/App";
+
+// Warm the shared room query on link intent so the page renders without a
+// cold round-trip. Dynamic import keeps Firestore out of the entry chunk.
+const preloadRoom = ({ params }: RoutePreloadFuncArgs) => {
+  const id = params.id;
+  if (!id) return;
+  void import("./services/roomQuery").then(({ getRoomOnce }) => getRoomOnce(id));
+};
 
 export const routes: RouteDefinition[] = [
   // Public routes
@@ -41,10 +49,12 @@ export const routes: RouteDefinition[] = [
       {
         path: "/:id",
         component: lazy(() => import("./pages/rooms/RoomView")),
+        preload: preloadRoom,
       },
       {
         path: "/:id/play",
         component: lazy(() => import("./pages/rooms/RoomPlay")),
+        preload: preloadRoom,
       },
     ],
   },

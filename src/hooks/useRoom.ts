@@ -1,6 +1,7 @@
 import { createEffect, createSignal, onCleanup } from "solid-js";
 import { createStore, reconcile } from "solid-js/store";
 import type { Room } from "../model/room";
+import { getRoomOnce } from "../services/roomQuery";
 import { subscribeToRoom } from "../services/roomsService";
 
 export interface UseRoomResult {
@@ -42,8 +43,27 @@ export function useRoom(getRoomId: () => string | undefined): UseRoomResult {
       return;
     }
 
+    let hasSnapshot = false;
+    let disposed = false;
+    onCleanup(() => {
+      disposed = true;
+    });
+
+    // Warm start: render the route preload's cached copy (if any) while
+    // the live subscription makes its first round trip.
+    getRoomOnce(roomId)
+      .then((roomData) => {
+        if (disposed || hasSnapshot || !roomData) return;
+        setState("room", reconcile(roomData));
+        setIsLoading(false);
+      })
+      .catch(() => {
+        // the subscription owns error reporting
+      });
+
     try {
       const unsubscribe = subscribeToRoom(roomId, (roomData) => {
+        hasSnapshot = true;
         setState("room", reconcile(roomData));
         setIsLoading(false);
         if (!roomData) {

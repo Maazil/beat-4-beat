@@ -1,12 +1,12 @@
-import { useNavigate, useSearchParams } from "@solidjs/router";
+import { revalidate, useNavigate, useSearchParams } from "@solidjs/router";
 import { Component, createSignal, For, onMount, Show } from "solid-js";
 import { unwrap } from "solid-js/store";
 import { useAuth } from "../../../context/AuthContext";
 import type { Category } from "../../../model/category";
+import { getRoomOnce } from "../../../services/roomQuery";
 import {
   canEditRoom,
   createRoom as createRoomInFirestore,
-  getRoom,
   updateRoom as updateRoomInFirestore,
 } from "../../../services/roomsService";
 import AddCategoryButton from "./AddCategoryButton";
@@ -48,7 +48,9 @@ const CreateRoom: Component = () => {
 
     setIsLoadingRoom(true);
     try {
-      const room = await getRoom(roomId);
+      // One-shot read (not a subscription) so in-progress edits are never
+      // clobbered; goes through the shared query to warm from its cache.
+      const room = await getRoomOnce(roomId);
       if (!room) {
         alert("Room not found.");
         navigate("/dashboard");
@@ -148,6 +150,8 @@ const CreateRoom: Component = () => {
           categories,
           isPublic: editor.isPublic(),
         });
+        // Drop the shared query's now-stale copy of this room
+        await revalidate(getRoomOnce.keyFor(roomId));
       } else {
         // Create mode — create new room
         await createRoomInFirestore({
