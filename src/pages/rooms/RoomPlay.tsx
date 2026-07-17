@@ -2,37 +2,17 @@ import { useParams } from "@solidjs/router";
 import { Component, createMemo, createSignal, For, Show } from "solid-js";
 import { useRoom } from "../../hooks/useRoom";
 import { useGameState } from "../../hooks/useGameState";
-import type { Category } from "../../model/category";
-import type { SongItem } from "../../model/songItem";
-import { usePlaybackProgress } from "../../hooks/usePlaybackProgress";
-import { openSongUrl } from "../../lib/externalUrl";
+import { useRoomPlayback } from "../../hooks/useRoomPlayback";
+import { buildItemIndex, buildRoundLabels } from "../../lib/boardLookup";
 import { roomHostNames } from "../../lib/roomHosts";
-import { parseYouTubeUrl } from "../../lib/youtube";
-import {
-  isSpotifyLoggedIn,
-  getDevices,
-  playOnDevice,
-  pausePlayback,
-  resumePlayback,
-  skipRelative,
-  spotifyUrlToUri,
-} from "../../lib/spotify";
-import type { SpotifyDevice } from "../../lib/spotify";
-import DevicePicker, { deviceIcon } from "../../components/DevicePicker";
+import RoomPlayHeader from "./RoomPlayHeader";
+import DevicePicker from "../../components/DevicePicker";
+import GameBoard from "../../components/GameBoard";
 import GuessTimer from "../../components/GuessTimer";
 import NowPlayingBar from "../../components/NowPlayingBar";
 import Scoreboard from "../../components/Scoreboard";
 import TurnTracker from "../../components/TurnTracker";
 import YouTubePlayer from "../../components/YouTubePlayer";
-import { stageInk } from "../../theme/palette";
-import type { StageInk } from "../../theme/palette";
-
-/** Tile CSS vars for the stage-card treatment. */
-const stageVars = (ink: StageInk) => ({
-  "--stage-ink": ink.ink,
-  "--stage-tint": ink.tint,
-  "--stage-tint-hover": ink.tintHover,
-});
 
 /** Main room play page. */
 const RoomPlayInner: Component = () => {
@@ -44,14 +24,8 @@ const RoomPlayInner: Component = () => {
     return room ? roomHostNames(room) : [];
   };
 
-  // Device selection (restore from sessionStorage)
-  const [devices, setDevices] = createSignal<SpotifyDevice[]>([]);
-  const [isLoadingDevices, setIsLoadingDevices] = createSignal(false);
-
-  const storedDevice = sessionStorage.getItem("spotify_selected_device");
-  const [selectedDevice, setSelectedDevice] = createSignal<SpotifyDevice | null>(
-    storedDevice ? (JSON.parse(storedDevice) as SpotifyDevice) : null,
-  );
+  // Device selection + Spotify/YouTube playback control
+  const playback = useRoomPlayback();
 
   // Game state — synced to the room doc for hosts/co-owners, localStorage otherwise
   const { game, updateGame } = useGameState(() => params.id, currentRoom);
@@ -61,12 +35,6 @@ const RoomPlayInner: Component = () => {
   const isItemRevealed = (id: string) => playOrder().includes(id);
 
   const [showTrackInfo, setShowTrackInfo] = createSignal(false);
-
-  // Embedded YouTube playback for songs without a Spotify link
-  const [youtubeVideo, setYoutubeVideo] = createSignal<{
-    videoId: string;
-    start: number;
-  } | null>(null);
 
   // Guess timer — 0 = off; duration persists across sessions
   const TIMER_CHOICES = [0, 15, 30, 45, 60];
@@ -89,29 +57,7 @@ const RoomPlayInner: Component = () => {
     return round >= 0 ? round : undefined;
   };
 
-  // Playback progress hook
-  const playback = usePlaybackProgress();
-
-  const spotifyConnected = () => isSpotifyLoggedIn();
-
-  const fetchDevices = async () => {
-    setIsLoadingDevices(true);
-    try {
-      const devs = await getDevices();
-      setDevices(devs);
-    } catch (err) {
-      console.error("[RoomPlay] Failed to fetch devices:", err);
-    } finally {
-      setIsLoadingDevices(false);
-    }
-  };
-
-  const handleSelectDevice = (device: SpotifyDevice) => {
-    setSelectedDevice(device);
-    sessionStorage.setItem("spotify_selected_device", JSON.stringify(device));
-  };
-
-  const handleItemClick = async (itemId: string, songUrl?: string, startTime?: number) => {
+  const handleItemClick = (itemId: string, songUrl?: string, startTime?: number) => {
     const order = playOrder();
     updateGame({
       playOrder: order.includes(itemId) ? order : [...order, itemId],
@@ -119,39 +65,7 @@ const RoomPlayInner: Component = () => {
     });
     setShowTrackInfo(false);
     if (timerSec() > 0) setTimerRunId((n) => n + 1);
-
-    if (!songUrl) return;
-
-    const device = selectedDevice();
-    if (spotifyConnected() && device) {
-      const uri = spotifyUrlToUri(songUrl);
-      if (uri) {
-        setYoutubeVideo(null); // switching to Spotify stops any YouTube playback
-        try {
-          const posMs = startTime != null && startTime > 0 ? startTime * 1000 : 0;
-          await playOnDevice(uri, device.id, posMs);
-          playback.setIsPlaying(true);
-          playback.startPolling(posMs);
-        } catch (err) {
-          console.error("[RoomPlay] Play failed:", err);
-          openSongUrl(songUrl);
-        }
-        return;
-      }
-    }
-
-    // YouTube links play in the embedded bottom-bar player instead of a new tab.
-    // The item's cue point wins over any t= param in the URL itself.
-    const youtube = parseYouTubeUrl(songUrl);
-    if (youtube) {
-      const start = startTime != null && startTime > 0 ? startTime : (youtube.startSeconds ?? 0);
-      setYoutubeVideo(null); // remount the iframe even when replaying the same video
-      setYoutubeVideo({ videoId: youtube.videoId, start });
-      return;
-    }
-
-    // Fallback: open externally if no device or not a recognized URL
-    openSongUrl(songUrl);
+    if (songUrl) void playback.playSong(songUrl, startTime);
   };
 
   // Anything on the board or scoreboard worth resetting?
@@ -167,74 +81,20 @@ const RoomPlayInner: Component = () => {
       scores: scores().map((s) => ({ ...s, roundPoints: [] })),
     });
     setShowTrackInfo(false);
-    if (playback.isPlaying()) void handlePause();
+    if (playback.progress.isPlaying()) void playback.pause();
   };
 
-  const handlePause = async () => {
-    try {
-      await pausePlayback();
-      playback.setIsPlaying(false);
-    } catch (err) {
-      console.error("[RoomPlay] Pause failed:", err);
-    }
-  };
-
-  const handleResume = async () => {
-    try {
-      await resumePlayback();
-      playback.setIsPlaying(true);
-    } catch (err) {
-      console.error("[RoomPlay] Resume failed:", err);
-    }
-  };
-
-  const handleSkip = async (deltaMs: number) => {
-    try {
-      await skipRelative(deltaMs);
-    } catch (err) {
-      console.error("[RoomPlay] Skip failed:", err);
-    }
-  };
-
-  // id → song + category index, rebuilt only when the board content changes —
-  // lookups during play stay O(1) instead of scanning every category.
-  const itemIndex = createMemo(() => {
-    const index = new Map<string, { item: SongItem; category: Category }>();
-    for (const category of currentRoom()?.categories ?? []) {
-      for (const item of category.items) {
-        index.set(item.id, { item, category });
-      }
-    }
-    return index;
-  });
-
-  // Look up a song and its category by id across all categories
-  const locateItem = (id: string) => itemIndex().get(id);
-
-  // Look up a song by id across all categories
-  const itemById = (id: string) => locateItem(id)?.item;
+  // id → song + category index, rebuilt only when the board content changes
+  const itemIndex = createMemo(() => buildItemIndex(currentRoom()?.categories ?? []));
 
   // Find the currently playing item's stored info
   const currentItemInfo = () => {
     const id = currentItemId();
-    return id ? (itemById(id) ?? null) : null;
+    return id ? (itemIndex().get(id)?.item ?? null) : null;
   };
 
-  // Song played on each round (by play order) — labels the revealed breakdown.
-  // Carries category/level/link so URL-only songs (no title) stay identifiable.
-  const roundLabels = createMemo(() =>
-    playOrder().map((id) => {
-      const found = locateItem(id);
-      const item = found?.item;
-      return {
-        title: item?.title,
-        artist: item?.artist,
-        category: found?.category.name,
-        level: item?.level,
-        songUrl: item?.songUrl,
-      };
-    }),
-  );
+  // Song played on each round — labels the revealed scoreboard breakdown
+  const roundLabels = createMemo(() => buildRoundLabels(playOrder(), itemIndex()));
 
   return (
     <div class="bg-stage min-h-screen p-4 pb-24 sm:p-6 sm:pb-24">
@@ -269,76 +129,27 @@ const RoomPlayInner: Component = () => {
 
         <Show when={!isLoading() && currentRoom()}>
           <div class="flex flex-col gap-8">
-            <div class="flex flex-col gap-4">
-              <div class="flex flex-col gap-2">
-                <h1 class="font-display text-3xl font-bold tracking-tight text-ink">
-                  {currentRoom()?.roomName}
-                </h1>
-                <div class="flex flex-wrap items-center justify-between gap-3">
-                  <h2 class="flex flex-wrap items-center gap-2 font-medium text-muted">
-                    Hosted by
-                    <For each={hostNames()}>
-                      {(name) => (
-                        <span class="inline-block rounded-full bg-beat px-4 py-1 text-sm font-bold tracking-wide text-night">
-                          {name}
-                        </span>
-                      )}
-                    </For>
-                  </h2>
-
-                  {/* Selected Spotify device */}
-                  <Show when={selectedDevice()}>
-                    {(device) => (
-                      <div class="flex items-center gap-3 rounded-xl border border-spotify/30 bg-spotify/10 px-3 py-1.5">
-                        <span class="text-spotify">{deviceIcon(device().type)}</span>
-                        <p class="text-sm font-semibold text-ink">Playing on: {device().name}</p>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setSelectedDevice(null);
-                            sessionStorage.removeItem("spotify_selected_device");
-                            fetchDevices();
-                          }}
-                          class="text-xs text-muted underline transition hover:text-ink"
-                        >
-                          Switch device
-                        </button>
-                      </div>
-                    )}
-                  </Show>
-
-                  <Show when={gameStarted()}>
-                    <button
-                      type="button"
-                      onClick={handleNewGame}
-                      class="rounded-full border border-line px-3 py-1 text-xs font-bold text-ink transition hover:border-beat hover:bg-beat-soft"
-                    >
-                      New game
-                    </button>
-                  </Show>
-                </div>
-              </div>
-
-              {/* Spotify connection status */}
-              <Show when={!spotifyConnected()}>
-                <div class="rounded-xl border border-line bg-surface-2 px-4 py-2 text-sm text-ink">
-                  Spotify is not connected. Connect Spotify from the dashboard to play songs
-                  directly.
-                </div>
-              </Show>
-            </div>
+            <RoomPlayHeader
+              roomName={currentRoom()?.roomName}
+              hostNames={hostNames()}
+              selectedDevice={playback.selectedDevice()}
+              spotifyConnected={playback.spotifyConnected()}
+              gameStarted={gameStarted()}
+              onClearDevice={playback.clearDevice}
+              onNewGame={handleNewGame}
+            />
 
             {/* Device picker — shown until a device is selected */}
-            <Show when={spotifyConnected() && !selectedDevice()}>
+            <Show when={playback.spotifyConnected() && !playback.selectedDevice()}>
               <div class="mx-auto w-full max-w-lg">
                 <Show
-                  when={devices().length > 0 || isLoadingDevices()}
+                  when={playback.devices().length > 0 || playback.isLoadingDevices()}
                   fallback={
                     <div class="text-center">
                       <p class="mb-4 text-muted">Connect a Spotify device to play songs</p>
                       <button
                         type="button"
-                        onClick={fetchDevices}
+                        onClick={() => void playback.fetchDevices()}
                         class="rounded-full bg-spotify px-6 py-2.5 font-bold text-ink transition hover:brightness-110"
                       >
                         Find devices
@@ -347,10 +158,10 @@ const RoomPlayInner: Component = () => {
                   }
                 >
                   <DevicePicker
-                    devices={devices()}
-                    isLoading={isLoadingDevices()}
-                    onSelect={handleSelectDevice}
-                    onRefresh={fetchDevices}
+                    devices={playback.devices()}
+                    isLoading={playback.isLoadingDevices()}
+                    onSelect={playback.selectDevice}
+                    onRefresh={playback.fetchDevices}
                   />
                 </Show>
               </div>
@@ -371,7 +182,7 @@ const RoomPlayInner: Component = () => {
             />
 
             {/* Game board */}
-            <Show when={selectedDevice() || !spotifyConnected()}>
+            <Show when={playback.selectedDevice() || !playback.spotifyConnected()}>
               <div class="py-4 pb-16">
                 <div class="mb-4 flex flex-wrap items-center justify-between gap-2">
                   <p class="text-muted">Click a tile to play a song</p>
@@ -399,108 +210,11 @@ const RoomPlayInner: Component = () => {
                     </div>
                   </div>
                 </div>
-                {/* Single-category: full-width grid, one ink for the whole board */}
-                <Show when={(currentRoom()?.categories.length ?? 0) === 1}>
-                  <div class="grid grid-cols-2 gap-6 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-                    <For each={currentRoom()?.categories[0]?.items}>
-                      {(item) => {
-                        const ink = stageInk(0);
-                        return (
-                          <button
-                            type="button"
-                            class={`flex h-20 w-full cursor-pointer items-center justify-center rounded-xl sm:h-24 ${
-                              isItemRevealed(item.id)
-                                ? "border border-dashed border-line bg-night/50"
-                                : "stage-card"
-                            }`}
-                            style={isItemRevealed(item.id) ? undefined : stageVars(ink)}
-                            onClick={() => handleItemClick(item.id, item.songUrl, item.startTime)}
-                          >
-                            <span
-                              class="font-mono text-2xl font-bold"
-                              style={{
-                                color: isItemRevealed(item.id)
-                                  ? "var(--color-muted)"
-                                  : "var(--color-ink)",
-                              }}
-                            >
-                              {item.level}
-                            </span>
-                          </button>
-                        );
-                      }}
-                    </For>
-                  </div>
-                </Show>
-
-                {/* Multi-category: column grid with category headers */}
-                <Show when={(currentRoom()?.categories.length ?? 0) > 1}>
-                  {/* Phones: horizontally scrollable snap columns (equal-width
-                      columns would crush with 4+ categories). md+: the grid. */}
-                  <div
-                    class="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 sm:-mx-6 sm:px-6 md:mx-0 md:grid md:gap-6 md:overflow-x-visible md:px-0 md:pb-0"
-                    style={`grid-template-columns: repeat(${currentRoom()?.categories.length ?? 1}, minmax(0, 1fr))`}
-                  >
-                    <For each={currentRoom()?.categories}>
-                      {(category, index) => {
-                        const ink = () => stageInk(index());
-                        return (
-                          <div class="flex w-40 shrink-0 snap-start flex-col gap-4 md:w-auto md:shrink">
-                            <Show
-                              when={category.imageUrl}
-                              fallback={
-                                <div
-                                  class="rounded-lg px-4 py-3 text-center"
-                                  style={{ background: ink().ink }}
-                                >
-                                  <h2 class="font-display text-lg font-bold tracking-tight text-night">
-                                    {category.name}
-                                  </h2>
-                                </div>
-                              }
-                            >
-                              <img
-                                src={category.imageUrl}
-                                alt={category.name}
-                                class="h-20 w-full rounded-lg border border-line object-cover"
-                              />
-                            </Show>
-
-                            <div class="flex flex-col gap-3">
-                              <For each={category.items}>
-                                {(item) => (
-                                  <button
-                                    type="button"
-                                    class={`flex h-16 w-full cursor-pointer items-center justify-center rounded-lg ${
-                                      isItemRevealed(item.id)
-                                        ? "border border-dashed border-line bg-night/50"
-                                        : "stage-card"
-                                    }`}
-                                    style={isItemRevealed(item.id) ? undefined : stageVars(ink())}
-                                    onClick={() =>
-                                      handleItemClick(item.id, item.songUrl, item.startTime)
-                                    }
-                                  >
-                                    <span
-                                      class="font-mono text-2xl font-bold"
-                                      style={{
-                                        color: isItemRevealed(item.id)
-                                          ? "var(--color-muted)"
-                                          : "var(--color-ink)",
-                                      }}
-                                    >
-                                      {item.level}
-                                    </span>
-                                  </button>
-                                )}
-                              </For>
-                            </div>
-                          </div>
-                        );
-                      }}
-                    </For>
-                  </div>
-                </Show>
+                <GameBoard
+                  categories={currentRoom()?.categories ?? []}
+                  isItemRevealed={isItemRevealed}
+                  onItemClick={handleItemClick}
+                />
               </div>
             </Show>
           </div>
@@ -513,31 +227,31 @@ const RoomPlayInner: Component = () => {
       </Show>
 
       {/* Embedded YouTube player — replaces the Spotify bar for YouTube songs */}
-      <Show when={youtubeVideo()}>
+      <Show when={playback.youtubeVideo()}>
         {(video) => (
           <YouTubePlayer
             videoId={video().videoId}
             startSeconds={video().start}
-            onClose={() => setYoutubeVideo(null)}
+            onClose={playback.closeYouTube}
           />
         )}
       </Show>
 
       {/* Bottom control bar — shown when a song is playing */}
-      <Show when={currentItemId() && !youtubeVideo()}>
+      <Show when={currentItemId() && !playback.youtubeVideo()}>
         <NowPlayingBar
-          positionMs={playback.positionMs()}
-          durationMs={playback.durationMs()}
-          isPlaying={playback.isPlaying()}
+          positionMs={playback.progress.positionMs()}
+          durationMs={playback.progress.durationMs()}
+          isPlaying={playback.progress.isPlaying()}
           trackTitle={currentItemInfo()?.title}
           trackArtist={currentItemInfo()?.artist}
           showTrackInfo={showTrackInfo()}
           onToggleTrackInfo={() => setShowTrackInfo(!showTrackInfo())}
-          onPause={handlePause}
-          onResume={handleResume}
-          onSkipForward={() => handleSkip(10_000)}
-          onSkipBackward={() => handleSkip(-10_000)}
-          onSeek={(ms) => playback.seekTo(ms)}
+          onPause={playback.pause}
+          onResume={playback.resume}
+          onSkipForward={() => playback.skip(10_000)}
+          onSkipBackward={() => playback.skip(-10_000)}
+          onSeek={(ms) => playback.progress.seekTo(ms)}
         />
       </Show>
     </div>
