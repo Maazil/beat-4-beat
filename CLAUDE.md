@@ -15,6 +15,15 @@ Bias toward caution over speed; for trivial tasks, use judgment.
 - **Surgical changes.** Touch only what you must; match existing style. Remove imports/code that *your* change made unused, but don't refactor, "improve", or delete pre-existing code unless asked — mention it instead. Every changed line should trace to the request.
 - **Verify before done.** Define what success looks like, then check it: `pnpm ts`, `pnpm lint:fix`, and `pnpm test` must pass before proposing changes.
 
+## Project Skills (use them)
+
+Detailed, repo-specific conventions live in `.claude/skills/`. Invoke the matching skill *before* writing code in its area:
+
+- **`solid-patterns`** — SolidJS reactivity beyond the basics: stores (path syntax, `produce`, `reconcile`, `unwrap`), memos vs effects, `on()`, `createResource`/Suspense, lifecycle. Use for any component, hook/primitive, or state logic.
+- **`firestore-data-layer`** — the services/hooks layering, the canonical subscription-hook shape, signals vs stores + `reconcile` for snapshot data. Use for anything that reads/writes Firestore.
+- **`solid-router`** — adding routes in `src/routes.ts`, wrapper/guard patterns, params & search params, `query` + `createAsync` data APIs. Use for routes, pages, navigation, or URL state.
+- **`solid-testing`** — the vitest node setup for pure logic, plus the recipe for adding component/primitive tests. Use when writing tests or test infra.
+
 ## Conventions
 
 - Conventional Commits (`feat:`, `fix:`, etc.).

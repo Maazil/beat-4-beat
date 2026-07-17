@@ -4,6 +4,15 @@
 
 Apply the [general coding guidelines](./.instructions.md) to all code.
 
+## Repo skills
+
+Repo-specific conventions live in `.claude/skills/` — consult the matching skill before working in its area:
+
+- `solid-patterns` — SolidJS stores/memos/effects/resource patterns for components, hooks, and state logic
+- `firestore-data-layer` — services vs hooks layering and the canonical Firestore subscription-hook shape
+- `solid-router` — route definitions in `src/routes.ts`, wrappers/guards, params, data APIs
+- `solid-testing` — vitest setup for pure logic and the recipe for component/primitive tests
+
 ## Tech stack
 
 - **Solid.js** v1.9 (NOT React)
