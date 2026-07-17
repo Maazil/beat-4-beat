@@ -6,6 +6,7 @@
 import { SPOTIFY_API_BASE } from "./spotify.config";
 import { getAccessToken } from "./spotify.auth";
 import type {
+  PlaybackState,
   SpotifyApiTrack,
   SpotifyDevice,
   SpotifyPlaylistBrief,
@@ -130,6 +131,40 @@ export async function resumePlayback(): Promise<void> {
     method: "PUT",
     headers: { Authorization: `Bearer ${token}` },
   });
+}
+
+/**
+ * Fetch the current playback state (`GET /me/player`) on the active device.
+ * Returns `null` when nothing is playing on any device (Spotify replies 204).
+ */
+export async function getPlaybackState(): Promise<PlaybackState | null> {
+  const token = await getAccessToken();
+
+  const res = await fetch(`${SPOTIFY_API_BASE}/me/player`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  if (res.status === 204) return null;
+  if (!res.ok) {
+    throw new Error(`[spotify.api] Get playback state failed: ${res.status}`);
+  }
+
+  const data = await res.json();
+  return {
+    isPlaying: data.is_playing ?? false,
+    positionMs: data.progress_ms ?? 0,
+    durationMs: data.item?.duration_ms ?? 0,
+  };
+}
+
+/**
+ * Seek relative to the current playback position (e.g. ±10s skip).
+ * No-op when nothing is playing.
+ */
+export async function skipRelative(deltaMs: number): Promise<void> {
+  const state = await getPlaybackState();
+  if (!state) return;
+  await seekPlayback(state.positionMs + deltaMs);
 }
 
 /**
