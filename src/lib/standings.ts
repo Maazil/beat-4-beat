@@ -7,8 +7,9 @@ export interface Standing {
   total: number;
 }
 
-/** Sum of every point award a team has received. */
-export const totalOf = (score: Score) => score.roundPoints.reduce((sum, p) => sum + p, 0);
+/** Sum of every point award a team has received — title and artist, all rounds. */
+export const totalOf = (score: Score) =>
+  score.rounds.reduce((sum, r) => sum + r.title + r.artist, 0);
 
 /**
  * name → revealed position and rank. Teams sort by total (descending);

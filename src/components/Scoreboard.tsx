@@ -1,7 +1,7 @@
 import { Component, createMemo, createSignal, For, Show } from "solid-js";
 import { isSafeSongHref } from "../lib/externalUrl";
 import { computeStandings, totalOf } from "../lib/standings";
-import type { Score } from "../model/score";
+import { emptyRound, roundTotal, type Score } from "../model/score";
 
 /** Song played on a given round, used to label the revealed breakdown. */
 interface RoundLabel {
@@ -24,6 +24,12 @@ interface ScoreboardProps {
 
 const MAX_HISTORY_CHIPS = 12;
 
+/** The two calls every song is worth — awarded (and stolen) separately. */
+const CALLS = [
+  { key: "title", label: "Title" },
+  { key: "artist", label: "Artist" },
+] as const;
+
 /**
  * Scoreboard for a shared screen. Rows keep a fixed order and totals stay
  * hidden while playing — several teams can score on the same round (e.g. a
@@ -40,14 +46,15 @@ const Scoreboard: Component<ScoreboardProps> = (props) => {
   const rowEls = new Map<string, HTMLElement>();
   const chipEls = new Map<string, HTMLElement>();
 
-  const roundValue = (score: Score) =>
-    props.currentRound != null ? (score.roundPoints[props.currentRound] ?? 0) : 0;
+  // A team's title/artist counts for the round in play (zeroed when nothing's playing)
+  const roundOf = (score: Score) =>
+    props.currentRound != null ? (score.rounds[props.currentRound] ?? emptyRound()) : emptyRound();
 
   // Rounds played so far — the current round plus everything already scored
   const roundsPlayed = () =>
     Math.max(
       props.currentRound != null ? props.currentRound + 1 : 0,
-      ...props.scores.map((s) => s.roundPoints.length),
+      ...props.scores.map((s) => s.rounds.length),
       0,
     );
 
@@ -96,9 +103,9 @@ const Scoreboard: Component<ScoreboardProps> = (props) => {
 
   const applyScores = (next: Score[]) => withFlip(() => props.onUpdateScores(next));
 
-  const popChip = (name: string) => {
+  const popChip = (name: string, kind: string) => {
     chipEls
-      .get(name)
+      .get(`${name}:${kind}`)
       ?.animate(
         [
           { transform: "scale(1)" },
@@ -120,25 +127,26 @@ const Scoreboard: Component<ScoreboardProps> = (props) => {
   const handleAddTeam = () => {
     const name = newTeamName().trim();
     if (!name) return;
-    applyScores([...props.scores, { teamName: uniqueName(name), roundPoints: [] }]);
+    applyScores([...props.scores, { teamName: uniqueName(name), rounds: [] }]);
     setNewTeamName("");
   };
 
-  /** Add points to a team's score for the round currently in play. */
-  const handleAward = (index: number, points: number) => {
+  /** Award or take back a title/artist point for the round currently in play. */
+  const handleAward = (index: number, call: "title" | "artist", delta: number) => {
     const round = props.currentRound;
     if (round == null) return;
     const team = props.scores[index];
     applyScores(
       props.scores.map((s, i) => {
         if (i !== index) return s;
-        const rp = [...s.roundPoints];
-        while (rp.length <= round) rp.push(0);
-        rp[round] = Math.max(0, rp[round] + points);
-        return { ...s, roundPoints: rp };
+        const rounds = [...s.rounds];
+        while (rounds.length <= round) rounds.push(emptyRound());
+        const cur = rounds[round];
+        rounds[round] = { ...cur, [call]: Math.max(0, cur[call] + delta) };
+        return { ...s, rounds };
       }),
     );
-    popChip(team.teamName);
+    popChip(team.teamName, call);
   };
 
   const handleRemoveTeam = (index: number) => {
@@ -168,7 +176,7 @@ const Scoreboard: Component<ScoreboardProps> = (props) => {
     const start = Math.max(0, played - MAX_HISTORY_CHIPS);
     return Array.from({ length: played - start }, (_, offset) => {
       const round = start + offset;
-      return { value: score.roundPoints[round] ?? 0, isCurrent: round === props.currentRound };
+      return { value: roundTotal(score.rounds[round]), isCurrent: round === props.currentRound };
     });
   };
 
@@ -330,64 +338,86 @@ const Scoreboard: Component<ScoreboardProps> = (props) => {
                   </Show>
                 </div>
 
-                {/* Point buttons — always target the round in play */}
-                <div class="flex shrink-0 items-center gap-1">
-                  <button
-                    type="button"
-                    onClick={() => handleAward(index(), -1)}
-                    disabled={props.currentRound == null || roundValue(score) === 0}
-                    title={
-                      props.currentRound == null
-                        ? "Play a song to start a round"
-                        : "Take back a point this round"
-                    }
-                    class="flex h-7 w-7 items-center justify-center rounded-full border border-line text-muted transition hover:border-beat hover:text-beat disabled:cursor-default disabled:opacity-30 disabled:hover:border-line disabled:hover:text-muted"
-                  >
-                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2.5"
-                        d="M20 12H4"
-                      />
-                    </svg>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleAward(index(), 1)}
-                    disabled={props.currentRound == null}
-                    title={
-                      props.currentRound == null
-                        ? "Play a song to start a round"
-                        : "+1 point this round"
-                    }
-                    class="flex h-7 w-7 items-center justify-center rounded-full border border-line text-muted transition hover:border-beat hover:text-beat disabled:cursor-default disabled:opacity-30 disabled:hover:border-line disabled:hover:text-muted"
-                  >
-                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2.5"
-                        d="M12 4v16m8-8H4"
-                      />
-                    </svg>
-                  </button>
+                {/* Title & artist awards — each targets the round in play. The
+                    count doubles as the host's feedback that an award landed. */}
+                <div class="flex shrink-0 flex-col gap-1">
+                  <For each={CALLS}>
+                    {(call) => {
+                      const value = () => roundOf(score)[call.key];
+                      const disabled = () => props.currentRound == null;
+                      return (
+                        <div class="flex items-center gap-1.5">
+                          <span
+                            aria-hidden="true"
+                            class="w-9 text-right font-mono text-[10px] font-bold tracking-wide text-muted uppercase"
+                          >
+                            {call.label}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => handleAward(index(), call.key, -1)}
+                            disabled={disabled() || value() === 0}
+                            aria-label={`Take back ${call.label.toLowerCase()} point from ${score.teamName}`}
+                            title={
+                              disabled()
+                                ? "Play a song to start a round"
+                                : `Take back the ${call.label.toLowerCase()} point`
+                            }
+                            class="flex h-6 w-6 items-center justify-center rounded-full border border-line text-muted transition hover:border-beat hover:text-beat disabled:cursor-default disabled:opacity-30 disabled:hover:border-line disabled:hover:text-muted"
+                          >
+                            <svg
+                              class="h-3 w-3"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2.5"
+                                d="M20 12H4"
+                              />
+                            </svg>
+                          </button>
+                          <span
+                            ref={(el) => chipEls.set(`${score.teamName}:${call.key}`, el)}
+                            class={`w-4 text-center font-mono text-sm font-bold tabular-nums ${
+                              value() > 0 ? "text-beat-bright" : "text-muted"
+                            }`}
+                          >
+                            {value()}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => handleAward(index(), call.key, 1)}
+                            disabled={disabled()}
+                            aria-label={`Award ${call.label.toLowerCase()} point to ${score.teamName}`}
+                            title={
+                              disabled()
+                                ? "Play a song to start a round"
+                                : `+1 ${call.label.toLowerCase()} point`
+                            }
+                            class="flex h-6 w-6 items-center justify-center rounded-full border border-line text-muted transition hover:border-beat hover:text-beat disabled:cursor-default disabled:opacity-30 disabled:hover:border-line disabled:hover:text-muted"
+                          >
+                            <svg
+                              class="h-3 w-3"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2.5"
+                                d="M12 4v16m8-8H4"
+                              />
+                            </svg>
+                          </button>
+                        </div>
+                      );
+                    }}
+                  </For>
                 </div>
-
-                {/* This round's points — the host's feedback that an award landed */}
-                <Show when={props.currentRound != null}>
-                  <span
-                    ref={(el) => chipEls.set(score.teamName, el)}
-                    title="Points this round"
-                    class={`flex h-8 min-w-9 shrink-0 items-center justify-center rounded-lg border px-1.5 font-mono text-sm font-bold tabular-nums ${
-                      roundValue(score) > 0
-                        ? "border-beat/40 bg-beat-soft text-beat-bright"
-                        : "border-line text-muted"
-                    }`}
-                  >
-                    {roundValue(score) > 0 ? `+${roundValue(score)}` : "0"}
-                  </span>
-                </Show>
 
                 {/* Total — hidden until standings are revealed */}
                 <Show when={revealed()}>
@@ -562,7 +592,7 @@ const Scoreboard: Component<ScoreboardProps> = (props) => {
                         </td>
                         <For each={breakdownTeams()}>
                           {(team) => {
-                            const pts = () => team.roundPoints[round] ?? 0;
+                            const pts = () => roundTotal(team.rounds[round]);
                             return (
                               <td class="px-2 py-1.5 text-center">
                                 <span

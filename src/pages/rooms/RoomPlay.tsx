@@ -61,8 +61,7 @@ const RoomPlayInner: Component = () => {
   };
 
   // Anything on the board or scoreboard worth resetting?
-  const gameStarted = () =>
-    playOrder().length > 0 || scores().some((s) => s.roundPoints.length > 0);
+  const gameStarted = () => playOrder().length > 0 || scores().some((s) => s.rounds.length > 0);
 
   /** Reset the board and zero all scores, keeping the teams. */
   const handleNewGame = () => {
@@ -70,7 +69,7 @@ const RoomPlayInner: Component = () => {
     updateGame({
       playOrder: [],
       currentItemId: null,
-      scores: scores().map((s) => ({ ...s, roundPoints: [] })),
+      scores: scores().map((s) => ({ ...s, rounds: [] })),
     });
     setShowTrackInfo(false);
     if (playback.progress.isPlaying()) void playback.pause();

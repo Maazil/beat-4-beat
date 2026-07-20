@@ -33,30 +33,54 @@ describe("Scoreboard", () => {
     await user.type(getByPlaceholderText("Team name…"), "Reds");
     await user.click(getByRole("button", { name: "Add" }));
 
-    expect(onUpdateScores).toHaveBeenCalledWith([{ teamName: "Reds", roundPoints: [] }]);
+    expect(onUpdateScores).toHaveBeenCalledWith([{ teamName: "Reds", rounds: [] }]);
   });
 
-  test("awards a point to the round in play", async () => {
-    const { getByTitle, onUpdateScores } = renderScoreboard(
-      [{ teamName: "Reds", roundPoints: [] }],
+  test("awards a title point to the round in play", async () => {
+    const { getByTitle, onUpdateScores } = renderScoreboard([{ teamName: "Reds", rounds: [] }], 0);
+
+    await user.click(getByTitle("+1 title point"));
+
+    expect(onUpdateScores).toHaveBeenCalledWith([
+      { teamName: "Reds", rounds: [{ title: 1, artist: 0 }] },
+    ]);
+  });
+
+  test("awards the artist point to a different team (a steal)", async () => {
+    const { getByLabelText, onUpdateScores } = renderScoreboard(
+      [
+        { teamName: "Reds", rounds: [{ title: 1, artist: 0 }] },
+        { teamName: "Blues", rounds: [{ title: 0, artist: 0 }] },
+      ],
       0,
     );
 
-    await user.click(getByTitle("+1 point this round"));
+    await user.click(getByLabelText("Award artist point to Blues"));
 
-    expect(onUpdateScores).toHaveBeenCalledWith([{ teamName: "Reds", roundPoints: [1] }]);
+    expect(onUpdateScores).toHaveBeenCalledWith([
+      { teamName: "Reds", rounds: [{ title: 1, artist: 0 }] },
+      { teamName: "Blues", rounds: [{ title: 0, artist: 1 }] },
+    ]);
   });
 
-  test("point buttons are disabled with no round in play", () => {
-    const { getAllByTitle } = renderScoreboard([{ teamName: "Reds", roundPoints: [] }]);
-    const buttons = getAllByTitle("Play a song to start a round"); // the +/- pair
-    expect(buttons).toHaveLength(2);
+  test("award buttons are disabled with no round in play", () => {
+    const { getAllByTitle } = renderScoreboard([{ teamName: "Reds", rounds: [] }]);
+    const buttons = getAllByTitle("Play a song to start a round"); // title +/- and artist +/-
+    expect(buttons).toHaveLength(4);
     buttons.forEach((b) => expect(b).toBeDisabled());
   });
 
   test("reveals standings with totals on demand", async () => {
     const { getByRole, queryAllByText } = renderScoreboard(
-      [{ teamName: "Reds", roundPoints: [2, 1] }],
+      [
+        {
+          teamName: "Reds",
+          rounds: [
+            { title: 2, artist: 0 },
+            { title: 1, artist: 0 },
+          ],
+        },
+      ],
       1,
     );
 

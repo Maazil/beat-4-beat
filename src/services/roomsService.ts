@@ -30,6 +30,7 @@ import { auth } from "../lib/firebase";
 import type { Category } from "../model/category";
 import type { GameState } from "../model/gameState";
 import type { CreateRoomData, Room } from "../model/room";
+import { migrateScore } from "../model/score";
 import type { SongItem } from "../model/songItem";
 import { getUserDjName } from "./usersService";
 
@@ -46,15 +47,14 @@ const joinRequestDoc = (roomId: string, uid: string): DocumentReference =>
  * Firestore Timestamps are converted to JavaScript Dates
  */
 function docToRoom(id: string, data: DocumentData): Room {
-  // Migrate old score format ({ points: number } → { roundPoints: number[] })
-  const scores = data.scores?.map((s: Record<string, unknown>) =>
-    "roundPoints" in s ? s : { teamName: s.teamName, roundPoints: [] },
-  );
+  // Normalize any past score shape to the current { rounds: RoundScore[] } model
+  const scores = data.gameState?.scores?.map(migrateScore);
+  const gameState = scores ? { ...data.gameState, scores } : data.gameState;
 
   return {
     ...data,
     id,
-    ...(scores ? { scores } : {}),
+    ...(gameState ? { gameState } : {}),
     createdAt: data.createdAt instanceof Timestamp ? data.createdAt.toDate() : data.createdAt,
   } as Room;
 }
