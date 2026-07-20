@@ -9,17 +9,18 @@
   the full instructions.
 */
 import type { Component, JSX } from "solid-js";
+import { STAGE_COLORS } from "../../theme/palette";
 
 const LINE = "rgba(198, 216, 255, 0.55)";
 const TILE_FILL = "rgba(198, 216, 255, 0.09)";
 const TILE_STROKE = "rgba(198, 216, 255, 0.22)";
 const SCREEN = "#041f36";
-const SHELL = "#0a314f";
-const GOLD = "var(--gold)";
-const MAGENTA = "var(--magenta-hot)";
-/* Brand colors, not Stage Night tokens: so the icons read as the actual apps. */
-const SPOTIFY_GREEN = "#1db954";
-const YOUTUBE_RED = "#ff0033";
+const SHELL = STAGE_COLORS.surface2;
+const GOLD = STAGE_COLORS.gold;
+const MAGENTA = STAGE_COLORS.magentaHot;
+/* Product brand colors — see --color-spotify / --color-youtube in index.css. */
+const SPOTIFY_GREEN = STAGE_COLORS.spotify;
+const YOUTUBE_RED = STAGE_COLORS.youtube;
 
 /* ── Shared drawing helpers ────────────────────────────────── */
 
@@ -243,10 +244,10 @@ export const BoardArt: Component = () => {
       if (hot) {
         cells.push(
           <g transform={`translate(${tx + 20} ${ty + 13})`}>
-            <circle cx="-3" cy="4.5" r="3" fill="#02182b" />
+            <circle cx="-3" cy="4.5" r="3" fill={STAGE_COLORS.navy} />
             <path
               d="M0 4.5 V -5.5 q 4 0.5 5 4"
-              stroke="#02182b"
+              stroke={STAGE_COLORS.navy}
               stroke-width="2"
               fill="none"
               stroke-linecap="round"
@@ -308,7 +309,7 @@ export const MusicArt: Component = () => (
       stroke={TILE_STROKE}
     />
     <rect x={145} y={31} width={28} height={19} rx={6} fill={YOUTUBE_RED} />
-    <path d="M156 36.5 l 7 4 -7 4 z" fill="#fef9ff" />
+    <path d="M156 36.5 l 7 4 -7 4 z" fill={STAGE_COLORS.ink} />
     {label(159, 68, "YOUTUBE LINKS", false, true)}
   </svg>
 );
