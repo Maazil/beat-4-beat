@@ -1,4 +1,4 @@
-import type { Score } from "../model/score";
+import { roundTotal, type Score } from "../model/score";
 
 /** A team's revealed scoreboard position. */
 export interface Standing {
@@ -7,9 +7,8 @@ export interface Standing {
   total: number;
 }
 
-/** Sum of every point award a team has received — title and artist, all rounds. */
-export const totalOf = (score: Score) =>
-  score.rounds.reduce((sum, r) => sum + r.title + r.artist, 0);
+/** Sum of every point award a team has received — every call, all rounds. */
+export const totalOf = (score: Score) => score.rounds.reduce((sum, r) => sum + roundTotal(r), 0);
 
 /**
  * name → revealed position and rank. Teams sort by total (descending);

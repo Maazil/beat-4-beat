@@ -147,9 +147,11 @@ const RoomPlayInner: Component = () => {
             {/* Scoreboard — synced via the room doc for hosts, local otherwise */}
             <Scoreboard
               scores={scores()}
+              calls={game().calls}
               currentRound={currentRound()}
               roundLabels={roundLabels()}
               onUpdateScores={(next) => updateGame({ scores: next })}
+              onUpdateCalls={(next) => updateGame({ calls: next })}
             />
 
             {/* Whose turn — rotates with the rounds, click a team to override */}

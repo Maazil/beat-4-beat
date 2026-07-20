@@ -1,7 +1,7 @@
 import { createSignal } from "solid-js";
 import { unwrap } from "solid-js/store";
 import { useAuth } from "../context/AuthContext";
-import { defaultGameState, type GameState } from "../model/gameState";
+import { DEFAULT_CALLS, defaultGameState, type GameState } from "../model/gameState";
 import type { Room } from "../model/room";
 import { migrateScore } from "../model/score";
 import { updateRoomGameState } from "../services/roomsService";
@@ -41,6 +41,8 @@ export function useGameState(
         return {
           ...defaultGameState(),
           ...parsed,
+          // Never leave a game with no scoring calls to award against
+          calls: parsed.calls?.length ? parsed.calls : [...DEFAULT_CALLS],
           // Normalize any past score shape to the current { rounds } model
           ...(parsed.scores
             ? { scores: (parsed.scores as unknown as Record<string, unknown>[]).map(migrateScore) }
