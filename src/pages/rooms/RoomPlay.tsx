@@ -1,14 +1,17 @@
 import { useParams } from "@solidjs/router";
-import { Component, createMemo, createSignal, For, Show } from "solid-js";
+import { Component, createMemo, createSignal, Show } from "solid-js";
 import { useRoom } from "../../hooks/useRoom";
 import { useGameState } from "../../hooks/useGameState";
+import { useGuessTimer } from "../../hooks/useGuessTimer";
 import { useRoomPlayback } from "../../hooks/useRoomPlayback";
 import { buildItemIndex, buildRoundLabels } from "../../lib/boardLookup";
 import { roomHostNames } from "../../lib/roomHosts";
 import RoomPlayHeader from "./RoomPlayHeader";
+import RoomPlayNav from "./RoomPlayNav";
 import DevicePicker from "../../components/DevicePicker";
 import GameBoard from "../../components/GameBoard";
 import GuessTimer from "../../components/GuessTimer";
+import GuessTimerPicker from "../../components/GuessTimerPicker";
 import NowPlayingBar from "../../components/NowPlayingBar";
 import Scoreboard from "../../components/Scoreboard";
 import TurnTracker from "../../components/TurnTracker";
@@ -37,18 +40,7 @@ const RoomPlayInner: Component = () => {
   const [showTrackInfo, setShowTrackInfo] = createSignal(false);
 
   // Guess timer — 0 = off; duration persists across sessions
-  const TIMER_CHOICES = [0, 15, 30, 45, 60];
-  const storedTimerSec = Number(localStorage.getItem("b4b_guess_timer_sec"));
-  const [timerSec, setTimerSec] = createSignal(
-    TIMER_CHOICES.includes(storedTimerSec) ? storedTimerSec : 0,
-  );
-  const [timerRunId, setTimerRunId] = createSignal(0);
-
-  const chooseTimer = (sec: number) => {
-    setTimerSec(sec);
-    localStorage.setItem("b4b_guess_timer_sec", String(sec));
-    if (sec === 0) setTimerRunId(0);
-  };
+  const guessTimer = useGuessTimer();
 
   const currentRound = () => {
     const id = currentItemId();
@@ -64,7 +56,7 @@ const RoomPlayInner: Component = () => {
       currentItemId: itemId,
     });
     setShowTrackInfo(false);
-    if (timerSec() > 0) setTimerRunId((n) => n + 1);
+    guessTimer.bump();
     if (songUrl) void playback.playSong(songUrl, startTime);
   };
 
@@ -99,47 +91,7 @@ const RoomPlayInner: Component = () => {
   return (
     <div class="bg-stage min-h-screen p-4 pb-24 sm:p-6 sm:pb-24">
       <div class="mx-auto max-w-7xl">
-        <div class="mb-6 flex items-center justify-between gap-3">
-          <button
-            type="button"
-            onClick={() => window.history.back()}
-            class="flex items-center gap-2 text-muted transition hover:text-beat"
-          >
-            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M10 19l-7-7m0 0l7-7m-7 7h18"
-              />
-            </svg>
-            <span class="font-medium">Back</span>
-          </button>
-
-          {/* Read-only spectator screen — open on a second display or share it */}
-          <a
-            href={`/rooms/${params.id}/watch`}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="flex items-center gap-1.5 rounded-full border border-line px-3 py-1 text-xs font-bold text-ink transition hover:border-beat hover:bg-beat-soft"
-          >
-            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-              />
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-              />
-            </svg>
-            Audience view
-          </a>
-        </div>
+        <RoomPlayNav roomId={params.id} />
 
         <Show when={isLoading()}>
           <div class="flex items-center justify-center py-24">
@@ -213,27 +165,11 @@ const RoomPlayInner: Component = () => {
                 <div class="mb-4 flex flex-wrap items-center justify-between gap-2">
                   <p class="text-muted">Click a tile to play a song</p>
                   <div class="flex flex-wrap items-center gap-3">
-                    {/* Guess timer setting — countdown starts on each tile click */}
-                    <div class="flex items-center gap-1.5">
-                      <span class="mr-1 font-mono text-xs tracking-wide text-muted uppercase">
-                        Timer
-                      </span>
-                      <For each={TIMER_CHOICES}>
-                        {(sec) => (
-                          <button
-                            type="button"
-                            onClick={() => chooseTimer(sec)}
-                            class={`rounded-full border px-2.5 py-0.5 font-mono text-xs font-bold transition ${
-                              timerSec() === sec
-                                ? "border-beat bg-beat-soft text-beat-bright"
-                                : "border-line text-muted hover:border-beat"
-                            }`}
-                          >
-                            {sec === 0 ? "Off" : `${sec}s`}
-                          </button>
-                        )}
-                      </For>
-                    </div>
+                    <GuessTimerPicker
+                      choices={guessTimer.choices}
+                      selected={guessTimer.durationSec()}
+                      onChoose={guessTimer.choose}
+                    />
                   </div>
                 </div>
                 <GameBoard
@@ -248,8 +184,8 @@ const RoomPlayInner: Component = () => {
       </div>
 
       {/* Guess countdown — floats above the control bar while a round runs */}
-      <Show when={timerSec() > 0}>
-        <GuessTimer durationSec={timerSec()} runId={timerRunId()} />
+      <Show when={guessTimer.durationSec() > 0}>
+        <GuessTimer durationSec={guessTimer.durationSec()} runId={guessTimer.runId()} />
       </Show>
 
       {/* Embedded YouTube player — replaces the Spotify bar for YouTube songs */}
