@@ -56,6 +56,11 @@ export const routes: RouteDefinition[] = [
         component: lazy(() => import("./pages/rooms/RoomPlay")),
         preload: preloadRoom,
       },
+      {
+        path: "/:id/watch",
+        component: lazy(() => import("./pages/rooms/AudienceView")),
+        preload: preloadRoom,
+      },
     ],
   },
 
