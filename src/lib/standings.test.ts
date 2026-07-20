@@ -1,25 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { computeStandings, totalOf } from "./standings";
-import type { RoundScore, Score } from "../model/score";
+import type { Score } from "../model/score";
 
-// Each number is a round's point total, modelled as a single "Title" call.
-const score = (teamName: string, roundTotals: number[]): Score => ({
-  teamName,
-  rounds: roundTotals.map((p): RoundScore => (p ? { Title: p } : {})),
-});
+const score = (teamName: string, roundPoints: number[]): Score => ({ teamName, roundPoints });
 
 describe("totalOf", () => {
   it("sums all round points", () => {
     expect(totalOf(score("A", [1, 0, 2, 3]))).toBe(6);
-  });
-
-  it("counts every call across rounds together", () => {
-    expect(
-      totalOf({
-        teamName: "A",
-        rounds: [{ Title: 1, Artist: 1 }, { Artist: 1 }],
-      }),
-    ).toBe(3);
   });
 
   it("is 0 for a team with no rounds", () => {

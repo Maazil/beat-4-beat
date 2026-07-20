@@ -61,7 +61,8 @@ const RoomPlayInner: Component = () => {
   };
 
   // Anything on the board or scoreboard worth resetting?
-  const gameStarted = () => playOrder().length > 0 || scores().some((s) => s.rounds.length > 0);
+  const gameStarted = () =>
+    playOrder().length > 0 || scores().some((s) => s.roundPoints.length > 0);
 
   /** Reset the board and zero all scores, keeping the teams. */
   const handleNewGame = () => {
@@ -69,7 +70,7 @@ const RoomPlayInner: Component = () => {
     updateGame({
       playOrder: [],
       currentItemId: null,
-      scores: scores().map((s) => ({ ...s, rounds: [] })),
+      scores: scores().map((s) => ({ ...s, roundPoints: [] })),
     });
     setShowTrackInfo(false);
     if (playback.progress.isPlaying()) void playback.pause();
@@ -147,11 +148,9 @@ const RoomPlayInner: Component = () => {
             {/* Scoreboard — synced via the room doc for hosts, local otherwise */}
             <Scoreboard
               scores={scores()}
-              calls={game().calls}
               currentRound={currentRound()}
               roundLabels={roundLabels()}
               onUpdateScores={(next) => updateGame({ scores: next })}
-              onUpdateCalls={(next) => updateGame({ calls: next })}
             />
 
             {/* Whose turn — rotates with the rounds, click a team to override */}

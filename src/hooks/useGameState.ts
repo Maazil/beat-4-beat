@@ -1,9 +1,8 @@
 import { createSignal } from "solid-js";
 import { unwrap } from "solid-js/store";
 import { useAuth } from "../context/AuthContext";
-import { DEFAULT_CALLS, defaultGameState, type GameState } from "../model/gameState";
+import { defaultGameState, type GameState } from "../model/gameState";
 import type { Room } from "../model/room";
-import { migrateScore } from "../model/score";
 import { updateRoomGameState } from "../services/roomsService";
 
 export interface UseGameStateResult {
@@ -36,19 +35,7 @@ export function useGameState(
   const loadLocal = (roomId: string): GameState => {
     try {
       const raw = localStorage.getItem(storageKey(roomId));
-      if (raw) {
-        const parsed = JSON.parse(raw) as Partial<GameState>;
-        return {
-          ...defaultGameState(),
-          ...parsed,
-          // Never leave a game with no scoring calls to award against
-          calls: parsed.calls?.length ? parsed.calls : [...DEFAULT_CALLS],
-          // Normalize any past score shape to the current { rounds } model
-          ...(parsed.scores
-            ? { scores: (parsed.scores as unknown as Record<string, unknown>[]).map(migrateScore) }
-            : {}),
-        };
-      }
+      if (raw) return { ...defaultGameState(), ...(JSON.parse(raw) as Partial<GameState>) };
     } catch (err) {
       console.error("[useGameState] Failed to load saved game:", err);
     }

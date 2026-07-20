@@ -1,8 +1,7 @@
 import { Component, createMemo, createSignal, For, Show } from "solid-js";
 import { isSafeSongHref } from "../lib/externalUrl";
 import { computeStandings, totalOf } from "../lib/standings";
-import { DEFAULT_CALLS } from "../model/gameState";
-import { emptyRound, roundTotal, type Score } from "../model/score";
+import type { Score } from "../model/score";
 
 /** Song played on a given round, used to label the revealed breakdown. */
 interface RoundLabel {
@@ -16,24 +15,20 @@ interface RoundLabel {
 
 interface ScoreboardProps {
   scores: Score[];
-  /** Scoring calls awarded each round (host-editable, e.g. Title, Artist). */
-  calls?: string[];
   /** Index of the round (song) currently in play; awards land on this round. */
   currentRound?: number;
   /** Song info per round (indexed by round) shown in the revealed breakdown. */
   roundLabels?: RoundLabel[];
   onUpdateScores: (scores: Score[]) => void;
-  onUpdateCalls?: (calls: string[]) => void;
 }
 
 const MAX_HISTORY_CHIPS = 12;
 
 /**
- * Scoreboard for a shared screen. Every song is worth one point per scoring
- * call (Title, Artist, … — the host adds or renames these live), each awarded
- * separately so a rival can steal the call you miss. Rows keep a fixed order
- * and totals stay hidden while playing; "Reveal standings" sorts the teams
- * with a FLIP animation and shows ranks and totals.
+ * Scoreboard for a shared screen. Rows keep a fixed order and totals stay
+ * hidden while playing — several teams can score on the same round (e.g. a
+ * title point and a stolen artist point). "Reveal standings" sorts the
+ * teams with a FLIP animation and shows ranks and totals.
  */
 const Scoreboard: Component<ScoreboardProps> = (props) => {
   const [isAdding, setIsAdding] = createSignal(false);
@@ -42,26 +37,17 @@ const Scoreboard: Component<ScoreboardProps> = (props) => {
   const [editName, setEditName] = createSignal("");
   const [revealed, setRevealed] = createSignal(false);
 
-  // Call management (host adds/renames/removes the calls awarded each round)
-  const [editingCall, setEditingCall] = createSignal<number | null>(null);
-  const [callEditName, setCallEditName] = createSignal("");
-  const [isAddingCall, setIsAddingCall] = createSignal(false);
-  const [newCallName, setNewCallName] = createSignal("");
-
   const rowEls = new Map<string, HTMLElement>();
   const chipEls = new Map<string, HTMLElement>();
 
-  const calls = () => (props.calls?.length ? props.calls : DEFAULT_CALLS);
-
-  // A team's per-call points for the round in play (empty when nothing's playing)
-  const roundOf = (score: Score) =>
-    props.currentRound != null ? (score.rounds[props.currentRound] ?? emptyRound()) : emptyRound();
+  const roundValue = (score: Score) =>
+    props.currentRound != null ? (score.roundPoints[props.currentRound] ?? 0) : 0;
 
   // Rounds played so far — the current round plus everything already scored
   const roundsPlayed = () =>
     Math.max(
       props.currentRound != null ? props.currentRound + 1 : 0,
-      ...props.scores.map((s) => s.rounds.length),
+      ...props.scores.map((s) => s.roundPoints.length),
       0,
     );
 
@@ -110,9 +96,9 @@ const Scoreboard: Component<ScoreboardProps> = (props) => {
 
   const applyScores = (next: Score[]) => withFlip(() => props.onUpdateScores(next));
 
-  const popChip = (name: string, call: string) => {
+  const popChip = (name: string) => {
     chipEls
-      .get(`${name}:${call}`)
+      .get(name)
       ?.animate(
         [
           { transform: "scale(1)" },
@@ -134,26 +120,25 @@ const Scoreboard: Component<ScoreboardProps> = (props) => {
   const handleAddTeam = () => {
     const name = newTeamName().trim();
     if (!name) return;
-    applyScores([...props.scores, { teamName: uniqueName(name), rounds: [] }]);
+    applyScores([...props.scores, { teamName: uniqueName(name), roundPoints: [] }]);
     setNewTeamName("");
   };
 
-  /** Award or take back a point for one call on the round currently in play. */
-  const handleAward = (index: number, call: string, delta: number) => {
+  /** Add points to a team's score for the round currently in play. */
+  const handleAward = (index: number, points: number) => {
     const round = props.currentRound;
     if (round == null) return;
     const team = props.scores[index];
     applyScores(
       props.scores.map((s, i) => {
         if (i !== index) return s;
-        const rounds = [...s.rounds];
-        while (rounds.length <= round) rounds.push(emptyRound());
-        const cur = rounds[round];
-        rounds[round] = { ...cur, [call]: Math.max(0, (cur[call] ?? 0) + delta) };
-        return { ...s, rounds };
+        const rp = [...s.roundPoints];
+        while (rp.length <= round) rp.push(0);
+        rp[round] = Math.max(0, rp[round] + points);
+        return { ...s, roundPoints: rp };
       }),
     );
-    popChip(team.teamName, call);
+    popChip(team.teamName);
   };
 
   const handleRemoveTeam = (index: number) => {
@@ -177,83 +162,13 @@ const Scoreboard: Component<ScoreboardProps> = (props) => {
     );
   };
 
-  // --- Call management ---
-
-  const uniqueCall = (raw: string, exceptIndex = -1) => {
-    const base = raw.trim();
-    const taken = (candidate: string) =>
-      calls().some((c, i) => i !== exceptIndex && c.toLowerCase() === candidate.toLowerCase());
-    if (!taken(base)) return base;
-    let n = 2;
-    while (taken(`${base} ${n}`)) n++;
-    return `${base} ${n}`;
-  };
-
-  const handleAddCall = () => {
-    const name = newCallName().trim();
-    if (!name) return;
-    props.onUpdateCalls?.([...calls(), uniqueCall(name)]);
-    setNewCallName("");
-  };
-
-  const startCallRename = (index: number) => {
-    setCallEditName(calls()[index]);
-    setEditingCall(index);
-  };
-
-  const commitCallRename = (index: number) => {
-    const to = callEditName().trim();
-    const from = calls()[index];
-    setEditingCall(null);
-    if (!to || to === from) return;
-    const next = uniqueCall(to, index);
-    // Rename the call and move each team's points from the old key to the new
-    withFlip(() => {
-      props.onUpdateCalls?.(calls().map((c, i) => (i === index ? next : c)));
-      props.onUpdateScores(
-        props.scores.map((s) => ({
-          ...s,
-          rounds: s.rounds.map((r) => {
-            if (!(from in r)) return r;
-            const moved = { ...r };
-            const points = moved[from];
-            delete moved[from];
-            moved[next] = (moved[next] ?? 0) + points;
-            return moved;
-          }),
-        })),
-      );
-    });
-  };
-
-  const handleRemoveCall = (index: number) => {
-    if (calls().length <= 1) return; // keep at least one call to score against
-    const call = calls()[index];
-    const hasPoints = props.scores.some((s) => s.rounds.some((r) => (r[call] ?? 0) > 0));
-    if (hasPoints && !confirm(`Remove the "${call}" call and its points?`)) return;
-    withFlip(() => {
-      props.onUpdateCalls?.(calls().filter((_, i) => i !== index));
-      props.onUpdateScores(
-        props.scores.map((s) => ({
-          ...s,
-          rounds: s.rounds.map((r) => {
-            if (!(call in r)) return r;
-            const rest = { ...r };
-            delete rest[call];
-            return rest;
-          }),
-        })),
-      );
-    });
-  };
-
   /** Points per round for the history strip, capped to the most recent rounds. */
   const historyRounds = (score: Score) => {
     const played = roundsPlayed();
     const start = Math.max(0, played - MAX_HISTORY_CHIPS);
     return Array.from({ length: played - start }, (_, offset) => {
       const round = start + offset;
-      return { value: roundTotal(score.rounds[round]), isCurrent: round === props.currentRound };
+      return { value: score.roundPoints[round] ?? 0, isCurrent: round === props.currentRound };
     });
   };
 
@@ -317,122 +232,6 @@ const Scoreboard: Component<ScoreboardProps> = (props) => {
           </Show>
         </div>
       </div>
-
-      {/* Scoring calls — host adds/renames/removes; each becomes a per-team stepper */}
-      <Show when={props.onUpdateCalls}>
-        <div class="mb-4 flex flex-wrap items-center gap-2">
-          <span class="font-mono text-[11px] font-bold tracking-wide text-muted uppercase">
-            Calls
-          </span>
-          <For each={calls()}>
-            {(call, index) => (
-              <Show
-                when={editingCall() === index()}
-                fallback={
-                  <span class="inline-flex items-center gap-1 rounded-full border border-line bg-night/70 py-1 pr-1 pl-2.5">
-                    <button
-                      type="button"
-                      onClick={() => startCallRename(index())}
-                      title="Rename call"
-                      class="font-mono text-xs font-bold text-ink"
-                    >
-                      {call}
-                    </button>
-                    <Show when={calls().length > 1}>
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveCall(index())}
-                        aria-label={`Remove ${call} call`}
-                        title={`Remove ${call} call`}
-                        class="flex h-4 w-4 items-center justify-center rounded-full text-muted transition hover:bg-beat-soft hover:text-beat"
-                      >
-                        <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M6 18L18 6M6 6l12 12"
-                          />
-                        </svg>
-                      </button>
-                    </Show>
-                  </span>
-                }
-              >
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    commitCallRename(index());
-                  }}
-                >
-                  <input
-                    type="text"
-                    value={callEditName()}
-                    onInput={(e) => setCallEditName(e.currentTarget.value)}
-                    onBlur={() => commitCallRename(index())}
-                    onKeyDown={(e) => e.key === "Escape" && setEditingCall(null)}
-                    maxLength={16}
-                    aria-label="Call name"
-                    class="w-24 rounded-full border border-beat bg-surface px-2.5 py-1 font-mono text-xs font-bold text-ink outline-none"
-                    autofocus
-                  />
-                </form>
-              </Show>
-            )}
-          </For>
-          <Show
-            when={isAddingCall()}
-            fallback={
-              <button
-                type="button"
-                onClick={() => setIsAddingCall(true)}
-                class="rounded-full border border-dashed border-line px-2.5 py-1 font-mono text-xs font-bold text-muted transition hover:border-beat hover:text-beat"
-              >
-                + Call
-              </button>
-            }
-          >
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleAddCall();
-              }}
-              class="flex items-center gap-1"
-            >
-              <input
-                type="text"
-                value={newCallName()}
-                onInput={(e) => setNewCallName(e.currentTarget.value)}
-                onKeyDown={(e) =>
-                  e.key === "Escape" && (setIsAddingCall(false), setNewCallName(""))
-                }
-                placeholder="e.g. Performance"
-                maxLength={16}
-                aria-label="New call name"
-                class="w-32 rounded-full border border-line bg-surface-2 px-2.5 py-1 font-mono text-xs text-ink placeholder:text-muted/60 outline-none focus:border-beat"
-                autofocus
-              />
-              <button
-                type="submit"
-                disabled={!newCallName().trim()}
-                class="rounded-full bg-beat px-3 py-1 font-mono text-xs font-bold text-night transition hover:bg-beat-bright disabled:opacity-50"
-              >
-                Add
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setIsAddingCall(false);
-                  setNewCallName("");
-                }}
-                class="rounded-full border border-line px-2.5 py-1 font-mono text-xs font-semibold text-muted transition hover:border-beat hover:text-beat"
-              >
-                Done
-              </button>
-            </form>
-          </Show>
-        </div>
-      </Show>
 
       {/* Rows are ordered via flex `order` so DOM nodes stay stable for FLIP */}
       <div class="flex flex-col gap-2">
@@ -531,82 +330,64 @@ const Scoreboard: Component<ScoreboardProps> = (props) => {
                   </Show>
                 </div>
 
-                {/* Per-call awards — each targets the round in play. The count
-                    doubles as the host's feedback that an award landed. */}
-                <div class="flex shrink-0 flex-wrap items-start justify-end gap-x-2 gap-y-1">
-                  <For each={calls()}>
-                    {(call) => {
-                      const value = () => roundOf(score)[call] ?? 0;
-                      const disabled = () => props.currentRound == null;
-                      return (
-                        <div class="flex flex-col items-center gap-0.5">
-                          <span
-                            aria-hidden="true"
-                            class="max-w-16 truncate font-mono text-[9px] font-bold tracking-wide text-muted uppercase"
-                          >
-                            {call}
-                          </span>
-                          <div class="flex items-center gap-1">
-                            <button
-                              type="button"
-                              onClick={() => handleAward(index(), call, -1)}
-                              disabled={disabled() || value() === 0}
-                              aria-label={`Take back ${call} point from ${score.teamName}`}
-                              title={
-                                disabled() ? "Play a song to start a round" : `Take back ${call}`
-                              }
-                              class="flex h-6 w-6 items-center justify-center rounded-full border border-line text-muted transition hover:border-beat hover:text-beat disabled:cursor-default disabled:opacity-30 disabled:hover:border-line disabled:hover:text-muted"
-                            >
-                              <svg
-                                class="h-3 w-3"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  stroke-linecap="round"
-                                  stroke-linejoin="round"
-                                  stroke-width="2.5"
-                                  d="M20 12H4"
-                                />
-                              </svg>
-                            </button>
-                            <span
-                              ref={(el) => chipEls.set(`${score.teamName}:${call}`, el)}
-                              class={`w-4 text-center font-mono text-sm font-bold tabular-nums ${
-                                value() > 0 ? "text-beat-bright" : "text-muted"
-                              }`}
-                            >
-                              {value()}
-                            </span>
-                            <button
-                              type="button"
-                              onClick={() => handleAward(index(), call, 1)}
-                              disabled={disabled()}
-                              aria-label={`Award ${call} point to ${score.teamName}`}
-                              title={disabled() ? "Play a song to start a round" : `+1 ${call}`}
-                              class="flex h-6 w-6 items-center justify-center rounded-full border border-line text-muted transition hover:border-beat hover:text-beat disabled:cursor-default disabled:opacity-30 disabled:hover:border-line disabled:hover:text-muted"
-                            >
-                              <svg
-                                class="h-3 w-3"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  stroke-linecap="round"
-                                  stroke-linejoin="round"
-                                  stroke-width="2.5"
-                                  d="M12 4v16m8-8H4"
-                                />
-                              </svg>
-                            </button>
-                          </div>
-                        </div>
-                      );
-                    }}
-                  </For>
+                {/* Point buttons — always target the round in play */}
+                <div class="flex shrink-0 items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => handleAward(index(), -1)}
+                    disabled={props.currentRound == null || roundValue(score) === 0}
+                    title={
+                      props.currentRound == null
+                        ? "Play a song to start a round"
+                        : "Take back a point this round"
+                    }
+                    class="flex h-7 w-7 items-center justify-center rounded-full border border-line text-muted transition hover:border-beat hover:text-beat disabled:cursor-default disabled:opacity-30 disabled:hover:border-line disabled:hover:text-muted"
+                  >
+                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2.5"
+                        d="M20 12H4"
+                      />
+                    </svg>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleAward(index(), 1)}
+                    disabled={props.currentRound == null}
+                    title={
+                      props.currentRound == null
+                        ? "Play a song to start a round"
+                        : "+1 point this round"
+                    }
+                    class="flex h-7 w-7 items-center justify-center rounded-full border border-line text-muted transition hover:border-beat hover:text-beat disabled:cursor-default disabled:opacity-30 disabled:hover:border-line disabled:hover:text-muted"
+                  >
+                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2.5"
+                        d="M12 4v16m8-8H4"
+                      />
+                    </svg>
+                  </button>
                 </div>
+
+                {/* This round's points — the host's feedback that an award landed */}
+                <Show when={props.currentRound != null}>
+                  <span
+                    ref={(el) => chipEls.set(score.teamName, el)}
+                    title="Points this round"
+                    class={`flex h-8 min-w-9 shrink-0 items-center justify-center rounded-lg border px-1.5 font-mono text-sm font-bold tabular-nums ${
+                      roundValue(score) > 0
+                        ? "border-beat/40 bg-beat-soft text-beat-bright"
+                        : "border-line text-muted"
+                    }`}
+                  >
+                    {roundValue(score) > 0 ? `+${roundValue(score)}` : "0"}
+                  </span>
+                </Show>
 
                 {/* Total — hidden until standings are revealed */}
                 <Show when={revealed()}>
@@ -781,7 +562,7 @@ const Scoreboard: Component<ScoreboardProps> = (props) => {
                         </td>
                         <For each={breakdownTeams()}>
                           {(team) => {
-                            const pts = () => roundTotal(team.rounds[round]);
+                            const pts = () => team.roundPoints[round] ?? 0;
                             return (
                               <td class="px-2 py-1.5 text-center">
                                 <span

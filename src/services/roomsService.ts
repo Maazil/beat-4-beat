@@ -28,9 +28,8 @@ import {
 import { db } from "../lib/db";
 import { auth } from "../lib/firebase";
 import type { Category } from "../model/category";
-import { DEFAULT_CALLS, type GameState } from "../model/gameState";
+import type { GameState } from "../model/gameState";
 import type { CreateRoomData, Room } from "../model/room";
-import { migrateScore } from "../model/score";
 import type { SongItem } from "../model/songItem";
 import { getUserDjName } from "./usersService";
 
@@ -47,21 +46,15 @@ const joinRequestDoc = (roomId: string, uid: string): DocumentReference =>
  * Firestore Timestamps are converted to JavaScript Dates
  */
 function docToRoom(id: string, data: DocumentData): Room {
-  // Normalize a stored gameState to the current model: migrate any past score
-  // shape and default the host-editable scoring calls if they're missing.
-  const raw = data.gameState;
-  const gameState = raw
-    ? {
-        ...raw,
-        calls: Array.isArray(raw.calls) && raw.calls.length ? raw.calls : [...DEFAULT_CALLS],
-        ...(raw.scores ? { scores: raw.scores.map(migrateScore) } : {}),
-      }
-    : raw;
+  // Migrate old score format ({ points: number } → { roundPoints: number[] })
+  const scores = data.scores?.map((s: Record<string, unknown>) =>
+    "roundPoints" in s ? s : { teamName: s.teamName, roundPoints: [] },
+  );
 
   return {
     ...data,
     id,
-    ...(gameState ? { gameState } : {}),
+    ...(scores ? { scores } : {}),
     createdAt: data.createdAt instanceof Timestamp ? data.createdAt.toDate() : data.createdAt,
   } as Room;
 }
