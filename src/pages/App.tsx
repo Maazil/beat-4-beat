@@ -295,8 +295,8 @@ const App: Component = () => {
               >
                 How to set up for the host
               </a>
-              <span>Made by Matthew Ling</span>
               <span>Made for game night · free to play</span>
+              <span class="foot-signature">Made by Matthew Ling</span>
             </div>
           </footer>
         </main>

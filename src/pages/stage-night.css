@@ -579,6 +579,20 @@
   width: 7px;
 }
 
+/* space-between scatters wrapped links to opposite edges on phones — stack them. */
+@media (max-width: 560px) {
+  .stage-night .foot {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  /* Signature sits alone at the bottom, set apart from the rest. */
+  .stage-night .foot .foot-signature {
+    margin-top: 20px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .stage-night *,
   .stage-night *::before,
