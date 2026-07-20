@@ -11,7 +11,6 @@ Card-sized click targets are unreachable by keyboard and invisible to screen rea
 **Keyboard:**
 - `src/components/RoomPreview.tsx:59-61` — `<article onClick>` with `cursor-pointer`, no `role`/`tabindex`/key handler (the shared market card).
 - `src/pages/rooms/RoomsList.tsx:51-53` — same pattern, duplicated inline.
-- `src/pages/dashboard/create/SongItemCard.tsx:237` — modal backdrop `<div onClick>`, no Escape handler.
 
 **Touch (hover-only controls):**
 - `src/pages/dashboard/create/CategoryColumn.tsx:108,128,145` (rename, delete-category, image controls) and `SongItemCard.tsx:146` (remove item) are `hidden … group-hover:flex` with no touch fallback. Lower-stakes instances: `Scoreboard.tsx:274,407`, `SeekBar.tsx:42`.
@@ -21,7 +20,7 @@ Card-sized click targets are unreachable by keyboard and invisible to screen rea
 
 ## Suggested fix
 
-1. Make cards real interactive elements (`<a href>`/`<button>`), or add `role="button" tabindex={0}` + Enter/Space `onKeyDown`. Add Escape handling to the SongItemCard modal.
+1. Make cards real interactive elements (`<a href>`/`<button>`), or add `role="button" tabindex={0}` + Enter/Space `onKeyDown`.
 2. Reveal builder edit controls on `focus-within` and make them always visible (reduced opacity) below `md:` — e.g. `max-md:flex md:hidden md:group-hover:flex`.
 3. Add a global `@media (prefers-reduced-motion: reduce)` block in `index.css` neutralizing `.animate-*` and capping transition/animation durations, mirroring the landing-page block.
 
