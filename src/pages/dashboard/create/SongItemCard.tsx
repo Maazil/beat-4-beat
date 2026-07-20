@@ -140,7 +140,7 @@ const SongItemCard: Component<SongItemCardProps> = (props) => {
           <button
             type="button"
             onClick={() => props.onRemove()}
-            class="absolute -top-2 -right-2 hidden h-5 w-5 items-center justify-center rounded-full bg-ink text-night transition group-hover:flex hover:bg-beat"
+            class="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-ink text-night transition hover:bg-beat md:hidden md:group-hover:flex md:group-focus-within:flex"
           >
             <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
