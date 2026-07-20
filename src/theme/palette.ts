@@ -60,3 +60,19 @@ export const STAGE_INKS: StageInk[] = [
 ];
 
 export const stageInk = (index: number): StageInk => STAGE_INKS[index % STAGE_INKS.length];
+
+/**
+ * Stage Night core colors as literal values, for canvas and SVG art that can't
+ * reference the CSS custom properties. Mirror the `@theme` tokens in
+ * `src/index.css` one-to-one — keep the two in sync if a token ever changes.
+ */
+export const STAGE_COLORS = {
+  navy: "#02182b", // --color-night
+  surface2: "#0a314f", // --color-surface-2
+  gold: "#eac435", // --color-beat
+  peri: "#c6d8ff", // --color-peri
+  magentaHot: "#c2158f", // --color-magenta-hot
+  ink: "#fef9ff", // --color-ink
+  spotify: "#1db954", // --color-spotify
+  youtube: "#ff0033", // --color-youtube
+} as const;

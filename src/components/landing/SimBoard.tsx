@@ -1,4 +1,5 @@
 import { createSignal, onCleanup, onMount, type Component } from "solid-js";
+import { STAGE_COLORS } from "../../theme/palette";
 
 /**
  * Interactive game-board sim for the landing hero ("Stage Night" redesign).
@@ -9,11 +10,7 @@ import { createSignal, onCleanup, onMount, type Component } from "solid-js";
  * Solid's reactivity — no signals inside the rAF loop.
  */
 
-const GOLD = "#EAC435";
-const PERI = "#C6D8FF";
-const MAG = "#C2158F";
-const TEXT = "#FEF9FF";
-const NAVY = "#02182B";
+const { gold: GOLD, peri: PERI, magentaHot: MAG, ink: TEXT, navy: NAVY } = STAGE_COLORS;
 
 const CATS = ["ONE-HIT WONDERS", "MOVIE THEMES", "2000s POP", "SLOW JAMS", "COVER SONGS"];
 // Songs per category — tiles carry plain 1–N numbers like the real board,
@@ -275,7 +272,7 @@ const SimBoard: Component = () => {
           c.shadowColor = GOLD;
           c.shadowBlur = 26;
         }
-        c.fillStyle = active ? "rgba(234,196,53,.13)" : hover ? "#0E3A5D" : "#0A314F";
+        c.fillStyle = active ? "rgba(234,196,53,.13)" : hover ? "#0E3A5D" : STAGE_COLORS.surface2;
         rr(x, y, r.w, r.h, 8);
         c.fill();
         if (active) c.restore();

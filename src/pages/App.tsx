@@ -2,6 +2,7 @@ import { Meta, Title } from "@solidjs/meta";
 import { useNavigate } from "@solidjs/router";
 import type { Component } from "solid-js";
 import SimBoard from "../components/landing/SimBoard";
+import { STAGE_COLORS } from "../theme/palette";
 import "./stage-night.css";
 
 const App: Component = () => {
@@ -121,13 +122,19 @@ const App: Component = () => {
               <h2>Everything a host needs, nothing they don't</h2>
               <div class="features">
                 <div class="feat">
-                  {/* Brand color, not a Stage Night token: the icon reads as Spotify. */}
+                  {/* Spotify green (--color-spotify) — the icon reads as Spotify. */}
                   <div class="ic" style={{ background: "rgba(29, 185, 84, 0.14)" }}>
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                      <circle cx="10" cy="10" r="8" stroke="#1DB954" stroke-width="1.6" />
+                      <circle
+                        cx="10"
+                        cy="10"
+                        r="8"
+                        stroke={STAGE_COLORS.spotify}
+                        stroke-width="1.6"
+                      />
                       <path
                         d="M6.5 8.2c2.6-.8 5-.6 7 .6M7 11c2-.6 3.8-.4 5.4.5"
-                        stroke="#1DB954"
+                        stroke={STAGE_COLORS.spotify}
                         stroke-width="1.5"
                         stroke-linecap="round"
                       />
@@ -148,7 +155,7 @@ const App: Component = () => {
                         width="11"
                         height="9"
                         rx="1.5"
-                        stroke="#C2158F"
+                        stroke={STAGE_COLORS.magentaHot}
                         stroke-width="1.6"
                       />
                       <rect
@@ -157,7 +164,7 @@ const App: Component = () => {
                         width="4.5"
                         height="8"
                         rx="1.2"
-                        stroke="#C2158F"
+                        stroke={STAGE_COLORS.magentaHot}
                         stroke-width="1.6"
                       />
                     </svg>
@@ -173,13 +180,13 @@ const App: Component = () => {
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
                       <path
                         d="M3 7l7-4 7 4-7 4-7-4Z"
-                        stroke="#C6D8FF"
+                        stroke={STAGE_COLORS.peri}
                         stroke-width="1.5"
                         stroke-linejoin="round"
                       />
                       <path
                         d="M3 7v6l7 4 7-4V7"
-                        stroke="#C6D8FF"
+                        stroke={STAGE_COLORS.peri}
                         stroke-width="1.5"
                         stroke-linejoin="round"
                       />
@@ -196,7 +203,7 @@ const App: Component = () => {
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
                       <path
                         d="M4 16V9M10 16V4M16 16v-6"
-                        stroke="#EAC435"
+                        stroke={STAGE_COLORS.gold}
                         stroke-width="1.8"
                         stroke-linecap="round"
                       />
@@ -217,10 +224,14 @@ const App: Component = () => {
                         width="14"
                         height="9"
                         rx="2"
-                        stroke="#C2158F"
+                        stroke={STAGE_COLORS.magentaHot}
                         stroke-width="1.6"
                       />
-                      <path d="M7 8V6a3 3 0 0 1 6 0v2" stroke="#C2158F" stroke-width="1.6" />
+                      <path
+                        d="M7 8V6a3 3 0 0 1 6 0v2"
+                        stroke={STAGE_COLORS.magentaHot}
+                        stroke-width="1.6"
+                      />
                     </svg>
                   </div>
                   <h3>Standings stay secret</h3>
@@ -230,12 +241,12 @@ const App: Component = () => {
                   </p>
                 </div>
                 <div class="feat">
-                  {/* Brand color, not a Stage Night token: the play badge reads as YouTube. */}
+                  {/* YouTube red (--color-youtube) — the play badge reads as YouTube. */}
                   <div class="ic" style={{ background: "rgba(255, 0, 51, 0.14)" }}>
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
                       <path
                         d="M6 4.5v11l9-5.5-9-5.5Z"
-                        stroke="#FF0033"
+                        stroke={STAGE_COLORS.youtube}
                         stroke-width="1.6"
                         stroke-linejoin="round"
                       />

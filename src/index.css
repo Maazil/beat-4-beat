@@ -34,6 +34,9 @@
   /* Spotify-only green (connection states) */
   --color-spotify: #1db954;
 
+  /* YouTube-only red (the other playback source) */
+  --color-youtube: #ff0033;
+
   /* Text-selection only — never reused as a component background, so it
      can't collide with a category tile that happens to share the hue. */
   --color-select: #3ea6ff;
