@@ -32,7 +32,7 @@ export const CATEGORY_PRESETS: CategoryPreset[] = [
 // (no per-render randomness); rotated per preset for a little variety.
 const BAR_HEIGHTS = [26, 44, 18, 58, 34, 70, 40, 52, 22, 48, 30, 62, 38, 24];
 
-const rotate = <T,>(arr: T[], by: number): T[] => arr.map((_, i) => arr[(i + by) % arr.length]);
+const rotate = <T>(arr: T[], by: number): T[] => arr.map((_, i) => arr[(i + by) % arr.length]);
 
 /**
  * Build the preset's header artwork as an `image/svg+xml` data URL: a diagonal
