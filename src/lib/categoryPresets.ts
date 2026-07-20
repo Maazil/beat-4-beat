@@ -20,12 +20,30 @@ export interface CategoryPreset {
 export const CATEGORY_PRESETS: CategoryPreset[] = [
   { id: "eighties", label: "80s", inkIndex: 2 },
   { id: "nineties", label: "90s", inkIndex: 5 },
+  { id: "twothousands", label: "2000s", inkIndex: 3 },
+  { id: "twentytens", label: "2010s", inkIndex: 4 },
   { id: "rock", label: "Rock", inkIndex: 4 },
   { id: "pop", label: "Pop", inkIndex: 1 },
   { id: "hiphop", label: "Hip-Hop", inkIndex: 0 },
+  { id: "rnb", label: "R&B", inkIndex: 5 },
   { id: "country", label: "Country", inkIndex: 3 },
-  { id: "movies", label: "Movies", inkIndex: 5 },
   { id: "electronic", label: "Electronic", inkIndex: 3 },
+  { id: "indie", label: "Indie", inkIndex: 3 },
+  { id: "latin", label: "Latin", inkIndex: 0 },
+  { id: "kpop", label: "K-Pop", inkIndex: 2 },
+  { id: "movies", label: "Movies", inkIndex: 5 },
+  { id: "soundtracks", label: "Soundtracks", inkIndex: 1 },
+  { id: "modern", label: "Modern", inkIndex: 1 },
+  { id: "tiktok", label: "TikTok", inkIndex: 2 },
+  { id: "y2k", label: "Y2K", inkIndex: 5 },
+  { id: "hitsonhits", label: "Hits on Hits", inkIndex: 0 },
+  { id: "viral", label: "Viral", inkIndex: 0 },
+  { id: "memes", label: "Memes", inkIndex: 3 },
+  { id: "brainrot", label: "Brainrot", inkIndex: 4 },
+  { id: "onehitwonders", label: "One-Hit Wonders", inkIndex: 1 },
+  { id: "partyanthems", label: "Party Anthems", inkIndex: 4 },
+  { id: "throwback", label: "Throwback", inkIndex: 5 },
+  { id: "guiltypleasures", label: "Guilty Pleasures", inkIndex: 2 },
 ];
 
 // A fixed equalizer silhouette so each preset renders deterministically
@@ -53,6 +71,13 @@ export function presetImage(preset: CategoryPreset): string {
     )
     .join("");
 
+  // Scale the type down for longer labels so nothing overflows the 400-wide
+  // crop, then size the legibility scrim to the resulting text width.
+  const fontSize = Math.min(40, Math.floor(560 / Math.max(preset.label.length, 7)));
+  const textWidth = preset.label.length * fontSize * 0.6;
+  const scrimWidth = Math.min(360, Math.round(textWidth) + 40);
+  const scrimX = ((400 - scrimWidth) / 2).toFixed(1);
+
   const svg =
     `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="200" viewBox="0 0 400 200">` +
     `<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">` +
@@ -63,9 +88,9 @@ export function presetImage(preset: CategoryPreset): string {
     `<rect width="400" height="200" fill="url(#g)"/>` +
     barRects +
     // Scrim keeps the label legible over light hues (gold/peri) too.
-    `<rect x="60" y="72" width="280" height="56" rx="12" fill="${STAGE_COLORS.navy}" opacity="0.42"/>` +
+    `<rect x="${scrimX}" y="72" width="${scrimWidth}" height="56" rx="12" fill="${STAGE_COLORS.navy}" opacity="0.42"/>` +
     `<text x="200" y="112" text-anchor="middle" font-family="system-ui,-apple-system,Segoe UI,sans-serif" ` +
-    `font-weight="800" font-size="40" letter-spacing="-1" fill="${STAGE_COLORS.ink}">${preset.label}</text>` +
+    `font-weight="800" font-size="${fontSize}" letter-spacing="-1" fill="${STAGE_COLORS.ink}">${preset.label}</text>` +
     `</svg>`;
 
   return `data:image/svg+xml,${encodeURIComponent(svg)}`;
