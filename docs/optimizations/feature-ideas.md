@@ -4,8 +4,10 @@
 
 The July roadmap (8 features) is fully shipped and its security follow-ups are fixed (CSP headers, Firestore category cap, song-URL sanitizing). These are the candidates surfaced by TODO.md and the 2026-07-17 audits, roughly ordered by value:
 
-## 1. Marketplace search, filter & pagination
+## 1. Marketplace search, filter & pagination — ✅ shipped in this PR
 The market grid renders all public rooms with no search or filtering. Pairs naturally with the bounded-public-rooms optimization (limit + cursor pagination): add a search box (client-side name filter to start), category-count/active filters, and "load more".
+
+**Done:** search box (room + host name), All/Live status filter, and client-side "Load more" (12 at a time) — see `src/pages/market/market.tsx` and the pure `filterMarketRooms` helper (`src/lib/marketFilter.ts`) with tests. Firestore cursor pagination is left to the bounded-public-rooms work; the category-count filter was skipped as marginal.
 
 ## 2. Component/primitive test coverage
 The `solid-testing` skill already documents the recipe (@solidjs/testing-library, `renderHook`, `testEffect`), but no component tests exist yet. Highest-value targets: `useGameState` (shared vs localStorage fallback paths), `useRoom` subscription lifecycle, and Scoreboard scoring interactions. The RoomPlay-split proposal also moves `locateItem`/`roundLabels` into `src/lib/` where plain vitest covers them.
