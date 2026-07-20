@@ -1,6 +1,7 @@
 import { Component, createSignal, For, Show } from "solid-js";
 import Input from "../../../components/forms/Input";
 import { fileToCategoryImage } from "../../../lib/categoryImage";
+import { CATEGORY_PRESETS, presetImage } from "../../../lib/categoryPresets";
 import type { Category } from "../../../model/category";
 import AddItemButton from "./AddItemButton";
 import type { CategoryColorScheme } from "./categoryColors";
@@ -29,6 +30,7 @@ const CategoryColumn: Component<CategoryColumnProps> = (props) => {
   // identity — the <For> row (and this component) is recreated when the
   // category object changes, so no prop-mirroring effect is needed.
   const [localName, setLocalName] = createSignal(props.category.name);
+  const [showPicker, setShowPicker] = createSignal(false);
 
   const handleBlur = () => {
     props.onUpdateName(localName());
@@ -120,8 +122,8 @@ const CategoryColumn: Component<CategoryColumnProps> = (props) => {
         <Show when={!props.category.imageUrl}>
           <button
             type="button"
-            title="Use an image instead of text"
-            onClick={() => fileInput?.click()}
+            title="Use an image or preset instead of text"
+            onClick={() => setShowPicker(true)}
             class="absolute -top-2 -left-2 flex h-6 w-6 items-center justify-center rounded-full bg-ink text-night transition hover:bg-beat md:hidden md:group-hover:flex md:group-focus-within:flex"
           >
             <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -133,6 +135,50 @@ const CategoryColumn: Component<CategoryColumnProps> = (props) => {
               />
             </svg>
           </button>
+        </Show>
+
+        {/* Image picker — upload your own or pick a bundled preset */}
+        <Show when={showPicker()}>
+          {/* Click-away backdrop */}
+          <button
+            type="button"
+            aria-label="Close image picker"
+            class="fixed inset-0 z-40 cursor-default"
+            onClick={() => setShowPicker(false)}
+          />
+          <div class="absolute top-full left-0 z-50 mt-2 w-56 rounded-xl border border-line bg-surface p-3 text-left shadow-xl">
+            <button
+              type="button"
+              onClick={() => {
+                setShowPicker(false);
+                fileInput?.click();
+              }}
+              class="mb-3 w-full rounded-lg border border-line px-3 py-2 text-sm font-semibold text-ink transition hover:border-beat hover:bg-beat-soft"
+            >
+              Upload your own
+            </button>
+            <p class="mb-2 font-mono text-[10px] tracking-wide text-muted uppercase">Or a preset</p>
+            <div class="grid grid-cols-2 gap-2">
+              <For each={CATEGORY_PRESETS}>
+                {(preset) => {
+                  const src = presetImage(preset);
+                  return (
+                    <button
+                      type="button"
+                      title={preset.label}
+                      onClick={() => {
+                        props.onUpdateImage(src);
+                        setShowPicker(false);
+                      }}
+                      class="overflow-hidden rounded-lg border border-line transition hover:border-beat"
+                    >
+                      <img src={src} alt={preset.label} class="h-11 w-full object-cover" />
+                    </button>
+                  );
+                }}
+              </For>
+            </div>
+          </div>
         </Show>
 
         {/* Delete category button */}
