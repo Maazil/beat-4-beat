@@ -102,7 +102,7 @@ const CategoryColumn: Component<CategoryColumnProps> = (props) => {
           <button
             type="button"
             onClick={() => props.onUpdateImage(undefined)}
-            class="absolute bottom-1.5 left-1/2 hidden -translate-x-1/2 rounded-full bg-ink/80 px-2.5 py-0.5 text-[10px] font-bold text-night transition group-hover:block hover:bg-beat"
+            class="absolute bottom-1.5 left-1/2 block -translate-x-1/2 rounded-full bg-ink/80 px-2.5 py-0.5 text-[10px] font-bold text-night transition hover:bg-beat md:hidden md:group-hover:block md:group-focus-within:block"
           >
             Remove image
           </button>
@@ -122,7 +122,7 @@ const CategoryColumn: Component<CategoryColumnProps> = (props) => {
             type="button"
             title="Use an image instead of text"
             onClick={() => fileInput?.click()}
-            class="absolute -top-2 -left-2 hidden h-6 w-6 items-center justify-center rounded-full bg-ink text-night transition group-hover:flex hover:bg-beat"
+            class="absolute -top-2 -left-2 flex h-6 w-6 items-center justify-center rounded-full bg-ink text-night transition hover:bg-beat md:hidden md:group-hover:flex md:group-focus-within:flex"
           >
             <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -139,7 +139,7 @@ const CategoryColumn: Component<CategoryColumnProps> = (props) => {
         <button
           type="button"
           onClick={() => props.onRemove()}
-          class="absolute -top-2 -right-2 hidden h-6 w-6 items-center justify-center rounded-full bg-ink text-night transition group-hover:flex hover:bg-beat"
+          class="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-ink text-night transition hover:bg-beat md:hidden md:group-hover:flex md:group-focus-within:flex"
         >
           <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path

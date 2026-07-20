@@ -200,3 +200,22 @@ button {
     box-shadow: none;
   }
 }
+
+/* ── Reduced motion ────────────────────────────────────────── */
+
+/*
+  App-wide guard mirroring the landing page's block (stage-night.css).
+  Collapses every transition/animation to a blink and stops looping
+  animations (spinners, beat-pulse, ambient-float) after one pass, so no
+  ambient motion runs anywhere when the user asks for reduced motion.
+*/
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -1,4 +1,4 @@
-import { useNavigate } from "@solidjs/router";
+import { A } from "@solidjs/router";
 import { Component, createSignal, For, Show } from "solid-js";
 import { useAuth } from "../context/AuthContext";
 import { formatRoomDate } from "../lib/roomDates";
@@ -13,15 +13,13 @@ interface RoomPreviewProps {
 }
 
 const RoomPreview: Component<RoomPreviewProps> = (props) => {
-  const navigate = useNavigate();
   const auth = useAuth();
 
   const hostNames = () => roomHostNames(props.room);
 
   const [saveState, setSaveState] = createSignal<"idle" | "saving" | "saved">("idle");
 
-  const handleSave = async (e: MouseEvent) => {
-    e.stopPropagation(); // the whole card navigates to play on click
+  const handleSave = async () => {
     if (saveState() !== "idle") return;
     setSaveState("saving");
     try {
@@ -35,13 +33,14 @@ const RoomPreview: Component<RoomPreviewProps> = (props) => {
   };
 
   return (
-    <article
-      class="group cursor-pointer rounded-2xl border border-line bg-surface p-6 transition duration-300 hover:-translate-y-0.5 hover:border-beat hover:shadow-[0_8px_24px_rgba(234,196,53,0.18)]"
-      onClick={() => navigate(`/rooms/${props.room.id}/play`)}
-    >
+    <article class="group relative rounded-2xl border border-line bg-surface p-6 transition duration-300 hover:-translate-y-0.5 hover:border-beat hover:shadow-[0_8px_24px_rgba(234,196,53,0.18)]">
       <div class="mb-3 flex items-start justify-between gap-3">
         <h2 class="font-display text-lg font-bold text-ink transition group-hover:text-beat">
-          {props.room.roomName}
+          {/* Stretched link: the whole card navigates, but stays a real,
+              keyboard-operable anchor. Controls above it get `relative z-10`. */}
+          <A href={`/rooms/${props.room.id}/play`} class="after:absolute after:inset-0">
+            {props.room.roomName}
+          </A>
         </h2>
         <RoomStatusBadge active={props.room.isActive} />
       </div>
@@ -97,7 +96,7 @@ const RoomPreview: Component<RoomPreviewProps> = (props) => {
             type="button"
             onClick={handleSave}
             disabled={saveState() !== "idle"}
-            class={`rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
+            class={`relative z-10 rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
               saveState() === "saved"
                 ? "border-beat/30 bg-beat-soft text-beat-bright"
                 : "border-line bg-surface-2 text-ink hover:border-beat hover:bg-beat-soft hover:text-beat disabled:opacity-60"
