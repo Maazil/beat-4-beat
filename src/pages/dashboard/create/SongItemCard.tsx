@@ -11,7 +11,7 @@ interface SongItemCardProps {
   colorScheme: CategoryColorScheme;
   isEditing: boolean;
   onEdit: () => void;
-  onUpdate: (songUrl: string, title?: string, artist?: string) => void;
+  onUpdate: (songUrl: string, title?: string, artist?: string, startTime?: number) => void;
   onBlur: () => void;
   onRemove: () => void;
 }
@@ -20,6 +20,10 @@ const SongItemCard: Component<SongItemCardProps> = (props) => {
   // Local draft of the URL, committed on save. Seeded per item identity and
   // re-seeded when the edit modal opens — no prop-mirroring effect.
   const [localUrl, setLocalUrl] = createSignal(props.item.songUrl || "");
+  // Cue point (seconds) as a raw input string; empty means "leave unchanged".
+  const [localStartTime, setLocalStartTime] = createSignal(
+    props.item.startTime != null ? String(props.item.startTime) : "",
+  );
   const [searchQuery, setSearchQuery] = createSignal("");
   const [searchResults, setSearchResults] = createSignal<SpotifyTrack[]>([]);
   const [isSearching, setIsSearching] = createSignal(false);
@@ -40,6 +44,9 @@ const SongItemCard: Component<SongItemCardProps> = (props) => {
       setSearchQuery("");
       setSearchResults([]);
       setLocalUrl(untrack(() => props.item.songUrl) || "");
+      setLocalStartTime(
+        untrack(() => (props.item.startTime != null ? String(props.item.startTime) : "")),
+      );
     }
   });
 
@@ -56,8 +63,17 @@ const SongItemCard: Component<SongItemCardProps> = (props) => {
     onCleanup(() => document.removeEventListener("keydown", handleKeyDown));
   });
 
+  // Parse the cue-point input: a non-negative integer of seconds, or
+  // undefined when blank (so the existing value is left untouched).
+  const parsedStartTime = (): number | undefined => {
+    const trimmed = localStartTime().trim();
+    if (trimmed === "") return undefined;
+    const n = Number.parseInt(trimmed, 10);
+    return Number.isFinite(n) && n >= 0 ? n : undefined;
+  };
+
   const handleUrlSubmit = () => {
-    props.onUpdate(localUrl());
+    props.onUpdate(localUrl(), undefined, undefined, parsedStartTime());
     props.onBlur();
   };
 
@@ -87,7 +103,7 @@ const SongItemCard: Component<SongItemCardProps> = (props) => {
   const handleSelectTrack = (track: SpotifyTrack) => {
     const trackId = track.uri.replace("spotify:track:", "");
     const url = `https://open.spotify.com/track/${trackId}`;
-    props.onUpdate(url, track.name, track.artist);
+    props.onUpdate(url, track.name, track.artist, parsedStartTime());
     setSearchQuery("");
     setSearchResults([]);
     props.onBlur();
@@ -280,10 +296,10 @@ const SongItemCard: Component<SongItemCardProps> = (props) => {
                 </div>
 
                 {/* Input area */}
-                <Show
-                  when={spotifyConnected()}
-                  fallback={
-                    <div class="flex flex-col gap-2">
+                <div class="flex flex-col gap-3">
+                  <Show
+                    when={spotifyConnected()}
+                    fallback={
                       <input
                         type="text"
                         value={localUrl()}
@@ -293,57 +309,82 @@ const SongItemCard: Component<SongItemCardProps> = (props) => {
                         class="w-full rounded-xl border border-line bg-surface-2 px-4 py-3 text-sm text-ink placeholder:text-muted/60 transition outline-none focus:border-beat focus:ring-2 focus:ring-beat/20"
                         autofocus
                       />
-                      <button
-                        type="button"
-                        onClick={handleUrlSubmit}
-                        class="self-end rounded-full bg-beat px-4 py-2 text-sm font-bold text-night transition hover:bg-beat-bright"
-                      >
-                        Save
-                      </button>
-                    </div>
-                  }
-                >
-                  <div class="flex flex-col gap-2">
-                    <input
-                      type="text"
-                      value={searchQuery()}
-                      onInput={(e) => handleSearchInput(e.currentTarget.value)}
-                      placeholder="Search for a song…"
-                      class="w-full rounded-xl border border-line bg-surface-2 px-4 py-3 text-sm text-ink placeholder:text-muted/60 transition outline-none focus:border-beat focus:ring-2 focus:ring-beat/20"
-                      autofocus
-                    />
+                    }
+                  >
+                    <div class="flex flex-col gap-2">
+                      <input
+                        type="text"
+                        value={searchQuery()}
+                        onInput={(e) => handleSearchInput(e.currentTarget.value)}
+                        placeholder="Search for a song…"
+                        class="w-full rounded-xl border border-line bg-surface-2 px-4 py-3 text-sm text-ink placeholder:text-muted/60 transition outline-none focus:border-beat focus:ring-2 focus:ring-beat/20"
+                        autofocus
+                      />
 
-                    {/* Search results */}
-                    <Show when={searchResults().length > 0 || isSearching()}>
-                      <div class="max-h-64 overflow-y-auto rounded-xl border border-line bg-surface">
-                        <Show when={isSearching()}>
-                          <div class="px-3 py-3 text-center text-xs text-muted">Searching…</div>
-                        </Show>
-                        <For each={searchResults()}>
-                          {(track) => (
-                            <button
-                              type="button"
-                              class="flex w-full items-center gap-3 px-3 py-2.5 text-left transition hover:bg-surface-2"
-                              onClick={() => handleSelectTrack(track)}
-                            >
-                              <Show when={track.albumArt}>
-                                <img
-                                  src={track.albumArt}
-                                  alt=""
-                                  class="h-10 w-10 shrink-0 rounded"
-                                />
-                              </Show>
-                              <div class="min-w-0 flex-1">
-                                <p class="truncate text-sm font-semibold text-ink">{track.name}</p>
-                                <p class="truncate text-xs text-muted">{track.artist}</p>
-                              </div>
-                            </button>
-                          )}
-                        </For>
+                      {/* Search results */}
+                      <Show when={searchResults().length > 0 || isSearching()}>
+                        <div class="max-h-64 overflow-y-auto rounded-xl border border-line bg-surface">
+                          <Show when={isSearching()}>
+                            <div class="px-3 py-3 text-center text-xs text-muted">Searching…</div>
+                          </Show>
+                          <For each={searchResults()}>
+                            {(track) => (
+                              <button
+                                type="button"
+                                class="flex w-full items-center gap-3 px-3 py-2.5 text-left transition hover:bg-surface-2"
+                                onClick={() => handleSelectTrack(track)}
+                              >
+                                <Show when={track.albumArt}>
+                                  <img
+                                    src={track.albumArt}
+                                    alt=""
+                                    class="h-10 w-10 shrink-0 rounded"
+                                  />
+                                </Show>
+                                <div class="min-w-0 flex-1">
+                                  <p class="truncate text-sm font-semibold text-ink">
+                                    {track.name}
+                                  </p>
+                                  <p class="truncate text-xs text-muted">{track.artist}</p>
+                                </div>
+                              </button>
+                            )}
+                          </For>
+                        </div>
+                      </Show>
+                    </div>
+                  </Show>
+
+                  {/* Cue point — where playback starts, to skip long intros.
+                    Shown for URL entry, and when tweaking an existing song. */}
+                  <Show when={!spotifyConnected() || props.item.songUrl}>
+                    <div class="flex flex-col gap-1 border-t border-line pt-3">
+                      <div class="flex items-end gap-2">
+                        <label class="flex flex-1 flex-col gap-1">
+                          <span class="text-xs font-semibold text-muted">Start at (seconds)</span>
+                          <input
+                            type="number"
+                            min="0"
+                            inputmode="numeric"
+                            value={localStartTime()}
+                            onInput={(e) => setLocalStartTime(e.currentTarget.value)}
+                            onKeyPress={(e) => e.key === "Enter" && handleUrlSubmit()}
+                            placeholder="0"
+                            class="w-full rounded-xl border border-line bg-surface-2 px-4 py-2.5 text-sm text-ink placeholder:text-muted/60 transition outline-none focus:border-beat focus:ring-2 focus:ring-beat/20"
+                          />
+                        </label>
+                        <button
+                          type="button"
+                          onClick={handleUrlSubmit}
+                          class="shrink-0 rounded-full bg-beat px-4 py-2.5 text-sm font-bold text-night transition hover:bg-beat-bright"
+                        >
+                          Save
+                        </button>
                       </div>
-                    </Show>
-                  </div>
-                </Show>
+                      <p class="text-xs text-muted">Skip long intros — playback jumps here.</p>
+                    </div>
+                  </Show>
+                </div>
               </div>
             </div>
           </Show>
