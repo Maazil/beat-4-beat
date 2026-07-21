@@ -20,7 +20,13 @@ interface CategoryColumnProps {
   onRemove: () => void;
   onAddItem: () => void;
   onEditItem: (itemId: string) => void;
-  onUpdateItem: (itemId: string, songUrl: string, title?: string, artist?: string) => void;
+  onUpdateItem: (
+    itemId: string,
+    songUrl: string,
+    title?: string,
+    artist?: string,
+    startTime?: number,
+  ) => void;
   onBlurItem: () => void;
   onRemoveItem: (itemId: string) => void;
 }
@@ -207,8 +213,8 @@ const CategoryColumn: Component<CategoryColumnProps> = (props) => {
               colorScheme={props.colorScheme}
               isEditing={props.editingItemId === item.id}
               onEdit={() => props.onEditItem(item.id)}
-              onUpdate={(songUrl, title, artist) =>
-                props.onUpdateItem(item.id, songUrl, title, artist)
+              onUpdate={(songUrl, title, artist, startTime) =>
+                props.onUpdateItem(item.id, songUrl, title, artist, startTime)
               }
               onBlur={() => props.onBlurItem()}
               onRemove={() => props.onRemoveItem(item.id)}
