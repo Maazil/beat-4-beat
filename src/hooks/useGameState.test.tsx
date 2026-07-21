@@ -120,6 +120,7 @@ describe("useGameState — shared (host / co-owner)", () => {
         playOrder: [],
         currentItemId: "b",
         scores: [],
+        revealTrackInfo: false,
       });
       dispose();
     });

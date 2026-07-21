@@ -37,6 +37,8 @@ const AudienceViewInner: Component = () => {
     const id = currentItemId();
     return id ? (itemIndex().get(id)?.item ?? null) : null;
   };
+  // Only unspoil the title/artist once the host has revealed it.
+  const trackRevealed = () => game().revealTrackInfo;
 
   const standings = createMemo(() => computeStandings(scores()));
   const rankedTeams = createMemo(() =>
@@ -93,14 +95,21 @@ const AudienceViewInner: Component = () => {
                 fallback={<p class="text-lg text-muted">Waiting for the host…</p>}
               >
                 {(item) => (
-                  <div>
-                    <p class="font-display text-xl font-bold text-ink">
-                      {item().title ?? "Now playing"}
-                    </p>
-                    <Show when={item().artist}>
-                      <p class="text-muted">{item().artist}</p>
-                    </Show>
-                  </div>
+                  <Show
+                    when={trackRevealed()}
+                    fallback={
+                      <p class="font-display text-xl font-bold text-ink">🎵 Guess the track!</p>
+                    }
+                  >
+                    <div>
+                      <p class="font-display text-xl font-bold text-ink">
+                        {item().title ?? "Now playing"}
+                      </p>
+                      <Show when={item().artist}>
+                        <p class="text-muted">{item().artist}</p>
+                      </Show>
+                    </div>
+                  </Show>
                 )}
               </Show>
             </div>

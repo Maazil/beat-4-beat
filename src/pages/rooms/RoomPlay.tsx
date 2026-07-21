@@ -1,5 +1,5 @@
 import { useParams } from "@solidjs/router";
-import { Component, createMemo, createSignal, Show } from "solid-js";
+import { Component, createMemo, Show } from "solid-js";
 import { useRoom } from "../../hooks/useRoom";
 import { useGameState } from "../../hooks/useGameState";
 import { useGuessTimer } from "../../hooks/useGuessTimer";
@@ -37,7 +37,9 @@ const RoomPlayInner: Component = () => {
   const currentItemId = () => game().currentItemId;
   const isItemRevealed = (id: string) => playOrder().includes(id);
 
-  const [showTrackInfo, setShowTrackInfo] = createSignal(false);
+  // Whether the current song's title/artist is revealed. Lives in the shared
+  // game state so the audience view unspoils in step with the host.
+  const showTrackInfo = () => game().revealTrackInfo;
 
   // Guess timer — 0 = off; duration persists across sessions
   const guessTimer = useGuessTimer();
@@ -54,8 +56,8 @@ const RoomPlayInner: Component = () => {
     updateGame({
       playOrder: order.includes(itemId) ? order : [...order, itemId],
       currentItemId: itemId,
+      revealTrackInfo: false,
     });
-    setShowTrackInfo(false);
     guessTimer.bump();
     if (songUrl) void playback.playSong(songUrl, startTime);
   };
@@ -71,8 +73,8 @@ const RoomPlayInner: Component = () => {
       playOrder: [],
       currentItemId: null,
       scores: scores().map((s) => ({ ...s, roundPoints: [] })),
+      revealTrackInfo: false,
     });
-    setShowTrackInfo(false);
     if (playback.progress.isPlaying()) void playback.pause();
   };
 
@@ -208,7 +210,7 @@ const RoomPlayInner: Component = () => {
           trackTitle={currentItemInfo()?.title}
           trackArtist={currentItemInfo()?.artist}
           showTrackInfo={showTrackInfo()}
-          onToggleTrackInfo={() => setShowTrackInfo(!showTrackInfo())}
+          onToggleTrackInfo={() => updateGame({ revealTrackInfo: !showTrackInfo() })}
           onPause={playback.pause}
           onResume={playback.resume}
           onSkipForward={() => playback.skip(10_000)}
