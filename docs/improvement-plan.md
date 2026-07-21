@@ -11,14 +11,14 @@ The marketing (`App.tsx:212`) and host guide (`HostGuide.tsx:222`) promise a
 title/artist/steal scoring game the scoreboard doesn't implement, and the
 audience screen leaks answers. Close that gap first.
 
-1. **Title / artist / steal scoring** — deliver the pitched model: every song is
-   worth two points (title + artist), each claimable by one team, stealable by a
-   rival. Replaces the flat +1/−1 in `Scoreboard.tsx`. Touches `model/score.ts`,
-   `lib/standings.ts`, `Scoreboard.tsx` (+test), `RoomPlay.tsx`, `docToRoom`
-   migration. **[IN PROGRESS]** — M
-2. **Gate audience answer reveal** — `AudienceView.tsx` shows `currentItem().title`
-   /`artist` the instant a tile is clicked; propagate the host's `showTrackInfo`
-   reveal state instead of spoiling every round. — S
+1. ~~**Title / artist / steal scoring**~~ — **[DROPPED]** Scoring stays free-form:
+   the host delegates points at their discretion via the flat +/- per-round model.
+   A fixed title/artist/steal structure was prototyped and reverted (see
+   `feat/title-artist-scoring`) — it's less flexible than letting the host award
+   points however the room plays.
+2. ~~**Gate audience answer reveal**~~ — **[DONE]** `revealTrackInfo` now lives in
+   the shared `gameState`, so `AudienceView.tsx` shows "Guess the track!" until the
+   host reveals the title/artist. — S
 
 ## Phase 2 — Cheap, high-value wins
 
