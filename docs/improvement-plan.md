@@ -75,8 +75,10 @@ audience screen leaks answers. Close that gap first.
     multi-category layouts. — M
 20. **Split `Scoreboard.tsx`** (610 lines) into rows / add-form / breakdown /
     FLIP helper. — M/L
-21. **`useGameState`** — replace the manual `Map` + version signal with a store +
-    `reconcile`; memoize `game()`. — S
+21. ~~**`useGameState`**~~ — **[DONE]** The non-shared (localStorage) path now
+    uses a `solid-js` store: reads track fine-grained, updates merge via
+    `setLocal`, and room changes `reconcile` a fresh load — no more manual `Map`
+    + version signal. `game()` is a `createMemo`. — S
 22. **Test coverage** — `roomsService` (score migration, editor dedup,
     `duplicateRoom`), playback routing, PKCE flow. — M
 
