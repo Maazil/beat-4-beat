@@ -25,8 +25,10 @@ audience screen leaks answers. Close that gap first.
 3. ~~**`startTime` cue-point editor**~~ — **[DONE]** The song edit modal now has a
    "Start at (seconds)" input that threads through `onUpdate` → `updateItem` into
    the item's `startTime`, so hosts can skip long intros. — S
-4. **End-of-game winner moment** — confetti / winner banner / final summary;
-   today "new game" just resets. — S
+4. ~~**End-of-game winner moment**~~ — **[DONE]** A "🏆 Finish game" button sets a
+   shared `gameState.gameOver` flag that raises a `WinnerOverlay` (confetti,
+   winning team(s), final standings). The audience view mirrors it read-only so a
+   projected screen celebrates in step. — S
 5. **Copy-link "Copied!" feedback** — no visual confirmation today, and the logic
    is duplicated in `RoomView`, `RoomManageCard`, `RoomPreview`; consolidate. — S
 6. ~~**Gate dev-only routes**~~ — **[DONE]** `/ui-preview`, `/forms-preview`, and
