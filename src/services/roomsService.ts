@@ -205,14 +205,22 @@ export function subscribeToMyRooms(callback: (rooms: Room[]) => void): Unsubscri
 export function subscribeToRoom(
   roomId: string,
   callback: (room: Room | null) => void,
+  onError?: (error: FirebaseError) => void,
 ): Unsubscribe {
-  return onSnapshot(roomDoc(roomId), (snapshot) => {
-    if (!snapshot.exists()) {
-      callback(null);
-      return;
-    }
-    callback(docToRoom(snapshot.id, snapshot.data()));
-  });
+  // Without an error handler, a failed listener (e.g. permission-denied on a
+  // private room) is silently swallowed and the caller's loading state never
+  // clears — so pass it through for the caller to surface.
+  return onSnapshot(
+    roomDoc(roomId),
+    (snapshot) => {
+      if (!snapshot.exists()) {
+        callback(null);
+        return;
+      }
+      callback(docToRoom(snapshot.id, snapshot.data()));
+    },
+    onError,
+  );
 }
 
 /**
