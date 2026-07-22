@@ -15,6 +15,26 @@ foundation") ship as Phase 1 and stand on their own.
 Breakpoint: **`md` (768px)** is the phone/desktop boundary, matching the
 breakpoint `GameBoard` already uses to switch its multi-category layout.
 
+## Status (as shipped)
+
+Phase 1 shipped as planned. Phase 2 (the collapsible `ScoreStrip`) was built,
+then **reverted** — the expand-on-tap overlay's tap-to-dismiss was unreliable,
+and a plain inline scoreboard the host scrolls past is good enough for now.
+What actually landed on phones:
+
+- **Phase 1 touch/overflow fixes** — as described below.
+- **Board (`GameBoard.tsx`)** — multi-category boards no longer scroll
+  sideways. Each category stacks full-width with its songitems in a near-square
+  grid (`cols = ceil(sqrt(maxItems))`, uniform across categories from the
+  largest category's item count); tiles reduced to 56px-tall (`h-14`) touch
+  targets. Desktop (`md+`) column grid unchanged.
+- **Scoreboard** — stays inline at every width (no strip, no collapse); the
+  host scrolls to it. Team names and the rename input reduced to 14px
+  (`text-sm`); `ScoreStrip.tsx` deleted.
+
+Phase 2 as originally specified below is kept for history but is **not** the
+current implementation.
+
 ## What breaks on a phone today (verified)
 
 - **Scoreboard — "Remove team" is unreachable.** The button is
@@ -86,7 +106,11 @@ board fully scrollable above the bar.
 
 ---
 
-## Phase 2 — Collapsible scoreboard (the Option B layer)
+## Phase 2 — Collapsible scoreboard (the Option B layer) — REVERTED
+
+> **Not the current implementation.** This layer was built and then backed out
+> in favour of keeping the scoreboard inline everywhere (see _Status_ above).
+> Retained below for history.
 
 On phones, replace the always-open inline scoreboard with a sticky summary
 strip; the full scoreboard opens on demand for scoring. Desktop keeps the
