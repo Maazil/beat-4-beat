@@ -1,25 +1,39 @@
-import { useNavigate } from "@solidjs/router";
-import { Component, createSignal, Match, onMount, Switch } from "solid-js";
+import { useNavigate, useSearchParams } from "@solidjs/router";
+import { Component, createEffect, createSignal, Match, onMount, Switch } from "solid-js";
 import Button from "../../components/forms/Button";
 import Input from "../../components/forms/Input";
 import Logo from "../../components/Logo";
 import { useAuth } from "../../context/AuthContext";
+import { safeRedirectTarget } from "../../lib/safeRedirect";
 
 type Status = "working" | "needEmail" | "error";
 
 const FinishEmailSignIn: Component = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const auth = useAuth();
   const [status, setStatus] = createSignal<Status>("working");
   const [message, setMessage] = createSignal("");
   const [email, setEmail] = createSignal("");
+
+  // Only allow in-app paths as redirect targets, mirroring the guard on /login.
+  const destination = () => safeRedirectTarget(searchParams.redirect);
+
+  // Redirect only once the auth observer has actually populated the user, rather
+  // than the instant signInWithEmailLink resolves — otherwise a protected
+  // destination can bounce back to /login before the auth state lands.
+  createEffect(() => {
+    if (auth.isAuthenticated()) {
+      navigate(destination(), { replace: true });
+    }
+  });
 
   const finish = async (address: string) => {
     setStatus("working");
     setMessage("");
     try {
       await auth.completeEmailSignIn(window.location.href, address);
-      navigate("/dashboard", { replace: true });
+      // Navigation is handled by the effect above once auth state updates.
     } catch (err: any) {
       setMessage(err?.message || "This sign-in link is invalid or has expired.");
       setStatus("error");
@@ -73,6 +87,7 @@ const FinishEmailSignIn: Component = () => {
                 required
                 autofocus
                 autocomplete="email"
+                aria-label="Email address"
                 placeholder="you@example.com"
                 value={email()}
                 onInput={(e) => setEmail(e.currentTarget.value)}

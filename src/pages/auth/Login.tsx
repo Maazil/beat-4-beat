@@ -4,6 +4,7 @@ import Button from "../../components/forms/Button";
 import Input from "../../components/forms/Input";
 import Logo from "../../components/Logo";
 import { useAuth } from "../../context/AuthContext";
+import { safeRedirectTarget } from "../../lib/safeRedirect";
 
 const Login: Component = () => {
   const navigate = useNavigate();
@@ -15,13 +16,7 @@ const Login: Component = () => {
   const [linkSent, setLinkSent] = createSignal(false);
 
   // Only allow in-app paths as redirect targets
-  const redirectTarget = () => {
-    const target = searchParams.redirect;
-    // "//host" is a protocol-relative external URL — reject it
-    return typeof target === "string" && target.startsWith("/") && !target.startsWith("//")
-      ? target
-      : "/dashboard";
-  };
+  const redirectTarget = () => safeRedirectTarget(searchParams.redirect);
 
   createEffect(() => {
     if (auth.state.isLoading) return;
@@ -54,7 +49,7 @@ const Login: Component = () => {
     }
     setLoading(true);
     try {
-      await auth.sendEmailSignInLink(address);
+      await auth.sendEmailSignInLink(address, redirectTarget());
       setLinkSent(true);
     } catch (err: any) {
       setError(err?.message || "Could not send the sign-in link");
@@ -114,6 +109,7 @@ const Login: Component = () => {
                 type="email"
                 required
                 autocomplete="email"
+                aria-label="Email address"
                 placeholder="you@example.com"
                 value={email()}
                 onInput={(e) => setEmail(e.currentTarget.value)}
