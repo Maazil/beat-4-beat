@@ -29,7 +29,9 @@ interface AuthContextValue {
   state: AuthState;
   signInWithGoogle: () => Promise<void>;
   sendEmailSignInLink: (email: string) => Promise<void>;
-  completeEmailSignIn: (href: string) => Promise<boolean>;
+  isEmailSignInLink: (href: string) => boolean;
+  getStoredSignInEmail: () => string | null;
+  completeEmailSignIn: (href: string, email: string) => Promise<void>;
   signOut: () => Promise<void>;
   isAuthenticated: Accessor<boolean>;
   isRoomHost: (roomHostId?: string) => boolean;
@@ -90,21 +92,17 @@ export const AuthProvider: ParentComponent = (props) => {
     }
   };
 
-  const completeEmailSignIn = async (href: string): Promise<boolean> => {
-    if (!isSignInWithEmailLink(auth, href)) return false;
-    // Link may open on a different device/browser where the email wasn't
-    // stashed — fall back to asking for it.
-    let email = window.localStorage.getItem(EMAIL_FOR_SIGN_IN_KEY);
-    if (!email) {
-      email = window.prompt("Please confirm your email to finish signing in") ?? "";
-    }
-    if (!email) return false;
+  const isEmailSignInLink = (href: string) => isSignInWithEmailLink(auth, href);
 
+  // Present on the same device that requested the link; absent when the link
+  // opens elsewhere, in which case the finish page asks the user to confirm it.
+  const getStoredSignInEmail = () => window.localStorage.getItem(EMAIL_FOR_SIGN_IN_KEY);
+
+  const completeEmailSignIn = async (href: string, email: string): Promise<void> => {
     setState("isLoading", true);
     try {
       await signInWithEmailLink(auth, email, href);
       window.localStorage.removeItem(EMAIL_FOR_SIGN_IN_KEY);
-      return true;
     } catch (error) {
       console.error("Email link sign in failed:", error);
       throw error;
@@ -151,6 +149,8 @@ export const AuthProvider: ParentComponent = (props) => {
     state,
     signInWithGoogle,
     sendEmailSignInLink,
+    isEmailSignInLink,
+    getStoredSignInEmail,
     completeEmailSignIn,
     signOut,
     isAuthenticated,
