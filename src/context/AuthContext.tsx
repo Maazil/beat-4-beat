@@ -1,7 +1,10 @@
 import {
   signOut as firebaseSignOut,
   GoogleAuthProvider,
+  isSignInWithEmailLink,
   onAuthStateChanged,
+  sendSignInLinkToEmail,
+  signInWithEmailLink,
   signInWithPopup,
   type User,
 } from "firebase/auth";
@@ -25,6 +28,8 @@ export interface AuthState {
 interface AuthContextValue {
   state: AuthState;
   signInWithGoogle: () => Promise<void>;
+  sendEmailSignInLink: (email: string) => Promise<void>;
+  completeEmailSignIn: (href: string) => Promise<boolean>;
   signOut: () => Promise<void>;
   isAuthenticated: Accessor<boolean>;
   isRoomHost: (roomHostId?: string) => boolean;
@@ -58,6 +63,51 @@ export const AuthProvider: ParentComponent = (props) => {
       await signInWithPopup(auth, provider);
     } catch (error) {
       console.error("Google sign in failed:", error);
+      throw error;
+    } finally {
+      setState("isLoading", false);
+    }
+  };
+
+  // Apple only shares a display name on first sign-in; email-link users have
+  // no name at all. The email is stashed so the finish route can complete the
+  // sign-in even if it opens in a new tab on the same device.
+  const EMAIL_FOR_SIGN_IN_KEY = "emailForSignIn";
+
+  const sendEmailSignInLink = async (email: string) => {
+    setState("isLoading", true);
+    try {
+      await sendSignInLinkToEmail(auth, email, {
+        // Absolute URL on an authorized domain that completes the sign-in.
+        url: `${window.location.origin}/login/finish`,
+        handleCodeInApp: true,
+      });
+      window.localStorage.setItem(EMAIL_FOR_SIGN_IN_KEY, email);
+    } catch (error) {
+      console.error("Email link send failed:", error);
+      throw error;
+    } finally {
+      setState("isLoading", false);
+    }
+  };
+
+  const completeEmailSignIn = async (href: string): Promise<boolean> => {
+    if (!isSignInWithEmailLink(auth, href)) return false;
+    // Link may open on a different device/browser where the email wasn't
+    // stashed — fall back to asking for it.
+    let email = window.localStorage.getItem(EMAIL_FOR_SIGN_IN_KEY);
+    if (!email) {
+      email = window.prompt("Please confirm your email to finish signing in") ?? "";
+    }
+    if (!email) return false;
+
+    setState("isLoading", true);
+    try {
+      await signInWithEmailLink(auth, email, href);
+      window.localStorage.removeItem(EMAIL_FOR_SIGN_IN_KEY);
+      return true;
+    } catch (error) {
+      console.error("Email link sign in failed:", error);
       throw error;
     } finally {
       setState("isLoading", false);
@@ -101,6 +151,8 @@ export const AuthProvider: ParentComponent = (props) => {
   const value: AuthContextValue = {
     state,
     signInWithGoogle,
+    sendEmailSignInLink,
+    completeEmailSignIn,
     signOut,
     isAuthenticated,
     isRoomHost,

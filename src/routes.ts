@@ -23,6 +23,10 @@ export const routes: RouteDefinition[] = [
     component: lazy(() => import("./pages/auth/Login")),
   },
   {
+    path: "/login/finish",
+    component: lazy(() => import("./pages/auth/FinishEmailSignIn")),
+  },
+  {
     path: "/host-guide",
     component: lazy(() => import("./pages/host-guide/HostGuide")),
   },
