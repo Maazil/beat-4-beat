@@ -21,7 +21,7 @@ const RoomPlayHeader: Component<RoomPlayHeaderProps> = (props) => {
           {props.roomName}
         </h1>
         <div class="flex flex-wrap items-center justify-between gap-3">
-          <h2 class="flex flex-wrap items-center gap-2 font-medium text-muted">
+          <h2 class="flex flex-wrap items-center gap-2 text-sm font-medium text-muted">
             Hosted by
             <For each={props.hostNames}>
               {(name) => (
