@@ -138,6 +138,17 @@ button {
   }
 }
 
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(-12vh) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(105vh) rotate(720deg);
+    opacity: 0.9;
+  }
+}
+
 /* ── Keyboard focus ────────────────────────────────────────── */
 
 /* Fallback gold ring for controls without their own focus-visible
@@ -174,6 +185,16 @@ button {
 
   .animate-rise-in {
     animation: rise-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  /* Falling confetti piece — position/color/timing set inline per piece.
+     The reduced-motion guard below collapses it to a single blink. */
+  .confetti-piece {
+    position: absolute;
+    top: -12vh;
+    animation-name: confetti-fall;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
   }
 
   /*

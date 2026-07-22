@@ -10,6 +10,7 @@ interface RoomPlayHeaderProps {
   gameStarted: boolean;
   onClearDevice: () => void;
   onNewGame: () => void;
+  onFinishGame: () => void;
 }
 
 /** Play-page header: room title, hosts, selected device, and new-game. */
@@ -50,13 +51,22 @@ const RoomPlayHeader: Component<RoomPlayHeaderProps> = (props) => {
           </Show>
 
           <Show when={props.gameStarted}>
-            <button
-              type="button"
-              onClick={() => props.onNewGame()}
-              class="rounded-full border border-line px-3 py-1 text-xs font-bold text-ink transition hover:border-beat hover:bg-beat-soft"
-            >
-              New game
-            </button>
+            <div class="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => props.onFinishGame()}
+                class="rounded-full bg-beat px-3 py-1 text-xs font-bold text-night transition hover:brightness-110"
+              >
+                🏆 Finish game
+              </button>
+              <button
+                type="button"
+                onClick={() => props.onNewGame()}
+                class="rounded-full border border-line px-3 py-1 text-xs font-bold text-ink transition hover:border-beat hover:bg-beat-soft"
+              >
+                New game
+              </button>
+            </div>
           </Show>
         </div>
       </div>

@@ -1,6 +1,7 @@
 import { useParams } from "@solidjs/router";
 import { Component, createMemo, For, Show } from "solid-js";
 import GameBoard from "../../components/GameBoard";
+import WinnerOverlay from "../../components/WinnerOverlay";
 import { useRoom } from "../../hooks/useRoom";
 import { buildItemIndex } from "../../lib/boardLookup";
 import { roomHostNames } from "../../lib/roomHosts";
@@ -39,6 +40,8 @@ const AudienceViewInner: Component = () => {
   };
   // Only unspoil the title/artist once the host has revealed it.
   const trackRevealed = () => game().revealTrackInfo;
+  // Celebrate in step with the host when they end the game.
+  const gameOver = () => game().gameOver;
 
   const standings = createMemo(() => computeStandings(scores()));
   const rankedTeams = createMemo(() =>
@@ -167,6 +170,11 @@ const AudienceViewInner: Component = () => {
           </div>
         </Show>
       </div>
+
+      {/* End-of-game celebration — mirrors the host's winner moment, read-only */}
+      <Show when={gameOver()}>
+        <WinnerOverlay scores={scores()} />
+      </Show>
     </div>
   );
 };
