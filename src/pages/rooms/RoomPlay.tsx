@@ -15,6 +15,7 @@ import GuessTimerPicker from "../../components/GuessTimerPicker";
 import NowPlayingBar from "../../components/NowPlayingBar";
 import Scoreboard from "../../components/Scoreboard";
 import TurnTracker from "../../components/TurnTracker";
+import WinnerOverlay from "../../components/WinnerOverlay";
 import YouTubePlayer from "../../components/YouTubePlayer";
 
 /** Main room play page. */
@@ -66,16 +67,24 @@ const RoomPlayInner: Component = () => {
   const gameStarted = () =>
     playOrder().length > 0 || scores().some((s) => s.roundPoints.length > 0);
 
+  // Host has ended the game — shows the winner moment (shared via gameState).
+  const gameOver = () => game().gameOver;
+
   /** Reset the board and zero all scores, keeping the teams. */
-  const handleNewGame = () => {
-    if (!confirm("Start a new game? The board resets and scores go back to zero.")) return;
+  const resetGame = () => {
     updateGame({
       playOrder: [],
       currentItemId: null,
       scores: scores().map((s) => ({ ...s, roundPoints: [] })),
       revealTrackInfo: false,
+      gameOver: false,
     });
     if (playback.progress.isPlaying()) void playback.pause();
+  };
+
+  const handleNewGame = () => {
+    if (!confirm("Start a new game? The board resets and scores go back to zero.")) return;
+    resetGame();
   };
 
   // id → song + category index, rebuilt only when the board content changes
@@ -117,6 +126,7 @@ const RoomPlayInner: Component = () => {
               gameStarted={gameStarted()}
               onClearDevice={playback.clearDevice}
               onNewGame={handleNewGame}
+              onFinishGame={() => updateGame({ gameOver: true })}
             />
 
             {/* Device picker — shown until a device is selected */}
@@ -200,6 +210,15 @@ const RoomPlayInner: Component = () => {
             onClose={playback.closeYouTube}
           />
         )}
+      </Show>
+
+      {/* End-of-game celebration — confetti, winner, final standings */}
+      <Show when={gameOver()}>
+        <WinnerOverlay
+          scores={scores()}
+          onNewGame={resetGame}
+          onClose={() => updateGame({ gameOver: false })}
+        />
       </Show>
 
       {/* Bottom control bar — shown when a song is playing */}

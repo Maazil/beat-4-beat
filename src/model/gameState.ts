@@ -12,6 +12,7 @@ export interface GameState {
   currentItemId: string | null; // Song currently in play (awards land on its round)
   scores: Score[]; // Team scores, round by round
   revealTrackInfo: boolean; // Host has revealed the current song's title/artist (shared so the audience view unspoils in step)
+  gameOver: boolean; // Host has ended the game — triggers the winner moment (shared so the audience view celebrates in step)
 }
 
 export const defaultGameState = (): GameState => ({
@@ -19,4 +20,5 @@ export const defaultGameState = (): GameState => ({
   currentItemId: null,
   scores: [],
   revealTrackInfo: false,
+  gameOver: false,
 });
