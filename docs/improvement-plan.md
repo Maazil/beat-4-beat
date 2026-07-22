@@ -22,8 +22,9 @@ audience screen leaks answers. Close that gap first.
 
 ## Phase 2 — Cheap, high-value wins
 
-3. **`startTime` cue-point editor** — the field is honored in playback but hosts
-   can't set it in the builder (`SongItemCard.tsx`); lets hosts skip long intros. — S
+3. ~~**`startTime` cue-point editor**~~ — **[DONE]** The song edit modal now has a
+   "Start at (seconds)" input that threads through `onUpdate` → `updateItem` into
+   the item's `startTime`, so hosts can skip long intros. — S
 4. **End-of-game winner moment** — confetti / winner banner / final summary;
    today "new game" just resets. — S
 5. **Copy-link "Copied!" feedback** — no visual confirmation today, and the logic
