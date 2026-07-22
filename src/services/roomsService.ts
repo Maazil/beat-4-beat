@@ -31,6 +31,7 @@ import type { Category } from "../model/category";
 import type { GameState } from "../model/gameState";
 import type { CreateRoomData, Room } from "../model/room";
 import type { SongItem } from "../model/songItem";
+import { normalizeScores } from "../lib/standings";
 import { getUserDjName } from "./usersService";
 
 // Collection reference
@@ -46,15 +47,20 @@ const joinRequestDoc = (roomId: string, uid: string): DocumentReference =>
  * Firestore Timestamps are converted to JavaScript Dates
  */
 function docToRoom(id: string, data: DocumentData): Room {
-  // Migrate old score format ({ points: number } → { roundPoints: number[] })
-  const scores = data.scores?.map((s: Record<string, unknown>) =>
-    "roundPoints" in s ? s : { teamName: s.teamName, roundPoints: [] },
-  );
+  // Normalize both score arrays: the legacy top-level `scores` and the live
+  // `gameState.scores` the scoreboard actually reads. A legacy or partially
+  // written entry missing `roundPoints` otherwise crashes `totalOf`.
+  const scores = normalizeScores(data.scores);
+  const gameState =
+    data.gameState && "scores" in data.gameState
+      ? { ...data.gameState, scores: normalizeScores(data.gameState.scores) ?? [] }
+      : data.gameState;
 
   return {
     ...data,
     id,
     ...(scores ? { scores } : {}),
+    ...(gameState ? { gameState } : {}),
     createdAt: data.createdAt instanceof Timestamp ? data.createdAt.toDate() : data.createdAt,
   } as Room;
 }
