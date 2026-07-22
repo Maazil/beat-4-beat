@@ -28,7 +28,7 @@ export interface AuthState {
 interface AuthContextValue {
   state: AuthState;
   signInWithGoogle: () => Promise<void>;
-  sendEmailSignInLink: (email: string) => Promise<void>;
+  sendEmailSignInLink: (email: string, redirectPath?: string) => Promise<void>;
   isEmailSignInLink: (href: string) => boolean;
   getStoredSignInEmail: () => string | null;
   completeEmailSignIn: (href: string, email: string) => Promise<void>;
@@ -75,20 +75,21 @@ export const AuthProvider: ParentComponent = (props) => {
   // the link opens in a new tab on the same device.
   const EMAIL_FOR_SIGN_IN_KEY = "emailForSignIn";
 
-  const sendEmailSignInLink = async (email: string) => {
-    setState("isLoading", true);
+  const sendEmailSignInLink = async (email: string, redirectPath?: string) => {
+    // Absolute URL on an authorized domain that completes the sign-in. A
+    // validated in-app redirect target is encoded so the finish page can send
+    // the user on to where they were originally headed.
+    const finishUrl = new URL(`${window.location.origin}/login/finish`);
+    if (redirectPath) finishUrl.searchParams.set("redirect", redirectPath);
     try {
       await sendSignInLinkToEmail(auth, email, {
-        // Absolute URL on an authorized domain that completes the sign-in.
-        url: `${window.location.origin}/login/finish`,
+        url: finishUrl.toString(),
         handleCodeInApp: true,
       });
       window.localStorage.setItem(EMAIL_FOR_SIGN_IN_KEY, email);
     } catch (error) {
       console.error("Email link send failed:", error);
       throw error;
-    } finally {
-      setState("isLoading", false);
     }
   };
 
@@ -99,15 +100,12 @@ export const AuthProvider: ParentComponent = (props) => {
   const getStoredSignInEmail = () => window.localStorage.getItem(EMAIL_FOR_SIGN_IN_KEY);
 
   const completeEmailSignIn = async (href: string, email: string): Promise<void> => {
-    setState("isLoading", true);
     try {
       await signInWithEmailLink(auth, email, href);
       window.localStorage.removeItem(EMAIL_FOR_SIGN_IN_KEY);
     } catch (error) {
       console.error("Email link sign in failed:", error);
       throw error;
-    } finally {
-      setState("isLoading", false);
     }
   };
 
