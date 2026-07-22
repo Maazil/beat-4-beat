@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { computeStandings, totalOf } from "./standings";
+import { computeStandings, normalizeScores, totalOf } from "./standings";
 import type { Score } from "../model/score";
 
 const score = (teamName: string, roundPoints: number[]): Score => ({ teamName, roundPoints });
@@ -47,5 +47,39 @@ describe("computeStandings", () => {
     const standings = computeStandings([score("A", []), score("B", [])]);
     expect(standings.get("A")?.rank).toBe(1);
     expect(standings.get("B")?.rank).toBe(1);
+  });
+});
+
+describe("normalizeScores", () => {
+  it("returns undefined when the input is not an array", () => {
+    expect(normalizeScores(undefined)).toBeUndefined();
+    expect(normalizeScores(null)).toBeUndefined();
+  });
+
+  it("passes through well-formed scores unchanged", () => {
+    const scores = [score("A", [1, 2]), score("B", [])];
+    expect(normalizeScores(scores)).toEqual(scores);
+  });
+
+  it("gives an entry with a missing roundPoints an empty array", () => {
+    // A partially written / legacy entry that would crash totalOf.
+    expect(normalizeScores([{ teamName: "A" }])).toEqual([{ teamName: "A", roundPoints: [] }]);
+  });
+
+  it("coerces a non-array roundPoints to an empty array", () => {
+    expect(normalizeScores([{ teamName: "A", roundPoints: null }])).toEqual([
+      { teamName: "A", roundPoints: [] },
+    ]);
+  });
+
+  it("migrates the legacy { points } shape", () => {
+    expect(normalizeScores([{ teamName: "A", points: 5 }])).toEqual([
+      { teamName: "A", roundPoints: [] },
+    ]);
+  });
+
+  it("keeps the result safe for totalOf", () => {
+    const normalized = normalizeScores([{ teamName: "A" }])!;
+    expect(totalOf(normalized[0])).toBe(0);
   });
 });

@@ -11,6 +11,23 @@ export interface Standing {
 export const totalOf = (score: Score) => score.roundPoints.reduce((sum, p) => sum + p, 0);
 
 /**
+ * Coerce a raw scores array (as stored in Firestore) into valid Score objects.
+ * Handles the legacy `{ points }` shape and, crucially, any entry whose
+ * `roundPoints` is missing or not an array — either would make `totalOf` throw
+ * on `undefined.reduce`. Returns undefined when there is no array to normalize
+ * (so callers can distinguish "absent" from "empty").
+ */
+export function normalizeScores(raw: unknown): Score[] | undefined {
+  if (!Array.isArray(raw)) return undefined;
+  return raw.map((entry) => {
+    const s = entry as Record<string, unknown>;
+    return Array.isArray(s.roundPoints)
+      ? (s as unknown as Score)
+      : { teamName: s.teamName as string, roundPoints: [] };
+  });
+}
+
+/**
  * name → revealed position and rank. Teams sort by total (descending);
  * ties share a rank and are broken by insertion order for display position.
  */
