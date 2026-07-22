@@ -1,5 +1,5 @@
 import { useParams } from "@solidjs/router";
-import { Component, createMemo, createSignal, Show } from "solid-js";
+import { Component, createMemo, Show } from "solid-js";
 import { useRoom } from "../../hooks/useRoom";
 import { useGameState } from "../../hooks/useGameState";
 import { useGuessTimer } from "../../hooks/useGuessTimer";
@@ -14,7 +14,6 @@ import GuessTimer from "../../components/GuessTimer";
 import GuessTimerPicker from "../../components/GuessTimerPicker";
 import NowPlayingBar from "../../components/NowPlayingBar";
 import Scoreboard from "../../components/Scoreboard";
-import ScoreStrip from "../../components/ScoreStrip";
 import TurnTracker from "../../components/TurnTracker";
 import YouTubePlayer from "../../components/YouTubePlayer";
 
@@ -45,10 +44,6 @@ const RoomPlayInner: Component = () => {
   // Guess timer — 0 = off; duration persists across sessions
   const guessTimer = useGuessTimer();
 
-  // Phone-only: the scoreboard collapses into a sticky strip; tapping it opens
-  // the full board as an overlay for scoring. Always inline on md+.
-  const [scoreExpanded, setScoreExpanded] = createSignal(false);
-
   const currentRound = () => {
     const id = currentItemId();
     if (!id) return undefined;
@@ -64,7 +59,6 @@ const RoomPlayInner: Component = () => {
       revealTrackInfo: false,
     });
     guessTimer.bump();
-    setScoreExpanded(false); // return focus to the board on mobile
     if (songUrl) void playback.playSong(songUrl, startTime);
   };
 
@@ -154,39 +148,13 @@ const RoomPlayInner: Component = () => {
             </Show>
 
             {/* Scoreboard — synced via the room doc for hosts, local otherwise.
-                Phone: a sticky strip that opens the full board as an overlay.
-                md+: the full scoreboard, always inline. */}
-            <ScoreStrip
+                Always inline; phones just scroll past it to reach the board. */}
+            <Scoreboard
               scores={scores()}
               currentRound={currentRound()}
-              expanded={scoreExpanded()}
-              onToggle={() => setScoreExpanded((v) => !v)}
+              roundLabels={roundLabels()}
+              onUpdateScores={(next) => updateGame({ scores: next })}
             />
-
-            {/* Dim + dismiss the overlay on phones */}
-            <Show when={scoreExpanded()}>
-              <div
-                class="fixed inset-0 z-30 bg-night/70 md:hidden"
-                onClick={() => setScoreExpanded(false)}
-              />
-            </Show>
-
-            {/* Single instance — a fixed overlay on phones when expanded,
-                static inline on md+. The overlay classes are reset at md. */}
-            <div
-              class={`md:static md:inset-x-auto md:top-auto md:bottom-auto md:z-auto md:overflow-visible ${
-                scoreExpanded()
-                  ? "fixed inset-x-3 top-16 bottom-24 z-40 overflow-y-auto"
-                  : "hidden md:block"
-              }`}
-            >
-              <Scoreboard
-                scores={scores()}
-                currentRound={currentRound()}
-                roundLabels={roundLabels()}
-                onUpdateScores={(next) => updateGame({ scores: next })}
-              />
-            </div>
 
             {/* Whose turn — rotates with the rounds, click a team to override */}
             <TurnTracker
