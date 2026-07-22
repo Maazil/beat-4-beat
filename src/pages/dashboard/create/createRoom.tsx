@@ -307,8 +307,8 @@ const CreateRoom: Component = () => {
                     onRemove={() => editor.removeCategory(category.id)}
                     onAddItem={() => editor.addItem(category.id)}
                     onEditItem={(itemId) => editor.setEditingItem(itemId)}
-                    onUpdateItem={(itemId, songUrl, title, artist) =>
-                      editor.updateItem(category.id, itemId, songUrl, title, artist)
+                    onUpdateItem={(itemId, songUrl, title, artist, startTime) =>
+                      editor.updateItem(category.id, itemId, songUrl, title, artist, startTime)
                     }
                     onBlurItem={() => editor.setEditingItem(null)}
                     onRemoveItem={(itemId) => editor.removeItem(category.id, itemId)}
