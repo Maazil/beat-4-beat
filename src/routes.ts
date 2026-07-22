@@ -12,6 +12,23 @@ const preloadRoom = ({ params }: RoutePreloadFuncArgs) => {
   void import("./services/roomQuery").then(({ getRoomOnce }) => getRoomOnce(id));
 };
 
+const devOnlyRoutes: RouteDefinition[] = import.meta.env.DEV
+  ? [
+      {
+        path: "/ui-preview",
+        component: lazy(() => import("./pages/ui-preview/UIPreview")),
+      },
+      {
+        path: "/forms-preview",
+        component: lazy(() => import("./pages/forms-preview/FormsPreview")),
+      },
+      {
+        path: "/spotify-test",
+        component: lazy(() => import("./pages/spotify-test/SpotifyTest")),
+      },
+    ]
+  : [];
+
 export const routes: RouteDefinition[] = [
   // Public routes
   {
@@ -104,23 +121,9 @@ export const routes: RouteDefinition[] = [
     ],
   },
 
-  // UI Preview (development only)
-  {
-    path: "/ui-preview",
-    component: lazy(() => import("./pages/ui-preview/UIPreview")),
-  },
-
-  // Forms Preview (development only)
-  {
-    path: "/forms-preview",
-    component: lazy(() => import("./pages/forms-preview/FormsPreview")),
-  },
-
-  // Spotify test (development only)
-  {
-    path: "/spotify-test",
-    component: lazy(() => import("./pages/spotify-test/SpotifyTest")),
-  },
+  // Development-only showcases — omitted from the production build so they
+  // fall through to the NotFound fallback.
+  ...devOnlyRoutes,
 
   // Fallback
   {
