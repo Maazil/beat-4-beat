@@ -1,4 +1,4 @@
-import { Component, For, Show } from "solid-js";
+import { Component, createMemo, For, Show } from "solid-js";
 import type { Category } from "../model/category";
 import { stageInk } from "../theme/palette";
 import type { StageInk } from "../theme/palette";
@@ -21,6 +21,13 @@ interface GameBoardProps {
  * boards, snap-scrolling columns with category headers otherwise.
  */
 const GameBoard: Component<GameBoardProps> = (props) => {
+  // Mobile songitem grid is near-square, sized from the largest category so
+  // every category shares one column count: cols = ceil(sqrt(maxItems)).
+  const itemCols = createMemo(() => {
+    const max = Math.max(1, ...props.categories.map((c) => c.items.length));
+    return Math.ceil(Math.sqrt(max));
+  });
+
   return (
     <>
       {/* Single-category: full-width grid, one ink for the whole board */}
@@ -59,17 +66,17 @@ const GameBoard: Component<GameBoardProps> = (props) => {
 
       {/* Multi-category: column grid with category headers */}
       <Show when={props.categories.length > 1}>
-        {/* Phones: horizontally scrollable snap columns (equal-width
-            columns would crush with 4+ categories). md+: the grid. */}
+        {/* Phones: full-width categories stacked vertically, each with its
+            songitems in a near-square grid. md+: the side-by-side column grid. */}
         <div
-          class="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 sm:-mx-6 sm:px-6 md:mx-0 md:grid md:gap-6 md:overflow-x-visible md:px-0 md:pb-0"
+          class="flex flex-col gap-6 md:grid"
           style={`grid-template-columns: repeat(${props.categories.length}, minmax(0, 1fr))`}
         >
           <For each={props.categories}>
             {(category, index) => {
               const ink = () => stageInk(index());
               return (
-                <div class="flex w-40 shrink-0 snap-start flex-col gap-4 md:w-auto md:shrink">
+                <div class="flex w-full flex-col gap-4 md:w-auto">
                   <Show
                     when={category.imageUrl}
                     fallback={
@@ -90,12 +97,15 @@ const GameBoard: Component<GameBoardProps> = (props) => {
                     />
                   </Show>
 
-                  <div class="flex flex-col gap-3">
+                  <div
+                    class="grid gap-2 md:flex md:flex-col md:gap-3"
+                    style={`grid-template-columns: repeat(${itemCols()}, minmax(0, 1fr))`}
+                  >
                     <For each={category.items}>
                       {(item) => (
                         <button
                           type="button"
-                          class={`flex h-16 w-full cursor-pointer items-center justify-center rounded-lg ${
+                          class={`flex h-14 w-full cursor-pointer items-center justify-center rounded-lg md:h-16 ${
                             props.isItemRevealed(item.id)
                               ? "border border-dashed border-line bg-night/50"
                               : "stage-card"
@@ -104,7 +114,7 @@ const GameBoard: Component<GameBoardProps> = (props) => {
                           onClick={() => props.onItemClick(item.id, item.songUrl, item.startTime)}
                         >
                           <span
-                            class="font-mono text-2xl font-bold"
+                            class="font-mono text-xl font-bold sm:text-2xl"
                             style={{
                               color: props.isItemRevealed(item.id)
                                 ? "var(--color-muted)"
