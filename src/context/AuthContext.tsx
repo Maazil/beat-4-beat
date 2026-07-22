@@ -69,9 +69,8 @@ export const AuthProvider: ParentComponent = (props) => {
     }
   };
 
-  // Apple only shares a display name on first sign-in; email-link users have
-  // no name at all. The email is stashed so the finish route can complete the
-  // sign-in even if it opens in a new tab on the same device.
+  // The email is stashed so the finish route can complete the sign-in even if
+  // the link opens in a new tab on the same device.
   const EMAIL_FOR_SIGN_IN_KEY = "emailForSignIn";
 
   const sendEmailSignInLink = async (email: string) => {
