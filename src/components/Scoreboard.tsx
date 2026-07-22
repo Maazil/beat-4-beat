@@ -271,7 +271,7 @@ const Scoreboard: Component<ScoreboardProps> = (props) => {
                           {score.teamName}
                         </span>
                         <svg
-                          class="h-3 w-3 shrink-0 text-muted opacity-0 transition group-hover:opacity-100"
+                          class="h-3 w-3 shrink-0 text-muted opacity-100 transition md:opacity-0 md:group-hover:opacity-100"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -404,7 +404,7 @@ const Scoreboard: Component<ScoreboardProps> = (props) => {
                   type="button"
                   onClick={() => handleRemoveTeam(index())}
                   title="Remove team"
-                  class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-muted opacity-0 transition group-hover:opacity-100 hover:bg-beat-soft hover:text-beat"
+                  class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-muted opacity-100 transition hover:bg-beat-soft hover:text-beat md:opacity-0 md:group-hover:opacity-100"
                 >
                   <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path

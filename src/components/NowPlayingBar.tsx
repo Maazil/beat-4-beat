@@ -29,7 +29,7 @@ const NowPlayingBar: Component<NowPlayingBarProps> = (props) => {
         />
       </Show>
 
-      <div class="flex items-center gap-4 px-6 py-3">
+      <div class="flex items-center gap-2 px-3 py-2 sm:gap-4 sm:px-6 sm:py-3">
         {/* Hidden track info with reveal toggle */}
         <div class="min-w-0 flex-1">
           <Show
@@ -78,7 +78,7 @@ const NowPlayingBar: Component<NowPlayingBarProps> = (props) => {
         <button
           type="button"
           onClick={() => props.onToggleTrackInfo()}
-          class={`flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-sm font-bold transition ${
+          class={`flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-bold transition sm:px-4 ${
             props.showTrackInfo
               ? "border-beat/30 bg-beat-soft text-beat-bright"
               : "border-line text-ink hover:border-beat hover:bg-beat-soft"
@@ -112,14 +112,14 @@ const NowPlayingBar: Component<NowPlayingBarProps> = (props) => {
               />
             </svg>
           </Show>
-          {props.showTrackInfo ? "Hide" : "Reveal"}
+          <span class="hidden sm:inline">{props.showTrackInfo ? "Hide" : "Reveal"}</span>
         </button>
 
         {/* Skip back 10s */}
         <button
           type="button"
           onClick={() => props.onSkipBackward()}
-          class="flex h-8 w-8 items-center justify-center rounded-full text-muted transition hover:bg-surface-2 hover:text-ink"
+          class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-muted transition hover:bg-surface-2 hover:text-ink"
           title="-10s"
         >
           <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
@@ -150,7 +150,7 @@ const NowPlayingBar: Component<NowPlayingBarProps> = (props) => {
         <button
           type="button"
           onClick={() => props.onSkipForward()}
-          class="flex h-8 w-8 items-center justify-center rounded-full text-muted transition hover:bg-surface-2 hover:text-ink"
+          class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-muted transition hover:bg-surface-2 hover:text-ink"
           title="+10s"
         >
           <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">

@@ -17,7 +17,9 @@ const RoomPlayHeader: Component<RoomPlayHeaderProps> = (props) => {
   return (
     <div class="flex flex-col gap-4">
       <div class="flex flex-col gap-2">
-        <h1 class="font-display text-3xl font-bold tracking-tight text-ink">{props.roomName}</h1>
+        <h1 class="font-display text-2xl font-bold tracking-tight text-ink sm:text-3xl">
+          {props.roomName}
+        </h1>
         <div class="flex flex-wrap items-center justify-between gap-3">
           <h2 class="flex flex-wrap items-center gap-2 font-medium text-muted">
             Hosted by
