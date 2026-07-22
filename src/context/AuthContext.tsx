@@ -126,30 +126,44 @@ export const AuthProvider: ParentComponent = (props) => {
   // The Auth SDK loads dynamically, so the subscription is wired up after an
   // await. onCleanup is registered synchronously at the component root (the
   // right owner) and calls whatever unsubscribe the async setup produced.
+  // `disposed` guards the case where cleanup fires before loadAuth() resolves —
+  // otherwise we'd assign a live subscription that never tears down.
   let unsubscribe: (() => void) | undefined;
-  onCleanup(() => unsubscribe?.());
+  let disposed = false;
+  onCleanup(() => {
+    disposed = true;
+    unsubscribe?.();
+  });
 
   onMount(() => {
     setState("isLoading", true);
-    void loadAuth().then(({ auth, onAuthStateChanged }) => {
-      unsubscribe = onAuthStateChanged(auth, async (user) => {
-        if (user) {
-          try {
-            // Lazy import keeps Firestore out of the entry chunk — signed-out
-            // visitors (the landing page) never download it.
-            const { getUserDjName, upsertUserProfile } = await import("../services/usersService");
-            await upsertUserProfile(user);
-            const name = await getUserDjName(user.uid);
-            setDjName(name);
-          } catch (error) {
-            console.error("Failed to sync user profile:", error);
+    void loadAuth()
+      .then(({ auth, onAuthStateChanged }) => {
+        if (disposed) return;
+        unsubscribe = onAuthStateChanged(auth, async (user) => {
+          if (user) {
+            try {
+              // Lazy import keeps Firestore out of the entry chunk — signed-out
+              // visitors (the landing page) never download it.
+              const { getUserDjName, upsertUserProfile } = await import("../services/usersService");
+              await upsertUserProfile(user);
+              const name = await getUserDjName(user.uid);
+              setDjName(name);
+            } catch (error) {
+              console.error("Failed to sync user profile:", error);
+            }
+          } else {
+            setDjName(null);
           }
-        } else {
-          setDjName(null);
-        }
-        setState({ user, isLoading: false });
+          setState({ user, isLoading: false });
+        });
+      })
+      .catch((error) => {
+        // A failed chunk load (network blip, post-deploy cache eviction) must
+        // still clear isLoading, or route guards/spinners hang forever.
+        console.error("Auth init failed:", error);
+        setState("isLoading", false);
       });
-    });
   });
 
   const value: AuthContextValue = {
