@@ -43,7 +43,7 @@ const GuessTimer: Component<GuessTimerProps> = (props) => {
   return (
     <Show when={props.runId > 0 && !dismissed()}>
       <div
-        class={`fixed right-6 bottom-24 z-40 flex h-28 w-28 items-center justify-center rounded-full border border-line bg-surface shadow-[0_8px_30px_rgba(0,0,0,0.5)] ${
+        class={`fixed right-4 bottom-24 z-40 flex h-20 w-20 items-center justify-center rounded-full border border-line bg-surface shadow-[0_8px_30px_rgba(0,0,0,0.5)] sm:right-6 sm:h-28 sm:w-28 ${
           expired() ? "animate-pulse" : ""
         }`}
       >
