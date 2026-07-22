@@ -1,5 +1,5 @@
-import { createSignal } from "solid-js";
-import { unwrap } from "solid-js/store";
+import { createEffect, createMemo, on } from "solid-js";
+import { createStore, reconcile, unwrap } from "solid-js/store";
 import { useAuth } from "../context/AuthContext";
 import { defaultGameState, type GameState } from "../model/gameState";
 import type { Room } from "../model/room";
@@ -14,6 +14,16 @@ export interface UseGameStateResult {
 
 const storageKey = (roomId: string) => `b4b:game:${roomId}`;
 
+const loadLocal = (roomId: string): GameState => {
+  try {
+    const raw = localStorage.getItem(storageKey(roomId));
+    if (raw) return { ...defaultGameState(), ...(JSON.parse(raw) as Partial<GameState>) };
+  } catch (err) {
+    console.error("[useGameState] Failed to load saved game:", err);
+  }
+  return defaultGameState();
+};
+
 /**
  * Game state for a play session. Hosts and co-owners read and write the
  * gameState field on the room document — real-time and refresh-safe.
@@ -27,30 +37,26 @@ export function useGameState(
 ): UseGameStateResult {
   const { state: authState } = useAuth();
 
-  // Local (non-shared) games, cached per room and bumped via a version
-  // signal so reads stay reactive without re-parsing localStorage.
-  const localCache = new Map<string, GameState>();
-  const [localVersion, setLocalVersion] = createSignal(0);
+  // Local (non-shared) game — a store so updates merge field-by-field and
+  // reads stay reactive without re-parsing localStorage. Seeded synchronously
+  // for the initial room; a deferred effect reloads it if the room changes.
+  const initialRoomId = getRoomId();
+  const [local, setLocal] = createStore<GameState>(
+    initialRoomId ? loadLocal(initialRoomId) : defaultGameState(),
+  );
+  let loadedRoomId = initialRoomId;
 
-  const loadLocal = (roomId: string): GameState => {
-    try {
-      const raw = localStorage.getItem(storageKey(roomId));
-      if (raw) return { ...defaultGameState(), ...(JSON.parse(raw) as Partial<GameState>) };
-    } catch (err) {
-      console.error("[useGameState] Failed to load saved game:", err);
-    }
-    return defaultGameState();
-  };
-
-  const localGame = (roomId: string): GameState => {
-    localVersion();
-    let cached = localCache.get(roomId);
-    if (!cached) {
-      cached = loadLocal(roomId);
-      localCache.set(roomId, cached);
-    }
-    return cached;
-  };
+  createEffect(
+    on(
+      getRoomId,
+      (roomId) => {
+        if (!roomId || roomId === loadedRoomId) return;
+        loadedRoomId = roomId;
+        setLocal(reconcile(loadLocal(roomId)));
+      },
+      { defer: true },
+    ),
+  );
 
   const isShared = () => {
     const room = getRoom();
@@ -58,11 +64,10 @@ export function useGameState(
     return !!room && !!uid && (room.hostId === uid || (room.editorIds?.includes(uid) ?? false));
   };
 
-  const game = (): GameState => {
+  const game = createMemo<GameState>(() => {
     if (isShared()) return getRoom()?.gameState ?? defaultGameState();
-    const roomId = getRoomId();
-    return roomId ? localGame(roomId) : defaultGameState();
-  };
+    return local;
+  });
 
   const updateGame = (updates: Partial<GameState>) => {
     const room = getRoom();
@@ -84,14 +89,18 @@ export function useGameState(
       return;
     }
 
-    const next = { ...game(), ...updates };
-    localCache.set(roomId, next);
+    // Keep the store aligned with the room being written to, then merge the
+    // changed fields — the store's fine-grained updates drive reactivity.
+    if (roomId !== loadedRoomId) {
+      loadedRoomId = roomId;
+      setLocal(reconcile(loadLocal(roomId)));
+    }
+    setLocal(updates);
     try {
-      localStorage.setItem(storageKey(roomId), JSON.stringify(next));
+      localStorage.setItem(storageKey(roomId), JSON.stringify(unwrap(local)));
     } catch (err) {
       console.error("[useGameState] Failed to persist game locally:", err);
     }
-    setLocalVersion((v) => v + 1);
   };
 
   return { game, updateGame, isShared };
