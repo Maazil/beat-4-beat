@@ -50,17 +50,19 @@ const FinishEmailSignIn: Component = () => {
   // the email was stashed on this device we finish straight away; otherwise we
   // ask the user to confirm the address the link was sent to.
   onMount(() => {
-    if (!auth.isEmailSignInLink(window.location.href)) {
-      setMessage("This sign-in link is invalid or has expired.");
-      setStatus("error");
-      return;
-    }
-    const stored = auth.getStoredSignInEmail();
-    if (stored) {
-      void finish(stored);
-    } else {
-      setStatus("needEmail");
-    }
+    void (async () => {
+      if (!(await auth.isEmailSignInLink(window.location.href))) {
+        setMessage("This sign-in link is invalid or has expired.");
+        setStatus("error");
+        return;
+      }
+      const stored = auth.getStoredSignInEmail();
+      if (stored) {
+        void finish(stored);
+      } else {
+        setStatus("needEmail");
+      }
+    })();
   });
 
   const handleSubmit = (e: Event) => {

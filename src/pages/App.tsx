@@ -1,9 +1,12 @@
 import { Meta, Title } from "@solidjs/meta";
 import { useNavigate } from "@solidjs/router";
-import type { Component } from "solid-js";
-import SimBoard from "../components/landing/SimBoard";
+import { type Component, lazy, Suspense } from "solid-js";
 import { STAGE_COLORS } from "../theme/palette";
 import "./stage-night.css";
+
+// The interactive canvas demo is a decorative hero flourish, not needed for
+// first paint — lazy-load it so its code stays off the landing entry chunk.
+const SimBoard = lazy(() => import("../components/landing/SimBoard"));
 
 const App: Component = () => {
   const navigate = useNavigate();
@@ -75,7 +78,17 @@ const App: Component = () => {
               </div>
               <p class="hero-note">Free to play · runs in the browser · nothing to install</p>
 
-              <SimBoard />
+              <Suspense
+                fallback={
+                  <div
+                    class="sim-frame"
+                    aria-hidden="true"
+                    style={{ "aspect-ratio": "16 / 10.5" }}
+                  />
+                }
+              >
+                <SimBoard />
+              </Suspense>
             </header>
 
             <section id="how">

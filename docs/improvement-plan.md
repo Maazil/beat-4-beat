@@ -61,9 +61,12 @@ audience screen leaks answers. Close that gap first.
 15. **Dashboard over-fetch** — `subscribeToMyRooms` streams full room docs incl.
     inline base64 category images just to show name/count/date; add a summary
     projection. Dominant read cost at scale. — M/L
-16. **Bundle splitting** — no `manualChunks` (Firestore ships as one ~456 KB
-    chunk); defer the Auth SDK (~88 KB) and the 632-line `SimBoard` off the
-    landing critical path. — M
+16. ~~**Bundle splitting**~~ — **[DONE]** SimBoard is now `lazy()`-loaded off the
+    landing hero, and the Auth SDK is dynamically imported by `AuthContext`
+    (via a memoized `lib/auth` re-export that keeps it tree-shaken) instead of
+    statically. `manualChunks` isolates `firebase-auth` and `firebase-firestore`
+    so neither can pull the other. Landing critical-path JS dropped from ~186 KB
+    to ~63 KB raw — no Firebase on first paint. — M
 17. **`usePlaybackProgress`** polls Spotify every 1s all session — interpolate
     position locally, reconcile every 5–10s. — M
 

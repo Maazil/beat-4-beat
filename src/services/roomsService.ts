@@ -26,7 +26,7 @@ import {
   type Unsubscribe,
 } from "firebase/firestore";
 import { db } from "../lib/db";
-import { auth } from "../lib/firebase";
+import { auth } from "../lib/auth";
 import type { Category } from "../model/category";
 import type { GameState } from "../model/gameState";
 import type { CreateRoomData, Room } from "../model/room";
