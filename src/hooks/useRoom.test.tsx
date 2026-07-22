@@ -1,19 +1,28 @@
 // @vitest-environment jsdom
+import type { FirebaseError } from "firebase/app";
 import { createRoot, createSignal } from "solid-js";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import type { Room } from "../model/room";
 
-// Capture the snapshot callback and the unsubscribe spy so tests can drive
-// the "subscription" by hand instead of touching Firestore.
+// Capture the snapshot + error callbacks and the unsubscribe spy so tests can
+// drive the "subscription" by hand instead of touching Firestore.
 let snapshotCb: ((room: Room | null) => void) | undefined;
+let errorCb: ((error: FirebaseError) => void) | undefined;
 const unsubscribe = vi.fn();
-const subscribeToRoom = vi.fn((_id: string, cb: (room: Room | null) => void) => {
-  snapshotCb = cb;
-  return unsubscribe;
-});
+const subscribeToRoom = vi.fn(
+  (_id: string, cb: (room: Room | null) => void, onError?: (error: FirebaseError) => void) => {
+    snapshotCb = cb;
+    errorCb = onError;
+    return unsubscribe;
+  },
+);
 
 vi.mock("../services/roomsService", () => ({
-  subscribeToRoom: (id: string, cb: (room: Room | null) => void) => subscribeToRoom(id, cb),
+  subscribeToRoom: (
+    id: string,
+    cb: (room: Room | null) => void,
+    onError?: (error: FirebaseError) => void,
+  ) => subscribeToRoom(id, cb, onError),
 }));
 
 // Warm-start read resolves to nothing so the live subscription owns state.
@@ -65,7 +74,11 @@ describe("useRoom", () => {
     await createRoot(async (dispose) => {
       const { room: getRoom, isLoading, error } = useRoom(() => "r1");
       await tick();
-      expect(subscribeToRoom).toHaveBeenCalledWith("r1", expect.any(Function));
+      expect(subscribeToRoom).toHaveBeenCalledWith(
+        "r1",
+        expect.any(Function),
+        expect.any(Function),
+      );
       expect(isLoading()).toBe(true);
 
       snapshotCb?.(room({ id: "r1", roomName: "Bangers" }));
@@ -87,6 +100,32 @@ describe("useRoom", () => {
     });
   });
 
+  test("clears loading and reports no access on permission-denied", async () => {
+    await createRoot(async (dispose) => {
+      const { room: getRoom, isLoading, error } = useRoom(() => "private");
+      await tick();
+      expect(isLoading()).toBe(true);
+
+      errorCb?.({ code: "permission-denied" } as FirebaseError);
+      expect(isLoading()).toBe(false);
+      expect(getRoom()).toBeNull();
+      expect(error()).toBe("You don't have access to this room");
+      dispose();
+    });
+  });
+
+  test("clears loading and reports a generic failure on other errors", async () => {
+    await createRoot(async (dispose) => {
+      const { isLoading, error } = useRoom(() => "r1");
+      await tick();
+
+      errorCb?.({ code: "unavailable" } as FirebaseError);
+      expect(isLoading()).toBe(false);
+      expect(error()).toBe("Failed to load room");
+      dispose();
+    });
+  });
+
   test("resubscribes when the room id changes", async () => {
     await createRoot(async (dispose) => {
       const [id, setId] = createSignal("r1");
@@ -98,7 +137,11 @@ describe("useRoom", () => {
       await tick();
       expect(unsubscribe).toHaveBeenCalledTimes(1);
       expect(subscribeToRoom).toHaveBeenCalledTimes(2);
-      expect(subscribeToRoom).toHaveBeenLastCalledWith("r2", expect.any(Function));
+      expect(subscribeToRoom).toHaveBeenLastCalledWith(
+        "r2",
+        expect.any(Function),
+        expect.any(Function),
+      );
       dispose();
     });
   });

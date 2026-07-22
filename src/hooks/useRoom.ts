@@ -62,16 +62,31 @@ export function useRoom(getRoomId: () => string | undefined): UseRoomResult {
       });
 
     try {
-      const unsubscribe = subscribeToRoom(roomId, (roomData) => {
-        hasSnapshot = true;
-        setState("room", reconcile(roomData));
-        setIsLoading(false);
-        if (!roomData) {
-          setError("Room not found");
-        } else {
-          setError(null);
-        }
-      });
+      const unsubscribe = subscribeToRoom(
+        roomId,
+        (roomData) => {
+          hasSnapshot = true;
+          setState("room", reconcile(roomData));
+          setIsLoading(false);
+          if (!roomData) {
+            setError("Room not found");
+          } else {
+            setError(null);
+          }
+        },
+        // A failed listener must still clear loading, or the page spins
+        // forever. permission-denied means no read access (private room, or
+        // signed in as the wrong account) — surface that; anything else is a
+        // generic load failure.
+        (err) => {
+          setIsLoading(false);
+          setError(
+            err.code === "permission-denied"
+              ? "You don't have access to this room"
+              : "Failed to load room",
+          );
+        },
+      );
 
       onCleanup(() => unsubscribe());
     } catch (err) {
