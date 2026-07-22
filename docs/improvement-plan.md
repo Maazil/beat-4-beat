@@ -29,8 +29,10 @@ audience screen leaks answers. Close that gap first.
    today "new game" just resets. — S
 5. **Copy-link "Copied!" feedback** — no visual confirmation today, and the logic
    is duplicated in `RoomView`, `RoomManageCard`, `RoomPreview`; consolidate. — S
-6. **Gate dev-only routes** (`/ui-preview`, `/forms-preview`, `/spotify-test`)
-   behind `import.meta.env.DEV`. — S
+6. ~~**Gate dev-only routes**~~ — **[DONE]** `/ui-preview`, `/forms-preview`, and
+   `/spotify-test` now live in a `devOnlyRoutes` array spread into `routes.ts`
+   only when `import.meta.env.DEV` is true; production falls through to NotFound
+   and Rollup drops the three page chunks entirely. — S
 7. **Drop `updateRoom`'s full-doc pre-read** — it re-checks ownership that
    `firestore.rules` already enforces; doubles every editor save. — S
 8. **Random-tile picker** for lightning rounds. — S
