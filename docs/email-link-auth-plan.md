@@ -130,12 +130,20 @@ profile/DJ-name flow renders sensibly for a nameless user rather than assuming.
      redirected to `/dashboard` with a `users/{uid}` doc written.
   3. Same-device happy path (email read from `localStorage`, no prompt).
   4. Different-device path: open the link where `localStorage` is empty →
-     `window.prompt` asks for the email → completes.
+     in-app "Confirm your email" page asks for the email → completes.
   5. Reused/expired link → friendly error, not a crash.
 
 ## Out of scope
 
 - Email/password (with an actual password) sign-up — this is link-only.
 - Custom email templates / custom sending domain (console-side, later).
-- Polished in-app cross-device email re-entry (using `window.prompt` for v1).
-- Preserving arbitrary `redirect` deep-links across the email round-trip.
+
+## Shipped beyond the original plan
+
+Two items originally scoped out of v1 were implemented in this PR:
+
+- Cross-device email re-entry uses an in-app "Confirm your email" page rather
+  than `window.prompt`.
+- The `redirect` deep-link target is preserved across the email round-trip
+  (`sendEmailSignInLink` encodes a validated in-app path into the finish URL;
+  `FinishEmailSignIn` re-validates it and forwards there after sign-in).

@@ -15,15 +15,20 @@ const FinishEmailSignIn: Component = () => {
   const [status, setStatus] = createSignal<Status>("working");
   const [message, setMessage] = createSignal("");
   const [email, setEmail] = createSignal("");
+  const [completed, setCompleted] = createSignal(false);
 
   // Only allow in-app paths as redirect targets, mirroring the guard on /login.
   const destination = () => safeRedirectTarget(searchParams.redirect);
 
-  // Redirect only once the auth observer has actually populated the user, rather
-  // than the instant signInWithEmailLink resolves — otherwise a protected
-  // destination can bounce back to /login before the auth state lands.
+  // Redirect once THIS link's sign-in has completed and the auth observer has
+  // populated the user — not on ambient auth state. Gating on `completed`
+  // (rather than `isAuthenticated` alone) means a user who is already signed in
+  // and opens an invalid/expired link still reaches onMount's validation and
+  // error path instead of being bounced away. Waiting for the observer (rather
+  // than navigating the instant signInWithEmailLink resolves) keeps a protected
+  // destination from bouncing back to /login before the auth state lands.
   createEffect(() => {
-    if (auth.isAuthenticated()) {
+    if (completed() && auth.isAuthenticated()) {
       navigate(destination(), { replace: true });
     }
   });
@@ -33,6 +38,7 @@ const FinishEmailSignIn: Component = () => {
     setMessage("");
     try {
       await auth.completeEmailSignIn(window.location.href, address);
+      setCompleted(true);
       // Navigation is handled by the effect above once auth state updates.
     } catch (err: any) {
       setMessage(err?.message || "This sign-in link is invalid or has expired.");
