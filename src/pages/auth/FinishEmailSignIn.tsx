@@ -1,29 +1,53 @@
 import { useNavigate } from "@solidjs/router";
 import { Component, createSignal, Match, onMount, Switch } from "solid-js";
+import Button from "../../components/forms/Button";
+import Input from "../../components/forms/Input";
 import Logo from "../../components/Logo";
 import { useAuth } from "../../context/AuthContext";
+
+type Status = "working" | "needEmail" | "error";
 
 const FinishEmailSignIn: Component = () => {
   const navigate = useNavigate();
   const auth = useAuth();
-  const [status, setStatus] = createSignal<"working" | "invalid" | "error">("working");
+  const [status, setStatus] = createSignal<Status>("working");
   const [message, setMessage] = createSignal("");
+  const [email, setEmail] = createSignal("");
 
-  // Completing the sign-in is a one-shot side effect that reads the current
-  // URL, so it belongs in onMount rather than a derivation.
-  onMount(async () => {
+  const finish = async (address: string) => {
+    setStatus("working");
+    setMessage("");
     try {
-      const signedIn = await auth.completeEmailSignIn(window.location.href);
-      if (signedIn) {
-        navigate("/dashboard", { replace: true });
-      } else {
-        setStatus("invalid");
-      }
+      await auth.completeEmailSignIn(window.location.href, address);
+      navigate("/dashboard", { replace: true });
     } catch (err: any) {
       setMessage(err?.message || "This sign-in link is invalid or has expired.");
       setStatus("error");
     }
+  };
+
+  // Completing the sign-in reads the current URL, so it runs once on mount. If
+  // the email was stashed on this device we finish straight away; otherwise we
+  // ask the user to confirm the address the link was sent to.
+  onMount(() => {
+    if (!auth.isEmailSignInLink(window.location.href)) {
+      setMessage("This sign-in link is invalid or has expired.");
+      setStatus("error");
+      return;
+    }
+    const stored = auth.getStoredSignInEmail();
+    if (stored) {
+      void finish(stored);
+    } else {
+      setStatus("needEmail");
+    }
   });
+
+  const handleSubmit = (e: Event) => {
+    e.preventDefault();
+    const address = email().trim();
+    if (address) void finish(address);
+  };
 
   return (
     <div class="bg-stage relative flex min-h-screen items-center justify-center overflow-hidden p-6">
@@ -38,7 +62,28 @@ const FinishEmailSignIn: Component = () => {
           <Match when={status() === "working"}>
             <p class="text-muted">Signing you in…</p>
           </Match>
-          <Match when={status() === "invalid" || status() === "error"}>
+
+          <Match when={status() === "needEmail"}>
+            <h1 class="font-display mb-6 text-3xl font-bold tracking-tight text-ink">
+              Confirm your email
+            </h1>
+            <form onSubmit={handleSubmit} class="flex flex-col gap-3">
+              <Input
+                type="email"
+                required
+                autofocus
+                autocomplete="email"
+                placeholder="you@example.com"
+                value={email()}
+                onInput={(e) => setEmail(e.currentTarget.value)}
+              />
+              <Button type="submit" size="lg" class="w-full">
+                Continue
+              </Button>
+            </form>
+          </Match>
+
+          <Match when={status() === "error"}>
             <h1 class="font-display mb-2 text-2xl font-bold tracking-tight text-ink">
               Couldn’t sign you in
             </h1>
