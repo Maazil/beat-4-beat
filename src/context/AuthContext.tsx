@@ -1,13 +1,4 @@
-import {
-  signOut as firebaseSignOut,
-  GoogleAuthProvider,
-  isSignInWithEmailLink,
-  onAuthStateChanged,
-  sendSignInLinkToEmail,
-  signInWithEmailLink,
-  signInWithPopup,
-  type User,
-} from "firebase/auth";
+import type { User } from "firebase/auth";
 import {
   Accessor,
   createContext,
@@ -18,7 +9,14 @@ import {
   useContext,
 } from "solid-js";
 import { createStore } from "solid-js/store";
-import { auth } from "../lib/firebase";
+
+// The Auth SDK and its instance are loaded on demand (first mount, or first
+// sign-in action) rather than statically, keeping the ~90 KB chunk off the
+// landing entry graph. lib/auth re-exports the specific SDK functions so the
+// dynamic import stays tree-shaken; the promise is memoized so every caller
+// shares one instance and one download.
+let authBundle: Promise<typeof import("../lib/auth")> | undefined;
+const loadAuth = () => (authBundle ??= import("../lib/auth"));
 
 export interface AuthState {
   user: User | null;
@@ -29,7 +27,7 @@ interface AuthContextValue {
   state: AuthState;
   signInWithGoogle: () => Promise<void>;
   sendEmailSignInLink: (email: string, redirectPath?: string) => Promise<void>;
-  isEmailSignInLink: (href: string) => boolean;
+  isEmailSignInLink: (href: string) => Promise<boolean>;
   getStoredSignInEmail: () => string | null;
   completeEmailSignIn: (href: string, email: string) => Promise<void>;
   signOut: () => Promise<void>;
@@ -61,6 +59,7 @@ export const AuthProvider: ParentComponent = (props) => {
   const signInWithGoogle = async () => {
     setState("isLoading", true);
     try {
+      const { auth, GoogleAuthProvider, signInWithPopup } = await loadAuth();
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
     } catch (error) {
@@ -82,6 +81,7 @@ export const AuthProvider: ParentComponent = (props) => {
     const finishUrl = new URL(`${window.location.origin}/login/finish`);
     if (redirectPath) finishUrl.searchParams.set("redirect", redirectPath);
     try {
+      const { auth, sendSignInLinkToEmail } = await loadAuth();
       await sendSignInLinkToEmail(auth, email, {
         url: finishUrl.toString(),
         handleCodeInApp: true,
@@ -93,7 +93,10 @@ export const AuthProvider: ParentComponent = (props) => {
     }
   };
 
-  const isEmailSignInLink = (href: string) => isSignInWithEmailLink(auth, href);
+  const isEmailSignInLink = async (href: string) => {
+    const { auth, isSignInWithEmailLink } = await loadAuth();
+    return isSignInWithEmailLink(auth, href);
+  };
 
   // Present on the same device that requested the link; absent when the link
   // opens elsewhere, in which case the finish page asks the user to confirm it.
@@ -101,6 +104,7 @@ export const AuthProvider: ParentComponent = (props) => {
 
   const completeEmailSignIn = async (href: string, email: string): Promise<void> => {
     try {
+      const { auth, signInWithEmailLink } = await loadAuth();
       await signInWithEmailLink(auth, email, href);
       window.localStorage.removeItem(EMAIL_FOR_SIGN_IN_KEY);
     } catch (error) {
@@ -111,6 +115,7 @@ export const AuthProvider: ParentComponent = (props) => {
 
   const signOut = async () => {
     try {
+      const { auth, signOut: firebaseSignOut } = await loadAuth();
       await firebaseSignOut(auth);
     } catch (error) {
       console.error("Sign out failed:", error);
@@ -118,28 +123,32 @@ export const AuthProvider: ParentComponent = (props) => {
     }
   };
 
+  // The Auth SDK loads dynamically, so the subscription is wired up after an
+  // await. onCleanup is registered synchronously at the component root (the
+  // right owner) and calls whatever unsubscribe the async setup produced.
+  let unsubscribe: (() => void) | undefined;
+  onCleanup(() => unsubscribe?.());
+
   onMount(() => {
     setState("isLoading", true);
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        try {
-          // Lazy import keeps Firestore out of the entry chunk — signed-out
-          // visitors (the landing page) never download it.
-          const { getUserDjName, upsertUserProfile } = await import("../services/usersService");
-          await upsertUserProfile(user);
-          const name = await getUserDjName(user.uid);
-          setDjName(name);
-        } catch (error) {
-          console.error("Failed to sync user profile:", error);
+    void loadAuth().then(({ auth, onAuthStateChanged }) => {
+      unsubscribe = onAuthStateChanged(auth, async (user) => {
+        if (user) {
+          try {
+            // Lazy import keeps Firestore out of the entry chunk — signed-out
+            // visitors (the landing page) never download it.
+            const { getUserDjName, upsertUserProfile } = await import("../services/usersService");
+            await upsertUserProfile(user);
+            const name = await getUserDjName(user.uid);
+            setDjName(name);
+          } catch (error) {
+            console.error("Failed to sync user profile:", error);
+          }
+        } else {
+          setDjName(null);
         }
-      } else {
-        setDjName(null);
-      }
-      setState({ user, isLoading: false });
-    });
-
-    onCleanup(() => {
-      unsubscribe();
+        setState({ user, isLoading: false });
+      });
     });
   });
 
