@@ -267,7 +267,7 @@ const Scoreboard: Component<ScoreboardProps> = (props) => {
                         title="Rename team"
                         class="flex max-w-full items-center gap-1.5 text-left"
                       >
-                        <span class="truncate font-display text-base font-bold text-ink">
+                        <span class="truncate font-display text-sm font-bold text-ink">
                           {score.teamName}
                         </span>
                         <svg
@@ -299,7 +299,7 @@ const Scoreboard: Component<ScoreboardProps> = (props) => {
                         onBlur={() => commitRename(index())}
                         onKeyDown={(e) => e.key === "Escape" && setEditingTeam(null)}
                         maxLength={24}
-                        class="w-full max-w-52 rounded-lg border border-beat bg-surface px-2 py-0.5 font-display text-base font-bold text-ink outline-none"
+                        class="w-full max-w-52 rounded-lg border border-beat bg-surface px-2 py-0.5 font-display text-sm font-bold text-ink outline-none"
                         autofocus
                       />
                     </form>
