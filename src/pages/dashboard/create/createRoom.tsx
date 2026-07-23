@@ -77,9 +77,10 @@ const CreateRoom: Component = () => {
         setEditorIds(room.editorIds ?? []);
       }
 
-      // Register existing category hues so new ones get distinct colors
+      // Register existing category hues so new ones get distinct colors.
+      // Preset categories carry an inkIndex and don't consume a round-robin slot.
       for (const cat of room.categories) {
-        generateColorScheme(cat.id);
+        generateColorScheme(cat.id, cat.inkIndex);
       }
     } catch (err) {
       console.error("Failed to load room for editing:", err);
@@ -100,9 +101,10 @@ const CreateRoom: Component = () => {
     resetHueAssignments();
     editor.replaceCategories(categories);
 
-    // Register hues for the new categories
+    // Register hues for the new categories. Preset categories carry an
+    // inkIndex and don't consume a round-robin slot.
     for (const cat of categories) {
-      generateColorScheme(cat.id);
+      generateColorScheme(cat.id, cat.inkIndex);
     }
   };
 
