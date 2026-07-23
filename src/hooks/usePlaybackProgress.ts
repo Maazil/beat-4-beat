@@ -41,10 +41,21 @@ export function usePlaybackProgress(): UsePlaybackProgressResult {
   let anchorPositionMs = 0;
   let anchorAt = performance.now();
 
+  // True only while an effect run owns the interval loop. A reconcile request
+  // still in flight when the tab hides or playback pauses must not write stale
+  // state after the loop has torn down.
+  let isInterpolating = false;
+
+  // Bumped on every seek. A reconcile that was in flight when a seek began (and
+  // resolves after it) carries a stale position, so it must not re-anchor.
+  let seekGeneration = 0;
+
   const setAnchor = (posMs: number) => {
-    anchorPositionMs = posMs;
+    const dur = untrack(durationMs);
+    const clamped = dur > 0 ? Math.min(Math.max(posMs, 0), dur) : Math.max(posMs, 0);
+    anchorPositionMs = clamped;
     anchorAt = performance.now();
-    setPositionMs(posMs);
+    setPositionMs(clamped);
   };
 
   const onVisibilityChange = () => setIsTabVisible(!document.hidden);
@@ -64,12 +75,22 @@ export function usePlaybackProgress(): UsePlaybackProgressResult {
   // changes from the real playback state, then re-anchor to it.
   const reconcile = async () => {
     if (isSeeking()) return;
+    const requestedAt = performance.now();
+    const seekGen = seekGeneration;
     try {
       const state = await getPlaybackState();
+      // Bail if the loop tore down (tab hidden / paused), or a seek started
+      // while the request was in flight — a stale position must not clobber the
+      // seek target, even once the seek itself has finished.
+      if (!isInterpolating || isSeeking() || seekGen !== seekGeneration) return;
       if (state) {
         setDurationMs(state.durationMs);
         setIsPlaying(state.isPlaying);
-        setAnchor(state.positionMs);
+        // The reported position was sampled server-side before the response
+        // arrived. If still playing, advance it by ~half the round-trip so the
+        // bar doesn't visibly rewind by network latency on every reconcile.
+        const latencyMs = state.isPlaying ? (performance.now() - requestedAt) / 2 : 0;
+        setAnchor(state.positionMs + latencyMs);
       }
     } catch {
       // silently ignore reconcile errors
@@ -78,15 +99,19 @@ export function usePlaybackProgress(): UsePlaybackProgressResult {
 
   createEffect(() => {
     if (!isPollingRequested() || !isPlaying() || !isTabVisible()) return;
+    isInterpolating = true;
     // Re-anchor to the currently displayed position so resuming after a pause
     // or tab-hide doesn't rewind the seek bar to the last reconciled position.
     setAnchor(untrack(positionMs));
     // Reconcile immediately as well — corrects the position and fills duration
-    // (so the seek bar appears) without waiting a full interval.
-    void reconcile();
+    // (so the seek bar appears) without waiting a full interval. Untracked so
+    // its synchronous `isSeeking()` read doesn't make the loop depend on it and
+    // rebuild the intervals on every seek.
+    void untrack(reconcile);
     const tickId = setInterval(tick, TICK_INTERVAL_MS);
     const reconcileId = setInterval(() => void reconcile(), RECONCILE_INTERVAL_MS);
     onCleanup(() => {
+      isInterpolating = false;
       clearInterval(tickId);
       clearInterval(reconcileId);
     });
@@ -103,6 +128,7 @@ export function usePlaybackProgress(): UsePlaybackProgressResult {
   const stopPolling = () => setIsPollingRequested(false);
 
   const seekTo = async (ms: number) => {
+    seekGeneration++;
     setIsSeeking(true);
     setAnchor(ms);
     try {
@@ -110,6 +136,9 @@ export function usePlaybackProgress(): UsePlaybackProgressResult {
     } catch (err) {
       console.error("[usePlaybackProgress] Seek failed:", err);
     } finally {
+      // Re-anchor to the target so the elapsed request time isn't counted as
+      // playback progress once ticking resumes.
+      setAnchor(ms);
       setIsSeeking(false);
     }
   };
