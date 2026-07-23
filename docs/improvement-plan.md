@@ -67,8 +67,11 @@ audience screen leaks answers. Close that gap first.
     statically. `manualChunks` isolates `firebase-auth` and `firebase-firestore`
     so neither can pull the other. Landing critical-path JS dropped from ~186 KB
     to ~63 KB raw — no Firebase on first paint. — M
-17. **`usePlaybackProgress`** polls Spotify every 1s all session — interpolate
-    position locally, reconcile every 5–10s. — M
+17. ~~**`usePlaybackProgress`**~~ — **[DONE]** The seek position is now
+    interpolated from a wall-clock anchor on a 250ms local tick and reconciled
+    against the Spotify Web API every 5s (plus once immediately on start/resume)
+    instead of polling every 1s — ~5x fewer steady-state playback API calls, and
+    a smoother bar. Same public signal interface; still idle while paused/hidden. — M
 
 ## Phase 5 — Code quality / refactors
 
