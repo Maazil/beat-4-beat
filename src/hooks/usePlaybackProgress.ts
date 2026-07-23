@@ -17,6 +17,14 @@ export interface UsePlaybackProgressResult {
 const TICK_INTERVAL_MS = 250;
 const RECONCILE_INTERVAL_MS = 5000;
 
+// After a play/resume command, Spotify Connect can take a beat to report
+// `is_playing: true` (the device is still handing off / buffering the track).
+// For this long after we optimistically mark playback as playing, a reconcile
+// that still reports "not playing" is treated as stale and ignored, so the
+// play/pause button and tick loop don't flip off under a just-started song.
+// Must stay below RECONCILE_INTERVAL_MS so a genuine later pause is honored.
+const PLAY_INTENT_GRACE_MS = 2500;
+
 /**
  * Tracks Spotify playback progress and exposes reactive signals for position,
  * duration, and playing state.
@@ -30,7 +38,7 @@ const RECONCILE_INTERVAL_MS = 5000;
 export function usePlaybackProgress(): UsePlaybackProgressResult {
   const [positionMs, setPositionMs] = createSignal(0);
   const [durationMs, setDurationMs] = createSignal(0);
-  const [isPlaying, setIsPlaying] = createSignal(false);
+  const [isPlaying, setIsPlayingSignal] = createSignal(false);
   const [isSeeking, setIsSeeking] = createSignal(false);
   const [isPollingRequested, setIsPollingRequested] = createSignal(false);
   const [isTabVisible, setIsTabVisible] = createSignal(!document.hidden);
@@ -49,6 +57,18 @@ export function usePlaybackProgress(): UsePlaybackProgressResult {
   // Bumped on every seek. A reconcile that was in flight when a seek began (and
   // resolves after it) carries a stale position, so it must not re-anchor.
   let seekGeneration = 0;
+
+  // performance.now() of the last time we optimistically marked playback as
+  // playing (a user-driven play/resume). Used to gate reconcile so Spotify's
+  // brief post-command "not playing" reports don't flip the state back off.
+  let playIntentAt = Number.NEGATIVE_INFINITY;
+
+  // Record play intent whenever we transition to playing; leave it untouched on
+  // pause so an explicit pause is honored immediately.
+  const setIsPlaying = (v: boolean) => {
+    if (v) playIntentAt = performance.now();
+    setIsPlayingSignal(v);
+  };
 
   const setAnchor = (posMs: number) => {
     const dur = untrack(durationMs);
@@ -84,6 +104,12 @@ export function usePlaybackProgress(): UsePlaybackProgressResult {
       // seek target, even once the seek itself has finished.
       if (!isInterpolating || isSeeking() || seekGen !== seekGeneration) return;
       if (state) {
+        // Spotify hasn't caught up to a just-issued play yet: keep the
+        // optimistic playing state and local anchor rather than snapping to a
+        // stale "paused" / previous-track sample.
+        if (!state.isPlaying && performance.now() - playIntentAt < PLAY_INTENT_GRACE_MS) {
+          return;
+        }
         setDurationMs(state.durationMs);
         setIsPlaying(state.isPlaying);
         // The reported position was sampled server-side before the response

@@ -209,6 +209,38 @@ describe("usePlaybackProgress", () => {
     });
   });
 
+  test("keeps optimistic playing state when a reconcile right after start reports not playing", async () => {
+    // Spotify Connect commonly still reports is_playing:false for a moment right
+    // after a play command while the device buffers the track.
+    getPlaybackState.mockResolvedValue(state({ isPlaying: false, positionMs: 0, durationMs: 0 }));
+    await createRoot(async (dispose) => {
+      const p = usePlaybackProgress();
+      p.startPolling(0);
+      p.setIsPlaying(true);
+      await flush(); // immediate reconcile reports not-playing, but within grace
+
+      expect(p.isPlaying()).toBe(true); // must not flip the button/loop off
+      await advance(1000); // the tick loop keeps running
+      expect(p.positionMs()).toBe(1000);
+      dispose();
+    });
+  });
+
+  test("honors a not-playing reconcile once the grace window has passed", async () => {
+    getPlaybackState.mockResolvedValue(state({ positionMs: 10_000 }));
+    await createRoot(async (dispose) => {
+      const p = usePlaybackProgress();
+      p.startPolling();
+      p.setIsPlaying(true);
+      await flush(); // confirmed playing
+
+      getPlaybackState.mockResolvedValue(state({ isPlaying: false, positionMs: 12_000 }));
+      await advance(5000); // reconcile fires ~5s later, past the 2.5s grace
+      expect(p.isPlaying()).toBe(false);
+      dispose();
+    });
+  });
+
   test("seeking does not rebuild the loop or fire an extra reconcile", async () => {
     getPlaybackState.mockResolvedValue(state({ positionMs: 10_000 }));
     await createRoot(async (dispose) => {

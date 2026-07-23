@@ -14,11 +14,16 @@ const formatTime = (ms: number) => {
 };
 
 const SeekBar: Component<SeekBarProps> = (props) => {
+  // Duration isn't known until the first reconcile lands; until then the bar is
+  // shown (position ticks up) but seeking is disabled and the fill stays empty.
+  const isSeekable = () => props.durationMs > 0;
+
   const progressPct = () => {
-    return props.durationMs > 0 ? (props.positionMs / props.durationMs) * 100 : 0;
+    return isSeekable() ? (props.positionMs / props.durationMs) * 100 : 0;
   };
 
   const handleClick = (e: MouseEvent) => {
+    if (!isSeekable()) return;
     const bar = e.currentTarget as HTMLElement;
     const rect = bar.getBoundingClientRect();
     const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
@@ -31,7 +36,8 @@ const SeekBar: Component<SeekBarProps> = (props) => {
         {formatTime(props.positionMs)}
       </span>
       <div
-        class="group relative h-1.5 flex-1 cursor-pointer rounded-full bg-surface-2"
+        class="group relative h-1.5 flex-1 rounded-full bg-surface-2"
+        classList={{ "cursor-pointer": isSeekable() }}
         onClick={handleClick}
       >
         <div
@@ -44,7 +50,7 @@ const SeekBar: Component<SeekBarProps> = (props) => {
         />
       </div>
       <span class="w-10 font-mono text-xs tabular-nums text-muted">
-        {formatTime(props.durationMs)}
+        {isSeekable() ? formatTime(props.durationMs) : "–:––"}
       </span>
     </div>
   );
