@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { computeStandings, normalizeScores, totalOf } from "./standings";
+import {
+  computeStandings,
+  isLeadingStanding,
+  normalizeScores,
+  rankTeams,
+  totalOf,
+} from "./standings";
 import type { Score } from "../model/score";
 
 const score = (teamName: string, roundPoints: number[]): Score => ({ teamName, roundPoints });
@@ -47,6 +53,46 @@ describe("computeStandings", () => {
     const standings = computeStandings([score("A", []), score("B", [])]);
     expect(standings.get("A")?.rank).toBe(1);
     expect(standings.get("B")?.rank).toBe(1);
+  });
+});
+
+describe("rankTeams", () => {
+  it("orders teams by standing without mutating the input", () => {
+    const scores = [score("Low", [1]), score("High", [2, 3]), score("Mid", [2])];
+    const ranked = rankTeams(scores);
+    expect(ranked.map((s) => s.teamName)).toEqual(["High", "Mid", "Low"]);
+    // input order is preserved
+    expect(scores.map((s) => s.teamName)).toEqual(["Low", "High", "Mid"]);
+  });
+
+  it("uses a precomputed standings map when given one", () => {
+    const scores = [score("A", [1]), score("B", [2])];
+    const ranked = rankTeams(scores, computeStandings(scores));
+    expect(ranked.map((s) => s.teamName)).toEqual(["B", "A"]);
+  });
+
+  it("keeps insertion order for teams absent from the standings", () => {
+    const scores = [score("A", [1]), score("B", [1])];
+    // an empty map means every order lookup falls back to 0 → stable sort
+    expect(rankTeams(scores, new Map()).map((s) => s.teamName)).toEqual(["A", "B"]);
+  });
+});
+
+describe("isLeadingStanding", () => {
+  it("is true for rank 1 with a positive total", () => {
+    expect(isLeadingStanding({ order: 0, rank: 1, total: 5 })).toBe(true);
+  });
+
+  it("is false when nobody has scored yet", () => {
+    expect(isLeadingStanding({ order: 0, rank: 1, total: 0 })).toBe(false);
+  });
+
+  it("is false for a non-leading rank", () => {
+    expect(isLeadingStanding({ order: 1, rank: 2, total: 3 })).toBe(false);
+  });
+
+  it("is false for a missing standing", () => {
+    expect(isLeadingStanding(undefined)).toBe(false);
   });
 });
 

@@ -1,6 +1,6 @@
 import { Component, createMemo, createSignal, For, Show } from "solid-js";
 import { isSafeSongHref } from "../lib/externalUrl";
-import { computeStandings, totalOf } from "../lib/standings";
+import { computeStandings, isLeadingStanding, rankTeams, totalOf } from "../lib/standings";
 import type { Score } from "../model/score";
 
 /** Song played on a given round, used to label the revealed breakdown. */
@@ -54,18 +54,10 @@ const Scoreboard: Component<ScoreboardProps> = (props) => {
   // name → revealed position and rank (ties share a rank, insertion order breaks them)
   const standings = createMemo(() => computeStandings(props.scores));
 
-  const isLeader = (name: string) => {
-    const standing = standings().get(name);
-    return revealed() && standing != null && standing.rank === 1 && standing.total > 0;
-  };
+  const isLeader = (name: string) => revealed() && isLeadingStanding(standings().get(name));
 
   // Teams ordered by rank for the revealed round-by-round breakdown
-  const breakdownTeams = createMemo(() => {
-    const order = standings();
-    return [...props.scores].sort(
-      (a, b) => (order.get(a.teamName)?.order ?? 0) - (order.get(b.teamName)?.order ?? 0),
-    );
-  });
+  const breakdownTeams = createMemo(() => rankTeams(props.scores, standings()));
 
   // Every round index played so far, oldest first
   const allRounds = () => Array.from({ length: roundsPlayed() }, (_, round) => round);

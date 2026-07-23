@@ -42,3 +42,18 @@ export function computeStandings(scores: Score[]): Map<string, Standing> {
   });
   return map;
 }
+
+/**
+ * Teams ordered by their revealed standing (leaders first), keeping the input
+ * array untouched. Pass a precomputed standings map to avoid recomputing it.
+ */
+export function rankTeams(scores: Score[], standings?: Map<string, Standing>): Score[] {
+  const order = standings ?? computeStandings(scores);
+  return [...scores].sort(
+    (a, b) => (order.get(a.teamName)?.order ?? 0) - (order.get(b.teamName)?.order ?? 0),
+  );
+}
+
+/** A team leads when it ranks first and someone has actually scored. */
+export const isLeadingStanding = (standing: Standing | undefined): boolean =>
+  standing != null && standing.rank === 1 && standing.total > 0;

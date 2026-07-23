@@ -5,7 +5,7 @@ import WinnerOverlay from "../../components/WinnerOverlay";
 import { useRoom } from "../../hooks/useRoom";
 import { buildItemIndex } from "../../lib/boardLookup";
 import { roomHostNames } from "../../lib/roomHosts";
-import { computeStandings, totalOf } from "../../lib/standings";
+import { computeStandings, isLeadingStanding, rankTeams, totalOf } from "../../lib/standings";
 import { defaultGameState } from "../../model/gameState";
 
 /**
@@ -44,12 +44,7 @@ const AudienceViewInner: Component = () => {
   const gameOver = () => game().gameOver;
 
   const standings = createMemo(() => computeStandings(scores()));
-  const rankedTeams = createMemo(() =>
-    [...scores()].sort(
-      (a, b) =>
-        (standings().get(a.teamName)?.order ?? 0) - (standings().get(b.teamName)?.order ?? 0),
-    ),
-  );
+  const rankedTeams = createMemo(() => rankTeams(scores(), standings()));
 
   return (
     <div class="bg-stage min-h-screen p-4 sm:p-6">
@@ -125,7 +120,7 @@ const AudienceViewInner: Component = () => {
                   <For each={rankedTeams()}>
                     {(team) => {
                       const standing = () => standings().get(team.teamName);
-                      const isLeader = () => standing()?.rank === 1 && totalOf(team) > 0;
+                      const isLeader = () => isLeadingStanding(standing());
                       return (
                         <div
                           class={`flex items-center gap-3 rounded-xl border px-3 py-2.5 sm:px-4 ${
