@@ -1,10 +1,7 @@
-import { Component, createEffect, createSignal, For, onCleanup, Show, untrack } from "solid-js";
-import { Portal } from "solid-js/web";
-import { Transition } from "solid-transition-group";
-import { isSpotifyLoggedIn, searchTracks } from "../../../lib/spotify";
-import type { SpotifyTrack } from "../../../lib/spotify";
+import { Component, createEffect, createSignal, Show } from "solid-js";
 import type { SongItem } from "../../../model/songItem";
 import type { CategoryColorScheme } from "./categoryColors";
+import SongItemEditModal from "./SongItemEditModal";
 
 interface SongItemCardProps {
   item: SongItem;
@@ -17,99 +14,16 @@ interface SongItemCardProps {
 }
 
 const SongItemCard: Component<SongItemCardProps> = (props) => {
-  // Local draft of the URL, committed on save. Seeded per item identity and
-  // re-seeded when the edit modal opens — no prop-mirroring effect.
-  const [localUrl, setLocalUrl] = createSignal(props.item.songUrl || "");
-  // Cue point (seconds) as a raw input string; empty means "leave unchanged".
-  const [localStartTime, setLocalStartTime] = createSignal(
-    props.item.startTime != null ? String(props.item.startTime) : "",
-  );
-  const [searchQuery, setSearchQuery] = createSignal("");
-  const [searchResults, setSearchResults] = createSignal<SpotifyTrack[]>([]);
-  const [isSearching, setIsSearching] = createSignal(false);
   const [originRect, setOriginRect] = createSignal<DOMRect | null>(null);
-  let debounceTimer: ReturnType<typeof setTimeout> | undefined;
   let cardRef: HTMLDivElement | undefined;
 
-  // Capture card position when entering edit mode
+  // Capture card position when entering edit mode — the modal's FLIP animation
+  // expands out of / collapses back into this tile.
   createEffect(() => {
     if (props.isEditing && cardRef) {
       setOriginRect(cardRef.getBoundingClientRect());
     }
   });
-
-  // Reset search state and re-seed the URL draft when the modal opens
-  createEffect(() => {
-    if (props.isEditing) {
-      setSearchQuery("");
-      setSearchResults([]);
-      setLocalUrl(untrack(() => props.item.songUrl) || "");
-      setLocalStartTime(
-        untrack(() => (props.item.startTime != null ? String(props.item.startTime) : "")),
-      );
-    }
-  });
-
-  // Close on Escape key
-  const handleKeyDown = (e: KeyboardEvent) => {
-    if (e.key === "Escape" && props.isEditing) {
-      props.onBlur();
-    }
-  };
-
-  createEffect(() => {
-    if (!props.isEditing) return;
-    document.addEventListener("keydown", handleKeyDown);
-    onCleanup(() => document.removeEventListener("keydown", handleKeyDown));
-  });
-
-  // Parse the cue-point input: a non-negative integer of seconds, or
-  // undefined when blank (so the existing value is left untouched).
-  const parsedStartTime = (): number | undefined => {
-    const trimmed = localStartTime().trim();
-    if (trimmed === "") return undefined;
-    const n = Number.parseInt(trimmed, 10);
-    return Number.isFinite(n) && n >= 0 ? n : undefined;
-  };
-
-  const handleUrlSubmit = () => {
-    props.onUpdate(localUrl(), undefined, undefined, parsedStartTime());
-    props.onBlur();
-  };
-
-  const handleSearchInput = (query: string) => {
-    setSearchQuery(query);
-    clearTimeout(debounceTimer);
-
-    if (!query.trim()) {
-      setSearchResults([]);
-      return;
-    }
-
-    debounceTimer = setTimeout(async () => {
-      setIsSearching(true);
-      try {
-        const results = await searchTracks(query, 5);
-        setSearchResults(results);
-      } catch (err) {
-        console.error("[SongItemCard] Search failed:", err);
-        setSearchResults([]);
-      } finally {
-        setIsSearching(false);
-      }
-    }, 300);
-  };
-
-  const handleSelectTrack = (track: SpotifyTrack) => {
-    const trackId = track.uri.replace("spotify:track:", "");
-    const url = `https://open.spotify.com/track/${trackId}`;
-    props.onUpdate(url, track.name, track.artist, parsedStartTime());
-    setSearchQuery("");
-    setSearchResults([]);
-    props.onBlur();
-  };
-
-  const spotifyConnected = () => isSpotifyLoggedIn();
 
   return (
     <div class="group relative flex w-full flex-col">
@@ -170,226 +84,15 @@ const SongItemCard: Component<SongItemCardProps> = (props) => {
         </Show>
       </div>
 
-      {/* Editing modal — rendered via Portal */}
-      <Portal>
-        <Transition
-          onEnter={(el, done) => {
-            const rect = originRect();
-            const modalCard = el.querySelector("[data-modal-card]") as HTMLElement | null;
-            if (!rect || !modalCard) {
-              el.animate([{ opacity: 0 }, { opacity: 1 }], {
-                duration: 200,
-                easing: "ease-out",
-              }).finished.then(done);
-              return;
-            }
-            // Force layout so we can measure the modal's resting position
-            const modalRect = modalCard.getBoundingClientRect();
-            const dx = rect.left + rect.width / 2 - (modalRect.left + modalRect.width / 2);
-            const dy = rect.top + rect.height / 2 - (modalRect.top + modalRect.height / 2);
-            const scaleX = rect.width / modalRect.width;
-            const scaleY = rect.height / modalRect.height;
-
-            modalCard
-              .animate(
-                [
-                  {
-                    transform: `translate(${dx}px, ${dy}px) scale(${scaleX}, ${scaleY})`,
-                    opacity: 0,
-                    borderRadius: "0.5rem",
-                  },
-                  {
-                    transform: "translate(0, 0) scale(1)",
-                    opacity: 1,
-                    borderRadius: "0.75rem",
-                  },
-                ],
-                { duration: 280, easing: "cubic-bezier(0.32, 0.72, 0, 1)" },
-              )
-              .finished.then(done);
-          }}
-          onExit={(el, done) => {
-            // Re-measure card position (it may have shifted due to scroll)
-            const rect = cardRef?.getBoundingClientRect() ?? originRect();
-            const modalCard = el.querySelector("[data-modal-card]") as HTMLElement | null;
-            if (!rect || !modalCard) {
-              el.animate([{ opacity: 1 }, { opacity: 0 }], {
-                duration: 150,
-                easing: "ease-in",
-              }).finished.then(done);
-              return;
-            }
-            const modalRect = modalCard.getBoundingClientRect();
-            const dx = rect.left + rect.width / 2 - (modalRect.left + modalRect.width / 2);
-            const dy = rect.top + rect.height / 2 - (modalRect.top + modalRect.height / 2);
-            const scaleX = rect.width / modalRect.width;
-            const scaleY = rect.height / modalRect.height;
-
-            modalCard
-              .animate(
-                [
-                  {
-                    transform: "translate(0, 0) scale(1)",
-                    opacity: 1,
-                    borderRadius: "0.75rem",
-                  },
-                  {
-                    transform: `translate(${dx}px, ${dy}px) scale(${scaleX}, ${scaleY})`,
-                    opacity: 0,
-                    borderRadius: "0.5rem",
-                  },
-                ],
-                { duration: 220, easing: "cubic-bezier(0.32, 0, 0.67, 0)" },
-              )
-              .finished.then(done);
-          }}
-        >
-          <Show when={props.isEditing}>
-            <div class="fixed inset-0 z-100 flex items-center justify-center">
-              {/* Subtle backdrop — click to close */}
-              <div class="absolute inset-0 bg-night/80" onClick={() => props.onBlur()} />
-
-              {/* Modal card */}
-              <div
-                data-modal-card
-                class="relative z-10 w-full max-w-md rounded-xl border bg-surface p-5 shadow-[0_30px_80px_rgba(0,0,0,0.5)]"
-                style={{ "border-color": props.colorScheme.border }}
-              >
-                {/* Close button */}
-                <button
-                  type="button"
-                  onClick={() => props.onBlur()}
-                  class="absolute top-3 right-3 flex h-7 w-7 items-center justify-center rounded-full text-muted transition hover:bg-surface-2 hover:text-ink"
-                >
-                  <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </button>
-
-                {/* Header with level number */}
-                <div class="mb-4 flex items-center gap-3">
-                  <div
-                    class="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border"
-                    style={{
-                      "background-color": props.colorScheme.itemBg,
-                      "border-color": props.colorScheme.border,
-                    }}
-                  >
-                    <span class="font-mono text-xl font-bold" style={{ color: "var(--color-ink)" }}>
-                      {props.item.level}
-                    </span>
-                  </div>
-                  <div class="min-w-0 flex-1">
-                    <p class="text-sm font-semibold text-ink">Level {props.item.level}</p>
-                    <Show when={props.item.title}>
-                      <p class="truncate text-xs text-muted">
-                        {props.item.title}
-                        {props.item.artist ? ` — ${props.item.artist}` : ""}
-                      </p>
-                    </Show>
-                  </div>
-                </div>
-
-                {/* Input area */}
-                <div class="flex flex-col gap-3">
-                  <Show
-                    when={spotifyConnected()}
-                    fallback={
-                      <input
-                        type="text"
-                        value={localUrl()}
-                        onInput={(e) => setLocalUrl(e.currentTarget.value)}
-                        onKeyPress={(e) => e.key === "Enter" && handleUrlSubmit()}
-                        placeholder="Paste a song URL…"
-                        class="w-full rounded-xl border border-line bg-surface-2 px-4 py-3 text-sm text-ink placeholder:text-muted/60 transition outline-none focus:border-beat focus:ring-2 focus:ring-beat/20"
-                        autofocus
-                      />
-                    }
-                  >
-                    <div class="flex flex-col gap-2">
-                      <input
-                        type="text"
-                        value={searchQuery()}
-                        onInput={(e) => handleSearchInput(e.currentTarget.value)}
-                        placeholder="Search for a song…"
-                        class="w-full rounded-xl border border-line bg-surface-2 px-4 py-3 text-sm text-ink placeholder:text-muted/60 transition outline-none focus:border-beat focus:ring-2 focus:ring-beat/20"
-                        autofocus
-                      />
-
-                      {/* Search results */}
-                      <Show when={searchResults().length > 0 || isSearching()}>
-                        <div class="max-h-64 overflow-y-auto rounded-xl border border-line bg-surface">
-                          <Show when={isSearching()}>
-                            <div class="px-3 py-3 text-center text-xs text-muted">Searching…</div>
-                          </Show>
-                          <For each={searchResults()}>
-                            {(track) => (
-                              <button
-                                type="button"
-                                class="flex w-full items-center gap-3 px-3 py-2.5 text-left transition hover:bg-surface-2"
-                                onClick={() => handleSelectTrack(track)}
-                              >
-                                <Show when={track.albumArt}>
-                                  <img
-                                    src={track.albumArt}
-                                    alt=""
-                                    class="h-10 w-10 shrink-0 rounded"
-                                  />
-                                </Show>
-                                <div class="min-w-0 flex-1">
-                                  <p class="truncate text-sm font-semibold text-ink">
-                                    {track.name}
-                                  </p>
-                                  <p class="truncate text-xs text-muted">{track.artist}</p>
-                                </div>
-                              </button>
-                            )}
-                          </For>
-                        </div>
-                      </Show>
-                    </div>
-                  </Show>
-
-                  {/* Cue point — where playback starts, to skip long intros.
-                    Shown for URL entry, and when tweaking an existing song. */}
-                  <Show when={!spotifyConnected() || props.item.songUrl}>
-                    <div class="flex flex-col gap-1 border-t border-line pt-3">
-                      <div class="flex items-end gap-2">
-                        <label class="flex flex-1 flex-col gap-1">
-                          <span class="text-xs font-semibold text-muted">Start at (seconds)</span>
-                          <input
-                            type="number"
-                            min="0"
-                            inputmode="numeric"
-                            value={localStartTime()}
-                            onInput={(e) => setLocalStartTime(e.currentTarget.value)}
-                            onKeyPress={(e) => e.key === "Enter" && handleUrlSubmit()}
-                            placeholder="0"
-                            class="w-full rounded-xl border border-line bg-surface-2 px-4 py-2.5 text-sm text-ink placeholder:text-muted/60 transition outline-none focus:border-beat focus:ring-2 focus:ring-beat/20"
-                          />
-                        </label>
-                        <button
-                          type="button"
-                          onClick={handleUrlSubmit}
-                          class="shrink-0 rounded-full bg-beat px-4 py-2.5 text-sm font-bold text-night transition hover:bg-beat-bright"
-                        >
-                          Save
-                        </button>
-                      </div>
-                      <p class="text-xs text-muted">Skip long intros — playback jumps here.</p>
-                    </div>
-                  </Show>
-                </div>
-              </div>
-            </div>
-          </Show>
-        </Transition>
-      </Portal>
+      <SongItemEditModal
+        item={props.item}
+        colorScheme={props.colorScheme}
+        isEditing={props.isEditing}
+        enterRect={originRect}
+        exitRect={() => cardRef?.getBoundingClientRect() ?? originRect()}
+        onUpdate={props.onUpdate}
+        onBlur={props.onBlur}
+      />
     </div>
   );
 };
