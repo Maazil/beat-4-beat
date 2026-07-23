@@ -15,7 +15,7 @@ interface CategoryColumnProps {
   maxItems?: number; // Max items allowed (5 for create, 10 for db)
   onEditName: () => void;
   onUpdateName: (name: string) => void;
-  onUpdateImage: (imageUrl?: string) => void;
+  onUpdateImage: (imageUrl?: string, inkIndex?: number) => void;
   onBlurName: () => void;
   onRemove: () => void;
   onAddItem: () => void;
@@ -175,7 +175,7 @@ const CategoryColumn: Component<CategoryColumnProps> = (props) => {
                       type="button"
                       title={preset.label}
                       onClick={() => {
-                        props.onUpdateImage(src);
+                        props.onUpdateImage(src, preset.inkIndex);
                         setShowPicker(false);
                       }}
                       class="overflow-hidden rounded-lg border border-line transition hover:border-beat"
