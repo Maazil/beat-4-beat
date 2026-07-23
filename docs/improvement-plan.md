@@ -81,8 +81,10 @@ audience screen leaks answers. Close that gap first.
     `rankTeams` and `isLeadingStanding` (with tests). The visual rows differ too
     much to share a component — Scoreboard's are interactive — so that stays for
     the #20 split. — M
-19. **Extract `<Tile>`** — `GameBoard` duplicates tile markup for single- vs
-    multi-category layouts. — M
+19. ~~**Extract `<Tile>`**~~ — **[DONE]** `GameBoard` now renders a single local
+    `<Tile>` for both the single- and multi-category layouts; the two paths only
+    pass different size classes (`buttonClass` / `levelClass`). The revealed
+    toggle, stage-card ink vars, click, and level-color logic live in one place. — M
 20. **Split `Scoreboard.tsx`** (610 lines) into rows / add-form / breakdown /
     FLIP helper. — M/L
 21. ~~**`useGameState`**~~ — **[DONE]** The non-shared (localStorage) path now
