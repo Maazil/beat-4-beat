@@ -13,7 +13,14 @@ interface SongItemEditModalProps {
   isEditing: boolean;
   enterRect: () => DOMRect | null; // origin tile rect captured on open
   exitRect: () => DOMRect | null; // re-measured tile rect for close
-  onUpdate: (songUrl: string, title?: string, artist?: string, startTime?: number) => void;
+  onUpdate: (
+    songUrl: string,
+    title?: string,
+    artist?: string,
+    startTime?: number,
+    durationMs?: number,
+    imageUrl?: string,
+  ) => void;
   onBlur: () => void;
 }
 
@@ -55,13 +62,22 @@ const SongItemEditModal: Component<SongItemEditModalProps> = (props) => {
     onCleanup(() => document.removeEventListener("keydown", handleKeyDown));
   });
 
-  // Parse the cue-point input: a non-negative integer of seconds, or
-  // undefined when blank (so the existing value is left untouched).
+  // Track length (in whole seconds) once known, so the cue point can't be set
+  // past the end of the song. Only Spotify-selected tracks carry a duration.
+  const maxStartSeconds = (): number | undefined => {
+    const ms = props.item.durationMs;
+    return ms != null && ms > 0 ? Math.floor(ms / 1000) : undefined;
+  };
+
+  // Parse the cue-point input: a non-negative integer of seconds clamped to the
+  // track length, or undefined when blank (so the existing value is untouched).
   const parsedStartTime = (): number | undefined => {
     const trimmed = localStartTime().trim();
     if (trimmed === "") return undefined;
     const n = Number.parseInt(trimmed, 10);
-    return Number.isFinite(n) && n >= 0 ? n : undefined;
+    if (!Number.isFinite(n) || n < 0) return undefined;
+    const max = maxStartSeconds();
+    return max != null ? Math.min(n, max) : n;
   };
 
   const handleUrlSubmit = () => {
@@ -95,7 +111,14 @@ const SongItemEditModal: Component<SongItemEditModalProps> = (props) => {
   const handleSelectTrack = (track: SpotifyTrack) => {
     const trackId = track.uri.replace("spotify:track:", "");
     const url = `https://open.spotify.com/track/${trackId}`;
-    props.onUpdate(url, track.name, track.artist, parsedStartTime());
+    props.onUpdate(
+      url,
+      track.name,
+      track.artist,
+      parsedStartTime(),
+      track.durationMs,
+      track.albumArt,
+    );
     setSearchQuery("");
     setSearchResults([]);
     props.onBlur();
@@ -149,6 +172,11 @@ const SongItemEditModal: Component<SongItemEditModalProps> = (props) => {
                     {props.item.level}
                   </span>
                 </div>
+                <Show when={props.item.imageUrl}>
+                  {(src) => (
+                    <img src={src()} alt="" class="h-12 w-12 shrink-0 rounded-lg object-cover" />
+                  )}
+                </Show>
                 <div class="min-w-0 flex-1">
                   <p class="text-sm font-semibold text-ink">Level {props.item.level}</p>
                   <Show when={props.item.title}>
@@ -228,6 +256,7 @@ const SongItemEditModal: Component<SongItemEditModalProps> = (props) => {
                         <input
                           type="number"
                           min="0"
+                          max={maxStartSeconds()}
                           inputmode="numeric"
                           value={localStartTime()}
                           onInput={(e) => setLocalStartTime(e.currentTarget.value)}
@@ -244,7 +273,10 @@ const SongItemEditModal: Component<SongItemEditModalProps> = (props) => {
                         Save
                       </button>
                     </div>
-                    <p class="text-xs text-muted">Skip long intros — playback jumps here.</p>
+                    <p class="text-xs text-muted">
+                      Skip long intros — playback jumps here.
+                      <Show when={maxStartSeconds()}>{(max) => <> Max {max()}s.</>}</Show>
+                    </p>
                   </div>
                 </Show>
               </div>

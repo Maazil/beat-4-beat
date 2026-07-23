@@ -5,6 +5,8 @@ export interface SongItem {
   artist?: string; // Artist name
   songUrl?: string; // Optional Spotify / Youtube link
   startTime?: number; // Optional cue point (seconds)
+  durationMs?: number; // Track length in ms, captured on Spotify selection
+  imageUrl?: string; // Album art URL, captured on Spotify selection
   isRevealed: boolean; // True if already chosen
 }
 
