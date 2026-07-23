@@ -61,6 +61,14 @@ const SongItemCard: Component<SongItemCardProps> = (props) => {
               {props.item.title}
             </span>
           </Show>
+          <Show when={props.item.artist && !props.isEditing}>
+            <span
+              class="max-w-full truncate px-1 text-[9px] leading-tight opacity-50"
+              style={{ color: "var(--color-ink)" }}
+            >
+              {props.item.artist}
+            </span>
+          </Show>
         </button>
 
         {/* Song URL indicator */}

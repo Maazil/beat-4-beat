@@ -109,9 +109,13 @@ const SongItemEditModal: Component<SongItemEditModalProps> = (props) => {
       maxCueSeconds(track.durationMs),
     );
     props.onUpdate(url, track.name, track.artist, startTime, track.durationMs, track.albumArt);
+    // Keep the local URL draft in sync so a later cue-point Save (which sends
+    // localUrl) doesn't overwrite the just-selected track.
+    setLocalUrl(url);
     setSearchQuery("");
     setSearchResults([]);
-    props.onBlur();
+    // Stay open so the host can set a start-at cue point without re-opening the
+    // modal — the cue-point section reveals itself now that a song is set.
   };
 
   const spotifyConnected = () => isSpotifyLoggedIn();
