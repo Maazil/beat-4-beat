@@ -5,6 +5,7 @@ import { isSpotifyLoggedIn, searchTracks } from "../../../lib/spotify";
 import type { SpotifyTrack } from "../../../lib/spotify";
 import type { SongItem } from "../../../model/songItem";
 import type { CategoryColorScheme } from "./categoryColors";
+import { clampCueSeconds, maxCueSeconds, parseCueSeconds } from "./cuePoint";
 import { animateModalEnter, animateModalExit } from "./songItemFlip";
 
 interface SongItemEditModalProps {
@@ -62,23 +63,13 @@ const SongItemEditModal: Component<SongItemEditModalProps> = (props) => {
     onCleanup(() => document.removeEventListener("keydown", handleKeyDown));
   });
 
-  // Track length (in whole seconds) once known, so the cue point can't be set
-  // past the end of the song. Only Spotify-selected tracks carry a duration.
-  const maxStartSeconds = (): number | undefined => {
-    const ms = props.item.durationMs;
-    return ms != null && ms > 0 ? Math.floor(ms / 1000) : undefined;
-  };
+  // Track length (in whole seconds), so the cue point can't be set past the end
+  // of the currently stored song.
+  const maxStartSeconds = (): number | undefined => maxCueSeconds(props.item.durationMs);
 
-  // Parse the cue-point input: a non-negative integer of seconds clamped to the
-  // track length, or undefined when blank (so the existing value is untouched).
-  const parsedStartTime = (): number | undefined => {
-    const trimmed = localStartTime().trim();
-    if (trimmed === "") return undefined;
-    const n = Number.parseInt(trimmed, 10);
-    if (!Number.isFinite(n) || n < 0) return undefined;
-    const max = maxStartSeconds();
-    return max != null ? Math.min(n, max) : n;
-  };
+  // Cue-point input clamped to the stored track length (used on URL/cue save).
+  const parsedStartTime = (): number | undefined =>
+    clampCueSeconds(parseCueSeconds(localStartTime()), maxStartSeconds());
 
   const handleUrlSubmit = () => {
     props.onUpdate(localUrl(), undefined, undefined, parsedStartTime());
@@ -111,14 +102,13 @@ const SongItemEditModal: Component<SongItemEditModalProps> = (props) => {
   const handleSelectTrack = (track: SpotifyTrack) => {
     const trackId = track.uri.replace("spotify:track:", "");
     const url = `https://open.spotify.com/track/${trackId}`;
-    props.onUpdate(
-      url,
-      track.name,
-      track.artist,
-      parsedStartTime(),
-      track.durationMs,
-      track.albumArt,
+    // Clamp against the newly selected track's length, not the previously
+    // stored one — the new duration isn't on props.item yet.
+    const startTime = clampCueSeconds(
+      parseCueSeconds(localStartTime()),
+      maxCueSeconds(track.durationMs),
     );
+    props.onUpdate(url, track.name, track.artist, startTime, track.durationMs, track.albumArt);
     setSearchQuery("");
     setSearchResults([]);
     props.onBlur();

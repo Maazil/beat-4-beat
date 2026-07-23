@@ -86,7 +86,9 @@ export function useRoomEditor() {
   };
 
   // Update item song URL and optional metadata (title, artist, cue point,
-  // track length, album art). Undefined values leave the existing one untouched.
+  // track length, album art). Undefined values leave the existing one untouched
+  // — except that repointing the URL clears the old track's length and album
+  // art (a manually pasted URL carries neither), so stale metadata can't linger.
   const updateItem = (
     categoryId: string,
     itemId: string,
@@ -103,12 +105,15 @@ export function useRoomEditor() {
       "items",
       (item) => item.id === itemId,
       produce((item) => {
+        const urlChanged = songUrl !== item.songUrl;
         item.songUrl = songUrl;
         if (title !== undefined) item.title = title;
         if (artist !== undefined) item.artist = artist;
         if (startTime !== undefined) item.startTime = startTime;
         if (durationMs !== undefined) item.durationMs = durationMs;
+        else if (urlChanged) delete item.durationMs;
         if (imageUrl !== undefined) item.imageUrl = imageUrl;
+        else if (urlChanged) delete item.imageUrl;
       }),
     );
   };
