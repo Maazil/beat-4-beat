@@ -1,17 +1,10 @@
 import { Component, createMemo, createSignal, For, Show } from "solid-js";
-import { isSafeSongHref } from "../lib/externalUrl";
 import { computeStandings, isLeadingStanding, rankTeams, totalOf } from "../lib/standings";
 import type { Score } from "../model/score";
-
-/** Song played on a given round, used to label the revealed breakdown. */
-interface RoundLabel {
-  title?: string;
-  artist?: string;
-  /** Fallbacks for URL-only songs that have no title/artist set. */
-  category?: string;
-  level?: number;
-  songUrl?: string;
-}
+import AddTeamForm from "./scoreboard/AddTeamForm";
+import RoundBreakdown, { type RoundLabel } from "./scoreboard/RoundBreakdown";
+import ScoreRow from "./scoreboard/ScoreRow";
+import { createScoreboardFlip } from "./scoreboard/scoreboardFlip";
 
 interface ScoreboardProps {
   scores: Score[];
@@ -22,8 +15,6 @@ interface ScoreboardProps {
   onUpdateScores: (scores: Score[]) => void;
 }
 
-const MAX_HISTORY_CHIPS = 12;
-
 /**
  * Scoreboard for a shared screen. Rows keep a fixed order and totals stay
  * hidden while playing — several teams can score on the same round (e.g. a
@@ -31,17 +22,8 @@ const MAX_HISTORY_CHIPS = 12;
  * teams with a FLIP animation and shows ranks and totals.
  */
 const Scoreboard: Component<ScoreboardProps> = (props) => {
-  const [isAdding, setIsAdding] = createSignal(false);
-  const [newTeamName, setNewTeamName] = createSignal("");
-  const [editingTeam, setEditingTeam] = createSignal<string | null>(null);
-  const [editName, setEditName] = createSignal("");
   const [revealed, setRevealed] = createSignal(false);
-
-  const rowEls = new Map<string, HTMLElement>();
-  const chipEls = new Map<string, HTMLElement>();
-
-  const roundValue = (score: Score) =>
-    props.currentRound != null ? (score.roundPoints[props.currentRound] ?? 0) : 0;
+  const flip = createScoreboardFlip();
 
   // Rounds played so far — the current round plus everything already scored
   const roundsPlayed = () =>
@@ -66,40 +48,7 @@ const Scoreboard: Component<ScoreboardProps> = (props) => {
   const orderOf = (name: string, insertionIndex: number) =>
     revealed() ? (standings().get(name)?.order ?? insertionIndex) : insertionIndex;
 
-  // Run a state change and FLIP-animate any rows that move
-  const withFlip = (mutate: () => void) => {
-    const prevTops = new Map<string, number>();
-    rowEls.forEach((el, name) => {
-      if (el.isConnected) prevTops.set(name, el.getBoundingClientRect().top);
-      else rowEls.delete(name);
-    });
-    mutate();
-    rowEls.forEach((el, name) => {
-      const prevTop = prevTops.get(name);
-      if (prevTop == null || !el.isConnected) return;
-      const delta = prevTop - el.getBoundingClientRect().top;
-      if (Math.abs(delta) < 2) return;
-      el.animate([{ transform: `translateY(${delta}px)` }, { transform: "translateY(0)" }], {
-        duration: 420,
-        easing: "cubic-bezier(0.22, 1, 0.36, 1)",
-      });
-    });
-  };
-
-  const applyScores = (next: Score[]) => withFlip(() => props.onUpdateScores(next));
-
-  const popChip = (name: string) => {
-    chipEls
-      .get(name)
-      ?.animate(
-        [
-          { transform: "scale(1)" },
-          { transform: "scale(1.35)", offset: 0.4 },
-          { transform: "scale(1)" },
-        ],
-        { duration: 380, easing: "cubic-bezier(0.34, 1.56, 0.64, 1)" },
-      );
-  };
+  const applyScores = (next: Score[]) => flip.withFlip(() => props.onUpdateScores(next));
 
   const uniqueName = (raw: string) => {
     const base = raw.trim();
@@ -109,11 +58,8 @@ const Scoreboard: Component<ScoreboardProps> = (props) => {
     return `${base} ${n}`;
   };
 
-  const handleAddTeam = () => {
-    const name = newTeamName().trim();
-    if (!name) return;
+  const handleAdd = (name: string) => {
     applyScores([...props.scores, { teamName: uniqueName(name), roundPoints: [] }]);
-    setNewTeamName("");
   };
 
   /** Add points to a team's score for the round currently in play. */
@@ -130,7 +76,7 @@ const Scoreboard: Component<ScoreboardProps> = (props) => {
         return { ...s, roundPoints: rp };
       }),
     );
-    popChip(team.teamName);
+    flip.popChip(team.teamName);
   };
 
   const handleRemoveTeam = (index: number) => {
@@ -139,29 +85,10 @@ const Scoreboard: Component<ScoreboardProps> = (props) => {
     applyScores(props.scores.filter((_, i) => i !== index));
   };
 
-  const startRename = (score: Score) => {
-    setEditName(score.teamName);
-    setEditingTeam(score.teamName);
-  };
-
-  const commitRename = (index: number) => {
-    const name = editName().trim();
-    const current = props.scores[index];
-    setEditingTeam(null);
-    if (!name || name === current.teamName) return;
+  const handleRename = (index: number, name: string) => {
     applyScores(
       props.scores.map((s, i) => (i === index ? { ...s, teamName: uniqueName(name) } : s)),
     );
-  };
-
-  /** Points per round for the history strip, capped to the most recent rounds. */
-  const historyRounds = (score: Score) => {
-    const played = roundsPlayed();
-    const start = Math.max(0, played - MAX_HISTORY_CHIPS);
-    return Array.from({ length: played - start }, (_, offset) => {
-      const round = start + offset;
-      return { value: score.roundPoints[round] ?? 0, isCurrent: round === props.currentRound };
-    });
   };
 
   return (
@@ -184,7 +111,7 @@ const Scoreboard: Component<ScoreboardProps> = (props) => {
           <Show when={props.scores.length > 0}>
             <button
               type="button"
-              onClick={() => withFlip(() => setRevealed(!revealed()))}
+              onClick={() => flip.withFlip(() => setRevealed(!revealed()))}
               class={`flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-bold transition ${
                 revealed()
                   ? "border-beat/30 bg-beat-soft text-beat-bright"
@@ -228,372 +155,37 @@ const Scoreboard: Component<ScoreboardProps> = (props) => {
       {/* Rows are ordered via flex `order` so DOM nodes stay stable for FLIP */}
       <div class="flex flex-col gap-2">
         <For each={props.scores}>
-          {(score, index) => {
-            const leader = () => isLeader(score.teamName);
-            return (
-              <div
-                ref={(el) => rowEls.set(score.teamName, el)}
-                style={{ order: orderOf(score.teamName, index()) }}
-                class={`group flex items-center gap-2 rounded-xl border px-3 py-2.5 transition-colors sm:gap-3 sm:px-4 ${
-                  leader() ? "border-beat/40 bg-beat-soft" : "border-line bg-night/70"
-                }`}
-              >
-                {/* Rank — only once standings are revealed */}
-                <Show when={revealed()}>
-                  <span
-                    class={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full font-mono text-sm font-bold ${
-                      leader() ? "bg-beat text-night" : "border border-line bg-surface text-muted"
-                    }`}
-                  >
-                    {standings().get(score.teamName)?.rank}
-                  </span>
-                </Show>
-
-                <div class="min-w-0 flex-1">
-                  <Show
-                    when={editingTeam() === score.teamName}
-                    fallback={
-                      <button
-                        type="button"
-                        onClick={() => startRename(score)}
-                        title="Rename team"
-                        class="flex max-w-full items-center gap-1.5 text-left"
-                      >
-                        <span class="truncate font-display text-sm font-bold text-ink">
-                          {score.teamName}
-                        </span>
-                        <svg
-                          class="h-3 w-3 shrink-0 text-muted opacity-100 transition md:opacity-0 md:group-hover:opacity-100"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
-                          />
-                        </svg>
-                      </button>
-                    }
-                  >
-                    <form
-                      onSubmit={(e) => {
-                        e.preventDefault();
-                        commitRename(index());
-                      }}
-                    >
-                      <input
-                        type="text"
-                        value={editName()}
-                        onInput={(e) => setEditName(e.currentTarget.value)}
-                        onBlur={() => commitRename(index())}
-                        onKeyDown={(e) => e.key === "Escape" && setEditingTeam(null)}
-                        maxLength={24}
-                        class="w-full max-w-52 rounded-lg border border-beat bg-surface px-2 py-0.5 font-display text-sm font-bold text-ink outline-none"
-                        autofocus
-                      />
-                    </form>
-                  </Show>
-
-                  {/* Points per round, current round highlighted (revealed view uses the full table below) */}
-                  <Show when={roundsPlayed() > 0 && !revealed()}>
-                    <div class="mt-0.5 flex items-center gap-1.5 font-mono text-[10px] leading-tight">
-                      <Show when={roundsPlayed() > MAX_HISTORY_CHIPS}>
-                        <span class="text-muted">…</span>
-                      </Show>
-                      <For each={historyRounds(score)}>
-                        {(round) => (
-                          <span
-                            class={
-                              round.isCurrent
-                                ? "font-bold text-beat-bright"
-                                : round.value > 0
-                                  ? "text-ink"
-                                  : "text-muted/60"
-                            }
-                          >
-                            {round.value}
-                          </span>
-                        )}
-                      </For>
-                    </div>
-                  </Show>
-                </div>
-
-                {/* Point buttons — always target the round in play */}
-                <div class="flex shrink-0 items-center gap-1">
-                  <button
-                    type="button"
-                    onClick={() => handleAward(index(), -1)}
-                    disabled={props.currentRound == null || roundValue(score) === 0}
-                    title={
-                      props.currentRound == null
-                        ? "Play a song to start a round"
-                        : "Take back a point this round"
-                    }
-                    class="flex h-7 w-7 items-center justify-center rounded-full border border-line text-muted transition hover:border-beat hover:text-beat disabled:cursor-default disabled:opacity-30 disabled:hover:border-line disabled:hover:text-muted"
-                  >
-                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2.5"
-                        d="M20 12H4"
-                      />
-                    </svg>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleAward(index(), 1)}
-                    disabled={props.currentRound == null}
-                    title={
-                      props.currentRound == null
-                        ? "Play a song to start a round"
-                        : "+1 point this round"
-                    }
-                    class="flex h-7 w-7 items-center justify-center rounded-full border border-line text-muted transition hover:border-beat hover:text-beat disabled:cursor-default disabled:opacity-30 disabled:hover:border-line disabled:hover:text-muted"
-                  >
-                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2.5"
-                        d="M12 4v16m8-8H4"
-                      />
-                    </svg>
-                  </button>
-                </div>
-
-                {/* This round's points — the host's feedback that an award landed */}
-                <Show when={props.currentRound != null}>
-                  <span
-                    ref={(el) => chipEls.set(score.teamName, el)}
-                    title="Points this round"
-                    class={`flex h-8 min-w-9 shrink-0 items-center justify-center rounded-lg border px-1.5 font-mono text-sm font-bold tabular-nums ${
-                      roundValue(score) > 0
-                        ? "border-beat/40 bg-beat-soft text-beat-bright"
-                        : "border-line text-muted"
-                    }`}
-                  >
-                    {roundValue(score) > 0 ? `+${roundValue(score)}` : "0"}
-                  </span>
-                </Show>
-
-                {/* Total — hidden until standings are revealed */}
-                <Show when={revealed()}>
-                  <span
-                    class={`w-10 shrink-0 text-right font-mono text-2xl font-bold tabular-nums sm:w-12 ${
-                      leader() ? "text-beat" : "text-ink"
-                    }`}
-                  >
-                    {totalOf(score)}
-                  </span>
-                </Show>
-
-                <button
-                  type="button"
-                  onClick={() => handleRemoveTeam(index())}
-                  title="Remove team"
-                  class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-muted opacity-100 transition hover:bg-beat-soft hover:text-beat md:opacity-0 md:group-hover:opacity-100"
-                >
-                  <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </button>
-              </div>
-            );
-          }}
+          {(score, index) => (
+            <ScoreRow
+              score={score}
+              order={orderOf(score.teamName, index())}
+              revealed={revealed()}
+              leader={isLeader(score.teamName)}
+              rank={standings().get(score.teamName)?.rank}
+              currentRound={props.currentRound}
+              roundsPlayed={roundsPlayed()}
+              onAward={(points) => handleAward(index(), points)}
+              onRemove={() => handleRemoveTeam(index())}
+              onRename={(name) => handleRename(index(), name)}
+              registerRow={(el) => flip.registerRow(score.teamName, el)}
+              registerChip={(el) => flip.registerChip(score.teamName, el)}
+            />
+          )}
         </For>
 
         {/* Add team — pinned below the standings */}
-        <div style={{ order: 9999 }}>
-          <Show
-            when={isAdding()}
-            fallback={
-              <button
-                type="button"
-                onClick={() => setIsAdding(true)}
-                class="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-line px-3 py-2.5 text-sm font-semibold text-muted transition hover:border-beat hover:text-beat"
-              >
-                + {props.scores.length === 0 ? "Add your first team" : "Add team"}
-              </button>
-            }
-          >
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleAddTeam();
-              }}
-              class="flex gap-2"
-            >
-              <input
-                type="text"
-                value={newTeamName()}
-                onInput={(e) => setNewTeamName(e.currentTarget.value)}
-                onKeyDown={(e) => e.key === "Escape" && setIsAdding(false)}
-                placeholder="Team name…"
-                maxLength={24}
-                class="flex-1 rounded-xl border border-line bg-surface-2 px-3 py-2 text-sm text-ink placeholder:text-muted/60 outline-none focus:border-beat focus:ring-2 focus:ring-beat/20"
-                autofocus
-              />
-              <button
-                type="submit"
-                disabled={!newTeamName().trim()}
-                class="rounded-full bg-beat px-5 py-2 text-sm font-bold text-night transition hover:bg-beat-bright disabled:opacity-50"
-              >
-                Add
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setIsAdding(false);
-                  setNewTeamName("");
-                }}
-                class="rounded-full border border-line px-4 py-2 text-sm font-semibold text-muted transition hover:border-beat hover:text-beat"
-              >
-                Done
-              </button>
-            </form>
-          </Show>
-        </div>
+        <AddTeamForm hasTeams={props.scores.length > 0} onAdd={handleAdd} />
       </div>
 
       {/* Round-by-round breakdown — appears with the standings so awards can be verified */}
       <Show when={revealed() && roundsPlayed() > 0 && props.scores.length > 0}>
-        <div class="mt-5 border-t border-line pt-4">
-          <div class="mb-3 flex items-baseline justify-between gap-3">
-            <h4 class="font-mono text-xs font-bold tracking-wide text-muted uppercase">
-              Round-by-round
-            </h4>
-            <span class="font-mono text-[11px] text-muted">
-              {roundsPlayed()} {roundsPlayed() === 1 ? "round" : "rounds"}
-            </span>
-          </div>
-          <div class="overflow-x-auto">
-            <table class="w-full border-collapse text-left">
-              <thead>
-                <tr>
-                  <th class="sticky left-0 z-10 bg-surface px-2 py-1.5 font-mono text-[11px] font-bold tracking-wide text-muted uppercase">
-                    Round
-                  </th>
-                  <For each={breakdownTeams()}>
-                    {(team) => (
-                      <th class="px-2 py-1.5 text-center align-bottom">
-                        <span class="block max-w-24 truncate font-display text-sm font-bold text-ink">
-                          {team.teamName}
-                        </span>
-                      </th>
-                    )}
-                  </For>
-                </tr>
-              </thead>
-              <tbody>
-                <For each={allRounds()}>
-                  {(round) => {
-                    const label = () => props.roundLabels?.[round];
-                    // Tile descriptor for URL-only songs that carry no title
-                    const tileText = () => {
-                      const l = label();
-                      if (!l) return undefined;
-                      const parts: string[] = [];
-                      if (l.category) parts.push(l.category);
-                      if (l.level != null) parts.push(`Level ${l.level}`);
-                      return parts.length > 0 ? parts.join(" · ") : undefined;
-                    };
-                    return (
-                      <tr class="border-t border-line/60">
-                        <td class="sticky left-0 z-10 bg-surface px-2 py-1.5 align-top">
-                          <div class="flex items-baseline gap-1.5">
-                            <span class="shrink-0 font-mono text-xs font-bold text-beat-bright">
-                              R{round + 1}
-                            </span>
-                            <Show
-                              when={label()?.title}
-                              fallback={
-                                <Show when={tileText() || label()?.songUrl}>
-                                  {/* songUrl is host-provided — never link unsafe schemes */}
-                                  <Show
-                                    when={label()?.songUrl && isSafeSongHref(label()!.songUrl!)}
-                                    fallback={
-                                      <span class="block max-w-44 truncate text-xs font-semibold text-ink">
-                                        {tileText()}
-                                      </span>
-                                    }
-                                  >
-                                    <a
-                                      href={label()!.songUrl}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      class="block max-w-44 truncate text-xs font-semibold text-beat-bright underline decoration-dotted underline-offset-2 transition hover:text-beat"
-                                    >
-                                      {tileText() ?? "Open song"}
-                                    </a>
-                                  </Show>
-                                </Show>
-                              }
-                            >
-                              <span class="min-w-0">
-                                <span class="block max-w-44 truncate text-xs font-semibold text-ink">
-                                  {label()!.title}
-                                </span>
-                                <Show when={label()?.artist}>
-                                  <span class="block max-w-44 truncate text-[10px] text-muted">
-                                    {label()!.artist}
-                                  </span>
-                                </Show>
-                              </span>
-                            </Show>
-                          </div>
-                        </td>
-                        <For each={breakdownTeams()}>
-                          {(team) => {
-                            const pts = () => team.roundPoints[round] ?? 0;
-                            return (
-                              <td class="px-2 py-1.5 text-center">
-                                <span
-                                  class={`inline-flex h-6 min-w-6 items-center justify-center rounded-md px-1 font-mono text-xs font-bold tabular-nums ${
-                                    pts() > 0 ? "bg-beat-soft text-beat-bright" : "text-muted/40"
-                                  }`}
-                                >
-                                  {pts() > 0 ? `+${pts()}` : "·"}
-                                </span>
-                              </td>
-                            );
-                          }}
-                        </For>
-                      </tr>
-                    );
-                  }}
-                </For>
-              </tbody>
-              <tfoot>
-                <tr class="border-t-2 border-line">
-                  <td class="sticky left-0 z-10 bg-surface px-2 py-2 font-mono text-[11px] font-bold tracking-wide text-muted uppercase">
-                    Total
-                  </td>
-                  <For each={breakdownTeams()}>
-                    {(team) => (
-                      <td
-                        class={`px-2 py-2 text-center font-mono text-base font-bold tabular-nums ${
-                          isLeader(team.teamName) ? "text-beat" : "text-ink"
-                        }`}
-                      >
-                        {totalOf(team)}
-                      </td>
-                    )}
-                  </For>
-                </tr>
-              </tfoot>
-            </table>
-          </div>
-        </div>
+        <RoundBreakdown
+          teams={breakdownTeams()}
+          rounds={allRounds()}
+          roundsPlayed={roundsPlayed()}
+          roundLabels={props.roundLabels}
+          isLeader={isLeader}
+        />
       </Show>
     </section>
   );
