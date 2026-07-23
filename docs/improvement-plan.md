@@ -91,19 +91,25 @@ audience screen leaks answers. Close that gap first.
     round-by-round table), and a `scoreboardFlip` helper (`withFlip` + `popChip`
     element-ref animations). `Scoreboard.tsx` is now a ~194-line orchestrator that
     owns scores state, standings memos, and the mutation handlers. — M/L
-21. ~~**`useGameState`**~~ — **[DONE]** The non-shared (localStorage) path now
+21. ~~**Split `SongItemCard.tsx`**~~ — **[DONE]** The 397-line component split into
+    a `SongItemEditModal` (the Portal edit modal) and a `songItemFlip` helper (the
+    two inline FLIP enter/exit callbacks + an exported `tileFrame` translate/scale
+    geometry, covered by tests), mirroring the #20 `scoreboardFlip` split.
+    `SongItemCard.tsx` is now a ~100-line board tile that keeps only the
+    `originRect` capture the animation needs. — M
+22. ~~**`useGameState`**~~ — **[DONE]** The non-shared (localStorage) path now
     uses a `solid-js` store: reads track fine-grained, updates merge via
     `setLocal`, and room changes `reconcile` a fresh load — no more manual `Map`
     + version signal. `game()` is a `createMemo`. — S
-22. **Test coverage** — `roomsService` (score migration, editor dedup,
+23. **Test coverage** — `roomsService` (score migration, editor dedup,
     `duplicateRoom`), playback routing, PKCE flow. — M
 
 ## Phase 6 — Larger investments
 
-23. **Sound effects** — buzz-in / correct / wrong / times-up. — M
-24. **Game history / results archive** — `gameState` is wiped on new game; nothing
+24. **Sound effects** — buzz-in / correct / wrong / times-up. — M
+25. **Game history / results archive** — `gameState` is wiped on new game; nothing
     persists for leaderboards or "last played". — M
-25. **Marketplace discovery** — tags/genre, play count, favorites; today
+26. **Marketplace discovery** — tags/genre, play count, favorites; today
     `marketFilter` matches names only and sorts by date. — M
-26. **Phone join + buzz-in** — the `AudienceView` "QR join" TODO; player-side join,
+27. **Phone join + buzz-in** — the `AudienceView` "QR join" TODO; player-side join,
     buzz ordering, answer submission. — L
