@@ -85,8 +85,12 @@ audience screen leaks answers. Close that gap first.
     `<Tile>` for both the single- and multi-category layouts; the two paths only
     pass different size classes (`buttonClass` / `levelClass`). The revealed
     toggle, stage-card ink vars, click, and level-color logic live in one place. — M
-20. **Split `Scoreboard.tsx`** (610 lines) into rows / add-form / breakdown /
-    FLIP helper. — M/L
+20. ~~**Split `Scoreboard.tsx`**~~ — **[DONE]** The 610-line component split into
+    `scoreboard/ScoreRow` (interactive row, owns its inline-rename state),
+    `AddTeamForm` (owns its open/draft state), `RoundBreakdown` (read-only
+    round-by-round table), and a `scoreboardFlip` helper (`withFlip` + `popChip`
+    element-ref animations). `Scoreboard.tsx` is now a ~194-line orchestrator that
+    owns scores state, standings memos, and the mutation handlers. — M/L
 21. ~~**`useGameState`**~~ — **[DONE]** The non-shared (localStorage) path now
     uses a `solid-js` store: reads track fine-grained, updates merge via
     `setLocal`, and room changes `reconcile` a fresh load — no more manual `Map`
