@@ -291,18 +291,22 @@ const CreateRoom: Component = () => {
             {/* Existing categories */}
             <For each={editor.categories()}>
               {(category) => {
-                // Generate color based on category ID for consistent, unique colors
-                const colorScheme = generateColorScheme(category.id);
+                // Auto-assigned by ID for consistent, unique colors — unless the
+                // category picked a preset, whose hue (inkIndex) then wins. Read
+                // reactively so choosing a preset recolors the column live.
+                const colorScheme = () => generateColorScheme(category.id, category.inkIndex);
                 return (
                   <CategoryColumn
                     category={category}
-                    colorScheme={colorScheme}
+                    colorScheme={colorScheme()}
                     maxItems={MAX_ITEMS_CREATE}
                     isEditingName={editor.editingCategory() === category.id}
                     editingItemId={editor.editingItem()}
                     onEditName={() => editor.setEditingCategory(category.id)}
                     onUpdateName={(name) => editor.updateCategoryName(category.id, name)}
-                    onUpdateImage={(imageUrl) => editor.updateCategoryImage(category.id, imageUrl)}
+                    onUpdateImage={(imageUrl, inkIndex) =>
+                      editor.updateCategoryImage(category.id, imageUrl, inkIndex)
+                    }
                     onBlurName={() => editor.setEditingCategory(null)}
                     onRemove={() => editor.removeCategory(category.id)}
                     onAddItem={() => editor.addItem(category.id)}

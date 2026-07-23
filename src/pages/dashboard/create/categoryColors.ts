@@ -48,11 +48,14 @@ export function resetHueAssignments(): void {
 }
 
 /**
- * Generate a color scheme for a category based on its unique ID.
- * All values come from the shared stage-light palette.
+ * Generate a color scheme for a category. When the category carries an explicit
+ * `inkIndex` (from a chosen preset), that hue wins; otherwise an ink is
+ * auto-assigned by ID via the shared round-robin. All values come from the
+ * shared stage-light palette.
  */
-export function generateColorScheme(categoryId: string): CategoryColorScheme {
-  const ink = STAGE_INKS[getInkForCategory(categoryId)];
+export function generateColorScheme(categoryId: string, inkIndex?: number): CategoryColorScheme {
+  const index = inkIndex != null ? inkIndex % STAGE_INKS.length : getInkForCategory(categoryId);
+  const ink = STAGE_INKS[index];
 
   return {
     titleBg: ink.ink,

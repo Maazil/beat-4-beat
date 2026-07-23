@@ -55,10 +55,13 @@ export function useRoomEditor() {
     setState("categories", (c) => c.id === categoryId, "name", name);
   };
 
-  // Set or clear a category's header image. Setting undefined deletes the
-  // key from the store object — Firestore rejects undefined field values.
-  const updateCategoryImage = (categoryId: string, imageUrl?: string) => {
+  // Set or clear a category's header image, plus the preset hue that drives its
+  // color scheme (presets pass an inkIndex; custom uploads / removal pass none,
+  // reverting to the auto-assigned color). Setting undefined deletes the key
+  // from the store object — Firestore rejects undefined field values.
+  const updateCategoryImage = (categoryId: string, imageUrl?: string, inkIndex?: number) => {
     setState("categories", (c) => c.id === categoryId, "imageUrl", imageUrl);
+    setState("categories", (c) => c.id === categoryId, "inkIndex", inkIndex);
   };
 
   // Remove a category
