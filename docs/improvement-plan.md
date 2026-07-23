@@ -73,10 +73,11 @@ audience screen leaks answers. Close that gap first.
 ## Phase 5 — Code quality / refactors
 
 18. ~~**Extract shared standings logic**~~ — **[DONE]** The rank-ordering and
-    leader-detection both `AudienceView` and `Scoreboard` derived on top of
-    `computeStandings` now live in `lib/standings.ts` as `rankTeams` and
-    `isLeadingStanding` (with tests). The visual rows differ too much to share a
-    component — Scoreboard's are interactive — so that stays for the #20 split. — M
+    leader-detection `AudienceView`, `Scoreboard`, and `WinnerOverlay` each
+    derived on top of `computeStandings` now live in `lib/standings.ts` as
+    `rankTeams` and `isLeadingStanding` (with tests). The visual rows differ too
+    much to share a component — Scoreboard's are interactive — so that stays for
+    the #20 split. — M
 19. **Extract `<Tile>`** — `GameBoard` duplicates tile markup for single- vs
     multi-category layouts. — M
 20. **Split `Scoreboard.tsx`** (610 lines) into rows / add-form / breakdown /
