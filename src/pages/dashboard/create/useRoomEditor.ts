@@ -85,8 +85,8 @@ export function useRoomEditor() {
     setEditingItem(newItemId);
   };
 
-  // Update item song URL and optional metadata (title, artist, cue point).
-  // Undefined title/artist/startTime leave the existing value untouched.
+  // Update item song URL and optional metadata (title, artist, cue point,
+  // track length, album art). Undefined values leave the existing one untouched.
   const updateItem = (
     categoryId: string,
     itemId: string,
@@ -94,6 +94,8 @@ export function useRoomEditor() {
     title?: string,
     artist?: string,
     startTime?: number,
+    durationMs?: number,
+    imageUrl?: string,
   ) => {
     setState(
       "categories",
@@ -105,6 +107,8 @@ export function useRoomEditor() {
         if (title !== undefined) item.title = title;
         if (artist !== undefined) item.artist = artist;
         if (startTime !== undefined) item.startTime = startTime;
+        if (durationMs !== undefined) item.durationMs = durationMs;
+        if (imageUrl !== undefined) item.imageUrl = imageUrl;
       }),
     );
   };

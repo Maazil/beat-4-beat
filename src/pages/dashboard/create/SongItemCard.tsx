@@ -8,7 +8,14 @@ interface SongItemCardProps {
   colorScheme: CategoryColorScheme;
   isEditing: boolean;
   onEdit: () => void;
-  onUpdate: (songUrl: string, title?: string, artist?: string, startTime?: number) => void;
+  onUpdate: (
+    songUrl: string,
+    title?: string,
+    artist?: string,
+    startTime?: number,
+    durationMs?: number,
+    imageUrl?: string,
+  ) => void;
   onBlur: () => void;
   onRemove: () => void;
 }
