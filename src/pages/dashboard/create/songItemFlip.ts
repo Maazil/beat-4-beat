@@ -24,7 +24,8 @@ const RESTING_FRAME: TransformKeyframe = {
 };
 
 // The keyframe that overlaps the modal card onto the originating tile.
-const tileFrame = (rect: DOMRect, modalRect: DOMRect): TransformKeyframe => {
+// Exported for unit testing of the geometry; not used outside this module.
+export const tileFrame = (rect: DOMRect, modalRect: DOMRect): TransformKeyframe => {
   const dx = rect.left + rect.width / 2 - (modalRect.left + modalRect.width / 2);
   const dy = rect.top + rect.height / 2 - (modalRect.top + modalRect.height / 2);
   const scaleX = rect.width / modalRect.width;
