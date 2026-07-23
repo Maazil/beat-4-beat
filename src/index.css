@@ -1,6 +1,15 @@
 @import "tailwindcss";
 
 /*
+  Apply `hover:` utilities on any `:hover`, not only when the primary pointer
+  supports hover. Tailwind v4 gates hover behind `@media (hover: hover)` by
+  default, which silently disables every hover style on touchscreen laptops and
+  under devtools touch emulation (the pointer reports `hover: none`). This
+  restores v3 behaviour app-wide.
+*/
+@custom-variant hover (&:hover);
+
+/*
   Beat 4 Beat — design system
   "Stage Night": deep navy stage, periwinkle hairlines, one gold spotlight
   accent, hot magenta for the big moments. The landing page (stage-night.css)
