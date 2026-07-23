@@ -1,5 +1,6 @@
 import { Component, createMemo, For, Show } from "solid-js";
 import type { Category } from "../model/category";
+import type { SongItem } from "../model/songItem";
 import { stageInk } from "../theme/palette";
 import type { StageInk } from "../theme/palette";
 
@@ -9,6 +10,40 @@ const stageVars = (ink: StageInk) => ({
   "--stage-tint": ink.tint,
   "--stage-tint-hover": ink.tintHover,
 });
+
+interface TileProps {
+  item: SongItem;
+  ink: StageInk;
+  revealed: boolean;
+  onClick: () => void;
+  /** Size + radius classes — tiles are larger on single-category boards. */
+  buttonClass: string;
+  /** Font-size classes for the level number. */
+  levelClass: string;
+}
+
+/**
+ * A single level tile. Unrevealed tiles get the stage-card ink treatment;
+ * revealed ones dim to a dashed outline. The single- and multi-category
+ * layouts only differ in tile size, passed via `buttonClass` / `levelClass`.
+ */
+const Tile: Component<TileProps> = (props) => (
+  <button
+    type="button"
+    class={`flex w-full cursor-pointer items-center justify-center ${props.buttonClass} ${
+      props.revealed ? "border border-dashed border-line bg-night/50" : "stage-card"
+    }`}
+    style={props.revealed ? undefined : stageVars(props.ink)}
+    onClick={props.onClick}
+  >
+    <span
+      class={`font-mono font-bold ${props.levelClass}`}
+      style={{ color: props.revealed ? "var(--color-muted)" : "var(--color-ink)" }}
+    >
+      {props.item.level}
+    </span>
+  </button>
+);
 
 interface GameBoardProps {
   categories: Category[];
@@ -34,32 +69,16 @@ const GameBoard: Component<GameBoardProps> = (props) => {
       <Show when={props.categories.length === 1}>
         <div class="grid grid-cols-2 gap-6 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
           <For each={props.categories[0]?.items}>
-            {(item) => {
-              const ink = stageInk(0);
-              return (
-                <button
-                  type="button"
-                  class={`flex h-20 w-full cursor-pointer items-center justify-center rounded-xl sm:h-24 ${
-                    props.isItemRevealed(item.id)
-                      ? "border border-dashed border-line bg-night/50"
-                      : "stage-card"
-                  }`}
-                  style={props.isItemRevealed(item.id) ? undefined : stageVars(ink)}
-                  onClick={() => props.onItemClick(item.id, item.songUrl, item.startTime)}
-                >
-                  <span
-                    class="font-mono text-2xl font-bold"
-                    style={{
-                      color: props.isItemRevealed(item.id)
-                        ? "var(--color-muted)"
-                        : "var(--color-ink)",
-                    }}
-                  >
-                    {item.level}
-                  </span>
-                </button>
-              );
-            }}
+            {(item) => (
+              <Tile
+                item={item}
+                ink={stageInk(0)}
+                revealed={props.isItemRevealed(item.id)}
+                onClick={() => props.onItemClick(item.id, item.songUrl, item.startTime)}
+                buttonClass="h-20 rounded-xl sm:h-24"
+                levelClass="text-2xl"
+              />
+            )}
           </For>
         </div>
       </Show>
@@ -103,27 +122,14 @@ const GameBoard: Component<GameBoardProps> = (props) => {
                   >
                     <For each={category.items}>
                       {(item) => (
-                        <button
-                          type="button"
-                          class={`flex h-14 w-full cursor-pointer items-center justify-center rounded-lg md:h-16 ${
-                            props.isItemRevealed(item.id)
-                              ? "border border-dashed border-line bg-night/50"
-                              : "stage-card"
-                          }`}
-                          style={props.isItemRevealed(item.id) ? undefined : stageVars(ink())}
+                        <Tile
+                          item={item}
+                          ink={ink()}
+                          revealed={props.isItemRevealed(item.id)}
                           onClick={() => props.onItemClick(item.id, item.songUrl, item.startTime)}
-                        >
-                          <span
-                            class="font-mono text-xl font-bold sm:text-2xl"
-                            style={{
-                              color: props.isItemRevealed(item.id)
-                                ? "var(--color-muted)"
-                                : "var(--color-ink)",
-                            }}
-                          >
-                            {item.level}
-                          </span>
-                        </button>
+                          buttonClass="h-14 rounded-lg md:h-16"
+                          levelClass="text-xl sm:text-2xl"
+                        />
                       )}
                     </For>
                   </div>
