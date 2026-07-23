@@ -34,9 +34,9 @@ Completed items have been removed; numbering is kept stable for traceability.
 
 5. **Copy-link "Copied!" feedback** — no visual confirmation today, and the logic
    is duplicated in `RoomView`, `RoomManageCard`, `RoomPreview`; consolidate. — S
-7. **Drop `updateRoom`'s full-doc pre-read** — it re-checks ownership that
+6. **Drop `updateRoom`'s full-doc pre-read** — it re-checks ownership that
    `firestore.rules` already enforces; doubles every editor save. — S
-8. **Random-tile picker** for lightning rounds. — S
+7. **Random-tile picker** for lightning rounds. — S
 
 ## Phase 3 — Design-system foundation
 
