@@ -20,14 +20,10 @@ interface NowPlayingBarProps {
 const NowPlayingBar: Component<NowPlayingBarProps> = (props) => {
   return (
     <div class="fixed right-0 bottom-0 left-0 z-50 border-t border-line bg-surface/95 md:backdrop-blur">
-      {/* Progress / seek bar */}
-      <Show when={props.durationMs > 0}>
-        <SeekBar
-          positionMs={props.positionMs}
-          durationMs={props.durationMs}
-          onSeek={props.onSeek}
-        />
-      </Show>
+      {/* Progress / seek bar — shown as soon as a song starts; the elapsed
+          time advances immediately while the duration fills in from the first
+          reconcile (seeking is disabled until then). */}
+      <SeekBar positionMs={props.positionMs} durationMs={props.durationMs} onSeek={props.onSeek} />
 
       <div class="flex items-center gap-2 px-3 py-2 sm:gap-4 sm:px-6 sm:py-3">
         {/* Hidden track info with reveal toggle */}

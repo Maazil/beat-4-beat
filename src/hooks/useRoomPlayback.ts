@@ -7,7 +7,6 @@ import {
   playOnDevice,
   pausePlayback,
   resumePlayback,
-  skipRelative,
   spotifyUrlToUri,
 } from "../lib/spotify";
 import type { SpotifyDevice } from "../lib/spotify";
@@ -118,12 +117,11 @@ export function useRoomPlayback() {
     }
   };
 
+  // Seek relative to the currently displayed position. Routing through
+  // progress.seekTo (rather than a stateless API skip) updates the seek bar and
+  // clock immediately, and reuses its clamping + stale-reconcile guard.
   const skip = async (deltaMs: number) => {
-    try {
-      await skipRelative(deltaMs);
-    } catch (err) {
-      console.error("[useRoomPlayback] Skip failed:", err);
-    }
+    await progress.seekTo(progress.positionMs() + deltaMs);
   };
 
   const closeYouTube = () => setYoutubeVideo(null);
