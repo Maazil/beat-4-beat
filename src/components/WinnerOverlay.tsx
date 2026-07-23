@@ -1,6 +1,6 @@
 import { Component, createMemo, For, Show } from "solid-js";
 import { Portal } from "solid-js/web";
-import { computeStandings, totalOf } from "../lib/standings";
+import { computeStandings, isLeadingStanding, rankTeams, totalOf } from "../lib/standings";
 import { winningTeams } from "../lib/winner";
 import type { Score } from "../model/score";
 
@@ -39,12 +39,7 @@ const confetti = Array.from({ length: 42 }, (_, i) => ({
  */
 const WinnerOverlay: Component<WinnerOverlayProps> = (props) => {
   const standings = createMemo(() => computeStandings(props.scores));
-  const ranked = createMemo(() =>
-    [...props.scores].sort(
-      (a, b) =>
-        (standings().get(a.teamName)?.order ?? 0) - (standings().get(b.teamName)?.order ?? 0),
-    ),
-  );
+  const ranked = createMemo(() => rankTeams(props.scores, standings()));
   const winners = createMemo(() => winningTeams(props.scores));
 
   return (
@@ -114,7 +109,7 @@ const WinnerOverlay: Component<WinnerOverlayProps> = (props) => {
               <For each={ranked()}>
                 {(team) => {
                   const standing = () => standings().get(team.teamName);
-                  const isTop = () => standing()?.rank === 1 && totalOf(team) > 0;
+                  const isTop = () => isLeadingStanding(standing());
                   return (
                     <div
                       class={`flex items-center gap-3 rounded-xl border px-4 py-2.5 ${
