@@ -1,17 +1,10 @@
 import { Component, For, Show } from "solid-js";
+import type { RoundLabel } from "../../lib/boardLookup";
 import { isSafeSongHref } from "../../lib/externalUrl";
 import { totalOf } from "../../lib/standings";
 import type { Score } from "../../model/score";
 
-/** Song played on a given round, used to label the revealed breakdown. */
-export interface RoundLabel {
-  title?: string;
-  artist?: string;
-  /** Fallbacks for URL-only songs that have no title/artist set. */
-  category?: string;
-  level?: number;
-  songUrl?: string;
-}
+export type { RoundLabel };
 
 interface RoundBreakdownProps {
   /** Teams ordered by rank (leaders first). */
