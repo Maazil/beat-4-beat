@@ -32,8 +32,6 @@ Completed items have been removed; numbering is kept stable for traceability.
 
 ## Phase 2 — Cheap, high-value wins
 
-5. **Copy-link "Copied!" feedback** — no visual confirmation today, and the logic
-   is duplicated in `RoomView`, `RoomManageCard`, `RoomPreview`; consolidate. — S
 7. **Random-tile picker** for lightning rounds. — S
 
 ## Phase 3 — Design-system foundation
