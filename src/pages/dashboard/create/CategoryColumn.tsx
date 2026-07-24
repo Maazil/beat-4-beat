@@ -163,7 +163,7 @@ const CategoryColumn: Component<CategoryColumnProps> = (props) => {
             class="fixed inset-0 z-40 cursor-default"
             onClick={() => setShowPicker(false)}
           />
-          <div class="absolute top-full left-0 z-50 mt-2 w-56 rounded-xl border border-line bg-surface p-3 text-left shadow-xl">
+          <div class="animate-card-expand absolute top-full left-0 z-50 mt-2 w-56 origin-top-left rounded-xl border border-line bg-surface p-3 text-left shadow-xl">
             <button
               type="button"
               onClick={() => {

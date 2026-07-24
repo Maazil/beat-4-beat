@@ -12,10 +12,6 @@ Completed items have been removed; numbering is kept stable for traceability.
     (`stage-night.css:170`). — M
 12. **Skeleton loading states** + fix header hide-on-scroll (`PageWrapper.tsx`
     vanishes until you scroll all the way back to top). — M
-13. **Dead animation tokens** — the confirm dialog now wires `card-expand-enter`
-    + `backdrop-fade-enter` (`.animate-card-expand` / `.animate-backdrop-fade`).
-    Still unused: the `*-exit` variants (need enter/leave choreography) and
-    `beat-pulse` — wire or remove; apply consistent entrance motion elsewhere. — S
 14. **Small design debt** — contrast audit on low-opacity text; Profile uses the
     shared `Input` primitive; standardize route-based back navigation. — S
 
