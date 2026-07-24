@@ -31,7 +31,9 @@ const PLAY_INTENT_GRACE_MS = 2500;
 // reconcile whose reported position is more than START_POSITION_TOLERANCE_MS below
 // the intended start is treated as that not-yet-applied sample and ignored, so the
 // bar keeps ticking from the cue point instead of snapping backward to 0.
-const START_POSITION_GRACE_MS = 3000;
+// Exported so a caller forcing the cue point on a device that ignored
+// `position_ms` can bound its work by the same window (see useRoomPlayback).
+export const START_POSITION_GRACE_MS = 3000;
 const START_POSITION_TOLERANCE_MS = 3000;
 
 /**

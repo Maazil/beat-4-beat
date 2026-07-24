@@ -273,7 +273,7 @@ const RoomPlayInner: Component = () => {
           onResume={playback.resume}
           onSkipForward={() => playback.skip(10_000)}
           onSkipBackward={() => playback.skip(-10_000)}
-          onSeek={(ms) => playback.progress.seekTo(ms)}
+          onSeek={(ms) => void playback.seekTo(ms)}
         />
       </Show>
     </div>
