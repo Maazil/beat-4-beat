@@ -240,22 +240,15 @@ export async function updateRoom(
     Omit<Room, "id" | "hostId" | "editorIds" | "editorNames" | "inviteToken" | "createdAt">
   >,
 ): Promise<void> {
-  const user = auth.currentUser;
-
-  if (!user) {
+  if (!auth.currentUser) {
     throw new Error("Must be logged in to update a room");
   }
 
-  // Verify the current user is allowed to edit (host or co-editor)
-  const room = await getRoom(roomId);
-  if (!room) {
-    throw new Error("Room not found");
-  }
-
-  if (room.hostId !== user.uid && !room.editorIds?.includes(user.uid)) {
-    throw new Error("Only the host or a co-owner can update this room");
-  }
-
+  // No ownership pre-read: firestore.rules already restricts `update` to the
+  // host or a co-owner (see `allow update`). Re-checking here would double
+  // every save with a full-doc read — including the inline base64 category
+  // images — so we let the rules enforce it and surface any denial as the
+  // updateDoc rejection.
   await updateDoc(roomDoc(roomId), updates);
 }
 
