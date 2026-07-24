@@ -42,6 +42,22 @@ export async function searchTracks(query: string, limit = 20, offset = 0): Promi
   return data.tracks.items.map(mapApiTrack);
 }
 
+/** Fetch a single track by its Spotify track id. */
+export async function getTrack(trackId: string): Promise<SpotifyTrack> {
+  const token = await getAccessToken();
+
+  const res = await fetch(`${SPOTIFY_API_BASE}/tracks/${trackId}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  if (!res.ok) {
+    throw new Error(`[spotify.api] Get track failed: ${res.status}`);
+  }
+
+  const data: SpotifyApiTrack = await res.json();
+  return mapApiTrack(data);
+}
+
 // ── Helpers ───────────────────────────────────────────────────────────
 
 /** Map a Spotify Web API track object to our simplified SpotifyTrack. */

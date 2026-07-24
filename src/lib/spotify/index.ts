@@ -18,6 +18,7 @@ export { useSpotifyPlayback } from "./spotify.playback";
 
 export {
   searchTracks,
+  getTrack,
   getDevices,
   playOnDevice,
   pausePlayback,
