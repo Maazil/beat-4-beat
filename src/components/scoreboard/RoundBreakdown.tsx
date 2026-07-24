@@ -111,7 +111,7 @@ const RoundBreakdown: Component<RoundBreakdownProps> = (props) => {
                           <td class="px-2 py-1.5 text-center">
                             <span
                               class={`inline-flex h-6 min-w-6 items-center justify-center rounded-md px-1 font-mono text-xs font-bold tabular-nums ${
-                                pts() > 0 ? "bg-beat-soft text-beat-bright" : "text-muted/40"
+                                pts() > 0 ? "bg-beat-soft text-beat-bright" : "text-muted"
                               }`}
                             >
                               {pts() > 0 ? `+${pts()}` : "·"}

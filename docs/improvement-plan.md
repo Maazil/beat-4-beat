@@ -12,8 +12,6 @@ Completed items have been removed; numbering is kept stable for traceability.
     (`stage-night.css:170`). — M
 12. **Skeleton loading states** + fix header hide-on-scroll (`PageWrapper.tsx`
     vanishes until you scroll all the way back to top). — M
-14. **Small design debt** — contrast audit on low-opacity text; Profile uses the
-    shared `Input` primitive; standardize route-based back navigation. — S
 
 ## Phase 4 — Performance & scale _(as usage grows)_
 

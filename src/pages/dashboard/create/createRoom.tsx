@@ -11,6 +11,7 @@ import {
   createRoom as createRoomInFirestore,
   updateRoom as updateRoomInFirestore,
 } from "../../../services/roomsService";
+import BackLink from "../../../components/BackLink";
 import Button from "../../../components/forms/Button";
 import AddCategoryButton from "./AddCategoryButton";
 import {
@@ -198,21 +199,7 @@ const CreateRoom: Component = () => {
         <div class="mx-auto max-w-7xl">
           {/* Header */}
           <div class="mb-6 flex items-center justify-between">
-            <button
-              type="button"
-              onClick={() => navigate("/dashboard")}
-              class="flex items-center gap-2 text-muted transition hover:text-beat"
-            >
-              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M10 19l-7-7m0 0l7-7m-7 7h18"
-                />
-              </svg>
-              <span class="font-medium">Back</span>
-            </button>
+            <BackLink href="/dashboard" />
 
             <div class="flex items-center gap-3">
               {/* Public toggle with lock icons */}
@@ -278,7 +265,7 @@ const CreateRoom: Component = () => {
             <p class="mt-2 text-muted">
               Click + to add categories and songs
               <Show when={editor.categories().length > 0}>
-                <span class="ml-2 font-mono text-sm text-muted/70">
+                <span class="ml-2 font-mono text-sm text-muted">
                   ({editor.categories().length}/{MAX_CATEGORIES} categories)
                 </span>
               </Show>

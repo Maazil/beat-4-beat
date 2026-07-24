@@ -145,7 +145,7 @@ const ScoreRow: Component<ScoreRowProps> = (props) => {
                       ? "font-bold text-beat-bright"
                       : round.value > 0
                         ? "text-ink"
-                        : "text-muted/60"
+                        : "text-muted"
                   }
                 >
                   {round.value}

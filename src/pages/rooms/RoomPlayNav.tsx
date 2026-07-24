@@ -1,4 +1,5 @@
 import { Component } from "solid-js";
+import BackLink from "../../components/BackLink";
 
 interface RoomPlayNavProps {
   roomId: string | undefined;
@@ -8,27 +9,7 @@ interface RoomPlayNavProps {
 const RoomPlayNav: Component<RoomPlayNavProps> = (props) => {
   return (
     <div class="mb-6 flex items-center justify-between gap-3">
-      <button
-        type="button"
-        onClick={() => window.history.back()}
-        class="flex items-center gap-2 text-muted transition hover:text-beat"
-      >
-        <svg
-          aria-hidden="true"
-          class="h-5 w-5"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M10 19l-7-7m0 0l7-7m-7 7h18"
-          />
-        </svg>
-        <span class="font-medium">Back</span>
-      </button>
+      <BackLink href={props.roomId ? `/rooms/${props.roomId}` : "/dashboard"} />
 
       {/* Read-only spectator screen — open on a second display or share it */}
       <a

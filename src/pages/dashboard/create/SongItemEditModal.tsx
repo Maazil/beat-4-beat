@@ -241,7 +241,7 @@ const SongItemEditModal: Component<SongItemEditModalProps> = (props) => {
                         onInput={(e) => setLocalUrl(e.currentTarget.value)}
                         onKeyPress={(e) => e.key === "Enter" && handleUrlSubmit()}
                         placeholder="Paste a song URL…"
-                        class="min-w-0 flex-1 rounded-xl border border-line bg-surface-2 px-4 py-3 text-sm text-ink placeholder:text-muted/60 transition outline-none focus:border-beat focus:ring-2 focus:ring-beat/20"
+                        class="min-w-0 flex-1 rounded-xl border border-line bg-surface-2 px-4 py-3 text-sm text-ink placeholder:text-muted transition outline-none focus:border-beat focus:ring-2 focus:ring-beat/20"
                         autofocus
                       />
                       <button
@@ -260,7 +260,7 @@ const SongItemEditModal: Component<SongItemEditModalProps> = (props) => {
                       value={searchQuery()}
                       onInput={(e) => handleSearchInput(e.currentTarget.value)}
                       placeholder="Search for a song…"
-                      class="w-full rounded-xl border border-line bg-surface-2 px-4 py-3 text-sm text-ink placeholder:text-muted/60 transition outline-none focus:border-beat focus:ring-2 focus:ring-beat/20"
+                      class="w-full rounded-xl border border-line bg-surface-2 px-4 py-3 text-sm text-ink placeholder:text-muted transition outline-none focus:border-beat focus:ring-2 focus:ring-beat/20"
                       autofocus
                     />
 
@@ -313,7 +313,7 @@ const SongItemEditModal: Component<SongItemEditModalProps> = (props) => {
                           onInput={(e) => handleStartTimeInput(e.currentTarget)}
                           onKeyPress={(e) => e.key === "Enter" && handleUrlSubmit()}
                           placeholder="0"
-                          class="w-full rounded-xl border border-line bg-surface-2 px-4 py-2.5 text-sm text-ink placeholder:text-muted/60 transition outline-none focus:border-beat focus:ring-2 focus:ring-beat/20"
+                          class="w-full rounded-xl border border-line bg-surface-2 px-4 py-2.5 text-sm text-ink placeholder:text-muted transition outline-none focus:border-beat focus:ring-2 focus:ring-beat/20"
                         />
                       </label>
                       <button
