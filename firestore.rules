@@ -79,6 +79,26 @@ service cloud.firestore {
         && categoriesValid();
       allow delete: if isHost();
 
+      // Category header images, split off the room document so the dashboard
+      // and marketplace grids don't download them (see lib/categoryImages).
+      // Same audience as the room itself, so these mirror the room's read and
+      // content-write rules — via get(), since `resource` here is the asset
+      // document, not the room.
+      match /assets/{assetId} {
+        function roomData() {
+          return get(/databases/$(database)/documents/rooms/$(roomId)).data;
+        }
+
+        function canEditRoom() {
+          return isSignedIn()
+            && (request.auth.uid == roomData().hostId
+                || request.auth.uid in editorsOf(roomData()));
+        }
+
+        allow read: if roomData().isPublic == true || canEditRoom();
+        allow write: if canEditRoom();
+      }
+
       // Invite handshake: an invitee writes the token from their invite link
       // here, and the rules compare it against the room's current token —
       // without ever letting them read the room. The doc doubles as the

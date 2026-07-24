@@ -1,4 +1,5 @@
 import { Component, createMemo, For, Show } from "solid-js";
+import type { CategoryImageMap } from "../lib/categoryImages";
 import type { Category } from "../model/category";
 import type { SongItem } from "../model/songItem";
 import { stageInk } from "../theme/palette";
@@ -70,6 +71,10 @@ interface GameBoardProps {
   /** Set false for a read-only board (audience view): tiles become
       disabled and drop out of the tab order. Defaults to interactive. */
   interactive?: boolean;
+  /** Header images by category id, from the room's image document. Looked up
+      rather than merged onto the categories so a gameState snapshot can't
+      change their identity and re-create every column. */
+  categoryImages?: CategoryImageMap;
 }
 
 /**
@@ -78,6 +83,10 @@ interface GameBoardProps {
  */
 const GameBoard: Component<GameBoardProps> = (props) => {
   const isInteractive = () => props.interactive ?? true;
+
+  // Rooms saved before the images moved off the room document still carry the
+  // data URL inline, so that stays the fallback.
+  const imageFor = (category: Category) => props.categoryImages?.[category.id] ?? category.imageUrl;
 
   // Mobile songitem grid is near-square, sized from the largest category so
   // every category shares one column count: cols = ceil(sqrt(maxItems)).
@@ -124,7 +133,7 @@ const GameBoard: Component<GameBoardProps> = (props) => {
               return (
                 <div class="flex w-full flex-col gap-4 md:w-auto">
                   <Show
-                    when={category.imageUrl}
+                    when={imageFor(category)}
                     fallback={
                       <div
                         class="rounded-lg px-4 py-3 text-center"
@@ -137,7 +146,7 @@ const GameBoard: Component<GameBoardProps> = (props) => {
                     }
                   >
                     <img
-                      src={category.imageUrl}
+                      src={imageFor(category)}
                       alt={category.name}
                       class="h-20 w-full rounded-lg border border-line object-cover"
                     />

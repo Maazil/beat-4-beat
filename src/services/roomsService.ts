@@ -20,6 +20,7 @@ import {
   Timestamp,
   updateDoc,
   where,
+  writeBatch,
   type DocumentData,
   type DocumentReference,
   type QueryDocumentSnapshot,
@@ -27,6 +28,11 @@ import {
 } from "firebase/firestore";
 import { db } from "../lib/db";
 import { auth } from "../lib/auth";
+import {
+  mergeCategoryImages,
+  splitCategoryImages,
+  type CategoryImageMap,
+} from "../lib/categoryImages";
 import type { Category } from "../model/category";
 import type { GameState } from "../model/gameState";
 import type { CreateRoomData, Room } from "../model/room";
@@ -41,6 +47,9 @@ const roomsCollection = collection(db, "rooms");
 const roomDoc = (roomId: string): DocumentReference => doc(db, "rooms", roomId);
 const joinRequestDoc = (roomId: string, uid: string): DocumentReference =>
   doc(db, "rooms", roomId, "joinRequests", uid);
+/** Category header images, split off the room doc — see lib/categoryImages. */
+const categoryImagesDoc = (roomId: string): DocumentReference =>
+  doc(db, "rooms", roomId, "assets", "categoryImages");
 
 /**
  * Convert Firestore document data to Room with proper Date conversion
@@ -93,12 +102,14 @@ export async function createRoom(roomData: CreateRoomData): Promise<string> {
     throw new Error("Must be logged in to create a room");
   }
 
-  // Generate fresh IDs for categories and items
+  // Generate fresh IDs for categories and items, then split the header images
+  // off — in that order, so the image map is keyed by the ids that were saved.
   const categoriesWithFreshIds = generateFreshIds(roomData.categories);
+  const { categories, images } = splitCategoryImages(categoriesWithFreshIds);
 
   const docRef = await addDoc(roomsCollection, {
     ...roomData,
-    categories: categoriesWithFreshIds,
+    categories,
     hostId: user.uid,
     hostName: roomData.hostName || user.displayName || "Host",
     editorIds: [],
@@ -112,7 +123,23 @@ export async function createRoom(roomData: CreateRoomData): Promise<string> {
   // Update the document with its own ID for easier querying
   await updateDoc(docRef, { id: docRef.id });
 
+  // After the room, never batched with it: the rules for an asset write read
+  // the room document, and inside a batch that read still sees the state from
+  // before the batch — where the room doesn't exist yet.
+  if (Object.keys(images).length > 0) {
+    await setDoc(categoryImagesDoc(docRef.id), images);
+  }
+
   return docRef.id;
+}
+
+/**
+ * Read a room's category header images. Missing doc (no images, or a room
+ * saved before the split) resolves to an empty map.
+ */
+export async function getCategoryImages(roomId: string): Promise<CategoryImageMap> {
+  const snapshot = await getDoc(categoryImagesDoc(roomId));
+  return snapshot.exists() ? (snapshot.data() as CategoryImageMap) : {};
 }
 
 /**
@@ -246,9 +273,22 @@ export async function updateRoom(
 
   // No ownership pre-read: firestore.rules already restricts `update` to the
   // host or a co-owner (see `allow update`). Re-checking here would double
-  // every save with a full-doc read — including the inline base64 category
-  // images — so we let the rules enforce it and surface any denial as the
-  // updateDoc rejection.
+  // every save with a full-doc read, so we let the rules enforce it and
+  // surface any denial as the write rejection.
+
+  // A board write also rewrites the image doc, atomically — a half-applied
+  // save that dropped the images off the room without storing them would
+  // lose them. Overwritten rather than merged, so an image belonging to a
+  // category that's now gone goes with it.
+  if (updates.categories) {
+    const { categories, images } = splitCategoryImages(updates.categories);
+    const batch = writeBatch(db);
+    batch.update(roomDoc(roomId), { ...updates, categories });
+    batch.set(categoryImagesDoc(roomId), images);
+    await batch.commit();
+    return;
+  }
+
   await updateDoc(roomDoc(roomId), updates);
 }
 
@@ -291,7 +331,10 @@ export async function duplicateRoom(roomId: string): Promise<string> {
     throw new Error("Room not found");
   }
 
-  const categories = room.categories.map((category) => ({
+  // Merge the source's images back onto the board so createRoom re-splits them
+  // against the copy's fresh category ids.
+  const withImages = mergeCategoryImages(room.categories, await getCategoryImages(roomId));
+  const categories = withImages.map((category) => ({
     ...category,
     items: category.items.map((item) => ({ ...item, isRevealed: false })),
   }));
@@ -329,6 +372,10 @@ export async function deleteRoom(roomId: string): Promise<void> {
     throw new Error("Only the host can delete this room");
   }
 
+  // Images first: the rules for an asset write authorize against the room
+  // document, so once the room is gone the asset can never be deleted.
+  // (Firestore doesn't cascade — a client has to do this itself.)
+  await deleteDoc(categoryImagesDoc(roomId));
   await deleteDoc(roomDoc(roomId));
 }
 

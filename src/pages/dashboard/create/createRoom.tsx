@@ -4,8 +4,9 @@ import { unwrap } from "solid-js/store";
 import { useAuth } from "../../../context/AuthContext";
 import { useConfirm } from "../../../context/ConfirmContext";
 import { useToast } from "../../../context/ToastContext";
+import { mergeCategoryImages } from "../../../lib/categoryImages";
 import type { Category } from "../../../model/category";
-import { getRoomOnce } from "../../../services/roomQuery";
+import { getCategoryImagesOnce, getRoomOnce } from "../../../services/roomQuery";
 import {
   canEditRoom,
   createRoom as createRoomInFirestore,
@@ -70,10 +71,16 @@ const CreateRoom: Component = () => {
         return;
       }
 
+      // Header images live in their own document; fetched after the permission
+      // check so a denied read can't be mistaken for a missing room. Merged
+      // onto the draft board, which is where the editor reads and writes them —
+      // the service splits them back out on save.
+      const categoryImages = await getCategoryImagesOnce(roomId);
+
       // Populate form with existing data
       editor.setRoomName(room.roomName);
       editor.setIsPublic(room.isPublic);
-      editor.replaceCategories(room.categories);
+      editor.replaceCategories(mergeCategoryImages(room.categories, categoryImages));
       setRoomHostId(room.hostId);
 
       // Co-owner management is host-only (rules also restrict join requests)
@@ -160,8 +167,8 @@ const CreateRoom: Component = () => {
           categories,
           isPublic: editor.isPublic(),
         });
-        // Drop the shared query's now-stale copy of this room
-        await revalidate(getRoomOnce.keyFor(roomId));
+        // Drop the shared queries' now-stale copies of this room
+        await revalidate([getRoomOnce.keyFor(roomId), getCategoryImagesOnce.keyFor(roomId)]);
       } else {
         // Create mode — create new room
         await createRoomInFirestore({
