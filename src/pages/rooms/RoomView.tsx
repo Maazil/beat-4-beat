@@ -2,6 +2,8 @@ import { useNavigate, useParams } from "@solidjs/router";
 import { Show, type Component } from "solid-js";
 import Button from "../../components/forms/Button";
 import RoomStatusBadge from "../../components/RoomStatusBadge";
+import { useConfirm } from "../../context/ConfirmContext";
+import { useToast } from "../../context/ToastContext";
 import { useRoom } from "../../hooks/useRoom";
 import { formatRoomDate } from "../../lib/roomDates";
 import { formatNameList, roomHostNames } from "../../lib/roomHosts";
@@ -11,15 +13,23 @@ const RoomView: Component = () => {
   const params = useParams();
   const navigate = useNavigate();
   const { room: currentRoom, isLoading } = useRoom(() => params.id);
+  const confirm = useConfirm();
+  const toast = useToast();
 
   const handleDelete = async (roomId: string) => {
-    if (!confirm("Are you sure you want to delete this room?")) return;
+    const confirmed = await confirm({
+      title: "Delete room",
+      message: "Are you sure you want to delete this room?",
+      confirmLabel: "Delete",
+      tone: "danger",
+    });
+    if (!confirmed) return;
     try {
       await deleteRoom(roomId);
       navigate("/dashboard");
     } catch (err) {
       console.error("Failed to delete room:", err);
-      alert("Could not delete the room. Please try again.");
+      toast.error("Could not delete the room. Please try again.");
     }
   };
 

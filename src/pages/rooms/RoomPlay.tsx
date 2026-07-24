@@ -1,5 +1,6 @@
 import { useParams } from "@solidjs/router";
 import { Component, createMemo, Show } from "solid-js";
+import { useConfirm } from "../../context/ConfirmContext";
 import { useRoom } from "../../hooks/useRoom";
 import { useGameState } from "../../hooks/useGameState";
 import { useGuessTimer } from "../../hooks/useGuessTimer";
@@ -21,6 +22,7 @@ import YouTubePlayer from "../../components/YouTubePlayer";
 /** Main room play page. */
 const RoomPlayInner: Component = () => {
   const params = useParams();
+  const confirm = useConfirm();
   const { room: currentRoom, isLoading } = useRoom(() => params.id);
 
   const hostNames = () => {
@@ -87,8 +89,13 @@ const RoomPlayInner: Component = () => {
     if (playback.progress.isPlaying()) void playback.pause();
   };
 
-  const handleNewGame = () => {
-    if (!confirm("Start a new game? The board resets and scores go back to zero.")) return;
+  const handleNewGame = async () => {
+    const confirmed = await confirm({
+      title: "New game",
+      message: "Start a new game? The board resets and scores go back to zero.",
+      confirmLabel: "Start new game",
+    });
+    if (!confirmed) return;
     resetGame();
   };
 

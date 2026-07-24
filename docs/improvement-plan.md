@@ -40,9 +40,6 @@ Completed items have been removed; numbering is kept stable for traceability.
 
 ## Phase 3 — Design-system foundation
 
-9. **Toast / modal primitive** to replace ~20 native `alert()`/`confirm()` calls
-   that shatter the Stage Night look and aren't accessible. Unblocks much of the
-   design debt below. — L
 10. **Accessible names** on icon-only buttons (`NowPlayingBar` play/pause/skip,
     `RoomPlayNav`) and game-board tiles (announce category + points + state);
     disable focusable dead tiles in `AudienceView`. — M
@@ -50,8 +47,10 @@ Completed items have been removed; numbering is kept stable for traceability.
     (`stage-night.css:170`). — M
 12. **Skeleton loading states** + fix header hide-on-scroll (`PageWrapper.tsx`
     vanishes until you scroll all the way back to top). — M
-13. **Dead animation tokens** (`card-expand-*`, `backdrop-fade-*`, `beat-pulse`) —
-    wire into the modal work (#9) or remove; apply consistent entrance motion. — S
+13. **Dead animation tokens** — the confirm dialog now wires `card-expand-enter`
+    + `backdrop-fade-enter` (`.animate-card-expand` / `.animate-backdrop-fade`).
+    Still unused: the `*-exit` variants (need enter/leave choreography) and
+    `beat-pulse` — wire or remove; apply consistent entrance motion elsewhere. — S
 14. **Small design debt** — contrast audit on low-opacity text; Profile uses the
     shared `Input` primitive; standardize route-based back navigation. — S
 

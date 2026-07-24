@@ -1,4 +1,5 @@
 import { Component, createMemo, createSignal, For, Show } from "solid-js";
+import { useConfirm } from "../context/ConfirmContext";
 import { computeStandings, isLeadingStanding, rankTeams, totalOf } from "../lib/standings";
 import type { Score } from "../model/score";
 import AddTeamForm from "./scoreboard/AddTeamForm";
@@ -22,6 +23,7 @@ interface ScoreboardProps {
  * teams with a FLIP animation and shows ranks and totals.
  */
 const Scoreboard: Component<ScoreboardProps> = (props) => {
+  const confirm = useConfirm();
   const [revealed, setRevealed] = createSignal(false);
   const flip = createScoreboardFlip();
 
@@ -79,9 +81,19 @@ const Scoreboard: Component<ScoreboardProps> = (props) => {
     flip.popChip(team.teamName);
   };
 
-  const handleRemoveTeam = (index: number) => {
+  const handleRemoveTeam = async (index: number) => {
     const team = props.scores[index];
-    if (totalOf(team) > 0 && !confirm(`Remove "${team.teamName}" and their points?`)) return;
+    if (
+      totalOf(team) > 0 &&
+      !(await confirm({
+        title: "Remove team",
+        message: `Remove "${team.teamName}" and their points?`,
+        confirmLabel: "Remove",
+        tone: "danger",
+      }))
+    ) {
+      return;
+    }
     applyScores(props.scores.filter((_, i) => i !== index));
   };
 

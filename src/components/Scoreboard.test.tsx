@@ -3,6 +3,7 @@ import { render } from "@solidjs/testing-library";
 import userEvent from "@testing-library/user-event";
 import { createSignal } from "solid-js";
 import { beforeAll, describe, expect, test, vi } from "vitest";
+import { ConfirmProvider } from "../context/ConfirmContext";
 import type { Score } from "../model/score";
 import Scoreboard from "./Scoreboard";
 
@@ -20,7 +21,9 @@ const renderScoreboard = (initial: Score[], currentRound?: number) => {
   const [scores, setScores] = createSignal<Score[]>(initial);
   const onUpdateScores = vi.fn((next: Score[]) => setScores(next));
   const result = render(() => (
-    <Scoreboard scores={scores()} currentRound={currentRound} onUpdateScores={onUpdateScores} />
+    <ConfirmProvider>
+      <Scoreboard scores={scores()} currentRound={currentRound} onUpdateScores={onUpdateScores} />
+    </ConfirmProvider>
   ));
   return { ...result, scores, onUpdateScores };
 };

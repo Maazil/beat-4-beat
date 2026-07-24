@@ -6,6 +6,7 @@ import { render } from "solid-js/web";
 import "./index.css";
 
 import { AuthProvider } from "./context/AuthContext";
+import { ConfirmProvider } from "./context/ConfirmContext";
 import { ToastProvider } from "./context/ToastContext";
 import { routes } from "./routes";
 
@@ -22,7 +23,9 @@ render(
     <MetaProvider>
       <AuthProvider>
         <ToastProvider>
-          <Router>{routes}</Router>
+          <ConfirmProvider>
+            <Router>{routes}</Router>
+          </ConfirmProvider>
         </ToastProvider>
       </AuthProvider>
     </MetaProvider>
