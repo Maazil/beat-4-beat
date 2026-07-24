@@ -20,6 +20,10 @@ const renderToasts = () => {
   return api;
 };
 
+// A live toast's message is in the DOM twice — on its visible card, and in the
+// announcer region that reads it out — so presence is a count, not a lookup.
+const isShowing = (message: string) => screen.queryAllByText(message).length > 0;
+
 afterEach(() => {
   // `globals` is off in vitest.config, so the library's auto-cleanup never
   // registers — without this, portalled toasts leak into the next test.
@@ -33,10 +37,10 @@ describe("ToastProvider", () => {
     const toast = renderToasts();
 
     toast.info("Playlist imported");
-    expect(screen.getByText("Playlist imported")).toBeTruthy();
+    expect(isShowing("Playlist imported")).toBe(true);
 
     vi.advanceTimersByTime(4000);
-    expect(screen.queryByText("Playlist imported")).toBeNull();
+    expect(isShowing("Playlist imported")).toBe(false);
   });
 
   test("dismisses early on the dismiss button", async () => {
@@ -47,7 +51,7 @@ describe("ToastProvider", () => {
     toast.error("Could not save");
     await user.click(screen.getByRole("button", { name: /dismiss notification/i }));
 
-    expect(screen.queryByText("Could not save")).toBeNull();
+    expect(isShowing("Could not save")).toBe(false);
   });
 
   test("announces errors assertively and everything else politely", () => {
@@ -56,8 +60,17 @@ describe("ToastProvider", () => {
     toast.error("Broken");
     toast.success("Saved");
 
-    expect(screen.getByRole("alert").textContent).toContain("Broken");
-    expect(screen.getByRole("status").textContent).toContain("Saved");
+    expect(screen.getByRole("alert").textContent).toBe("Broken");
+    expect(screen.getByRole("status").textContent).toBe("Saved");
+  });
+
+  test("mounts both announcer regions before any toast exists", () => {
+    // Screen readers routinely miss a live region that appears together with its
+    // content, so the regions have to be in the DOM ahead of the first message.
+    renderToasts();
+
+    expect(screen.getByRole("alert").textContent).toBe("");
+    expect(screen.getByRole("status").textContent).toBe("");
   });
 
   test("keeps only the newest toasts when they pile up", () => {
@@ -65,9 +78,9 @@ describe("ToastProvider", () => {
 
     for (const message of ["first", "second", "third", "fourth"]) toast.info(message);
 
-    expect(screen.queryByText("first")).toBeNull();
-    expect(screen.getAllByRole("status")).toHaveLength(3);
-    expect(screen.getByText("fourth")).toBeTruthy();
+    expect(isShowing("first")).toBe(false);
+    expect(screen.getAllByRole("button", { name: /dismiss notification/i })).toHaveLength(3);
+    expect(screen.getByRole("status").textContent).toBe("secondthirdfourth");
   });
 
   test("useToast outside a provider is a programming error", () => {
