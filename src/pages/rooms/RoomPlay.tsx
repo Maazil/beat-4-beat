@@ -4,7 +4,12 @@ import { useRoom } from "../../hooks/useRoom";
 import { useGameState } from "../../hooks/useGameState";
 import { useGuessTimer } from "../../hooks/useGuessTimer";
 import { useRoomPlayback } from "../../hooks/useRoomPlayback";
-import { buildItemIndex, buildRoundLabels } from "../../lib/boardLookup";
+import {
+  buildItemIndex,
+  buildRoundLabels,
+  pickRandomUnplayed,
+  unplayedItems,
+} from "../../lib/boardLookup";
 import { roomHostNames } from "../../lib/roomHosts";
 import RoomPlayHeader from "./RoomPlayHeader";
 import RoomPlayNav from "./RoomPlayNav";
@@ -70,16 +75,13 @@ const RoomPlayInner: Component = () => {
 
   // Unrevealed tiles left on the board — drives the lightning-round picker
   const remainingTiles = createMemo(() =>
-    (currentRoom()?.categories ?? [])
-      .flatMap((c) => c.items)
-      .filter((item) => !isItemRevealed(item.id)),
+    unplayedItems(currentRoom()?.categories ?? [], isItemRevealed),
   );
 
   /** Play a random unplayed tile — a shortcut for lightning rounds. */
   const playRandomTile = () => {
-    const remaining = remainingTiles();
-    if (remaining.length === 0) return;
-    const pick = remaining[Math.floor(Math.random() * remaining.length)];
+    const pick = pickRandomUnplayed(remainingTiles());
+    if (!pick) return;
     handleItemClick(pick.id, pick.songUrl, pick.startTime, pick.durationMs);
   };
 
