@@ -1,7 +1,7 @@
 import { Component, createEffect, createSignal, For, onCleanup, Show, untrack } from "solid-js";
 import { Portal } from "solid-js/web";
 import { Transition } from "solid-transition-group";
-import { isSpotifyLoggedIn, searchTracks, spotifyUrlToUri } from "../../../lib/spotify";
+import { getTrack, isSpotifyLoggedIn, searchTracks, spotifyUrlToUri } from "../../../lib/spotify";
 import type { SpotifyTrack } from "../../../lib/spotify";
 import type { SongItem } from "../../../model/songItem";
 import type { CategoryColorScheme } from "./categoryColors";
@@ -134,6 +134,29 @@ const SongItemEditModal: Component<SongItemEditModalProps> = (props) => {
   // only one where the "start before the end" cap can be enforced. Non-Spotify
   // songs and non-connected users don't get the feature.
   const cuePointAvailable = () => spotifyConnected() && spotifyUrlToUri(localUrl()) != null;
+
+  // Backfill a missing track length for Spotify songs added before we captured
+  // durationMs. Without it the cap can't be enforced, so fetch it once (a
+  // connected user has a token) and store it — the derived cap then kicks in.
+  let durationFetchedFor: string | null = null;
+  createEffect(() => {
+    // Only when this song's modal is actually open — the modal is mounted for
+    // every tile, so an ungated fetch would hit the API once per board song.
+    if (!props.isEditing || !cuePointAvailable()) return;
+    if (props.item.durationMs != null && props.item.durationMs > 0) return;
+    const uri = spotifyUrlToUri(localUrl());
+    if (!uri) return;
+    const trackId = uri.replace("spotify:track:", "");
+    if (durationFetchedFor === trackId) return; // already fetching/fetched this track
+    durationFetchedFor = trackId;
+    const url = untrack(localUrl);
+    getTrack(trackId)
+      .then((track) => props.onUpdate(url, undefined, undefined, undefined, track.durationMs))
+      .catch((err) => {
+        console.error("[SongItemEditModal] Failed to fetch track length:", err);
+        durationFetchedFor = null; // allow a retry next time the modal reopens
+      });
+  });
 
   return (
     <Portal>
