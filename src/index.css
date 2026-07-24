@@ -74,18 +74,6 @@ button {
 
 /* ── Keyframes ─────────────────────────────────────────────── */
 
-@keyframes beat-pulse {
-  0%,
-  100% {
-    transform: scale(0.98);
-    opacity: 0.6;
-  }
-  50% {
-    transform: scale(1.06);
-    opacity: 0.25;
-  }
-}
-
 @keyframes ambient-float {
   0%,
   100% {
@@ -107,7 +95,7 @@ button {
   }
 }
 
-@keyframes card-expand-enter {
+@keyframes card-expand {
   from {
     opacity: 0;
     transform: scale(0.85);
@@ -118,32 +106,12 @@ button {
   }
 }
 
-@keyframes card-expand-exit {
-  from {
-    opacity: 1;
-    transform: scale(1);
-  }
-  to {
-    opacity: 0;
-    transform: scale(0.85);
-  }
-}
-
-@keyframes backdrop-fade-enter {
+@keyframes backdrop-fade {
   from {
     opacity: 0;
   }
   to {
     opacity: 1;
-  }
-}
-
-@keyframes backdrop-fade-exit {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
   }
 }
 
@@ -184,10 +152,6 @@ button {
     background-size: 22px 22px;
   }
 
-  .animate-beat-pulse {
-    animation: beat-pulse 2s ease-in-out infinite;
-  }
-
   .animate-ambient-float {
     animation: ambient-float 14s ease-in-out infinite;
   }
@@ -196,13 +160,18 @@ button {
     animation: rise-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
 
-  /* Modal entrance — the confirm dialog card scales up; its backdrop fades. */
+  /*
+    Overlay entrance — a card/popover scales up as its backdrop fades in.
+    Entrance only: leaving surfaces unmount straight away. Anything that needs
+    a leave animation gets it imperatively (see `songItemFlip.ts`), because the
+    exit has to finish before Solid disposes the element.
+  */
   .animate-card-expand {
-    animation: card-expand-enter 0.18s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation: card-expand 0.18s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
 
   .animate-backdrop-fade {
-    animation: backdrop-fade-enter 0.18s ease both;
+    animation: backdrop-fade 0.18s ease both;
   }
 
   /* Falling confetti piece — position/color/timing set inline per piece.
@@ -248,7 +217,7 @@ button {
 /*
   App-wide guard mirroring the landing page's block (stage-night.css).
   Collapses every transition/animation to a blink and stops looping
-  animations (spinners, beat-pulse, ambient-float) after one pass, so no
+  animations (spinners, ambient-float, confetti) after one pass, so no
   ambient motion runs anywhere when the user asks for reduced motion.
 */
 @media (prefers-reduced-motion: reduce) {

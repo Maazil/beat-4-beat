@@ -50,7 +50,7 @@ const WinnerOverlay: Component<WinnerOverlayProps> = (props) => {
         aria-modal="true"
         aria-labelledby="winner-title"
       >
-        <div class="absolute inset-0 bg-night/85 backdrop-blur-sm" />
+        <div class="animate-backdrop-fade absolute inset-0 bg-night/85 backdrop-blur-sm" />
 
         {/* Confetti — decorative, hidden from assistive tech */}
         <div class="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
