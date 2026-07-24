@@ -8,8 +8,6 @@ Completed items have been removed; numbering is kept stable for traceability.
 
 ## Phase 3 — Design-system foundation
 
-11. **Landing mobile nav** — under 720px only "Sign in" survives; add a hamburger
-    (`stage-night.css:170`). — M
 12. **Skeleton loading states** + fix header hide-on-scroll (`PageWrapper.tsx`
     vanishes until you scroll all the way back to top). — M
 
