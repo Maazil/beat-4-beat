@@ -32,8 +32,6 @@ Completed items have been removed; numbering is kept stable for traceability.
 
 ## Phase 2 — Cheap, high-value wins
 
-6. **Drop `updateRoom`'s full-doc pre-read** — it re-checks ownership that
-   `firestore.rules` already enforces; doubles every editor save. — S
 7. **Random-tile picker** for lightning rounds. — S
 
 ## Phase 3 — Design-system foundation
