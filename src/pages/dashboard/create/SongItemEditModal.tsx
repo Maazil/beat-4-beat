@@ -129,10 +129,11 @@ const SongItemEditModal: Component<SongItemEditModalProps> = (props) => {
 
   const spotifyConnected = () => isSpotifyLoggedIn();
 
-  // The cue point is only offered for Spotify tracks — they carry a duration we
-  // can cap against. YouTube / other URLs have no length here, so we don't
-  // expose the feature for them.
-  const isSpotifySong = () => spotifyUrlToUri(localUrl()) != null;
+  // The cue point is only offered to connected Spotify users on a Spotify
+  // track — that's the only path where a track length is available, so it's the
+  // only one where the "start before the end" cap can be enforced. Non-Spotify
+  // songs and non-connected users don't get the feature.
+  const cuePointAvailable = () => spotifyConnected() && spotifyUrlToUri(localUrl()) != null;
 
   return (
     <Portal>
@@ -255,8 +256,9 @@ const SongItemEditModal: Component<SongItemEditModalProps> = (props) => {
                 </Show>
 
                 {/* Cue point — where playback starts, to skip long intros.
-                    Spotify tracks only (they carry a length we can cap against). */}
-                <Show when={isSpotifySong()}>
+                    Connected Spotify users on a Spotify track only (that's the
+                    only path with a length to cap against). */}
+                <Show when={cuePointAvailable()}>
                   <div class="flex flex-col gap-1 border-t border-line pt-3">
                     <div class="flex items-end gap-2">
                       <label class="flex flex-1 flex-col gap-1">
