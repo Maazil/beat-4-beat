@@ -133,10 +133,17 @@ const CategoryColumn: Component<CategoryColumnProps> = (props) => {
           <button
             type="button"
             title="Use an image or preset instead of text"
+            aria-label="Use an image or preset instead of text"
             onClick={() => setShowPicker(true)}
             class="absolute -top-2 -left-2 flex h-6 w-6 items-center justify-center rounded-full bg-ink text-night transition hover:bg-beat md:hidden md:group-hover:flex md:group-focus-within:flex"
           >
-            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg
+              aria-hidden="true"
+              class="h-3.5 w-3.5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
@@ -194,10 +201,18 @@ const CategoryColumn: Component<CategoryColumnProps> = (props) => {
         {/* Delete category button */}
         <button
           type="button"
+          title="Remove category"
+          aria-label={`Remove the ${localName() || "unnamed"} category`}
           onClick={() => props.onRemove()}
           class="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-ink text-night transition hover:bg-beat md:hidden md:group-hover:flex md:group-focus-within:flex"
         >
-          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg
+            aria-hidden="true"
+            class="h-4 w-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
             <path
               stroke-linecap="round"
               stroke-linejoin="round"

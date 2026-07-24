@@ -25,7 +25,16 @@ vi.mock("../lib/externalUrl", () => ({ openSongUrl: vi.fn() }));
 import { useRoomPlayback } from "./useRoomPlayback";
 
 const SONG = "https://open.spotify.com/track/abc123";
-const DEVICE: SpotifyDevice = { id: "dev-1", name: "Kitchen", type: "Speaker", isActive: true };
+const DEVICE: SpotifyDevice = {
+  id: "dev-1",
+  name: "Kitchen",
+  type: "Speaker",
+  is_active: true,
+  is_private_session: false,
+  is_restricted: false,
+  volume_percent: 50,
+  supports_volume: true,
+};
 
 /** Device reports the track still at 0 — it dropped the `position_ms` cue. */
 const atStart = (positionMs = 0): PlaybackState => ({

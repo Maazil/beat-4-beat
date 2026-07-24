@@ -47,7 +47,11 @@ const GuessTimer: Component<GuessTimerProps> = (props) => {
           expired() ? "animate-pulse" : ""
         }`}
       >
-        <svg class="absolute inset-0 h-full w-full -rotate-90" viewBox="0 0 100 100">
+        <svg
+          aria-hidden="true"
+          class="absolute inset-0 h-full w-full -rotate-90"
+          viewBox="0 0 100 100"
+        >
           <circle
             cx="50"
             cy="50"
@@ -76,10 +80,17 @@ const GuessTimer: Component<GuessTimerProps> = (props) => {
         <button
           type="button"
           title="Hide timer"
+          aria-label="Hide timer"
           onClick={() => setDismissed(true)}
           class="absolute -top-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full border border-line bg-surface-2 text-muted transition hover:border-beat hover:text-beat"
         >
-          <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg
+            aria-hidden="true"
+            class="h-3.5 w-3.5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
             <path
               stroke-linecap="round"
               stroke-linejoin="round"

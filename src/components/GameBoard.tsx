@@ -77,6 +77,8 @@ interface GameBoardProps {
  * boards, snap-scrolling columns with category headers otherwise.
  */
 const GameBoard: Component<GameBoardProps> = (props) => {
+  const isInteractive = () => props.interactive ?? true;
+
   // Mobile songitem grid is near-square, sized from the largest category so
   // every category shares one column count: cols = ceil(sqrt(maxItems)).
   const itemCols = createMemo(() => {
@@ -96,7 +98,7 @@ const GameBoard: Component<GameBoardProps> = (props) => {
                 ink={stageInk(0)}
                 revealed={props.isItemRevealed(item.id)}
                 categoryName={props.categories[0]?.name ?? ""}
-                disabled={props.interactive === false}
+                disabled={!isInteractive()}
                 onClick={() =>
                   props.onItemClick(item.id, item.songUrl, item.startTime, item.durationMs)
                 }
@@ -152,7 +154,7 @@ const GameBoard: Component<GameBoardProps> = (props) => {
                           ink={ink()}
                           revealed={props.isItemRevealed(item.id)}
                           categoryName={category.name}
-                          disabled={props.interactive === false}
+                          disabled={!isInteractive()}
                           onClick={() =>
                             props.onItemClick(
                               item.id,

@@ -132,7 +132,13 @@ const RoomManageCard: Component<RoomManageCardProps> = (props) => {
             <Show
               when={copyStatus() === "copied"}
               fallback={
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg
+                  aria-hidden="true"
+                  class="h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
                   <path
                     stroke-linecap="round"
                     stroke-linejoin="round"
@@ -142,7 +148,13 @@ const RoomManageCard: Component<RoomManageCardProps> = (props) => {
                 </svg>
               }
             >
-              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg
+                aria-hidden="true"
+                class="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
                 <path
                   stroke-linecap="round"
                   stroke-linejoin="round"
@@ -157,8 +169,15 @@ const RoomManageCard: Component<RoomManageCardProps> = (props) => {
             class="rounded-full border border-line px-3 py-2 text-sm font-medium text-muted transition hover:border-beat hover:text-beat"
             onClick={() => navigate(`/dashboard/create?edit=${props.room.id}`)}
             title="Edit room"
+            aria-label={`Edit ${props.room.roomName}`}
           >
-            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg
+              aria-hidden="true"
+              class="h-4 w-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
@@ -173,8 +192,10 @@ const RoomManageCard: Component<RoomManageCardProps> = (props) => {
             onClick={handleDuplicate}
             disabled={isDuplicating()}
             title="Duplicate room"
+            aria-label={`Duplicate ${props.room.roomName}`}
           >
             <svg
+              aria-hidden="true"
               class={`h-4 w-4 ${isDuplicating() ? "animate-pulse" : ""}`}
               fill="none"
               stroke="currentColor"
@@ -194,8 +215,15 @@ const RoomManageCard: Component<RoomManageCardProps> = (props) => {
               class="rounded-full border border-magenta-hot/40 px-3 py-2 text-sm font-medium text-magenta-hot transition hover:border-magenta-hot hover:bg-magenta-hot/10"
               onClick={() => setShowDeleteConfirm(true)}
               title="Delete room"
+              aria-label={`Delete ${props.room.roomName}`}
             >
-              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg
+                aria-hidden="true"
+                class="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
                 <path
                   stroke-linecap="round"
                   stroke-linejoin="round"
