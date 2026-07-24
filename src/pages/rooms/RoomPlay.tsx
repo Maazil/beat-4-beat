@@ -5,7 +5,12 @@ import { useRoom } from "../../hooks/useRoom";
 import { useGameState } from "../../hooks/useGameState";
 import { useGuessTimer } from "../../hooks/useGuessTimer";
 import { useRoomPlayback } from "../../hooks/useRoomPlayback";
-import { buildItemIndex, buildRoundLabels } from "../../lib/boardLookup";
+import {
+  buildItemIndex,
+  buildRoundLabels,
+  pickRandomUnplayed,
+  unplayedItems,
+} from "../../lib/boardLookup";
 import { roomHostNames } from "../../lib/roomHosts";
 import RoomPlayHeader from "./RoomPlayHeader";
 import RoomPlayNav from "./RoomPlayNav";
@@ -68,6 +73,18 @@ const RoomPlayInner: Component = () => {
     });
     guessTimer.bump();
     if (songUrl) void playback.playSong(songUrl, startTime, durationMs);
+  };
+
+  // Unrevealed tiles left on the board — drives the lightning-round picker
+  const remainingTiles = createMemo(() =>
+    unplayedItems(currentRoom()?.categories ?? [], isItemRevealed),
+  );
+
+  /** Play a random unplayed tile — a shortcut for lightning rounds. */
+  const playRandomTile = () => {
+    const pick = pickRandomUnplayed(remainingTiles());
+    if (!pick) return;
+    handleItemClick(pick.id, pick.songUrl, pick.startTime, pick.durationMs);
   };
 
   // Anything on the board or scoreboard worth resetting?
@@ -190,6 +207,15 @@ const RoomPlayInner: Component = () => {
                 <div class="mb-4 flex flex-wrap items-center justify-between gap-2">
                   <p class="text-muted">Click a tile to play a song</p>
                   <div class="flex flex-wrap items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={playRandomTile}
+                      disabled={remainingTiles().length === 0}
+                      title="Play a random unplayed tile"
+                      class="inline-flex items-center gap-1.5 rounded-full border border-line px-3 py-0.5 font-mono text-xs font-bold text-muted transition hover:border-beat hover:text-beat disabled:cursor-not-allowed disabled:opacity-40"
+                    >
+                      <span aria-hidden="true">🎲</span> Random
+                    </button>
                     <GuessTimerPicker
                       choices={guessTimer.choices}
                       selected={guessTimer.durationSec()}

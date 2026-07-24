@@ -32,6 +32,31 @@ export function buildItemIndex(categories: Category[]): Map<string, LocatedItem>
 }
 
 /**
+ * Songs still unplayed, in board order — the pool the lightning-round picker
+ * draws from.
+ */
+export function unplayedItems(
+  categories: Category[],
+  isRevealed: (id: string) => boolean,
+): SongItem[] {
+  return categories.flatMap((c) => c.items).filter((item) => !isRevealed(item.id));
+}
+
+/**
+ * Pick a random unplayed song, preferring ones that actually have a URL — on a
+ * manual click the host chose that tile, but a random pick landing on a
+ * URL-less song would reveal it and play nothing, reading as a bug. Falls back
+ * to the URL-less songs once nothing playable is left, and returns null on an
+ * exhausted board. `random` is injectable for tests.
+ */
+export function pickRandomUnplayed(items: SongItem[], random = Math.random): SongItem | null {
+  const playable = items.filter((item) => item.songUrl);
+  const pool = playable.length > 0 ? playable : items;
+  if (pool.length === 0) return null;
+  return pool[Math.floor(random() * pool.length)];
+}
+
+/**
  * Song played on each round (by play order) — labels the revealed breakdown.
  * Carries category/level/link so URL-only songs (no title) stay identifiable.
  */
