@@ -15,6 +15,17 @@ Completed items have been removed; numbering is kept stable for traceability.
     playback time drift out of sync. — M
 32. **Skip ±seconds not synced immediately** — jumping forward/back by X seconds
     doesn't update the shared position/state right away. — M
+38. **Seek bar snaps back to 0 at song start (intermittent)** — on play we pass
+    `position_ms` and optimistically anchor the bar at `startTime`, but some
+    Spotify Connect devices briefly report the track at ~0 before applying the
+    seek. The immediate `reconcile()` then re-anchors the bar downward, so it
+    snaps to 0 and only jumps to `startTime` ~5s later; faster devices apply the
+    seek first, so it "works for some songs." Fix: add a positional grace window
+    analogous to `PLAY_INTENT_GRACE_MS` — after a play with a known start,
+    ignore reconciles whose reported position is well below the intended start
+    (keep ticking from the optimistic anchor) until the report lands near it.
+    Optionally pair with a faster early reconcile cadence for quicker catch-up.
+    — S/M
 
 ## Phase 1.5 — Create-room / song-selection UX
 

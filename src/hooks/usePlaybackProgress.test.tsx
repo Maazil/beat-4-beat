@@ -241,6 +241,58 @@ describe("usePlaybackProgress", () => {
     });
   });
 
+  test("keeps the cue-point anchor when a reconcile right after start still reads ~0", async () => {
+    // Spotify Connect can report the track near 0 for a moment after a play with
+    // position_ms, before the device applies the seek. That stale sample must not
+    // snap the bar back from the cue point.
+    getPlaybackState.mockResolvedValue(state({ positionMs: 0, durationMs: 200_000 }));
+    await createRoot(async (dispose) => {
+      const p = usePlaybackProgress();
+      p.startPolling(30_000); // cue at 30s
+      p.setIsPlaying(true);
+      await flush(); // immediate reconcile reads 0, but within the start grace
+
+      expect(p.positionMs()).toBe(30_000); // held at the cue, not snapped to 0
+      expect(p.durationMs()).toBe(200_000); // duration still picked up
+      await advance(1000); // keeps ticking forward from the cue
+      expect(p.positionMs()).toBe(31_000);
+      dispose();
+    });
+  });
+
+  test("accepts the real position once the device applies the start seek", async () => {
+    getPlaybackState.mockResolvedValue(state({ positionMs: 0, durationMs: 200_000 }));
+    await createRoot(async (dispose) => {
+      const p = usePlaybackProgress();
+      p.startPolling(30_000);
+      p.setIsPlaying(true);
+      await flush(); // held at 30s
+
+      // The device has now applied the seek and reports a position near the cue.
+      getPlaybackState.mockResolvedValue(state({ positionMs: 31_000, durationMs: 200_000 }));
+      await advance(5000); // next reconcile, still within neither guard's suppression
+      expect(p.positionMs()).toBe(31_000);
+      dispose();
+    });
+  });
+
+  test("honors a genuinely-low position once the start grace window has passed", async () => {
+    getPlaybackState.mockResolvedValue(state({ positionMs: 0, durationMs: 200_000 }));
+    await createRoot(async (dispose) => {
+      const p = usePlaybackProgress();
+      p.startPolling(30_000);
+      p.setIsPlaying(true);
+      await flush(); // held at the cue within grace
+
+      // After the grace window a low reading is a real position (e.g. external
+      // rewind) and must be honored.
+      getPlaybackState.mockResolvedValue(state({ positionMs: 2_000, durationMs: 200_000 }));
+      await advance(5000);
+      expect(p.positionMs()).toBe(2_000);
+      dispose();
+    });
+  });
+
   test("seeking does not rebuild the loop or fire an extra reconcile", async () => {
     getPlaybackState.mockResolvedValue(state({ positionMs: 10_000 }));
     await createRoot(async (dispose) => {
