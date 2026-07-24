@@ -202,15 +202,24 @@ const SongItemEditModal: Component<SongItemEditModalProps> = (props) => {
                 <Show
                   when={spotifyConnected()}
                   fallback={
-                    <input
-                      type="text"
-                      value={localUrl()}
-                      onInput={(e) => setLocalUrl(e.currentTarget.value)}
-                      onKeyPress={(e) => e.key === "Enter" && handleUrlSubmit()}
-                      placeholder="Paste a song URL…"
-                      class="w-full rounded-xl border border-line bg-surface-2 px-4 py-3 text-sm text-ink placeholder:text-muted/60 transition outline-none focus:border-beat focus:ring-2 focus:ring-beat/20"
-                      autofocus
-                    />
+                    <div class="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={localUrl()}
+                        onInput={(e) => setLocalUrl(e.currentTarget.value)}
+                        onKeyPress={(e) => e.key === "Enter" && handleUrlSubmit()}
+                        placeholder="Paste a song URL…"
+                        class="min-w-0 flex-1 rounded-xl border border-line bg-surface-2 px-4 py-3 text-sm text-ink placeholder:text-muted/60 transition outline-none focus:border-beat focus:ring-2 focus:ring-beat/20"
+                        autofocus
+                      />
+                      <button
+                        type="button"
+                        onClick={handleUrlSubmit}
+                        class="shrink-0 rounded-full bg-beat px-4 py-3 text-sm font-bold text-night transition hover:bg-beat-bright"
+                      >
+                        Save
+                      </button>
+                    </div>
                   }
                 >
                   <div class="flex flex-col gap-2">
