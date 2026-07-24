@@ -2,6 +2,7 @@ import { revalidate, useNavigate, useSearchParams } from "@solidjs/router";
 import { Component, createSignal, For, onMount, Show } from "solid-js";
 import { unwrap } from "solid-js/store";
 import { useAuth } from "../../../context/AuthContext";
+import { useConfirm } from "../../../context/ConfirmContext";
 import { useToast } from "../../../context/ToastContext";
 import type { Category } from "../../../model/category";
 import { getRoomOnce } from "../../../services/roomQuery";
@@ -28,6 +29,7 @@ const CreateRoom: Component = () => {
   const [searchParams] = useSearchParams();
   const auth = useAuth();
   const toast = useToast();
+  const confirm = useConfirm();
   const editor = useRoomEditor();
   const [isSubmitting, setIsSubmitting] = createSignal(false);
   const [isLoadingRoom, setIsLoadingRoom] = createSignal(false);
@@ -133,9 +135,11 @@ const CreateRoom: Component = () => {
     // Check for empty song URLs and warn user (one-time confirmation)
     const emptyCount = editor.countEmptySongUrls();
     if (emptyCount > 0) {
-      const confirmed = confirm(
-        `You have ${emptyCount} song${emptyCount > 1 ? "s" : ""} without a URL. Continue without adding URLs?`,
-      );
+      const confirmed = await confirm({
+        title: "Missing song URLs",
+        message: `You have ${emptyCount} song${emptyCount > 1 ? "s" : ""} without a URL. Continue without adding URLs?`,
+        confirmLabel: "Continue",
+      });
       if (!confirmed) {
         return;
       }

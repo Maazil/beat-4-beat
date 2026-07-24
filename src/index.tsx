@@ -6,6 +6,7 @@ import { render } from "solid-js/web";
 import "./index.css";
 
 import { AuthProvider } from "./context/AuthContext";
+import { ConfirmProvider } from "./context/ConfirmContext";
 import { ToastProvider } from "./context/ToastContext";
 import { routes } from "./routes";
 
@@ -17,12 +18,18 @@ if (import.meta.env.DEV && !(root instanceof HTMLElement)) {
   );
 }
 
+// Toasts and confirms sit *outside* the Router on purpose: several call sites
+// toast and then navigate away (createRoom), and a confirm resolves after the
+// route it was asked from may have unmounted. Nesting them inside would tear
+// both down mid-flight.
 render(
   () => (
     <MetaProvider>
       <AuthProvider>
         <ToastProvider>
-          <Router>{routes}</Router>
+          <ConfirmProvider>
+            <Router>{routes}</Router>
+          </ConfirmProvider>
         </ToastProvider>
       </AuthProvider>
     </MetaProvider>

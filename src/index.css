@@ -196,6 +196,15 @@ button {
     animation: rise-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
 
+  /* Modal entrance — the confirm dialog card scales up; its backdrop fades. */
+  .animate-card-expand {
+    animation: card-expand-enter 0.18s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .animate-backdrop-fade {
+    animation: backdrop-fade-enter 0.18s ease both;
+  }
+
   /* Falling confetti piece — position/color/timing set inline per piece.
      The reduced-motion guard below collapses it to a single blink. */
   .confetti-piece {
