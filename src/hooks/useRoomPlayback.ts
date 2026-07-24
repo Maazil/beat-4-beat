@@ -7,6 +7,8 @@ import {
   playOnDevice,
   pausePlayback,
   resumePlayback,
+  seekPlayback,
+  getPlaybackState,
   spotifyUrlToUri,
 } from "../lib/spotify";
 import type { SpotifyDevice } from "../lib/spotify";
@@ -41,6 +43,31 @@ export function useRoomPlayback() {
   const [youtubeVideo, setYoutubeVideo] = createSignal<YouTubeVideo | null>(null);
 
   const spotifyConnected = () => isSpotifyLoggedIn();
+
+  // Some Spotify Connect devices ignore `position_ms` on the initial play call
+  // (most often when that call also transfers playback to them) and start the
+  // track at 0. Once playback is actually rolling, verify the reported position
+  // and force the cue point with an explicit seek if the device dropped it. A
+  // device that honored `position_ms` is already at/after the cue, so it's left
+  // untouched — no rewind. The seek 404s until the track has loaded, so poll a
+  // few times, staying within the seek-bar's start-position grace window.
+  const CUE_CHECK_ATTEMPTS = 6;
+  const CUE_CHECK_INTERVAL_MS = 400;
+  const CUE_TOLERANCE_MS = 3000;
+  const ensureCuePoint = async (posMs: number) => {
+    for (let attempt = 0; attempt < CUE_CHECK_ATTEMPTS; attempt++) {
+      await new Promise((resolve) => setTimeout(resolve, CUE_CHECK_INTERVAL_MS));
+      const state = await getPlaybackState().catch(() => null);
+      if (!state || !state.isPlaying) continue; // track not rolling yet
+      if (state.positionMs >= posMs - CUE_TOLERANCE_MS) return; // cue honored
+      try {
+        await seekPlayback(posMs);
+        return;
+      } catch {
+        // Track likely not fully loaded yet — retry on the next tick.
+      }
+    }
+  };
 
   const fetchDevices = async () => {
     setIsLoadingDevices(true);
@@ -81,6 +108,7 @@ export function useRoomPlayback() {
           await playOnDevice(uri, device.id, posMs);
           progress.setIsPlaying(true);
           progress.startPolling(posMs, durationMs);
+          if (posMs > 0) void ensureCuePoint(posMs);
         } catch (err) {
           console.error("[useRoomPlayback] Play failed:", err);
           openSongUrl(songUrl);
