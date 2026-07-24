@@ -34,8 +34,6 @@ Completed items have been removed; numbering is kept stable for traceability.
 
 5. **Copy-link "Copied!" feedback** — no visual confirmation today, and the logic
    is duplicated in `RoomView`, `RoomManageCard`, `RoomPreview`; consolidate. — S
-6. **Drop `updateRoom`'s full-doc pre-read** — it re-checks ownership that
-   `firestore.rules` already enforces; doubles every editor save. — S
 
 ## Phase 3 — Design-system foundation
 
