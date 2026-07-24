@@ -1,6 +1,7 @@
 import { A } from "@solidjs/router";
 import { Component, createSignal, For, Show } from "solid-js";
 import { useAuth } from "../context/AuthContext";
+import { useToast } from "../context/ToastContext";
 import { formatRoomDate } from "../lib/roomDates";
 import { formatNameList, roomHostNames } from "../lib/roomHosts";
 import type { Room } from "../model/room";
@@ -14,6 +15,7 @@ interface RoomPreviewProps {
 
 const RoomPreview: Component<RoomPreviewProps> = (props) => {
   const auth = useAuth();
+  const toast = useToast();
 
   const hostNames = () => roomHostNames(props.room);
 
@@ -27,7 +29,7 @@ const RoomPreview: Component<RoomPreviewProps> = (props) => {
       setSaveState("saved");
     } catch (err) {
       console.error("[RoomPreview] Save to my rooms failed:", err);
-      alert("Could not save the room. Please try again.");
+      toast.error("Could not save the room. Please try again.");
       setSaveState("idle");
     }
   };

@@ -1,5 +1,6 @@
 import { Component, createSignal, For, Show } from "solid-js";
 import Input from "../../../components/forms/Input";
+import { useToast } from "../../../context/ToastContext";
 import { fileToCategoryImage } from "../../../lib/categoryImage";
 import { CATEGORY_PRESETS, presetImage } from "../../../lib/categoryPresets";
 import type { Category } from "../../../model/category";
@@ -34,6 +35,7 @@ interface CategoryColumnProps {
 }
 
 const CategoryColumn: Component<CategoryColumnProps> = (props) => {
+  const toast = useToast();
   // Local draft of the name, committed on blur. Seeded once per category
   // identity — the <For> row (and this component) is recreated when the
   // category object changes, so no prop-mirroring effect is needed.
@@ -56,7 +58,7 @@ const CategoryColumn: Component<CategoryColumnProps> = (props) => {
       props.onUpdateImage(await fileToCategoryImage(file));
     } catch (err) {
       console.error("[CategoryColumn] Image processing failed:", err);
-      alert("Couldn't use that image — try a different file.");
+      toast.error("Couldn't use that image — try a different file.");
     }
   };
 

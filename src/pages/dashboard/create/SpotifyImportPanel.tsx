@@ -1,4 +1,5 @@
 import { Component, createSignal, For, Show } from "solid-js";
+import { useToast } from "../../../context/ToastContext";
 import {
   isSpotifyLoggedIn,
   loginWithSpotifyPopup,
@@ -29,6 +30,7 @@ const SpotifyLogo: Component = () => (
  * parent via onImport — board state stays with the room editor.
  */
 const SpotifyImportPanel: Component<SpotifyImportPanelProps> = (props) => {
+  const toast = useToast();
   const [showPlaylistPicker, setShowPlaylistPicker] = createSignal(false);
   const [myPlaylists, setMyPlaylists] = createSignal<SpotifyPlaylistBrief[]>([]);
   const [playlistsLoading, setPlaylistsLoading] = createSignal(false);
@@ -73,7 +75,7 @@ const SpotifyImportPanel: Component<SpotifyImportPanelProps> = (props) => {
     try {
       const tracks = await getOwnPlaylistTracks(playlist.id);
       if (tracks.length === 0) {
-        alert("The playlist has no tracks.");
+        toast.info("The playlist has no tracks.");
         return;
       }
 
@@ -123,7 +125,7 @@ const SpotifyImportPanel: Component<SpotifyImportPanelProps> = (props) => {
       setImportMode(null);
     } catch (err) {
       console.error("Failed to import playlist:", err);
-      alert("Could not import the playlist. Please try again.");
+      toast.error("Could not import the playlist. Please try again.");
     } finally {
       setImportLoading(false);
     }
