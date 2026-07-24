@@ -6,30 +6,6 @@ Completed items have been removed; numbering is kept stable for traceability.
 
 ---
 
-## Phase 1 — Bugs / regressions (fix first)
-
-30. **PlayBar position not visible when a song starts** — the seek/progress bar
-    doesn't render its position at playback start. — S
-31. **Play/pause state desync** — the play button still shows the pause icon while
-    a song is playing (observed at least on the first song); button state and
-    playback time drift out of sync. — M
-32. **Skip ±seconds not synced immediately** — jumping forward/back by X seconds
-    doesn't update the shared position/state right away. — M
-
-## Phase 1.5 — Create-room / song-selection UX
-
-33. **Cap start-at seconds to song length** — validate the "start at" input so it
-    can't exceed the track's duration on song selection. — S
-34. **Show artist in the song preview** — when a song is selected in create-room,
-    display the artist alongside the title in the preview. — S
-35. **Set start-at without the modal closing** — adding intro/start seconds when a
-    song is selected currently dismisses the modal, forcing a re-click of the item
-    to add the seconds; keep the modal open. — S/M
-36. **Category preset colors on SongItemCards** — when a category preset color is
-    chosen, make the song item cards match it. — S
-37. **Song image not fetched** — the song artwork never loads; either fix the fetch
-    or remove the image, as it isn't necessary (overlaps with #30/preview work). — S
-
 ## Phase 3 — Design-system foundation
 
 11. **Landing mobile nav** — under 720px only "Sign in" survives; add a hamburger
