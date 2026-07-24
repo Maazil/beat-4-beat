@@ -52,7 +52,12 @@ const RoomPlayInner: Component = () => {
     return round >= 0 ? round : undefined;
   };
 
-  const handleItemClick = (itemId: string, songUrl?: string, startTime?: number) => {
+  const handleItemClick = (
+    itemId: string,
+    songUrl?: string,
+    startTime?: number,
+    durationMs?: number,
+  ) => {
     const order = playOrder();
     updateGame({
       playOrder: order.includes(itemId) ? order : [...order, itemId],
@@ -60,7 +65,7 @@ const RoomPlayInner: Component = () => {
       revealTrackInfo: false,
     });
     guessTimer.bump();
-    if (songUrl) void playback.playSong(songUrl, startTime);
+    if (songUrl) void playback.playSong(songUrl, startTime, durationMs);
   };
 
   // Anything on the board or scoreboard worth resetting?

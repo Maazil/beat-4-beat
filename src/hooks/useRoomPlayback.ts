@@ -65,8 +65,12 @@ export function useRoomPlayback() {
     void fetchDevices();
   };
 
-  /** Play a song URL on the best available target for it. */
-  const playSong = async (songUrl: string, startTime?: number) => {
+  /**
+   * Play a song URL on the best available target for it. `durationMs` (the track
+   * length captured on selection, when known) seeds the seek bar so its fill is
+   * positioned at once rather than after the first reconcile.
+   */
+  const playSong = async (songUrl: string, startTime?: number, durationMs?: number) => {
     const device = selectedDevice();
     if (spotifyConnected() && device) {
       const uri = spotifyUrlToUri(songUrl);
@@ -76,7 +80,7 @@ export function useRoomPlayback() {
           const posMs = startTime != null && startTime > 0 ? startTime * 1000 : 0;
           await playOnDevice(uri, device.id, posMs);
           progress.setIsPlaying(true);
-          progress.startPolling(posMs);
+          progress.startPolling(posMs, durationMs);
         } catch (err) {
           console.error("[useRoomPlayback] Play failed:", err);
           openSongUrl(songUrl);
