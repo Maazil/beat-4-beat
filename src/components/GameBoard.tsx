@@ -15,6 +15,10 @@ interface TileProps {
   item: SongItem;
   ink: StageInk;
   revealed: boolean;
+  /** Category this tile belongs to — announced in the accessible name. */
+  categoryName: string;
+  /** Read-only boards (audience view) render tiles disabled + unfocusable. */
+  disabled: boolean;
   onClick: () => void;
   /** Size + radius classes — tiles are larger on single-category boards. */
   buttonClass: string;
@@ -27,28 +31,45 @@ interface TileProps {
  * revealed ones dim to a dashed outline. The single- and multi-category
  * layouts only differ in tile size, passed via `buttonClass` / `levelClass`.
  */
-const Tile: Component<TileProps> = (props) => (
-  <button
-    type="button"
-    class={`flex w-full cursor-pointer items-center justify-center ${props.buttonClass} ${
-      props.revealed ? "border border-dashed border-line bg-night/50" : "stage-card"
-    }`}
-    style={props.revealed ? undefined : stageVars(props.ink)}
-    onClick={props.onClick}
-  >
-    <span
-      class={`font-mono font-bold ${props.levelClass}`}
-      style={{ color: props.revealed ? "var(--color-muted)" : "var(--color-ink)" }}
+const Tile: Component<TileProps> = (props) => {
+  // "Pop, 3 points, not played yet" — the tile itself shows only the number.
+  // An unnamed category drops out rather than leading with a stray comma.
+  const label = () =>
+    [props.categoryName, `${props.item.level} points`, props.revealed ? "played" : "not played yet"]
+      .filter(Boolean)
+      .join(", ");
+
+  return (
+    <button
+      type="button"
+      disabled={props.disabled}
+      aria-label={label()}
+      // `disabled` alone still lets :hover fire, so a read-only board would
+      // keep lifting tiles under the mouse; pointer-events drops that without
+      // touching the keyboard/AT semantics `disabled` provides.
+      class={`flex w-full cursor-pointer items-center justify-center disabled:pointer-events-none ${
+        props.buttonClass
+      } ${props.revealed ? "border border-dashed border-line bg-night/50" : "stage-card"}`}
+      style={props.revealed ? undefined : stageVars(props.ink)}
+      onClick={props.onClick}
     >
-      {props.item.level}
-    </span>
-  </button>
-);
+      <span
+        class={`font-mono font-bold ${props.levelClass}`}
+        style={{ color: props.revealed ? "var(--color-muted)" : "var(--color-ink)" }}
+      >
+        {props.item.level}
+      </span>
+    </button>
+  );
+};
 
 interface GameBoardProps {
   categories: Category[];
   isItemRevealed: (id: string) => boolean;
   onItemClick: (itemId: string, songUrl?: string, startTime?: number, durationMs?: number) => void;
+  /** Set false for a read-only board (audience view): tiles become
+      disabled and drop out of the tab order. Defaults to interactive. */
+  interactive?: boolean;
 }
 
 /**
@@ -74,6 +95,8 @@ const GameBoard: Component<GameBoardProps> = (props) => {
                 item={item}
                 ink={stageInk(0)}
                 revealed={props.isItemRevealed(item.id)}
+                categoryName={props.categories[0]?.name ?? ""}
+                disabled={props.interactive === false}
                 onClick={() =>
                   props.onItemClick(item.id, item.songUrl, item.startTime, item.durationMs)
                 }
@@ -128,6 +151,8 @@ const GameBoard: Component<GameBoardProps> = (props) => {
                           item={item}
                           ink={ink()}
                           revealed={props.isItemRevealed(item.id)}
+                          categoryName={category.name}
+                          disabled={props.interactive === false}
                           onClick={() =>
                             props.onItemClick(
                               item.id,

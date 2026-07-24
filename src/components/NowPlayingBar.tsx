@@ -34,6 +34,7 @@ const NowPlayingBar: Component<NowPlayingBarProps> = (props) => {
               <div class="flex items-center gap-2">
                 <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-surface-2">
                   <svg
+                    aria-hidden="true"
                     class="h-5 w-5 text-muted"
                     fill="none"
                     stroke="currentColor"
@@ -56,7 +57,12 @@ const NowPlayingBar: Component<NowPlayingBarProps> = (props) => {
           >
             <div class="flex items-center gap-2">
               <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-beat-soft">
-                <svg class="h-5 w-5 text-beat" fill="currentColor" viewBox="0 0 24 24">
+                <svg
+                  aria-hidden="true"
+                  class="h-5 w-5 text-beat"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
                   <path d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2z" />
                 </svg>
               </div>
@@ -70,10 +76,12 @@ const NowPlayingBar: Component<NowPlayingBarProps> = (props) => {
           </Show>
         </div>
 
-        {/* Reveal button */}
+        {/* Reveal button — the accessible name carries the state, so no
+            aria-pressed alongside it ("Hide song info, pressed" says it twice) */}
         <button
           type="button"
           onClick={() => props.onToggleTrackInfo()}
+          aria-label={props.showTrackInfo ? "Hide song info" : "Reveal song info"}
           class={`flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-bold transition sm:px-4 ${
             props.showTrackInfo
               ? "border-beat/30 bg-beat-soft text-beat-bright"
@@ -83,7 +91,13 @@ const NowPlayingBar: Component<NowPlayingBarProps> = (props) => {
           <Show
             when={props.showTrackInfo}
             fallback={
-              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg
+                aria-hidden="true"
+                class="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
                 <path
                   stroke-linecap="round"
                   stroke-linejoin="round"
@@ -99,7 +113,13 @@ const NowPlayingBar: Component<NowPlayingBarProps> = (props) => {
               </svg>
             }
           >
-            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg
+              aria-hidden="true"
+              class="h-4 w-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
@@ -116,9 +136,10 @@ const NowPlayingBar: Component<NowPlayingBarProps> = (props) => {
           type="button"
           onClick={() => props.onSkipBackward()}
           class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-muted transition hover:bg-surface-2 hover:text-ink"
+          aria-label="Skip back 10 seconds"
           title="-10s"
         >
-          <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+          <svg aria-hidden="true" class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
             <path d="M12.5 3C7.81 3 4.01 6.54 3.68 11H1l3.89 3.89.07.14L9 11H6.73c.32-3.12 2.97-5.5 6.27-5.5A6.5 6.5 0 0 1 19.5 12 6.5 6.5 0 0 1 13 18.5c-1.83 0-3.45-.75-4.63-1.96l-1.42 1.42A8.46 8.46 0 0 0 13 20.5a8.5 8.5 0 0 0 8.5-8.5A8.5 8.5 0 0 0 13 3.5h-.5V3z" />
             <text x="10" y="16" font-size="7" font-weight="bold" text-anchor="middle">
               10
@@ -127,16 +148,20 @@ const NowPlayingBar: Component<NowPlayingBarProps> = (props) => {
         </button>
 
         {/* Play / Pause */}
-        <Button size="icon" onClick={() => (props.isPlaying ? props.onPause() : props.onResume())}>
+        <Button
+          size="icon"
+          onClick={() => (props.isPlaying ? props.onPause() : props.onResume())}
+          aria-label={props.isPlaying ? "Pause" : "Play"}
+        >
           <Show
             when={props.isPlaying}
             fallback={
-              <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+              <svg aria-hidden="true" class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M8 5v14l11-7z" />
               </svg>
             }
           >
-            <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+            <svg aria-hidden="true" class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
               <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
             </svg>
           </Show>
@@ -147,9 +172,10 @@ const NowPlayingBar: Component<NowPlayingBarProps> = (props) => {
           type="button"
           onClick={() => props.onSkipForward()}
           class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-muted transition hover:bg-surface-2 hover:text-ink"
+          aria-label="Skip forward 10 seconds"
           title="+10s"
         >
-          <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+          <svg aria-hidden="true" class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
             <path d="M11.5 3v.5A8.5 8.5 0 0 0 3 12a8.5 8.5 0 0 0 8.5 8.5 8.46 8.46 0 0 0 6.05-2.54l-1.42-1.42A6.47 6.47 0 0 1 11.5 18.5 6.5 6.5 0 0 1 5 12a6.5 6.5 0 0 1 6.5-6.5c3.3 0 5.95 2.38 6.27 5.5H15l4.04 3.89.07-.14L23 11h-2.68c-.33-4.46-4.13-8-7.82-8z" />
             <text x="14" y="16" font-size="7" font-weight="bold" text-anchor="middle">
               10

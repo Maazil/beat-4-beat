@@ -32,9 +32,6 @@ Completed items have been removed; numbering is kept stable for traceability.
 
 ## Phase 3 — Design-system foundation
 
-10. **Accessible names** on icon-only buttons (`NowPlayingBar` play/pause/skip,
-    `RoomPlayNav`) and game-board tiles (announce category + points + state);
-    disable focusable dead tiles in `AudienceView`. — M
 11. **Landing mobile nav** — under 720px only "Sign in" survives; add a hamburger
     (`stage-night.css:170`). — M
 12. **Skeleton loading states** + fix header hide-on-scroll (`PageWrapper.tsx`
