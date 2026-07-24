@@ -1,6 +1,7 @@
 import { Meta, Title } from "@solidjs/meta";
 import { useNavigate } from "@solidjs/router";
 import type { Component } from "solid-js";
+import LandingNav, { type LandingNavLink } from "../../components/landing/LandingNav";
 import "../stage-night.css";
 import "./host-guide.css";
 import {
@@ -14,6 +15,12 @@ import {
   SetupLegend,
   SoundArt,
 } from "./guide-art";
+
+const NAV_LINKS: LandingNavLink[] = [
+  { label: "Before the party", href: "#prep" },
+  { label: "Music setups", href: "#setups" },
+  { label: "Run the night", href: "#run" },
+];
 
 const HostGuide: Component = () => {
   const navigate = useNavigate();
@@ -30,20 +37,7 @@ const HostGuide: Component = () => {
         <div class="stage-glow" aria-hidden="true" />
         <main>
           <div class="wrap">
-            <nav>
-              <a class="wordmark" href="/">
-                <span class="tick" />
-                BEAT 4 BEAT
-              </a>
-              <div class="navlinks">
-                <a href="#prep">Before the party</a>
-                <a href="#setups">Music setups</a>
-                <a href="#run">Run the night</a>
-                <button type="button" class="btn-signin" onClick={() => navigate("/login")}>
-                  Sign in
-                </button>
-              </div>
-            </nav>
+            <LandingNav links={NAV_LINKS} />
 
             <header class="guide-hero">
               <span class="badge">

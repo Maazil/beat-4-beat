@@ -1,12 +1,20 @@
 import { Meta, Title } from "@solidjs/meta";
 import { useNavigate } from "@solidjs/router";
 import { type Component, lazy, Suspense } from "solid-js";
+import LandingNav, { type LandingNavLink } from "../components/landing/LandingNav";
 import { STAGE_COLORS } from "../theme/palette";
 import "./stage-night.css";
 
 // The interactive canvas demo is a decorative hero flourish, not needed for
 // first paint — lazy-load it so its code stays off the landing entry chunk.
 const SimBoard = lazy(() => import("../components/landing/SimBoard"));
+
+const NAV_LINKS: LandingNavLink[] = [
+  { label: "How it plays", href: "#how" },
+  { label: "Features", href: "#features" },
+  { label: "Host setup", href: "/host-guide" },
+  { label: "Marketplace", href: "/market" },
+];
 
 const App: Component = () => {
   const navigate = useNavigate();
@@ -23,37 +31,7 @@ const App: Component = () => {
         <div class="stage-glow" aria-hidden="true" />
         <main>
           <div class="wrap">
-            <nav>
-              <a class="wordmark" href="/">
-                <span class="tick" />
-                BEAT 4 BEAT
-              </a>
-              <div class="navlinks">
-                <a href="#how">How it plays</a>
-                <a href="#features">Features</a>
-                <a
-                  href="/host-guide"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    navigate("/host-guide");
-                  }}
-                >
-                  Host setup
-                </a>
-                <a
-                  href="/market"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    navigate("/market");
-                  }}
-                >
-                  Marketplace
-                </a>
-                <button type="button" class="btn-signin" onClick={() => navigate("/login")}>
-                  Sign in
-                </button>
-              </div>
-            </nav>
+            <LandingNav links={NAV_LINKS} />
 
             <header class="hero">
               <span class="badge">
