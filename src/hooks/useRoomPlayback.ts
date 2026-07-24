@@ -12,7 +12,7 @@ import {
   spotifyUrlToUri,
 } from "../lib/spotify";
 import type { SpotifyDevice } from "../lib/spotify";
-import { usePlaybackProgress } from "./usePlaybackProgress";
+import { START_POSITION_GRACE_MS, usePlaybackProgress } from "./usePlaybackProgress";
 
 /** An embedded YouTube video queued for the bottom-bar player. */
 export interface YouTubeVideo {
@@ -53,17 +53,21 @@ export function useRoomPlayback() {
   // track at 0. Once playback is actually rolling, verify the reported position
   // and force the cue point with an explicit seek if the device dropped it. A
   // device that honored `position_ms` is already at/after the cue, so it's left
-  // untouched — no rewind. The seek 404s until the track has loaded, so poll a
-  // few times, staying within the seek-bar's start-position grace window.
+  // untouched — no rewind. The seek 404s until the track has loaded, so poll
+  // until the start-position grace window runs out: past it, a reconcile that
+  // samples a device still sitting at 0 snaps the seek bar back, and a later
+  // forced seek would leave the bar and the device disagreeing until the next
+  // reconcile. Bounding by wall clock (rather than a fixed attempt count) keeps
+  // that true when each `getPlaybackState` round-trip is slow.
   //
   // `getPlaybackState` reads the global player, not this specific song, so bail
   // the moment a newer play (or manual seek) supersedes us — otherwise a stale
   // check could yank a different, just-started song back to this cue point.
-  const CUE_CHECK_ATTEMPTS = 6;
   const CUE_CHECK_INTERVAL_MS = 400;
   const CUE_TOLERANCE_MS = 3000;
   const ensureCuePoint = async (posMs: number, generation: number) => {
-    for (let attempt = 0; attempt < CUE_CHECK_ATTEMPTS; attempt++) {
+    const deadline = performance.now() + START_POSITION_GRACE_MS;
+    while (performance.now() + CUE_CHECK_INTERVAL_MS < deadline) {
       await new Promise((resolve) => setTimeout(resolve, CUE_CHECK_INTERVAL_MS));
       if (generation !== playGeneration) return; // superseded by a newer play
       const state = await getPlaybackState().catch(() => null);
@@ -160,13 +164,19 @@ export function useRoomPlayback() {
     }
   };
 
-  // Seek relative to the currently displayed position. Routing through
-  // progress.seekTo (rather than a stateless API skip) updates the seek bar and
-  // clock immediately, and reuses its clamping + stale-reconcile guard.
-  const skip = async (deltaMs: number) => {
+  // Seek to an absolute position. Routing through progress.seekTo (rather than a
+  // stateless API skip) updates the seek bar and clock immediately, and reuses
+  // its clamping + stale-reconcile guard. Every manual seek must come through
+  // here rather than reaching for progress.seekTo directly: the generation bump
+  // is what stops an in-flight cue check from dragging the song back to its cue
+  // point moments after the user deliberately scrubbed away from it.
+  const seekTo = async (ms: number) => {
     playGeneration++; // a manual seek is a fresh intent; drop any cue check
-    await progress.seekTo(progress.positionMs() + deltaMs);
+    await progress.seekTo(ms);
   };
+
+  /** Seek relative to the currently displayed position. */
+  const skip = (deltaMs: number) => seekTo(progress.positionMs() + deltaMs);
 
   const closeYouTube = () => setYoutubeVideo(null);
 
@@ -184,6 +194,7 @@ export function useRoomPlayback() {
     playSong,
     pause,
     resume,
+    seekTo,
     skip,
   };
 }
