@@ -2,13 +2,18 @@ import { describe, expect, it } from "vitest";
 import { clampCueSeconds, maxCueSeconds, parseCueSeconds } from "./cuePoint";
 
 describe("maxCueSeconds", () => {
-  it("floors a positive duration to whole seconds", () => {
-    expect(maxCueSeconds(185_400)).toBe(185);
+  it("floors a positive duration to whole seconds, less a 10s buffer", () => {
+    expect(maxCueSeconds(185_400)).toBe(175);
   });
 
   it("returns undefined for missing or non-positive durations", () => {
     expect(maxCueSeconds(undefined)).toBeUndefined();
     expect(maxCueSeconds(0)).toBeUndefined();
+  });
+
+  it("caps at 0 for tracks shorter than the buffer", () => {
+    expect(maxCueSeconds(6_000)).toBe(0);
+    expect(maxCueSeconds(10_000)).toBe(0);
   });
 });
 
