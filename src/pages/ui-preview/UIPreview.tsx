@@ -1,6 +1,8 @@
 import { Component, For } from "solid-js";
 import Button from "../../components/forms/Button";
 import Input from "../../components/forms/Input";
+import RoomCardSkeleton from "../../components/RoomCardSkeleton";
+import Skeleton from "../../components/Skeleton";
 import { STAGE_INKS } from "../../theme/palette";
 
 /**
@@ -129,6 +131,21 @@ const UIPreview: Component = () => {
           <div class="grid max-w-2xl gap-4 sm:grid-cols-2">
             <Input label="Room name" placeholder="Friday Beat Battle" />
             <Input label="Guess" placeholder="Type your answer" error="That's not quite it" />
+          </div>
+        </section>
+
+        {/* Loading skeletons */}
+        <section class="stage-card rounded-2xl border border-line bg-surface p-6">
+          <h2 class="mb-4 font-mono text-xs tracking-wide text-muted uppercase">
+            Loading skeletons
+          </h2>
+          <div class="grid gap-4 md:grid-cols-2">
+            <RoomCardSkeleton />
+            <div class="space-y-3">
+              <Skeleton class="h-9 w-2/3 rounded-md" />
+              <Skeleton class="h-4 w-1/2 rounded-md" />
+              <Skeleton class="h-24 rounded-2xl" />
+            </div>
           </div>
         </section>
       </div>

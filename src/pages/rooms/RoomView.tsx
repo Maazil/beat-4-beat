@@ -3,6 +3,7 @@ import { Show, type Component } from "solid-js";
 import BackLink from "../../components/BackLink";
 import Button from "../../components/forms/Button";
 import RoomStatusBadge from "../../components/RoomStatusBadge";
+import Skeleton from "../../components/Skeleton";
 import { useConfirm } from "../../context/ConfirmContext";
 import { useToast } from "../../context/ToastContext";
 import { useClipboardCopy } from "../../hooks/useClipboardCopy";
@@ -52,8 +53,19 @@ const RoomView: Component = () => {
   return (
     <div class="mx-auto w-full max-w-6xl px-6 py-12">
       <Show when={isLoading()}>
-        <div class="flex items-center justify-center py-24">
-          <div class="h-8 w-8 animate-spin rounded-full border-4 border-line border-t-beat" />
+        <div class="flex w-full flex-col" role="status" aria-label="Loading room">
+          <Skeleton class="mb-6 h-5 w-40 rounded-md" />
+          <div class="mb-8 flex items-start justify-between gap-4">
+            <div class="w-full max-w-md space-y-3">
+              <Skeleton class="h-9 w-2/3 rounded-md" />
+              <Skeleton class="h-4 w-1/2 rounded-md" />
+            </div>
+            <Skeleton class="h-6 w-20 rounded-full" />
+          </div>
+          <div class="grid gap-6 lg:grid-cols-2">
+            <Skeleton class="h-56 rounded-2xl" />
+            <Skeleton class="h-56 rounded-2xl" />
+          </div>
         </div>
       </Show>
 

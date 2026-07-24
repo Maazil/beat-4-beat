@@ -2,6 +2,7 @@ import { useParams } from "@solidjs/router";
 import { Component, createMemo, For, Show } from "solid-js";
 import GameBoard from "../../components/GameBoard";
 import WinnerOverlay from "../../components/WinnerOverlay";
+import { useCategoryImages } from "../../hooks/useCategoryImages";
 import { useRoom } from "../../hooks/useRoom";
 import { buildItemIndex } from "../../lib/boardLookup";
 import { roomHostNames } from "../../lib/roomHosts";
@@ -17,7 +18,11 @@ import { defaultGameState } from "../../model/gameState";
  */
 const AudienceViewInner: Component = () => {
   const params = useParams();
-  const { room, isLoading } = useRoom(() => params.id);
+  const { room, isLoading: roomLoading } = useRoom(() => params.id);
+  const { images: categoryImages, isLoading: imagesLoading } = useCategoryImages(() => params.id);
+
+  // Both reads before the board paints — see the same note in RoomPlay.
+  const isLoading = () => roomLoading() || imagesLoading();
 
   const hostNames = () => {
     const r = room();
@@ -160,6 +165,7 @@ const AudienceViewInner: Component = () => {
             <div class="py-4">
               <GameBoard
                 categories={room()?.categories ?? []}
+                categoryImages={categoryImages()}
                 isItemRevealed={isItemRevealed}
                 onItemClick={() => {}}
                 interactive={false}

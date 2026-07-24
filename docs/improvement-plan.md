@@ -10,14 +10,13 @@ Completed items have been removed; numbering is kept stable for traceability.
 
 11. **Landing mobile nav** — under 720px only "Sign in" survives; add a hamburger
     (`stage-night.css:170`). — M
-12. **Skeleton loading states** + fix header hide-on-scroll (`PageWrapper.tsx`
-    vanishes until you scroll all the way back to top). — M
 
 ## Phase 4 — Performance & scale _(as usage grows)_
 
-15. **Dashboard over-fetch** — `subscribeToMyRooms` streams full room docs incl.
-    inline base64 category images just to show name/count/date; add a summary
-    projection. Dominant read cost at scale. — M/L
+15. **Dashboard/market item payload** — category images are off the room doc now,
+    but the grids still stream every room's full `categories[].items[]` (~7 KB a
+    room) to show a name, a count and a date. The web SDK can't project fields,
+    so going further means a real summary document per room. — M
 
 ## Phase 5 — Code quality / refactors
 

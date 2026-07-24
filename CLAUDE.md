@@ -78,7 +78,8 @@ SolidJS Router. Route definitions in `src/routes.ts`:
 
 ### Data Layer
 
-**Firestore collections:** `rooms/` and `users/`
+**Firestore collections:** `rooms/` and `users/`, plus two `rooms/{id}` subcollections —
+`assets/` (category header images) and `joinRequests/` (the co-owner invite handshake)
 
 **Service layer** in `src/services/`:
 
@@ -130,11 +131,19 @@ Room {
   showCategories?, scores?, gameState?,
   isActive, isPublic, createdAt
 }
-Category { id, name, imageUrl?, items: SongItem[] }
+Category { id, name, imageUrl?, items: SongItem[] }  // imageUrl is in-memory only — see below
 SongItem { id, level (1–6), title?, artist?, songUrl?, startTime?, isRevealed }
 Score { teamName, roundPoints: number[] }
 GameState { playOrder: string[], currentItemId, scores: Score[] }  // board state derivable from playOrder
 ```
+
+**Category header images** are data URLs stored in `rooms/{roomId}/assets/categoryImages`
+(a `categoryId → dataURL` map), not on the room document — they'd otherwise dominate every
+read of that room, including the dashboard and marketplace grids that only show a name and a
+count. `Category.imageUrl` still exists in memory: `src/lib/categoryImages.ts` splits images
+out on write (in `createRoom`/`updateRoom`) and merges them back for the views that show a
+board. Rooms saved before the split keep the field inline and every reader falls back to it,
+so they migrate on their next save.
 
 ### Styling
 
