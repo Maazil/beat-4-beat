@@ -6,11 +6,6 @@ Completed items have been removed; numbering is kept stable for traceability.
 
 ---
 
-## Phase 3 — Design-system foundation
-
-12. **Skeleton loading states** + fix header hide-on-scroll (`PageWrapper.tsx`
-    vanishes until you scroll all the way back to top). — M
-
 ## Phase 4 — Performance & scale _(as usage grows)_
 
 15. **Dashboard over-fetch** — `subscribeToMyRooms` streams full room docs incl.

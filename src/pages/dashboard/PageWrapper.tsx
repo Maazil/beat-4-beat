@@ -1,18 +1,23 @@
 import { A } from "@solidjs/router";
-import { createSignal, onCleanup, onMount, type ParentComponent } from "solid-js";
+import { createMemo, createSignal, onCleanup, onMount, type ParentComponent } from "solid-js";
 import Logo from "../../components/Logo";
 import ProtectedRoute from "../../components/ProtectedRoute";
 import { useAuth } from "../../context/AuthContext";
+import { initialHeaderState, nextHeaderState } from "../../lib/headerScroll";
 
 const PageWrapper: ParentComponent = (props) => {
   const auth = useAuth();
-  const [isAtTop, setIsAtTop] = createSignal(true);
+  const [headerScroll, setHeaderScroll] = createSignal(initialHeaderState());
+  // Only the flag reaches the DOM, so scrolling within a direction is free.
+  const isHidden = createMemo(() => headerScroll().hidden);
 
   const handleScroll = () => {
-    setIsAtTop(window.scrollY < 50);
+    setHeaderScroll((prev) => nextHeaderState(prev, window.scrollY));
   };
 
   onMount(() => {
+    // The page may be restored mid-scroll; start from wherever we actually are.
+    setHeaderScroll(initialHeaderState(window.scrollY));
     window.addEventListener("scroll", handleScroll, { passive: true });
   });
 
@@ -26,7 +31,7 @@ const PageWrapper: ParentComponent = (props) => {
         <header
           class="sticky top-0 z-20 border-b border-line bg-night/95 transition-transform duration-300 md:bg-night/85 md:backdrop-blur"
           style={{
-            transform: isAtTop() ? "translateY(0)" : "translateY(-100%)",
+            transform: isHidden() ? "translateY(-100%)" : "translateY(0)",
           }}
         >
           <div class="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-6">

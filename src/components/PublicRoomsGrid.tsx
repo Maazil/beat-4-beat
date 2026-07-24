@@ -1,8 +1,15 @@
-import { Component, createMemo, For, Show } from "solid-js";
+import { Component, createMemo, For, Index, Show } from "solid-js";
 import type { Room } from "../model/room";
 import { usePublicRooms } from "../hooks/usePublicRooms";
 import Button from "./forms/Button";
+import RoomCardSkeleton from "./RoomCardSkeleton";
 import RoomPreview from "./RoomPreview";
+
+/** Shared by the skeleton and the real grid, so the two can't drift apart. */
+const GRID_CLASS = "grid gap-5 lg:grid-cols-[repeat(auto-fit,minmax(280px,1fr))]";
+
+/** Roughly two rows on a desktop grid — enough to read as "rooms are coming". */
+const SKELETON_CARDS = Array.from({ length: 6 });
 
 interface PublicRoomsGridProps {
   /** Optional client-side filter applied to the loaded rooms (e.g. marketplace search). */
@@ -30,8 +37,8 @@ const PublicRoomsGrid: Component<PublicRoomsGridProps> = (props) => {
       </Show>
 
       <Show when={isLoading()}>
-        <div class="flex items-center justify-center py-12">
-          <div class="h-8 w-8 animate-spin rounded-full border-4 border-line border-t-beat" />
+        <div class={GRID_CLASS} role="status" aria-label="Loading public rooms">
+          <Index each={SKELETON_CARDS}>{() => <RoomCardSkeleton />}</Index>
         </div>
       </Show>
 
@@ -48,7 +55,7 @@ const PublicRoomsGrid: Component<PublicRoomsGridProps> = (props) => {
       </Show>
 
       <Show when={!isLoading() && visibleRooms().length > 0}>
-        <div class="grid gap-5 lg:grid-cols-[repeat(auto-fit,minmax(280px,1fr))]">
+        <div class={GRID_CLASS}>
           <For each={visibleRooms()}>{(room) => <RoomPreview room={room} />}</For>
         </div>
 
