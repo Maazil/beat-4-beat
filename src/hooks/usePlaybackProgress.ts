@@ -6,7 +6,7 @@ export interface UsePlaybackProgressResult {
   durationMs: () => number;
   isPlaying: () => boolean;
   setIsPlaying: (v: boolean) => void;
-  startPolling: (initialPositionMs?: number) => void;
+  startPolling: (initialPositionMs?: number, knownDurationMs?: number) => void;
   stopPolling: () => void;
   seekTo: (ms: number) => Promise<void>;
 }
@@ -167,9 +167,12 @@ export function usePlaybackProgress(): UsePlaybackProgressResult {
     });
   });
 
-  const startPolling = (initialPositionMs?: number) => {
+  const startPolling = (initialPositionMs?: number, knownDurationMs?: number) => {
     if (initialPositionMs != null) {
-      setDurationMs(0);
+      // Seed the duration from the track length captured on selection when we
+      // have it, so the seek-bar fill positions at the cue point immediately
+      // instead of sitting empty until the first reconcile lands the duration.
+      setDurationMs(knownDurationMs != null && knownDurationMs > 0 ? knownDurationMs : 0);
       setAnchor(initialPositionMs);
       // Record the cue point so the immediate reconcile can't snap the bar back
       // to 0 before the device has applied the start seek.

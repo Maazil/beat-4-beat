@@ -48,7 +48,7 @@ const Tile: Component<TileProps> = (props) => (
 interface GameBoardProps {
   categories: Category[];
   isItemRevealed: (id: string) => boolean;
-  onItemClick: (itemId: string, songUrl?: string, startTime?: number) => void;
+  onItemClick: (itemId: string, songUrl?: string, startTime?: number, durationMs?: number) => void;
 }
 
 /**
@@ -74,7 +74,9 @@ const GameBoard: Component<GameBoardProps> = (props) => {
                 item={item}
                 ink={stageInk(0)}
                 revealed={props.isItemRevealed(item.id)}
-                onClick={() => props.onItemClick(item.id, item.songUrl, item.startTime)}
+                onClick={() =>
+                  props.onItemClick(item.id, item.songUrl, item.startTime, item.durationMs)
+                }
                 buttonClass="h-20 rounded-xl sm:h-24"
                 levelClass="text-2xl"
               />
@@ -126,7 +128,14 @@ const GameBoard: Component<GameBoardProps> = (props) => {
                           item={item}
                           ink={ink()}
                           revealed={props.isItemRevealed(item.id)}
-                          onClick={() => props.onItemClick(item.id, item.songUrl, item.startTime)}
+                          onClick={() =>
+                            props.onItemClick(
+                              item.id,
+                              item.songUrl,
+                              item.startTime,
+                              item.durationMs,
+                            )
+                          }
                           buttonClass="h-14 rounded-lg md:h-16"
                           levelClass="text-xl sm:text-2xl"
                         />

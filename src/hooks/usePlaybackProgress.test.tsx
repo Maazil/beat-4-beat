@@ -226,6 +226,26 @@ describe("usePlaybackProgress", () => {
     });
   });
 
+  test("seeds a known duration so the seek bar positions before any reconcile", async () => {
+    // The track length is captured on selection, so a cue-point start can size
+    // the bar immediately — even while the first reconcile bails on the buffering
+    // device's not-playing report (which previously left duration 0 for ~5s).
+    getPlaybackState.mockResolvedValue(state({ isPlaying: false, positionMs: 0, durationMs: 0 }));
+    await createRoot(async (dispose) => {
+      const p = usePlaybackProgress();
+      p.startPolling(30_000, 200_000); // cue at 30s, known 200s track
+      p.setIsPlaying(true);
+
+      // Positionable synchronously, before the reconcile resolves.
+      expect(p.durationMs()).toBe(200_000);
+      expect(p.positionMs()).toBe(30_000);
+
+      await flush(); // reconcile reports not-playing within grace; duration holds
+      expect(p.durationMs()).toBe(200_000);
+      dispose();
+    });
+  });
+
   test("honors a not-playing reconcile once the grace window has passed", async () => {
     getPlaybackState.mockResolvedValue(state({ positionMs: 10_000 }));
     await createRoot(async (dispose) => {
