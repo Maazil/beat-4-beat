@@ -25,6 +25,15 @@ const RECONCILE_INTERVAL_MS = 5000;
 // Must stay below RECONCILE_INTERVAL_MS so a genuine later pause is honored.
 const PLAY_INTENT_GRACE_MS = 2500;
 
+// When a song starts at a cue point we play with `position_ms` and optimistically
+// anchor the bar there, but some Spotify Connect devices briefly report the track
+// still near 0 before applying the seek. For this long after such a start, a
+// reconcile whose reported position is more than START_POSITION_TOLERANCE_MS below
+// the intended start is treated as that not-yet-applied sample and ignored, so the
+// bar keeps ticking from the cue point instead of snapping backward to 0.
+const START_POSITION_GRACE_MS = 3000;
+const START_POSITION_TOLERANCE_MS = 3000;
+
 /**
  * Tracks Spotify playback progress and exposes reactive signals for position,
  * duration, and playing state.
@@ -62,6 +71,12 @@ export function usePlaybackProgress(): UsePlaybackProgressResult {
   // playing (a user-driven play/resume). Used to gate reconcile so Spotify's
   // brief post-command "not playing" reports don't flip the state back off.
   let playIntentAt = Number.NEGATIVE_INFINITY;
+
+  // The cue point a song was just started at, and when. Used to ignore a
+  // reconcile that samples the device before it has applied the start seek (see
+  // START_POSITION_GRACE_MS). A manual seek clears this — it's a fresh intent.
+  let startIntentPositionMs = 0;
+  let startIntentAt = Number.NEGATIVE_INFINITY;
 
   // Record play intent whenever we transition to playing; leave it untouched on
   // pause so an explicit pause is honored immediately.
@@ -112,6 +127,15 @@ export function usePlaybackProgress(): UsePlaybackProgressResult {
         }
         setDurationMs(state.durationMs);
         setIsPlaying(state.isPlaying);
+        // The device may not have applied a just-issued start seek yet, still
+        // reporting the track near 0. Within the grace window, keep the
+        // optimistic cue-point anchor rather than snapping the bar backward.
+        if (
+          performance.now() - startIntentAt < START_POSITION_GRACE_MS &&
+          state.positionMs < startIntentPositionMs - START_POSITION_TOLERANCE_MS
+        ) {
+          return;
+        }
         // The reported position was sampled server-side before the response
         // arrived. If still playing, advance it by ~half the round-trip so the
         // bar doesn't visibly rewind by network latency on every reconcile.
@@ -147,6 +171,10 @@ export function usePlaybackProgress(): UsePlaybackProgressResult {
     if (initialPositionMs != null) {
       setDurationMs(0);
       setAnchor(initialPositionMs);
+      // Record the cue point so the immediate reconcile can't snap the bar back
+      // to 0 before the device has applied the start seek.
+      startIntentPositionMs = initialPositionMs;
+      startIntentAt = performance.now();
     }
     setIsPollingRequested(true);
   };
@@ -155,6 +183,9 @@ export function usePlaybackProgress(): UsePlaybackProgressResult {
 
   const seekTo = async (ms: number) => {
     seekGeneration++;
+    // A manual seek is a fresh position intent; drop the start-seek guard so it
+    // can't suppress reconciles against a deliberately lower target.
+    startIntentAt = Number.NEGATIVE_INFINITY;
     setIsSeeking(true);
     setAnchor(ms);
     try {
