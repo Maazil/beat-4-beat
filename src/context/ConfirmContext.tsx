@@ -60,10 +60,13 @@ export const ConfirmProvider: ParentComponent = (props) => {
   return (
     <ConfirmContext.Provider value={confirm}>
       {props.children}
-      <Show when={pending()}>
+      {/* `keyed` so a second ask replacing the first remounts the dialog: the
+          new one has to take focus itself and remember its own opener, neither
+          of which happens if the mounted dialog is reused with new props. */}
+      <Show when={pending()} keyed>
         {(current) => (
           <ConfirmDialog
-            options={current()}
+            options={current}
             onConfirm={() => settle(true)}
             onCancel={() => settle(false)}
           />
@@ -82,16 +85,20 @@ const ConfirmDialog: Component<{
   let confirmRef: HTMLButtonElement | undefined;
   // Return focus to whatever opened the dialog once it closes.
   const previouslyFocused = document.activeElement as HTMLElement | null;
+  let previousOverflow = "";
 
   onMount(() => {
     confirmRef?.focus();
     // Freeze the page behind the modal — most visible on phones, where the
     // backdrop otherwise scrolls under the dialog.
+    previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
   });
 
   onCleanup(() => {
-    document.body.style.overflow = "";
+    // Put back what was there rather than clearing: a confirm opened over an
+    // already scroll-locked surface must not unlock the page on its way out.
+    document.body.style.overflow = previousOverflow;
     previouslyFocused?.focus?.();
   });
 

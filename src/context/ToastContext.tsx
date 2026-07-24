@@ -86,6 +86,11 @@ export const ToastProvider: ParentComponent = (props) => {
     timers.clear();
   });
 
+  // Errors interrupt whatever the screen reader is saying; everything else
+  // waits its turn, so the two go to separate live regions.
+  const errorToasts = () => toasts().filter((t) => t.variant === "error");
+  const politeToasts = () => toasts().filter((t) => t.variant !== "error");
+
   const api: ToastApi = {
     show,
     error: (message) => show(message, "error"),
@@ -98,9 +103,28 @@ export const ToastProvider: ParentComponent = (props) => {
     <ToastContext.Provider value={api}>
       {props.children}
       <Portal>
-        {/* Positioning only — each toast is its own live region (role
-            alert/status), and nesting those inside another would announce
-            twice and could flatten `alert` to polite delivery. */}
+        {/* Announcement and presentation are split on purpose. Screen readers
+            reliably announce text inserted into a live region that was already
+            in the DOM, but routinely miss a region that appears together with
+            its content — which is what a per-toast role="alert" is. So these two
+            regions are mounted for the life of the app and the toast messages
+            are inserted into them; the visible cards hide their text from the
+            a11y tree so nothing is announced or read twice.
+            aria-atomic="false" so a second message announces on its own rather
+            than re-reading every message still on screen. */}
+        <div
+          role="alert"
+          aria-atomic="false"
+          class="sr-only"
+          data-testid="toast-announcer-assertive"
+        >
+          <For each={errorToasts()}>{(toast) => <p>{toast.message}</p>}</For>
+        </div>
+        <div role="status" aria-atomic="false" class="sr-only" data-testid="toast-announcer-polite">
+          <For each={politeToasts()}>{(toast) => <p>{toast.message}</p>}</For>
+        </div>
+
+        {/* Positioning only — see above for why the cards carry no live region */}
         <div class="pointer-events-none fixed inset-x-0 bottom-4 z-[100] flex flex-col items-center gap-2 px-4">
           <For each={toasts()}>
             {(toast) => <ToastCard toast={toast} onDismiss={() => dismiss(toast.id)} />}
@@ -113,7 +137,6 @@ export const ToastProvider: ParentComponent = (props) => {
 
 const ToastCard: Component<{ toast: Toast; onDismiss: () => void }> = (props) => (
   <div
-    role={props.toast.variant === "error" ? "alert" : "status"}
     class={`animate-rise-in pointer-events-auto flex max-w-md items-center gap-3 rounded-xl border bg-surface px-4 py-3 shadow-xl ${
       VARIANT_STYLE[props.toast.variant].border
     }`}
@@ -122,6 +145,10 @@ const ToastCard: Component<{ toast: Toast; onDismiss: () => void }> = (props) =>
       aria-hidden="true"
       class={`h-2 w-2 shrink-0 rounded-full ${VARIANT_STYLE[props.toast.variant].dot}`}
     />
+    {/* Left in the a11y tree even though the announcer regions above carry the
+        same text: the announcement fires once (only those regions are live),
+        and without it a user landing on the dismiss button has no idea what
+        they'd be dismissing. */}
     <span class="text-sm font-medium text-ink">{props.toast.message}</span>
     <button
       type="button"

@@ -81,6 +81,9 @@ describe("ConfirmProvider", () => {
     // The first caller must not be left awaiting a promise nobody resolves
     await expect(first).resolves.toBe(false);
     expect(screen.getByText("Second?")).toBeInTheDocument();
+    // The replacement dialog owns focus — it isn't the first one wearing new
+    // text, so it has to take focus for itself.
+    expect(document.activeElement).toBe(screen.getByRole("button", { name: "Confirm" }));
 
     await user.click(screen.getByRole("button", { name: "Confirm" }));
     await expect(second).resolves.toBe(true);
@@ -100,6 +103,20 @@ describe("ConfirmProvider", () => {
 
     expect(document.activeElement).toBe(opener);
     expect(document.body.style.overflow).toBe("");
+  });
+
+  test("restores an existing scroll lock instead of clearing it", async () => {
+    // Asked from inside another modal that already locked the page: closing the
+    // confirm must not hand scrolling back while that modal is still up.
+    document.body.style.overflow = "hidden";
+    const confirm = renderConfirm();
+
+    const answer = confirm({ message: "Sure?" });
+    await user.click(screen.getByRole("button", { name: "Cancel" }));
+    await answer;
+
+    expect(document.body.style.overflow).toBe("hidden");
+    document.body.style.overflow = "";
   });
 
   test("useConfirm outside a provider is a programming error", () => {
