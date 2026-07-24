@@ -1,7 +1,9 @@
 import { useNavigate } from "@solidjs/router";
 import { Component, createSignal, Show } from "solid-js";
 import { useAuth } from "../context/AuthContext";
+import { useClipboardCopy } from "../hooks/useClipboardCopy";
 import { formatRoomDate } from "../lib/roomDates";
+import { playerShareUrl } from "../lib/roomLinks";
 import type { Room } from "../model/room";
 import { duplicateRoom } from "../services/roomsService";
 import RoomStatusBadge from "./RoomStatusBadge";
@@ -33,11 +35,8 @@ const RoomManageCard: Component<RoomManageCardProps> = (props) => {
 
   const isHost = () => auth.isRoomHost(props.room.hostId);
 
-  const handleCopyLink = () => {
-    const shareUrl = `${window.location.origin}/rooms/${props.room.id}/play`;
-    navigator.clipboard.writeText(shareUrl);
-    alert("Link copied! Share it with players: " + shareUrl);
-  };
+  const { copied, copy } = useClipboardCopy();
+  const handleCopyLink = () => copy(playerShareUrl(props.room.id));
 
   const handleDelete = () => {
     if (props.onDelete) {
@@ -106,18 +105,37 @@ const RoomManageCard: Component<RoomManageCardProps> = (props) => {
           </button>
           <button
             type="button"
-            class="rounded-full border border-line px-3 py-2 text-sm font-medium text-muted transition hover:border-beat hover:text-beat"
+            class="rounded-full border px-3 py-2 text-sm font-medium transition"
+            classList={{
+              "border-beat text-beat": copied(),
+              "border-line text-muted hover:border-beat hover:text-beat": !copied(),
+            }}
             onClick={handleCopyLink}
-            title="Copy player link"
+            title={copied() ? "Copied!" : "Copy player link"}
+            aria-label={copied() ? "Player link copied" : "Copy player link"}
           >
-            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
-              />
-            </svg>
+            <Show
+              when={copied()}
+              fallback={
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
+                  />
+                </svg>
+              }
+            >
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+            </Show>
           </button>
           <button
             type="button"

@@ -2,15 +2,18 @@ import { useNavigate, useParams } from "@solidjs/router";
 import { Show, type Component } from "solid-js";
 import Button from "../../components/forms/Button";
 import RoomStatusBadge from "../../components/RoomStatusBadge";
+import { useClipboardCopy } from "../../hooks/useClipboardCopy";
 import { useRoom } from "../../hooks/useRoom";
 import { formatRoomDate } from "../../lib/roomDates";
 import { formatNameList, roomHostNames } from "../../lib/roomHosts";
+import { playerShareUrl } from "../../lib/roomLinks";
 import { canEditRoom, deleteRoom, isRoomHost } from "../../services/roomsService";
 
 const RoomView: Component = () => {
   const params = useParams();
   const navigate = useNavigate();
   const { room: currentRoom, isLoading } = useRoom(() => params.id);
+  const { copied, copy } = useClipboardCopy();
 
   const handleDelete = async (roomId: string) => {
     if (!confirm("Are you sure you want to delete this room?")) return;
@@ -98,13 +101,9 @@ const RoomView: Component = () => {
                   <Button
                     variant="secondary"
                     class="w-full"
-                    onClick={() => {
-                      const shareUrl = `${window.location.origin}/rooms/${room.id}/play`;
-                      navigator.clipboard.writeText(shareUrl);
-                      alert("Link copied! Share it with players: " + shareUrl);
-                    }}
+                    onClick={() => copy(playerShareUrl(room.id))}
                   >
-                    Copy player link
+                    {copied() ? "Copied!" : "Copy player link"}
                   </Button>
                   <Show when={canEditRoom(room)}>
                     <Button
