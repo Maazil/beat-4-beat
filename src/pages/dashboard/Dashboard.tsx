@@ -2,6 +2,7 @@ import { useNavigate } from "@solidjs/router";
 import { createSignal, For, onMount, Show, type Component } from "solid-js";
 import Button from "../../components/forms/Button";
 import RoomManageCard from "../../components/RoomManageCard";
+import { useToast } from "../../context/ToastContext";
 import { useMyRooms } from "../../hooks/useMyRooms";
 import { deleteRoom } from "../../services/roomsService";
 import {
@@ -13,6 +14,7 @@ import {
 
 const Dashboard: Component = () => {
   const navigate = useNavigate();
+  const toast = useToast();
   const { rooms: myRooms, isLoading, error } = useMyRooms();
   const [spotifyConnected, setSpotifyConnected] = createSignal(false);
 
@@ -32,7 +34,7 @@ const Dashboard: Component = () => {
       // The subscription will automatically update the list
     } catch (err) {
       console.error("Failed to delete room:", err);
-      alert("Could not delete the room. Please try again.");
+      toast.error("Could not delete the room. Please try again.");
     }
   };
 

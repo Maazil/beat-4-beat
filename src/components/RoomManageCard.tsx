@@ -1,6 +1,7 @@
 import { useNavigate } from "@solidjs/router";
 import { Component, createSignal, Show } from "solid-js";
 import { useAuth } from "../context/AuthContext";
+import { useToast } from "../context/ToastContext";
 import { formatRoomDate } from "../lib/roomDates";
 import type { Room } from "../model/room";
 import { duplicateRoom } from "../services/roomsService";
@@ -14,6 +15,7 @@ interface RoomManageCardProps {
 const RoomManageCard: Component<RoomManageCardProps> = (props) => {
   const navigate = useNavigate();
   const auth = useAuth();
+  const toast = useToast();
   const [showDeleteConfirm, setShowDeleteConfirm] = createSignal(false);
   const [isDuplicating, setIsDuplicating] = createSignal(false);
 
@@ -25,7 +27,7 @@ const RoomManageCard: Component<RoomManageCardProps> = (props) => {
       await duplicateRoom(props.room.id);
     } catch (err) {
       console.error("[RoomManageCard] Duplicate failed:", err);
-      alert("Could not duplicate the room. Please try again.");
+      toast.error("Could not duplicate the room. Please try again.");
     } finally {
       setIsDuplicating(false);
     }

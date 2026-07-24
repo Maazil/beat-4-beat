@@ -1,10 +1,12 @@
 import { useNavigate } from "@solidjs/router";
 import { Component, createSignal, Show } from "solid-js";
 import { useAuth } from "../../context/AuthContext";
+import { useToast } from "../../context/ToastContext";
 import { updateDjName } from "../../services/usersService";
 
 const Profile: Component = () => {
   const auth = useAuth();
+  const toast = useToast();
   const name = auth.state.user?.displayName?.split(" ")[0] || "there";
   const navigate = useNavigate();
 
@@ -24,7 +26,7 @@ const Profile: Component = () => {
       setEditingDjName(false);
     } catch (err) {
       console.error("Failed to save DJ name:", err);
-      alert("Could not save DJ name. Please try again.");
+      toast.error("Could not save DJ name. Please try again.");
     } finally {
       setIsSaving(false);
     }
