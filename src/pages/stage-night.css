@@ -182,6 +182,10 @@
 @media (max-width: 720px) {
   .stage-night .navlinks {
     gap: 14px;
+    /* Lift the bar above the backdrop, which would otherwise swallow the
+       first tap on "Sign in" while the menu is open. */
+    position: relative;
+    z-index: 2;
   }
 
   .stage-night .navlinks > a {
