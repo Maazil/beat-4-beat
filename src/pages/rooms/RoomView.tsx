@@ -13,7 +13,19 @@ const RoomView: Component = () => {
   const params = useParams();
   const navigate = useNavigate();
   const { room: currentRoom, isLoading } = useRoom(() => params.id);
-  const { copied, copy } = useClipboardCopy();
+  const { status: copyStatus, copy } = useClipboardCopy();
+
+  /** Reports the copy outcome inline — the link is shown above as a fallback. */
+  const copyLabel = () => {
+    switch (copyStatus()) {
+      case "copied":
+        return "Copied!";
+      case "failed":
+        return "Couldn't copy — use the link above";
+      default:
+        return "Copy player link";
+    }
+  };
 
   const handleDelete = async (roomId: string) => {
     if (!confirm("Are you sure you want to delete this room?")) return;
@@ -103,7 +115,7 @@ const RoomView: Component = () => {
                     class="w-full"
                     onClick={() => copy(playerShareUrl(room.id))}
                   >
-                    {copied() ? "Copied!" : "Copy player link"}
+                    {copyLabel()}
                   </Button>
                   <Show when={canEditRoom(room)}>
                     <Button

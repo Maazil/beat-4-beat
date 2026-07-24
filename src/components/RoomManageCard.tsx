@@ -35,8 +35,20 @@ const RoomManageCard: Component<RoomManageCardProps> = (props) => {
 
   const isHost = () => auth.isRoomHost(props.room.hostId);
 
-  const { copied, copy } = useClipboardCopy();
+  const { status: copyStatus, copy } = useClipboardCopy();
   const handleCopyLink = () => copy(playerShareUrl(props.room.id));
+
+  /** Icon-only button, so the outcome has to ride on the name + tooltip. */
+  const copyLabel = () => {
+    switch (copyStatus()) {
+      case "copied":
+        return "Player link copied";
+      case "failed":
+        return "Couldn't copy the player link";
+      default:
+        return "Copy player link";
+    }
+  };
 
   const handleDelete = () => {
     if (props.onDelete) {
@@ -107,15 +119,16 @@ const RoomManageCard: Component<RoomManageCardProps> = (props) => {
             type="button"
             class="rounded-full border px-3 py-2 text-sm font-medium transition"
             classList={{
-              "border-beat text-beat": copied(),
-              "border-line text-muted hover:border-beat hover:text-beat": !copied(),
+              "border-beat text-beat": copyStatus() === "copied",
+              "border-magenta-hot text-magenta-hot": copyStatus() === "failed",
+              "border-line text-muted hover:border-beat hover:text-beat": copyStatus() === "idle",
             }}
             onClick={handleCopyLink}
-            title={copied() ? "Copied!" : "Copy player link"}
-            aria-label={copied() ? "Player link copied" : "Copy player link"}
+            title={copyLabel()}
+            aria-label={copyLabel()}
           >
             <Show
-              when={copied()}
+              when={copyStatus() === "copied"}
               fallback={
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
