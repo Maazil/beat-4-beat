@@ -44,6 +44,10 @@ export function useRoomPlayback() {
 
   const spotifyConnected = () => isSpotifyLoggedIn();
 
+  // Bumped on every play so a fire-and-forget cue check can tell whether the
+  // song it was started for is still the one playing (see ensureCuePoint).
+  let playGeneration = 0;
+
   // Some Spotify Connect devices ignore `position_ms` on the initial play call
   // (most often when that call also transfers playback to them) and start the
   // track at 0. Once playback is actually rolling, verify the reported position
@@ -51,13 +55,19 @@ export function useRoomPlayback() {
   // device that honored `position_ms` is already at/after the cue, so it's left
   // untouched — no rewind. The seek 404s until the track has loaded, so poll a
   // few times, staying within the seek-bar's start-position grace window.
+  //
+  // `getPlaybackState` reads the global player, not this specific song, so bail
+  // the moment a newer play (or manual seek) supersedes us — otherwise a stale
+  // check could yank a different, just-started song back to this cue point.
   const CUE_CHECK_ATTEMPTS = 6;
   const CUE_CHECK_INTERVAL_MS = 400;
   const CUE_TOLERANCE_MS = 3000;
-  const ensureCuePoint = async (posMs: number) => {
+  const ensureCuePoint = async (posMs: number, generation: number) => {
     for (let attempt = 0; attempt < CUE_CHECK_ATTEMPTS; attempt++) {
       await new Promise((resolve) => setTimeout(resolve, CUE_CHECK_INTERVAL_MS));
+      if (generation !== playGeneration) return; // superseded by a newer play
       const state = await getPlaybackState().catch(() => null);
+      if (generation !== playGeneration) return;
       if (!state || !state.isPlaying) continue; // track not rolling yet
       if (state.positionMs >= posMs - CUE_TOLERANCE_MS) return; // cue honored
       try {
@@ -98,6 +108,7 @@ export function useRoomPlayback() {
    * positioned at once rather than after the first reconcile.
    */
   const playSong = async (songUrl: string, startTime?: number, durationMs?: number) => {
+    const generation = ++playGeneration; // cancels any in-flight cue check
     const device = selectedDevice();
     if (spotifyConnected() && device) {
       const uri = spotifyUrlToUri(songUrl);
@@ -108,7 +119,7 @@ export function useRoomPlayback() {
           await playOnDevice(uri, device.id, posMs);
           progress.setIsPlaying(true);
           progress.startPolling(posMs, durationMs);
-          if (posMs > 0) void ensureCuePoint(posMs);
+          if (posMs > 0) void ensureCuePoint(posMs, generation);
         } catch (err) {
           console.error("[useRoomPlayback] Play failed:", err);
           openSongUrl(songUrl);
@@ -153,6 +164,7 @@ export function useRoomPlayback() {
   // progress.seekTo (rather than a stateless API skip) updates the seek bar and
   // clock immediately, and reuses its clamping + stale-reconcile guard.
   const skip = async (deltaMs: number) => {
+    playGeneration++; // a manual seek is a fresh intent; drop any cue check
     await progress.seekTo(progress.positionMs() + deltaMs);
   };
 
