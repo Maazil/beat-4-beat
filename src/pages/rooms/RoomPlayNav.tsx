@@ -13,7 +13,13 @@ const RoomPlayNav: Component<RoomPlayNavProps> = (props) => {
         onClick={() => window.history.back()}
         class="flex items-center gap-2 text-muted transition hover:text-beat"
       >
-        <svg aria-hidden="true" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg
+          aria-hidden="true"
+          class="h-5 w-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
           <path
             stroke-linecap="round"
             stroke-linejoin="round"
@@ -31,7 +37,13 @@ const RoomPlayNav: Component<RoomPlayNavProps> = (props) => {
         rel="noopener noreferrer"
         class="flex items-center gap-1.5 rounded-full border border-line px-3 py-1 text-xs font-bold text-ink transition hover:border-beat hover:bg-beat-soft"
       >
-        <svg aria-hidden="true" class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg
+          aria-hidden="true"
+          class="h-3.5 w-3.5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
           <path
             stroke-linecap="round"
             stroke-linejoin="round"

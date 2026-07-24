@@ -57,7 +57,12 @@ const NowPlayingBar: Component<NowPlayingBarProps> = (props) => {
           >
             <div class="flex items-center gap-2">
               <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-beat-soft">
-                <svg aria-hidden="true" class="h-5 w-5 text-beat" fill="currentColor" viewBox="0 0 24 24">
+                <svg
+                  aria-hidden="true"
+                  class="h-5 w-5 text-beat"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
                   <path d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2z" />
                 </svg>
               </div>
@@ -71,11 +76,11 @@ const NowPlayingBar: Component<NowPlayingBarProps> = (props) => {
           </Show>
         </div>
 
-        {/* Reveal button */}
+        {/* Reveal button — the accessible name carries the state, so no
+            aria-pressed alongside it ("Hide song info, pressed" says it twice) */}
         <button
           type="button"
           onClick={() => props.onToggleTrackInfo()}
-          aria-pressed={props.showTrackInfo}
           aria-label={props.showTrackInfo ? "Hide song info" : "Reveal song info"}
           class={`flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-bold transition sm:px-4 ${
             props.showTrackInfo
@@ -86,7 +91,13 @@ const NowPlayingBar: Component<NowPlayingBarProps> = (props) => {
           <Show
             when={props.showTrackInfo}
             fallback={
-              <svg aria-hidden="true" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg
+                aria-hidden="true"
+                class="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
                 <path
                   stroke-linecap="round"
                   stroke-linejoin="round"
@@ -102,7 +113,13 @@ const NowPlayingBar: Component<NowPlayingBarProps> = (props) => {
               </svg>
             }
           >
-            <svg aria-hidden="true" class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg
+              aria-hidden="true"
+              class="h-4 w-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"

@@ -31,29 +31,37 @@ interface TileProps {
  * revealed ones dim to a dashed outline. The single- and multi-category
  * layouts only differ in tile size, passed via `buttonClass` / `levelClass`.
  */
-const Tile: Component<TileProps> = (props) => (
-  <button
-    type="button"
-    disabled={props.disabled}
-    aria-label={`${props.categoryName}, ${props.item.level} points, ${
-      props.revealed ? "played" : "not played yet"
-    }`}
-    class={`flex w-full items-center justify-center ${
-      props.disabled ? "cursor-default" : "cursor-pointer"
-    } ${props.buttonClass} ${
-      props.revealed ? "border border-dashed border-line bg-night/50" : "stage-card"
-    }`}
-    style={props.revealed ? undefined : stageVars(props.ink)}
-    onClick={props.onClick}
-  >
-    <span
-      class={`font-mono font-bold ${props.levelClass}`}
-      style={{ color: props.revealed ? "var(--color-muted)" : "var(--color-ink)" }}
+const Tile: Component<TileProps> = (props) => {
+  // "Pop, 3 points, not played yet" — the tile itself shows only the number.
+  // An unnamed category drops out rather than leading with a stray comma.
+  const label = () =>
+    [props.categoryName, `${props.item.level} points`, props.revealed ? "played" : "not played yet"]
+      .filter(Boolean)
+      .join(", ");
+
+  return (
+    <button
+      type="button"
+      disabled={props.disabled}
+      aria-label={label()}
+      // `disabled` alone still lets :hover fire, so a read-only board would
+      // keep lifting tiles under the mouse; pointer-events drops that without
+      // touching the keyboard/AT semantics `disabled` provides.
+      class={`flex w-full cursor-pointer items-center justify-center disabled:pointer-events-none ${
+        props.buttonClass
+      } ${props.revealed ? "border border-dashed border-line bg-night/50" : "stage-card"}`}
+      style={props.revealed ? undefined : stageVars(props.ink)}
+      onClick={props.onClick}
     >
-      {props.item.level}
-    </span>
-  </button>
-);
+      <span
+        class={`font-mono font-bold ${props.levelClass}`}
+        style={{ color: props.revealed ? "var(--color-muted)" : "var(--color-ink)" }}
+      >
+        {props.item.level}
+      </span>
+    </button>
+  );
+};
 
 interface GameBoardProps {
   categories: Category[];
