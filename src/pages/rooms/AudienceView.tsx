@@ -154,12 +154,15 @@ const AudienceViewInner: Component = () => {
               </section>
             </Show>
 
-            {/* Board — reuses the play board, made non-interactive for viewers */}
-            <div class="pointer-events-none py-4">
+            {/* Board — reuses the play board, made non-interactive for viewers:
+                interactive={false} disables the tiles and drops them from the
+                tab order (no dead focus stops for keyboard/AT users). */}
+            <div class="py-4">
               <GameBoard
                 categories={room()?.categories ?? []}
                 isItemRevealed={isItemRevealed}
                 onItemClick={() => {}}
+                interactive={false}
               />
             </div>
           </div>

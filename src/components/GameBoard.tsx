@@ -15,6 +15,10 @@ interface TileProps {
   item: SongItem;
   ink: StageInk;
   revealed: boolean;
+  /** Category this tile belongs to — announced in the accessible name. */
+  categoryName: string;
+  /** Read-only boards (audience view) render tiles disabled + unfocusable. */
+  disabled: boolean;
   onClick: () => void;
   /** Size + radius classes — tiles are larger on single-category boards. */
   buttonClass: string;
@@ -30,7 +34,13 @@ interface TileProps {
 const Tile: Component<TileProps> = (props) => (
   <button
     type="button"
-    class={`flex w-full cursor-pointer items-center justify-center ${props.buttonClass} ${
+    disabled={props.disabled}
+    aria-label={`${props.categoryName}, ${props.item.level} points, ${
+      props.revealed ? "played" : "not played yet"
+    }`}
+    class={`flex w-full items-center justify-center ${
+      props.disabled ? "cursor-default" : "cursor-pointer"
+    } ${props.buttonClass} ${
       props.revealed ? "border border-dashed border-line bg-night/50" : "stage-card"
     }`}
     style={props.revealed ? undefined : stageVars(props.ink)}
@@ -49,6 +59,9 @@ interface GameBoardProps {
   categories: Category[];
   isItemRevealed: (id: string) => boolean;
   onItemClick: (itemId: string, songUrl?: string, startTime?: number, durationMs?: number) => void;
+  /** Set false for a read-only board (audience view): tiles become
+      disabled and drop out of the tab order. Defaults to interactive. */
+  interactive?: boolean;
 }
 
 /**
@@ -74,6 +87,8 @@ const GameBoard: Component<GameBoardProps> = (props) => {
                 item={item}
                 ink={stageInk(0)}
                 revealed={props.isItemRevealed(item.id)}
+                categoryName={props.categories[0]?.name ?? ""}
+                disabled={props.interactive === false}
                 onClick={() =>
                   props.onItemClick(item.id, item.songUrl, item.startTime, item.durationMs)
                 }
@@ -128,6 +143,8 @@ const GameBoard: Component<GameBoardProps> = (props) => {
                           item={item}
                           ink={ink()}
                           revealed={props.isItemRevealed(item.id)}
+                          categoryName={category.name}
+                          disabled={props.interactive === false}
                           onClick={() =>
                             props.onItemClick(
                               item.id,

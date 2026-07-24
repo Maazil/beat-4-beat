@@ -43,9 +43,6 @@ Completed items have been removed; numbering is kept stable for traceability.
 9. **Toast / modal primitive** to replace ~20 native `alert()`/`confirm()` calls
    that shatter the Stage Night look and aren't accessible. Unblocks much of the
    design debt below. — L
-10. **Accessible names** on icon-only buttons (`NowPlayingBar` play/pause/skip,
-    `RoomPlayNav`) and game-board tiles (announce category + points + state);
-    disable focusable dead tiles in `AudienceView`. — M
 11. **Landing mobile nav** — under 720px only "Sign in" survives; add a hamburger
     (`stage-night.css:170`). — M
 12. **Skeleton loading states** + fix header hide-on-scroll (`PageWrapper.tsx`
