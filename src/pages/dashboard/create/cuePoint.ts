@@ -1,10 +1,16 @@
 // Pure helpers for the "Start at (seconds)" cue-point input in the song editor.
 
-// Track length in whole seconds, so the cue point can't be set past the end of
-// the song. Only Spotify-selected tracks carry a duration; a missing or
-// non-positive duration means "no cap" (undefined).
+// Leave this much of the song after the cue point, so playback never starts
+// right at (or past) the end.
+const CUE_END_BUFFER_SECONDS = 10;
+
+// Latest whole second the cue point may be set to: the track length less a
+// buffer, so playback always has some song left to play. Only Spotify-selected
+// tracks carry a duration; a missing or non-positive duration means "no cap"
+// (undefined). Tracks shorter than the buffer cap at 0.
 export function maxCueSeconds(durationMs: number | undefined): number | undefined {
-  return durationMs != null && durationMs > 0 ? Math.floor(durationMs / 1000) : undefined;
+  if (durationMs == null || durationMs <= 0) return undefined;
+  return Math.max(0, Math.floor(durationMs / 1000) - CUE_END_BUFFER_SECONDS);
 }
 
 // Parse the raw cue-point input: a non-negative integer of seconds, or
