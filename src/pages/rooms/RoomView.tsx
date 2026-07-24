@@ -53,7 +53,10 @@ const RoomView: Component = () => {
   return (
     <div class="mx-auto w-full max-w-6xl px-6 py-12">
       <Show when={isLoading()}>
-        <div class="flex w-full flex-col" role="status" aria-label="Loading room">
+        <div class="flex w-full flex-col" role="status">
+          {/* The blocks themselves are aria-hidden, so the live region needs
+              something to actually announce. */}
+          <span class="sr-only">Loading room</span>
           <Skeleton class="mb-6 h-5 w-40 rounded-md" />
           <div class="mb-8 flex items-start justify-between gap-4">
             <div class="w-full max-w-md space-y-3">

@@ -14,7 +14,8 @@ interface SkeletonProps {
  * live here so every loading state in the app reads as the same thing.
  *
  * Purely decorative — the container that holds a group of these owns the
- * `role="status"` and the label a screen reader actually hears.
+ * `role="status"` and an `sr-only` line, which is the only thing a screen
+ * reader has to announce once these blocks are hidden from it.
  */
 const Skeleton: Component<SkeletonProps> = (props) => (
   <div aria-hidden="true" class={`animate-pulse bg-peri/10 ${props.class ?? ""}`} />

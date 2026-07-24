@@ -3,9 +3,13 @@ import Skeleton from "./Skeleton";
 
 /**
  * Placeholder for a room card while the rooms subscription delivers its first
- * snapshot. Matches the shape both card types share — title + status badge,
- * a couple of mono info lines, a row of controls — so the grid doesn't jump
- * when the real cards land.
+ * snapshot. Carries the shape both card types share — title + status badge,
+ * a couple of mono info lines, a row of controls.
+ *
+ * The two real cards aren't the same height (RoomManageCard runs ~170px with
+ * two info lines, RoomPreview ~190px with three plus its footer), so one
+ * placeholder can't match both. This one is deliberately sized between them:
+ * whichever grid it's in shifts by roughly half a line, not a full card.
  *
  * @see RoomManageCard (dashboard) and RoomPreview (marketplace)
  */
