@@ -154,7 +154,7 @@ const RoomPlayInner: Component = () => {
               spotifyConnected={playback.spotifyConnected()}
               gameStarted={gameStarted()}
               onClearDevice={playback.clearDevice}
-              onNewGame={handleNewGame}
+              onNewGame={() => void handleNewGame()}
               onFinishGame={() => updateGame({ gameOver: true })}
             />
 

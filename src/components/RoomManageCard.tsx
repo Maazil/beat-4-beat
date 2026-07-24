@@ -38,7 +38,14 @@ const RoomManageCard: Component<RoomManageCardProps> = (props) => {
   const isHost = () => auth.isRoomHost(props.room.hostId);
 
   const { status: copyStatus, copy } = useClipboardCopy();
-  const handleCopyLink = () => copy(playerShareUrl(props.room.id));
+  const handleCopyLink = async () => {
+    // Nothing on a dashboard card shows the link itself, so a failed copy leaves
+    // the host with no way to get at it — point them at the room page, which
+    // prints it. (RoomView says "use the link above" for the same reason.)
+    if (!(await copy(playerShareUrl(props.room.id)))) {
+      toast.error("Couldn't copy the link — open the room to see it.");
+    }
+  };
 
   /** Icon-only button, so the outcome has to ride on the name + tooltip. */
   const copyLabel = () => {
@@ -125,7 +132,7 @@ const RoomManageCard: Component<RoomManageCardProps> = (props) => {
               "border-magenta-hot text-magenta-hot": copyStatus() === "failed",
               "border-line text-muted hover:border-beat hover:text-beat": copyStatus() === "idle",
             }}
-            onClick={handleCopyLink}
+            onClick={() => void handleCopyLink()}
             title={copyLabel()}
             aria-label={copyLabel()}
           >
@@ -189,7 +196,7 @@ const RoomManageCard: Component<RoomManageCardProps> = (props) => {
           <button
             type="button"
             class="rounded-full border border-line px-3 py-2 text-sm font-medium text-muted transition hover:border-beat hover:text-beat disabled:opacity-50"
-            onClick={handleDuplicate}
+            onClick={() => void handleDuplicate()}
             disabled={isDuplicating()}
             title="Duplicate room"
             aria-label={`Duplicate ${props.room.roomName}`}

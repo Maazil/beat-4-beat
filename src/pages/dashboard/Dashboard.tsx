@@ -92,7 +92,9 @@ const Dashboard: Component = () => {
                   </div>
                 }
               >
-                {(room) => <RoomManageCard room={room} onDelete={handleDeleteRoom} />}
+                {(room) => (
+                  <RoomManageCard room={room} onDelete={(id) => void handleDeleteRoom(id)} />
+                )}
               </For>
             </div>
           )}
