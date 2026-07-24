@@ -1,7 +1,7 @@
 import { Component, createEffect, createSignal, For, onCleanup, Show, untrack } from "solid-js";
 import { Portal } from "solid-js/web";
 import { Transition } from "solid-transition-group";
-import { isSpotifyLoggedIn, searchTracks } from "../../../lib/spotify";
+import { isSpotifyLoggedIn, searchTracks, spotifyUrlToUri } from "../../../lib/spotify";
 import type { SpotifyTrack } from "../../../lib/spotify";
 import type { SongItem } from "../../../model/songItem";
 import type { CategoryColorScheme } from "./categoryColors";
@@ -129,6 +129,11 @@ const SongItemEditModal: Component<SongItemEditModalProps> = (props) => {
 
   const spotifyConnected = () => isSpotifyLoggedIn();
 
+  // The cue point is only offered for Spotify tracks — they carry a duration we
+  // can cap against. YouTube / other URLs have no length here, so we don't
+  // expose the feature for them.
+  const isSpotifySong = () => spotifyUrlToUri(localUrl()) != null;
+
   return (
     <Portal>
       <Transition
@@ -250,8 +255,8 @@ const SongItemEditModal: Component<SongItemEditModalProps> = (props) => {
                 </Show>
 
                 {/* Cue point — where playback starts, to skip long intros.
-                    Shown for URL entry, and when tweaking an existing song. */}
-                <Show when={!spotifyConnected() || props.item.songUrl}>
+                    Spotify tracks only (they carry a length we can cap against). */}
+                <Show when={isSpotifySong()}>
                   <div class="flex flex-col gap-1 border-t border-line pt-3">
                     <div class="flex items-end gap-2">
                       <label class="flex flex-1 flex-col gap-1">
