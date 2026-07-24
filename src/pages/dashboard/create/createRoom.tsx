@@ -2,6 +2,8 @@ import { revalidate, useNavigate, useSearchParams } from "@solidjs/router";
 import { Component, createSignal, For, onMount, Show } from "solid-js";
 import { unwrap } from "solid-js/store";
 import { useAuth } from "../../../context/AuthContext";
+import { useConfirm } from "../../../context/ConfirmContext";
+import { useToast } from "../../../context/ToastContext";
 import type { Category } from "../../../model/category";
 import { getRoomOnce } from "../../../services/roomQuery";
 import {
@@ -26,6 +28,8 @@ const CreateRoom: Component = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const auth = useAuth();
+  const toast = useToast();
+  const confirm = useConfirm();
   const editor = useRoomEditor();
   const [isSubmitting, setIsSubmitting] = createSignal(false);
   const [isLoadingRoom, setIsLoadingRoom] = createSignal(false);
@@ -53,14 +57,14 @@ const CreateRoom: Component = () => {
       // clobbered; goes through the shared query to warm from its cache.
       const room = await getRoomOnce(roomId);
       if (!room) {
-        alert("Room not found.");
+        toast.error("Room not found.");
         navigate("/dashboard");
         return;
       }
 
       // Only the host or a co-owner may edit this room
       if (!canEditRoom(room)) {
-        alert("You don't have permission to edit this room.");
+        toast.error("You don't have permission to edit this room.");
         navigate("/dashboard");
         return;
       }
@@ -84,7 +88,7 @@ const CreateRoom: Component = () => {
       }
     } catch (err) {
       console.error("Failed to load room for editing:", err);
-      alert("Could not load the room. Please try again.");
+      toast.error("Could not load the room. Please try again.");
       navigate("/dashboard");
     } finally {
       setIsLoadingRoom(false);
@@ -113,27 +117,29 @@ const CreateRoom: Component = () => {
     const name = editor.roomName().trim();
 
     if (!name) {
-      alert("Please enter a room name");
+      toast.error("Please enter a room name");
       return;
     }
 
     if (editor.categories().length === 0) {
-      alert("Add at least one category");
+      toast.error("Add at least one category");
       return;
     }
 
     const hasEmptyCategories = editor.categories().some((c) => c.items.length === 0);
     if (hasEmptyCategories) {
-      alert("Every category needs at least one song");
+      toast.error("Every category needs at least one song");
       return;
     }
 
     // Check for empty song URLs and warn user (one-time confirmation)
     const emptyCount = editor.countEmptySongUrls();
     if (emptyCount > 0) {
-      const confirmed = confirm(
-        `You have ${emptyCount} song${emptyCount > 1 ? "s" : ""} without a URL. Continue without adding URLs?`,
-      );
+      const confirmed = await confirm({
+        title: "Missing song URLs",
+        message: `You have ${emptyCount} song${emptyCount > 1 ? "s" : ""} without a URL. Continue without adding URLs?`,
+        confirmLabel: "Continue",
+      });
       if (!confirmed) {
         return;
       }
@@ -169,7 +175,7 @@ const CreateRoom: Component = () => {
       navigate("/dashboard");
     } catch (error) {
       console.error(`Failed to ${isEditMode() ? "update" : "create"} room:`, error);
-      alert(
+      toast.error(
         isEditMode()
           ? "Could not update the room. Please try again."
           : "Could not create the room. Please try again.",

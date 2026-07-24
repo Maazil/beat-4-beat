@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildItemIndex, buildRoundLabels } from "./boardLookup";
+import { buildItemIndex, buildRoundLabels, pickRandomUnplayed, unplayedItems } from "./boardLookup";
 import type { Category } from "../model/category";
 import type { SongItem } from "../model/songItem";
 
@@ -29,6 +29,51 @@ describe("buildItemIndex", () => {
 
   it("is empty for no categories", () => {
     expect(buildItemIndex([]).size).toBe(0);
+  });
+});
+
+describe("unplayedItems", () => {
+  it("collects unrevealed songs across categories in board order", () => {
+    const played = new Set(["s2"]);
+    const remaining = unplayedItems([pop, rock], (id) => played.has(id));
+    expect(remaining.map((item) => item.id)).toEqual(["s1", "s3"]);
+  });
+
+  it("is empty once every song has been played", () => {
+    expect(unplayedItems([pop, rock], () => true)).toEqual([]);
+  });
+
+  it("is empty for no categories", () => {
+    expect(unplayedItems([], () => false)).toEqual([]);
+  });
+});
+
+describe("pickRandomUnplayed", () => {
+  const remaining = unplayedItems([pop, rock], () => false);
+
+  it("only picks songs that have a URL when any are left", () => {
+    // s2 is the single item with a songUrl, so every draw must land on it
+    for (const roll of [0, 0.5, 0.999]) {
+      expect(pickRandomUnplayed(remaining, () => roll)?.id).toBe("s2");
+    }
+  });
+
+  it("spreads picks across the playable pool", () => {
+    const playable = [
+      song("a", { songUrl: "https://example.com/a" }),
+      song("b", { songUrl: "https://example.com/b" }),
+    ];
+    expect(pickRandomUnplayed(playable, () => 0)?.id).toBe("a");
+    expect(pickRandomUnplayed(playable, () => 0.999)?.id).toBe("b");
+  });
+
+  it("falls back to URL-less songs once nothing playable is left", () => {
+    const urlLess = [song("x"), song("y")];
+    expect(pickRandomUnplayed(urlLess, () => 0.999)?.id).toBe("y");
+  });
+
+  it("returns null on an exhausted board", () => {
+    expect(pickRandomUnplayed([])).toBeNull();
   });
 });
 

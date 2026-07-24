@@ -2,24 +2,49 @@ import { useNavigate, useParams } from "@solidjs/router";
 import { Show, type Component } from "solid-js";
 import Button from "../../components/forms/Button";
 import RoomStatusBadge from "../../components/RoomStatusBadge";
+import { useConfirm } from "../../context/ConfirmContext";
+import { useToast } from "../../context/ToastContext";
+import { useClipboardCopy } from "../../hooks/useClipboardCopy";
 import { useRoom } from "../../hooks/useRoom";
 import { formatRoomDate } from "../../lib/roomDates";
 import { formatNameList, roomHostNames } from "../../lib/roomHosts";
+import { playerShareUrl } from "../../lib/roomLinks";
 import { canEditRoom, deleteRoom, isRoomHost } from "../../services/roomsService";
 
 const RoomView: Component = () => {
   const params = useParams();
   const navigate = useNavigate();
   const { room: currentRoom, isLoading } = useRoom(() => params.id);
+  const confirm = useConfirm();
+  const toast = useToast();
+  const { status: copyStatus, copy } = useClipboardCopy();
+
+  /** Reports the copy outcome inline — the link is shown above as a fallback. */
+  const copyLabel = () => {
+    switch (copyStatus()) {
+      case "copied":
+        return "Copied!";
+      case "failed":
+        return "Couldn't copy — use the link above";
+      default:
+        return "Copy player link";
+    }
+  };
 
   const handleDelete = async (roomId: string) => {
-    if (!confirm("Are you sure you want to delete this room?")) return;
+    const confirmed = await confirm({
+      title: "Delete room",
+      message: "Are you sure you want to delete this room?",
+      confirmLabel: "Delete",
+      tone: "danger",
+    });
+    if (!confirmed) return;
     try {
       await deleteRoom(roomId);
       navigate("/dashboard");
     } catch (err) {
       console.error("Failed to delete room:", err);
-      alert("Could not delete the room. Please try again.");
+      toast.error("Could not delete the room. Please try again.");
     }
   };
 
@@ -98,13 +123,9 @@ const RoomView: Component = () => {
                   <Button
                     variant="secondary"
                     class="w-full"
-                    onClick={() => {
-                      const shareUrl = `${window.location.origin}/rooms/${room.id}/play`;
-                      navigator.clipboard.writeText(shareUrl);
-                      alert("Link copied! Share it with players: " + shareUrl);
-                    }}
+                    onClick={() => copy(playerShareUrl(room.id))}
                   >
-                    Copy player link
+                    {copyLabel()}
                   </Button>
                   <Show when={canEditRoom(room)}>
                     <Button
