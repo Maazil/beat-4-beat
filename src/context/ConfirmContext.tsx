@@ -42,7 +42,12 @@ export const ConfirmProvider: ParentComponent = (props) => {
 
   const confirm: ConfirmFn = (options) =>
     new Promise<boolean>((resolve) => {
-      setPending({ ...options, resolve });
+      // A second ask replaces the first, so settle the one being displaced as
+      // cancelled — otherwise its caller stays awaiting a promise forever.
+      setPending((previous) => {
+        previous?.resolve(false);
+        return { ...options, resolve };
+      });
     });
 
   const settle = (value: boolean) => {
@@ -78,8 +83,17 @@ const ConfirmDialog: Component<{
   // Return focus to whatever opened the dialog once it closes.
   const previouslyFocused = document.activeElement as HTMLElement | null;
 
-  onMount(() => confirmRef?.focus());
-  onCleanup(() => previouslyFocused?.focus?.());
+  onMount(() => {
+    confirmRef?.focus();
+    // Freeze the page behind the modal — most visible on phones, where the
+    // backdrop otherwise scrolls under the dialog.
+    document.body.style.overflow = "hidden";
+  });
+
+  onCleanup(() => {
+    document.body.style.overflow = "";
+    previouslyFocused?.focus?.();
+  });
 
   const onKeyDown = (e: KeyboardEvent) => {
     if (e.key === "Escape") {

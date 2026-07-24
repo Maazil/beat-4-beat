@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
-import { render } from "@solidjs/testing-library";
+import { cleanup, render, screen } from "@solidjs/testing-library";
 import userEvent from "@testing-library/user-event";
 import { createSignal } from "solid-js";
-import { beforeAll, describe, expect, test, vi } from "vitest";
+import { afterEach, beforeAll, describe, expect, test, vi } from "vitest";
 import { ConfirmProvider } from "../context/ConfirmContext";
 import type { Score } from "../model/score";
 import Scoreboard from "./Scoreboard";
@@ -13,6 +13,10 @@ beforeAll(() => {
     () => ({ cancel() {}, finished: Promise.resolve() }) as unknown as Animation,
   );
 });
+
+// `globals` is off in vitest.config, so the library's auto-cleanup never
+// registers — the portalled confirm dialog would leak into the next test.
+afterEach(cleanup);
 
 const user = userEvent.setup();
 
@@ -25,7 +29,7 @@ const renderScoreboard = (initial: Score[], currentRound?: number) => {
       <Scoreboard scores={scores()} currentRound={currentRound} onUpdateScores={onUpdateScores} />
     </ConfirmProvider>
   ));
-  return { ...result, scores, onUpdateScores };
+  return { ...result, scores, setScores, onUpdateScores };
 };
 
 describe("Scoreboard", () => {
@@ -71,5 +75,66 @@ describe("Scoreboard", () => {
     expect(getByRole("button", { name: /hide standings/i })).toBeInTheDocument();
     // Total (2 + 1) now shown — in the row and the breakdown footer.
     expect(queryAllByText("3").length).toBeGreaterThan(0);
+  });
+
+  test("removes a scoreless team without asking", async () => {
+    const { getAllByTitle, onUpdateScores } = renderScoreboard([
+      { teamName: "Reds", roundPoints: [] },
+      { teamName: "Blues", roundPoints: [] },
+    ]);
+
+    await user.click(getAllByTitle("Remove team")[0]);
+    expect(screen.queryByRole("dialog")).toBeNull();
+
+    expect(onUpdateScores).toHaveBeenCalledWith([{ teamName: "Blues", roundPoints: [] }]);
+  });
+
+  test("removes a team with points only once the dialog is confirmed", async () => {
+    const { getAllByTitle, onUpdateScores } = renderScoreboard([
+      { teamName: "Reds", roundPoints: [2] },
+      { teamName: "Blues", roundPoints: [1] },
+    ]);
+
+    await user.click(getAllByTitle("Remove team")[0]);
+    // The dialog is portalled, so it's queried through `screen`
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Remove" }));
+
+    expect(onUpdateScores).toHaveBeenCalledWith([{ teamName: "Blues", roundPoints: [1] }]);
+  });
+
+  test("keeps the team when the dialog is cancelled", async () => {
+    const { getAllByTitle, onUpdateScores } = renderScoreboard([
+      { teamName: "Reds", roundPoints: [2] },
+      { teamName: "Blues", roundPoints: [1] },
+    ]);
+
+    await user.click(getAllByTitle("Remove team")[0]);
+    await user.click(screen.getByRole("button", { name: "Cancel" }));
+
+    expect(onUpdateScores).not.toHaveBeenCalled();
+    expect(screen.queryByRole("dialog")).toBeNull();
+  });
+
+  test("removes the team it asked about, not the row that moved into its place", async () => {
+    // Awaiting the dialog leaves a window for a live gameState update; the
+    // removal has to follow the team, not the index it used to sit at.
+    const { getAllByTitle, onUpdateScores, setScores } = renderScoreboard([
+      { teamName: "Reds", roundPoints: [2] },
+      { teamName: "Blues", roundPoints: [1] },
+    ]);
+
+    await user.click(getAllByTitle("Remove team")[1]); // asks about "Blues"
+    setScores([
+      { teamName: "Greens", roundPoints: [5] },
+      { teamName: "Reds", roundPoints: [2] },
+      { teamName: "Blues", roundPoints: [1] },
+    ]);
+    await user.click(screen.getByRole("button", { name: "Remove" }));
+
+    expect(onUpdateScores).toHaveBeenCalledWith([
+      { teamName: "Greens", roundPoints: [5] },
+      { teamName: "Reds", roundPoints: [2] },
+    ]);
   });
 });

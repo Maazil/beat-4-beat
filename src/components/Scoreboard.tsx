@@ -94,7 +94,12 @@ const Scoreboard: Component<ScoreboardProps> = (props) => {
     ) {
       return;
     }
-    applyScores(props.scores.filter((_, i) => i !== index));
+    // Re-resolve by name rather than reusing `index`: awaiting the dialog opens
+    // a window in which a co-owner's edit can shift or drop rows (scores are
+    // live-synced through gameState), and team names are unique.
+    const remaining = props.scores.filter((s) => s.teamName !== team.teamName);
+    if (remaining.length === props.scores.length) return;
+    applyScores(remaining);
   };
 
   const handleRename = (index: number, name: string) => {

@@ -18,6 +18,10 @@ if (import.meta.env.DEV && !(root instanceof HTMLElement)) {
   );
 }
 
+// Toasts and confirms sit *outside* the Router on purpose: several call sites
+// toast and then navigate away (createRoom), and a confirm resolves after the
+// route it was asked from may have unmounted. Nesting them inside would tear
+// both down mid-flight.
 render(
   () => (
     <MetaProvider>
