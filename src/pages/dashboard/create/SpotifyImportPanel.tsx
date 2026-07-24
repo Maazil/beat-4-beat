@@ -1,4 +1,5 @@
 import { Component, createSignal, For, Show } from "solid-js";
+import { useToast } from "../../../context/ToastContext";
 import {
   isSpotifyLoggedIn,
   loginWithSpotifyPopup,
@@ -6,7 +7,6 @@ import {
   getOwnPlaylistTracks,
 } from "../../../lib/spotify";
 import type { SpotifyPlaylistBrief } from "../../../lib/spotify";
-import { useToast } from "../../../context/ToastContext";
 import type { Category } from "../../../model/category";
 import type { SongItem } from "../../../model/songItem";
 import { MAX_CATEGORIES } from "./categoryColors";
