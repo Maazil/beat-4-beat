@@ -117,8 +117,9 @@ const CoOwnerPanel: Component<CoOwnerPanelProps> = (props) => {
                   onClick={() => handleRemoveEditor(editor.uid)}
                   class="ml-3 shrink-0 text-muted transition hover:text-magenta-hot disabled:opacity-50"
                   title="Remove co-owner"
+                  aria-label={`Remove ${editor.displayName || editor.email || editor.uid} as co-owner`}
                 >
-                  ✕
+                  <span aria-hidden="true">✕</span>
                 </button>
               </li>
             )}

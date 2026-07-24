@@ -71,10 +71,17 @@ const YouTubePlayer: Component<YouTubePlayerProps> = (props) => {
         <button
           type="button"
           title="Stop and close"
+          aria-label="Stop and close the video"
           onClick={() => props.onClose()}
           class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-line bg-surface-2 text-muted transition hover:border-beat hover:text-beat"
         >
-          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg
+            aria-hidden="true"
+            class="h-4 w-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
             <path
               stroke-linecap="round"
               stroke-linejoin="round"

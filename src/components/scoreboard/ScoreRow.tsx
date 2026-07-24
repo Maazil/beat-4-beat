@@ -87,12 +87,16 @@ const ScoreRow: Component<ScoreRowProps> = (props) => {
               type="button"
               onClick={startRename}
               title="Rename team"
+              // The visible label is just the name; without this the button
+              // announces as the team, giving no hint that it renames it.
+              aria-label={`Rename ${props.score.teamName}`}
               class="flex max-w-full items-center gap-1.5 text-left"
             >
               <span class="truncate font-display text-sm font-bold text-ink">
                 {props.score.teamName}
               </span>
               <svg
+                aria-hidden="true"
                 class="h-3 w-3 shrink-0 text-muted opacity-100 transition md:opacity-0 md:group-hover:opacity-100"
                 fill="none"
                 stroke="currentColor"
@@ -163,9 +167,16 @@ const ScoreRow: Component<ScoreRowProps> = (props) => {
               ? "Play a song to start a round"
               : "Take back a point this round"
           }
+          aria-label={`Take back a point from ${props.score.teamName}`}
           class="flex h-7 w-7 items-center justify-center rounded-full border border-line text-muted transition hover:border-beat hover:text-beat disabled:cursor-default disabled:opacity-30 disabled:hover:border-line disabled:hover:text-muted"
         >
-          <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg
+            aria-hidden="true"
+            class="h-3.5 w-3.5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M20 12H4" />
           </svg>
         </button>
@@ -176,9 +187,16 @@ const ScoreRow: Component<ScoreRowProps> = (props) => {
           title={
             props.currentRound == null ? "Play a song to start a round" : "+1 point this round"
           }
+          aria-label={`Award a point to ${props.score.teamName}`}
           class="flex h-7 w-7 items-center justify-center rounded-full border border-line text-muted transition hover:border-beat hover:text-beat disabled:cursor-default disabled:opacity-30 disabled:hover:border-line disabled:hover:text-muted"
         >
-          <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg
+            aria-hidden="true"
+            class="h-3.5 w-3.5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
             <path
               stroke-linecap="round"
               stroke-linejoin="round"
@@ -219,9 +237,16 @@ const ScoreRow: Component<ScoreRowProps> = (props) => {
         type="button"
         onClick={() => props.onRemove()}
         title="Remove team"
+        aria-label={`Remove ${props.score.teamName}`}
         class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-muted opacity-100 transition hover:bg-beat-soft hover:text-beat md:opacity-0 md:group-hover:opacity-100"
       >
-        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg
+          aria-hidden="true"
+          class="h-3.5 w-3.5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
           <path
             stroke-linecap="round"
             stroke-linejoin="round"
