@@ -1,6 +1,7 @@
 import { useNavigate } from "@solidjs/router";
-import { createSignal, For, onMount, Show, type Component } from "solid-js";
+import { createSignal, For, Index, onMount, Show, type Component } from "solid-js";
 import Button from "../../components/forms/Button";
+import RoomCardSkeleton from "../../components/RoomCardSkeleton";
 import RoomManageCard from "../../components/RoomManageCard";
 import { useToast } from "../../context/ToastContext";
 import { useMyRooms } from "../../hooks/useMyRooms";
@@ -11,6 +12,12 @@ import {
   loginWithSpotify,
   logoutSpotify,
 } from "../../lib/spotify";
+
+/** Shared by the skeleton and the real grid, so the two can't drift apart. */
+const GRID_CLASS = "grid gap-4 md:grid-cols-2 lg:grid-cols-3";
+
+/** One full row at the widest breakpoint. */
+const SKELETON_CARDS = Array.from({ length: 3 });
 
 const Dashboard: Component = () => {
   const navigate = useNavigate();
@@ -70,11 +77,11 @@ const Dashboard: Component = () => {
           )}
 
           {isLoading() ? (
-            <div class="flex items-center justify-center py-12">
-              <div class="h-8 w-8 animate-spin rounded-full border-4 border-line border-t-beat" />
+            <div class={GRID_CLASS} role="status" aria-label="Loading your rooms">
+              <Index each={SKELETON_CARDS}>{() => <RoomCardSkeleton />}</Index>
             </div>
           ) : (
-            <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div class={GRID_CLASS}>
               <For
                 each={myRooms()}
                 fallback={
