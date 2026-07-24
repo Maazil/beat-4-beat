@@ -73,11 +73,20 @@ const SongItemEditModal: Component<SongItemEditModalProps> = (props) => {
 
   // Clamp as the host types so the field itself can never hold a value past the
   // cap (the `max` attribute alone doesn't block typing). Blank/partial input
-  // passes through untouched.
-  const handleStartTimeInput = (raw: string) => {
+  // passes through untouched. When clamping we also reset the element's value
+  // directly: once the signal already holds the cap, setting it to the cap again
+  // is a no-op (===), so the controlled `value` binding never re-runs and the DOM
+  // would otherwise keep the over-cap text the host kept typing.
+  const handleStartTimeInput = (el: HTMLInputElement) => {
     const max = maxStartSeconds();
-    const parsed = parseCueSeconds(raw);
-    setLocalStartTime(parsed != null && max != null && parsed > max ? String(max) : raw);
+    const parsed = parseCueSeconds(el.value);
+    if (parsed != null && max != null && parsed > max) {
+      const clamped = String(max);
+      el.value = clamped;
+      setLocalStartTime(clamped);
+    } else {
+      setLocalStartTime(el.value);
+    }
   };
 
   const handleUrlSubmit = () => {
@@ -301,7 +310,7 @@ const SongItemEditModal: Component<SongItemEditModalProps> = (props) => {
                           max={maxStartSeconds()}
                           inputmode="numeric"
                           value={localStartTime()}
-                          onInput={(e) => handleStartTimeInput(e.currentTarget.value)}
+                          onInput={(e) => handleStartTimeInput(e.currentTarget)}
                           onKeyPress={(e) => e.key === "Enter" && handleUrlSubmit()}
                           placeholder="0"
                           class="w-full rounded-xl border border-line bg-surface-2 px-4 py-2.5 text-sm text-ink placeholder:text-muted/60 transition outline-none focus:border-beat focus:ring-2 focus:ring-beat/20"
