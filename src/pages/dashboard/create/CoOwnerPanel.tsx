@@ -102,7 +102,7 @@ const CoOwnerPanel: Component<CoOwnerPanelProps> = (props) => {
       {/* Existing co-owners */}
       <Show
         when={editors().length > 0}
-        fallback={<p class="mb-3 text-sm text-muted/70">No co-owners yet.</p>}
+        fallback={<p class="mb-3 text-sm text-muted">No co-owners yet.</p>}
       >
         <ul class="mb-3 space-y-1">
           <For each={editors()}>
@@ -175,7 +175,7 @@ const CoOwnerPanel: Component<CoOwnerPanelProps> = (props) => {
             Disable link
           </button>
         </div>
-        <p class="mt-2 text-xs text-muted/70">
+        <p class="mt-2 text-xs text-muted">
           Anyone with the link can become a co-owner. Create a new link to invalidate shared ones.
         </p>
       </Show>

@@ -283,7 +283,8 @@
   margin-top: 18px;
   font: 500 12px var(--mono);
   letter-spacing: 0.14em;
-  color: rgba(198, 216, 255, 0.5);
+  /* 0.6 is the lowest alpha that still clears WCAG AA (4.5:1) on --bg. */
+  color: rgba(198, 216, 255, 0.6);
   text-transform: uppercase;
 }
 
@@ -563,7 +564,7 @@
   padding-top: 30px;
   padding-bottom: 30px;
   font-size: 13.5px;
-  color: rgba(198, 216, 255, 0.5);
+  color: rgba(198, 216, 255, 0.6);
 }
 
 .stage-night .foot a:not(.wordmark):hover {

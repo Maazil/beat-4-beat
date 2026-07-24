@@ -1,5 +1,6 @@
 import { useNavigate, useParams } from "@solidjs/router";
 import { Show, type Component } from "solid-js";
+import BackLink from "../../components/BackLink";
 import Button from "../../components/forms/Button";
 import RoomStatusBadge from "../../components/RoomStatusBadge";
 import { useConfirm } from "../../context/ConfirmContext";
@@ -59,24 +60,14 @@ const RoomView: Component = () => {
       <Show when={!isLoading() && !currentRoom()}>
         <div class="rounded-2xl border border-beat/30 bg-beat-soft p-8 text-center">
           <p class="text-beat-bright">Room not found</p>
-          <button
-            class="mt-4 text-sm text-muted hover:text-beat"
-            onClick={() => navigate("/rooms")}
-          >
-            ← Back to all rooms
-          </button>
+          <BackLink href="/rooms" label="Back to all rooms" class="mt-4" />
         </div>
       </Show>
 
       <Show when={!isLoading() && currentRoom()} keyed>
         {(room) => (
           <div class="flex w-full flex-col">
-            <button
-              class="mb-6 inline-flex items-center gap-2 self-start text-sm font-medium text-muted transition hover:text-beat"
-              onClick={() => navigate("/dashboard")}
-            >
-              ← Back to dashboard
-            </button>
+            <BackLink href="/dashboard" label="Back to dashboard" class="mb-6 self-start" />
             <div class="mb-8 flex items-start justify-between gap-4">
               <div>
                 <h1 class="font-display text-3xl font-bold tracking-tight text-ink">

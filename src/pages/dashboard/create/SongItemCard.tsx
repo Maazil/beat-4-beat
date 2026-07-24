@@ -63,7 +63,7 @@ const SongItemCard: Component<SongItemCardProps> = (props) => {
           </Show>
           <Show when={props.item.title && props.item.artist && !props.isEditing}>
             <span
-              class="max-w-full truncate px-1 text-[9px] leading-tight opacity-50"
+              class="max-w-full truncate px-1 text-[9px] leading-tight opacity-60"
               style={{ color: "var(--color-ink)" }}
             >
               {props.item.artist}

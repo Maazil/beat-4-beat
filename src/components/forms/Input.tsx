@@ -38,7 +38,10 @@ const Input: Component<InputProps> = (props) => {
     "variant",
   ]);
 
-  const inputId = () => local.id || `input-${Math.random().toString(36).slice(2, 9)}`;
+  // Generated once per instance — a fresh id on every call would hand the
+  // label, the input and aria-describedby three different ids.
+  const fallbackId = `input-${Math.random().toString(36).slice(2, 9)}`;
+  const inputId = () => local.id || fallbackId;
 
   const isGhost = () => local.variant === "ghost";
 
@@ -47,7 +50,7 @@ const Input: Component<InputProps> = (props) => {
 
   // Default variant: standard form input styling
   const defaultClass = () =>
-    `w-full rounded-xl border bg-surface-2 px-3 py-2 text-ink placeholder:text-muted/60 transition-colors outline-none focus:ring-2 ${
+    `w-full rounded-xl border bg-surface-2 px-3 py-2 text-ink placeholder:text-muted transition-colors outline-none focus:ring-2 ${
       local.error
         ? "border-magenta-hot focus:border-magenta-hot focus:ring-magenta-hot/20"
         : "border-line focus:border-beat focus:ring-beat/20"

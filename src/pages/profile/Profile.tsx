@@ -1,5 +1,6 @@
 import { useNavigate } from "@solidjs/router";
 import { Component, createSignal, Show } from "solid-js";
+import Input from "../../components/forms/Input";
 import { useAuth } from "../../context/AuthContext";
 import { useToast } from "../../context/ToastContext";
 import { updateDjName } from "../../services/usersService";
@@ -75,12 +76,13 @@ const Profile: Component = () => {
               }}
               class="flex flex-col gap-3"
             >
-              <input
+              <Input
                 type="text"
+                aria-label="DJ name"
                 value={djNameInput()}
                 onInput={(e) => setDjNameInput(e.currentTarget.value)}
                 placeholder="E.g. DJ Mustard"
-                class="w-full rounded-xl border border-line bg-surface-2 px-3 py-2 text-sm text-ink placeholder:text-muted/60 outline-none focus:border-beat focus:ring-2 focus:ring-beat/20"
+                class="text-sm"
                 autofocus
               />
               <div class="flex gap-2">
