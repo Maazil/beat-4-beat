@@ -71,6 +71,15 @@ const SongItemEditModal: Component<SongItemEditModalProps> = (props) => {
   const parsedStartTime = (): number | undefined =>
     clampCueSeconds(parseCueSeconds(localStartTime()), maxStartSeconds());
 
+  // Clamp as the host types so the field itself can never hold a value past the
+  // cap (the `max` attribute alone doesn't block typing). Blank/partial input
+  // passes through untouched.
+  const handleStartTimeInput = (raw: string) => {
+    const max = maxStartSeconds();
+    const parsed = parseCueSeconds(raw);
+    setLocalStartTime(parsed != null && max != null && parsed > max ? String(max) : raw);
+  };
+
   const handleUrlSubmit = () => {
     props.onUpdate(localUrl(), undefined, undefined, parsedStartTime());
     props.onBlur();
@@ -253,7 +262,7 @@ const SongItemEditModal: Component<SongItemEditModalProps> = (props) => {
                           max={maxStartSeconds()}
                           inputmode="numeric"
                           value={localStartTime()}
-                          onInput={(e) => setLocalStartTime(e.currentTarget.value)}
+                          onInput={(e) => handleStartTimeInput(e.currentTarget.value)}
                           onKeyPress={(e) => e.key === "Enter" && handleUrlSubmit()}
                           placeholder="0"
                           class="w-full rounded-xl border border-line bg-surface-2 px-4 py-2.5 text-sm text-ink placeholder:text-muted/60 transition outline-none focus:border-beat focus:ring-2 focus:ring-beat/20"
