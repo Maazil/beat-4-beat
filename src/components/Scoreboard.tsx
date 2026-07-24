@@ -182,7 +182,7 @@ const Scoreboard: Component<ScoreboardProps> = (props) => {
               currentRound={props.currentRound}
               roundsPlayed={roundsPlayed()}
               onAward={(points) => handleAward(index(), points)}
-              onRemove={() => handleRemoveTeam(index())}
+              onRemove={() => void handleRemoveTeam(index())}
               onRename={(name) => handleRename(index(), name)}
               registerRow={(el) => flip.registerRow(score.teamName, el)}
               registerChip={(el) => flip.registerChip(score.teamName, el)}

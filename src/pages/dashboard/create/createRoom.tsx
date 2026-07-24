@@ -251,7 +251,10 @@ const CreateRoom: Component = () => {
               </button>
 
               {/* Submit button */}
-              <Button onClick={handleSubmit} disabled={isSubmitting() || !editor.canCreateRoom()}>
+              <Button
+                onClick={() => void handleSubmit()}
+                disabled={isSubmitting() || !editor.canCreateRoom()}
+              >
                 {isSubmitting()
                   ? isEditMode()
                     ? "Saving…"
