@@ -30,11 +30,6 @@ Completed items have been removed; numbering is kept stable for traceability.
 37. **Song image not fetched** — the song artwork never loads; either fix the fetch
     or remove the image, as it isn't necessary (overlaps with #30/preview work). — S
 
-## Phase 2 — Cheap, high-value wins
-
-5. **Copy-link "Copied!" feedback** — no visual confirmation today, and the logic
-   is duplicated in `RoomView`, `RoomManageCard`, `RoomPreview`; consolidate. — S
-
 ## Phase 3 — Design-system foundation
 
 9. **Toast / modal primitive** to replace ~20 native `alert()`/`confirm()` calls
