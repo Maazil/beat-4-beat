@@ -36,8 +36,6 @@ Completed items have been removed; numbering is kept stable for traceability.
    is duplicated in `RoomView`, `RoomManageCard`, `RoomPreview`; consolidate. — S
 6. **Drop `updateRoom`'s full-doc pre-read** — it re-checks ownership that
    `firestore.rules` already enforces; doubles every editor save. — S
-7. **Random-tile picker** for lightning rounds. — S
-
 ## Phase 3 — Design-system foundation
 
 9. **Toast / modal primitive** to replace ~20 native `alert()`/`confirm()` calls

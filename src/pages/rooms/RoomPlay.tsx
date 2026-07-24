@@ -68,6 +68,21 @@ const RoomPlayInner: Component = () => {
     if (songUrl) void playback.playSong(songUrl, startTime, durationMs);
   };
 
+  // Unrevealed tiles left on the board — drives the lightning-round picker
+  const remainingTiles = createMemo(() =>
+    (currentRoom()?.categories ?? [])
+      .flatMap((c) => c.items)
+      .filter((item) => !isItemRevealed(item.id)),
+  );
+
+  /** Play a random unplayed tile — a shortcut for lightning rounds. */
+  const playRandomTile = () => {
+    const remaining = remainingTiles();
+    if (remaining.length === 0) return;
+    const pick = remaining[Math.floor(Math.random() * remaining.length)];
+    handleItemClick(pick.id, pick.songUrl, pick.startTime, pick.durationMs);
+  };
+
   // Anything on the board or scoreboard worth resetting?
   const gameStarted = () =>
     playOrder().length > 0 || scores().some((s) => s.roundPoints.length > 0);
@@ -183,6 +198,15 @@ const RoomPlayInner: Component = () => {
                 <div class="mb-4 flex flex-wrap items-center justify-between gap-2">
                   <p class="text-muted">Click a tile to play a song</p>
                   <div class="flex flex-wrap items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={playRandomTile}
+                      disabled={remainingTiles().length === 0}
+                      title="Play a random unplayed tile"
+                      class="inline-flex items-center gap-1.5 rounded-full border border-line px-3 py-0.5 font-mono text-xs font-bold text-muted transition hover:border-beat hover:text-beat disabled:cursor-not-allowed disabled:opacity-40"
+                    >
+                      <span aria-hidden="true">🎲</span> Random
+                    </button>
                     <GuessTimerPicker
                       choices={guessTimer.choices}
                       selected={guessTimer.durationSec()}
