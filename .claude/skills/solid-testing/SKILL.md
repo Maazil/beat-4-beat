@@ -1,18 +1,27 @@
 ---
 name: solid-testing
-description: How to write and run tests in this repo — current vitest node setup for pure logic, and the recipe for adding Solid component/primitive tests (@solidjs/testing-library, renderHook, testEffect). Use when writing tests, adding test infra, or debugging test failures.
+description: How to write and run tests in this repo — the vitest + jsdom + @solidjs/testing-library setup, when to prefer a pure-logic test, and the recipes for component/primitive tests (render, renderHook, testEffect). Use when writing tests, adding test infra, or debugging test failures.
 ---
 
 # Testing in beat-4-beat
 
-## Current setup (pure logic only)
+## Current setup
 
-`vitest.config.ts` runs `src/**/*.test.ts` in a **node** environment — no DOM, no Solid plugin. Existing tests (`src/lib/*.test.ts`) cover pure functions (standings, roomHosts, spotify utils).
+`vitest.config.ts` runs `src/**/*.test.{ts,tsx}` through the Solid plugin in a
+**jsdom** environment, with `vitest.setup.ts` registering the jest-dom matchers.
+Both pure-logic tests (`src/lib/*.test.ts`) and component/primitive tests
+(`*.test.tsx` via `@solidjs/testing-library`) already exist and run together.
 
 ```bash
 pnpm test        # vitest run (single pass)
 pnpm test:watch  # vitest watch
 ```
+
+`pnpm test` runs in CI on every PR (`.github/workflows/typescript.yml`).
+
+`globals` is off, so every file imports its own `describe`/`test`/`expect` from
+`vitest` — and component tests must register `afterEach(cleanup)` themselves,
+since the testing library's auto-cleanup hooks onto globals that aren't there.
 
 **Default choice:** extract game logic / data transforms into pure functions in `src/lib/` and test those with plain vitest. This needs zero new infrastructure and covers most of what matters (scoring, standings, level math, URL parsing).
 
@@ -24,29 +33,16 @@ test("computes standings with ties", () => {
 });
 ```
 
-## Adding component / primitive tests (when logic can't be extracted)
+## Component / primitive tests (when logic can't be extracted)
 
-The official Solid stack is vitest + jsdom + `@solidjs/testing-library`. Not yet installed in this repo — to add it:
-
-1. `pnpm add -D jsdom @solidjs/testing-library @testing-library/user-event @testing-library/jest-dom`
-2. Update `vitest.config.ts` — component tests need the Solid plugin and a DOM:
-
-```ts
-import solid from "vite-plugin-solid";
-import { defineConfig } from "vitest/config";
-
-export default defineConfig({
-  plugins: [solid()],
-  test: {
-    include: ["src/**/*.test.{ts,tsx}"],
-    environment: "jsdom", // or keep "node" globally and put
-    // // @vitest-environment jsdom  atop .tsx test files
-  },
-  resolve: { conditions: ["development", "browser"] },
-});
-```
-
-3. `tsconfig.json` → `compilerOptions.types`: add `"@testing-library/jest-dom"`. `vite-plugin-solid` auto-loads jest-dom matchers if the package is present.
+The infrastructure is already in place — `jsdom`, `@solidjs/testing-library`,
+`@testing-library/user-event` and `@testing-library/jest-dom` are all installed,
+and `vitest.setup.ts`'s `import "@testing-library/jest-dom/vitest"` both registers
+the matchers and augments vitest's `expect` types (so nothing needs to go in
+`tsconfig.json`'s `types`). Just add a `*.test.tsx` next to the thing under test.
+Working examples to copy from:
+`src/components/Scoreboard.test.tsx`, `src/pages/dashboard/PageWrapper.test.tsx`,
+`src/hooks/useCategoryImages.test.tsx`.
 
 ### Component test shape
 
