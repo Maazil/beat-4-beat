@@ -62,13 +62,17 @@ hour-old build. `no-cache` still lets the browser and CDN store the response and
 revalidate to a 304 off the etag; it only forbids serving it unasked. The hashed
 bundles under `/assets` are the only content safe to pin.
 
-⚠️ The two blocks both match `/assets/**`, and Firebase documents match ordering
-only for `redirects`/`rewrites` ("the first rule wins"), never for `headers`.
-This config assumes the **narrower, later** block wins for a repeated key. If a
-deploy ever shows `no-cache` on `/assets/**`
-(`curl -sI https://beat-4-beat.web.app/assets/<file>.js`), that assumption was
-wrong — swap the block order. The failure is benign either way: hashed assets
-would revalidate instead of being served from cache.
+Both blocks match `/assets/**`, and Firebase documents match ordering only for
+`redirects`/`rewrites` ("the first rule wins") — never for `headers`. **Verified
+in production 2026-07-25: for a repeated key the narrower, later block wins.**
+Keep `/assets/**` (and `/fonts/**`) after the `**` block, or they'll inherit
+`no-cache`. Re-check with:
+
+```bash
+curl -sI https://beat-4-beat.web.app/assets/<hashed-file>.js   # immutable
+curl -sI https://beat-4-beat.web.app/                          # no-cache
+curl -sI https://beat-4-beat.web.app/dashboard                 # no-cache (SPA rewrite)
+```
 
 ## Architecture
 
