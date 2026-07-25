@@ -101,6 +101,7 @@ SolidJS Router. Route definitions in `src/routes.ts`:
 - `usePublicRooms()` — Subscribe to all public rooms
 - Data hooks return `{ data/rooms, isLoading, error }` pattern with `onCleanup` for unsubscribing
 - `useGameState(getRoomId, getRoom)` — Game state for a play session: hosts/co-owners read+write `room.gameState` (shared, refresh-safe); everyone else falls back to a private localStorage copy
+- `useCategoryImages(getRoomId)` — One-shot read of the room's category header images (their own document, see below). Board views fold its `isLoading` into their room gate
 - `usePlaybackProgress()` — Playback position tracking for the seek bar
 
 ### Authentication
@@ -155,11 +156,23 @@ so they migrate on their next save.
 
 ### Styling
 
-Tailwind CSS v4 via Vite plugin. **"Stage Night" design system**: deep navy stage, periwinkle hairlines, one gold spotlight accent, hot magenta for big moments. Design tokens live in the `@theme` block in `src/index.css` (`--color-night`, `--color-beat`, `--color-magenta`, etc.) — use these, never generic Tailwind colors. Category colors come from `STAGE_INKS` in `src/theme/palette.ts`. Landing-page styles in `src/pages/stage-night.css`. Keyframe animations in `src/index.css` (`beat-pulse`, `ambient-float`, `rise-in`, `card-expand-*`, `backdrop-fade-*`).
+Tailwind CSS v4 via Vite plugin. **"Stage Night" design system**: deep navy stage, periwinkle hairlines, one gold spotlight accent, hot magenta for big moments. Design tokens live in the `@theme` block in `src/index.css` (`--color-night`, `--color-beat`, `--color-magenta`, etc.) — use these, never generic Tailwind colors. Category colors come from `STAGE_INKS` in `src/theme/palette.ts`. Landing-page styles in `src/pages/stage-night.css`. Keyframe animations in `src/index.css` (`ambient-float`, `rise-in`, `card-expand`, `backdrop-fade`, `confetti-fall`).
 
 ### Testing
 
-Vitest, node environment, `src/**/*.test.ts` (see `vitest.config.ts`). Tests cover pure logic modules (e.g. `src/lib/standings.test.ts`, `src/lib/spotify/spotify.utils.test.ts`) — no component/DOM tests yet.
+Vitest with the Solid plugin, `src/**/*.test.{ts,tsx}` in a **jsdom** environment
+(see `vitest.config.ts`; `vitest.setup.ts` registers the jest-dom matchers). Two
+kinds of test coexist:
+
+- **Pure logic** — `src/lib/*.test.ts`, `src/pages/dashboard/create/*.test.ts`
+  (standings, boardLookup, categoryImages, headerScroll, spotify utils…).
+- **Components and primitives** — `*.test.tsx` via `@solidjs/testing-library`
+  (`Scoreboard`, `LandingNav`, `PageWrapper`, the contexts, and the `use*` hooks).
+  `globals` is off, so each file imports its own `describe`/`expect` and registers
+  `afterEach(cleanup)` itself.
+
+`pnpm test` runs in CI on every PR (`.github/workflows/typescript.yml`) alongside
+`ts`, `lint` and `format:check`. See the `solid-testing` skill for the recipes.
 
 ### Environment Variables
 
