@@ -145,11 +145,13 @@ const GameBoard: Component<GameBoardProps> = (props) => {
                       </div>
                     }
                   >
-                    <img
-                      src={imageFor(category)}
-                      alt={category.name}
-                      class="h-20 w-full rounded-lg border border-line object-cover"
-                    />
+                    {(imageUrl) => (
+                      <img
+                        src={imageUrl()}
+                        alt={category.name}
+                        class="h-20 w-full rounded-lg border border-line object-cover"
+                      />
+                    )}
                   </Show>
 
                   <div

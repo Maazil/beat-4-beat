@@ -19,6 +19,15 @@ export interface UseCategoryImagesResult {
  * A failed read resolves to no images — every consumer falls back to the
  * category name, so a missing image doc must not block the board.
  *
+ * Deliberately a `createEffect` rather than the `createResource`/`createAsync`
+ * the project guidelines call for. `getCategoryImagesOnce` is a router `query`,
+ * so `createAsync` would be the natural fit, but it surfaces a rejected read to
+ * the nearest ErrorBoundary — and here a denied or flaky image read has to
+ * degrade to "no images" instead of taking the whole board down. Callers also
+ * want a plain `isLoading()` to `||` into the gate they already have on the
+ * room, not a Suspense boundary. Read-only consumers only: nothing writes back
+ * through this hook, so it isn't state being mirrored into an effect.
+ *
  * @example
  * const { images } = useCategoryImages(() => params.id);
  * <GameBoard categoryImages={images()} … />

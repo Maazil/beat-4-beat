@@ -43,8 +43,16 @@ pnpm format       # Format code with oxfmt
 pnpm format:check # Verify formatting without writing
 pnpm lint         # Lint with oxlint
 pnpm lint:fix     # oxlint auto-fix
-pnpm deploy       # Build + deploy to Firebase Hosting
+pnpm deploy       # Build + deploy to Firebase Hosting — HOSTING ONLY, see below
 ```
+
+> **`pnpm deploy` does not deploy `firestore.rules`.** If a change needs new or
+> relaxed rules, they must land *first* — shipping the code alone means every
+> write the new rules would have allowed is denied, and because several writes
+> are batched, one denial fails the whole save. The merge workflow already gets
+> this right (`.github/workflows/firebase-hosting-merge.yml` deploys
+> `firestore:rules` before `hosting`); `pnpm deploy` is the hand-rolled path
+> that doesn't. Use `firebase deploy --only firestore:rules,hosting` instead.
 
 ## Architecture
 

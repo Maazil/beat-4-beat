@@ -136,10 +136,20 @@ export async function createRoom(roomData: CreateRoomData): Promise<string> {
 /**
  * Read a room's category header images. Missing doc (no images, or a room
  * saved before the split) resolves to an empty map.
+ *
+ * Non-string values are dropped rather than trusted: the rules can't check a
+ * map's values (they can't iterate one), and everything here ends up in an
+ * `<img src>`.
  */
 export async function getCategoryImages(roomId: string): Promise<CategoryImageMap> {
   const snapshot = await getDoc(categoryImagesDoc(roomId));
-  return snapshot.exists() ? (snapshot.data() as CategoryImageMap) : {};
+  if (!snapshot.exists()) return {};
+
+  const images: CategoryImageMap = {};
+  for (const [categoryId, value] of Object.entries(snapshot.data())) {
+    if (typeof value === "string") images[categoryId] = value;
+  }
+  return images;
 }
 
 /**
@@ -260,6 +270,17 @@ export function subscribeToRoom(
  * Update a room (host or co-editors can update content).
  * Editor membership and invites are managed via the dedicated co-owner
  * functions below, so they can't be changed through this generic update.
+ *
+ * ⚠️ Contract for `updates.categories`: pass the **whole in-memory board with
+ * its header images still attached** (`category.imageUrl`), which is what the
+ * editor's draft store holds. This write REPLACES the room's image document
+ * from whatever it's given — so categories taken straight off a snapshot
+ * (`useRoom`, `getRoom`), where the images have already been split out, would
+ * silently wipe every image on the room. Merge them back on first with
+ * `mergeCategoryImages(room.categories, await getCategoryImages(roomId))`.
+ *
+ * That is also why the editor lets a failed image read abort the whole load
+ * rather than falling back to an empty map — see createRoom.tsx.
  */
 export async function updateRoom(
   roomId: string,
@@ -372,11 +393,16 @@ export async function deleteRoom(roomId: string): Promise<void> {
     throw new Error("Only the host can delete this room");
   }
 
-  // Images first: the rules for an asset write authorize against the room
-  // document, so once the room is gone the asset can never be deleted.
-  // (Firestore doesn't cascade — a client has to do this itself.)
-  await deleteDoc(categoryImagesDoc(roomId));
-  await deleteDoc(roomDoc(roomId));
+  // Firestore doesn't cascade, so the image doc has to go too — and in the
+  // same batch, or a failure between the two leaves either an orphaned image
+  // doc the rules can no longer authorize a delete for (room gone first) or a
+  // live room whose images have vanished (images gone first). Batching is safe
+  // here for the same reason it isn't in createRoom: the asset rule's get() of
+  // the room sees pre-batch state, where the room still exists.
+  const batch = writeBatch(db);
+  batch.delete(categoryImagesDoc(roomId));
+  batch.delete(roomDoc(roomId));
+  await batch.commit();
 }
 
 /**

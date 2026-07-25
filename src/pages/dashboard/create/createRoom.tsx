@@ -75,6 +75,11 @@ const CreateRoom: Component = () => {
       // check so a denied read can't be mistaken for a missing room. Merged
       // onto the draft board, which is where the editor reads and writes them —
       // the service splits them back out on save.
+      //
+      // A failure here must abort the load (the catch below bails to the
+      // dashboard), NOT fall back to an empty map: updateRoom replaces the
+      // image document from whatever board it's handed, so editing with the
+      // images missing and saving would delete them all.
       const categoryImages = await getCategoryImagesOnce(roomId);
 
       // Populate form with existing data
