@@ -4,12 +4,17 @@ import { lazy } from "solid-js";
 // Eager load - needed for initial render
 import App from "./pages/App";
 
-// Warm the shared room query on link intent so the page renders without a
+// Warm the shared room queries on link intent so the page renders without a
 // cold round-trip. Dynamic import keeps Firestore out of the entry chunk.
+// The category images live in their own document, so they're a second read —
+// warming both here keeps the board views at one round trip's latency.
 const preloadRoom = ({ params }: RoutePreloadFuncArgs) => {
   const id = params.id;
   if (!id) return;
-  void import("./services/roomQuery").then(({ getRoomOnce }) => getRoomOnce(id));
+  void import("./services/roomQuery").then(({ getRoomOnce, getCategoryImagesOnce }) => {
+    void getRoomOnce(id);
+    void getCategoryImagesOnce(id);
+  });
 };
 
 const devOnlyRoutes: RouteDefinition[] = import.meta.env.DEV

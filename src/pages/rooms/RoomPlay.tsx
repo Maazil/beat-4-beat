@@ -1,6 +1,7 @@
 import { useParams } from "@solidjs/router";
 import { Component, createMemo, Show } from "solid-js";
 import { useConfirm } from "../../context/ConfirmContext";
+import { useCategoryImages } from "../../hooks/useCategoryImages";
 import { useRoom } from "../../hooks/useRoom";
 import { useGameState } from "../../hooks/useGameState";
 import { useGuessTimer } from "../../hooks/useGuessTimer";
@@ -28,7 +29,13 @@ import YouTubePlayer from "../../components/YouTubePlayer";
 const RoomPlayInner: Component = () => {
   const params = useParams();
   const confirm = useConfirm();
-  const { room: currentRoom, isLoading } = useRoom(() => params.id);
+  const { room: currentRoom, isLoading: roomLoading } = useRoom(() => params.id);
+  const { images: categoryImages, isLoading: imagesLoading } = useCategoryImages(() => params.id);
+
+  // The header of a category shows its image or its name, never both, so both
+  // reads have to land before the board paints — otherwise a name appears and
+  // is replaced a moment later. The route preload warms both in parallel.
+  const isLoading = () => roomLoading() || imagesLoading();
 
   const hostNames = () => {
     const room = currentRoom();
@@ -225,6 +232,7 @@ const RoomPlayInner: Component = () => {
                 </div>
                 <GameBoard
                   categories={currentRoom()?.categories ?? []}
+                  categoryImages={categoryImages()}
                   isItemRevealed={isItemRevealed}
                   onItemClick={handleItemClick}
                 />
