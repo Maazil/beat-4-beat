@@ -9,12 +9,17 @@ const GENERIC = "Something went wrong.";
  * long-lived tab: the HTML this session loaded points at hashed files that no
  * longer exist. Reloading is the actual fix, so say so instead of offering
  * "try again", which would just re-request the same missing chunk.
+ *
+ * Both patterns require the words that name a *module* load — Vite throws
+ * "Failed to fetch dynamically imported module: <url>", Safari "Importing a
+ * module script failed". Matching a bare "Failed to fetch" would swallow every
+ * ordinary network failure that reaches render (a Firestore read, a Spotify
+ * call) and tell the user to reload for a stale build that isn't the problem,
+ * while hiding the "Try again" that would actually help a transient blip.
  */
 function isChunkLoadError(error: unknown): boolean {
   const message = error instanceof Error ? error.message : String(error);
-  return /dynamically imported module|Importing a module script failed|Failed to fetch/i.test(
-    message,
-  );
+  return /dynamically imported module|Importing a module script failed/i.test(message);
 }
 
 /**
@@ -37,22 +42,26 @@ const AppErrorBoundary: ParentComponent = (props) => (
       const stale = isChunkLoadError(error);
 
       return (
-        <main
-          class="bg-stage relative flex min-h-screen flex-col items-center justify-center overflow-hidden p-6 text-center"
-          role="alert"
-        >
+        <main class="bg-stage relative flex min-h-screen flex-col items-center justify-center overflow-hidden p-6 text-center">
           <div class="bg-halftone pointer-events-none absolute inset-0 opacity-60" />
-          <p class="relative font-mono text-xs font-semibold tracking-[0.35em] text-beat uppercase">
-            ♪ Needle skipped
-          </p>
-          <h1 class="font-display relative mt-4 text-4xl font-extrabold tracking-tight text-ink sm:text-5xl">
-            {stale ? "This tab is out of date" : GENERIC}
-          </h1>
-          <p class="relative mt-4 max-w-sm text-muted">
-            {stale
-              ? "A new version shipped while this tab was open. Reloading picks it up."
-              : "The page hit an error it couldn't recover from on its own."}
-          </p>
+          {/* The role goes on the message, not on <main> — an explicit role
+              replaces the implicit landmark, and the page would lose its
+              `main` entirely. A real flex column rather than `display:
+              contents`, which browsers have dropped from the accessibility
+              tree and would take the alert with it. */}
+          <div role="alert" class="relative flex flex-col items-center">
+            <p class="font-mono text-xs font-semibold tracking-[0.35em] text-beat uppercase">
+              ♪ Needle skipped
+            </p>
+            <h1 class="font-display mt-4 text-4xl font-extrabold tracking-tight text-ink sm:text-5xl">
+              {stale ? "This tab is out of date" : GENERIC}
+            </h1>
+            <p class="mt-4 max-w-sm text-muted">
+              {stale
+                ? "A new version shipped while this tab was open. Reloading picks it up."
+                : "The page hit an error it couldn't recover from on its own."}
+            </p>
+          </div>
 
           {/* Dev-only: production users get nothing they could act on, and the
               message can carry internals worth not printing on screen. */}

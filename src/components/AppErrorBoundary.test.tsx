@@ -57,6 +57,32 @@ describe("AppErrorBoundary", () => {
     expect(queryByRole("button", { name: "Try again" })).toBeNull();
   });
 
+  test("an ordinary network failure is not mistaken for a stale build", () => {
+    // "Failed to fetch" on its own is what a browser gives for any failed
+    // request. Treating it as a stale chunk would tell the user to reload for
+    // a deploy that isn't the problem, and drop the retry that would help.
+    const { getByRole, queryByRole } = render(() => (
+      <AppErrorBoundary>
+        <Boom message="Failed to fetch" />
+      </AppErrorBoundary>
+    ));
+
+    expect(getByRole("heading", { name: "Something went wrong." })).toBeInTheDocument();
+    expect(queryByRole("button", { name: "Try again" })).toBeInTheDocument();
+  });
+
+  test("keeps the main landmark, with the alert on the message", () => {
+    const { getByRole } = render(() => (
+      <AppErrorBoundary>
+        <Boom message="kaboom" />
+      </AppErrorBoundary>
+    ));
+
+    // An explicit role on <main> would replace the landmark rather than add to it.
+    expect(getByRole("main")).toBeInTheDocument();
+    expect(getByRole("main")).toContainElement(getByRole("alert"));
+  });
+
   test("Try again re-renders the subtree, recovering once the cause is gone", async () => {
     const [broken, setBroken] = createSignal(true);
 
