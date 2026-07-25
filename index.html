@@ -4,16 +4,28 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#02182b" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://identitytoolkit.googleapis.com" crossorigin />
     <link rel="preconnect" href="https://firestore.googleapis.com" crossorigin />
     <link rel="preconnect" href="https://api.spotify.com" crossorigin />
-    <!-- Only the weights actually used: display (Bricolage) 700/800,
-         body (Schibsted, no italics) 400-700, mono (Spline) 400/600/700 -->
+    <!-- Fonts are self-hosted (see the @font-face block in src/index.css), so
+         nothing render-blocking is fetched cross-origin before text can paint.
+         Preloading the two latin subsets used above the fold starts them with
+         the document rather than after the stylesheet parses; latin-ext and the
+         mono face load on demand from their unicode-range. `crossorigin` is
+         required even same-origin — fonts are always fetched in CORS mode. -->
     <link
-      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Schibsted+Grotesk:wght@400;500;600;700&family=Spline+Sans+Mono:wght@400;600;700&display=swap"
-      rel="stylesheet"
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      href="/fonts/bricolage-grotesque-v9-latin.woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      href="/fonts/schibsted-grotesk-v7-latin.woff2"
+      crossorigin
     />
     <title>Beat 4 Beat</title>
   </head>
