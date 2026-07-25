@@ -53,9 +53,11 @@ const RoomView: Component = () => {
   return (
     <div class="mx-auto w-full max-w-6xl px-6 py-12">
       <Show when={isLoading()}>
-        <div class="flex w-full flex-col" role="status">
+        <div class="flex w-full flex-col" role="status" aria-busy="true">
           {/* The blocks themselves are aria-hidden, so the live region needs
-              something to actually announce. */}
+              something to actually announce. A live region that mounts
+              already-populated isn't reliably announced, so `aria-busy`
+              carries the state as well. */}
           <span class="sr-only">Loading room</span>
           <Skeleton class="mb-6 h-5 w-40 rounded-md" />
           <div class="mb-8 flex items-start justify-between gap-4">

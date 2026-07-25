@@ -77,10 +77,12 @@ const Dashboard: Component = () => {
           )}
 
           {isLoading() ? (
-            <div class={GRID_CLASS} role="status">
+            <div class={GRID_CLASS} role="status" aria-busy="true">
               {/* The blocks themselves are aria-hidden, so the live region needs
                   something to actually announce. `sr-only` is absolute, so it
-                  takes no grid track. */}
+                  takes no grid track. A live region that mounts already-
+                  populated isn't reliably announced, so `aria-busy` carries
+                  the state as well. */}
               <span class="sr-only">Loading your rooms</span>
               <Index each={SKELETON_CARDS}>{() => <RoomCardSkeleton />}</Index>
             </div>
