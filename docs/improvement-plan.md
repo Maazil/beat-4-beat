@@ -50,15 +50,6 @@ bounded one-shot pages.
     **Trigger to revisit:** the public catalog passing a few hundred rooms, or
     "Load more" measurably dragging on mobile.
 
-39. **Self-host the web fonts.** `index.html` loads a render-blocking
-    cross-origin stylesheet from `fonts.googleapis.com` (9.3 KB, 20 `@font-face`
-    blocks across three families) before any styled text can paint, then fetches
-    the woff2s from a second origin. The preconnects help, but with the entry
-    chunk down to 34.9 KB the fonts _are_ the landing page's critical path now.
-    Ship the subset woff2s from `/assets` (same origin, `immutable`, no third
-    party), declare `@font-face` in `index.css`, and preload the two weights used
-    above the fold. — S/M
-
 40. **The dashboard doesn't need live listeners.** `useMyRooms` opens two
     `onSnapshot` queries; while a game is running, every `gameState` write
     re-sends the whole room document — full `items[]` payload and all (#15) — to
