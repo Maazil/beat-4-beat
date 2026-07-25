@@ -5,6 +5,7 @@ import "solid-devtools";
 import { render } from "solid-js/web";
 import "./index.css";
 
+import AppErrorBoundary from "./components/AppErrorBoundary";
 import { AuthProvider } from "./context/AuthContext";
 import { ConfirmProvider } from "./context/ConfirmContext";
 import { ToastProvider } from "./context/ToastContext";
@@ -22,16 +23,23 @@ if (import.meta.env.DEV && !(root instanceof HTMLElement)) {
 // toast and then navigate away (createRoom), and a confirm resolves after the
 // route it was asked from may have unmounted. Nesting them inside would tear
 // both down mid-flight.
+//
+// AppErrorBoundary wraps all of it rather than just the Router, so a throw in
+// AuthProvider's setup — the one provider doing async work — lands on the
+// fallback too instead of on a blank page. Its fallback renders in place of
+// the whole tree, so it can't reach useToast/useConfirm and doesn't try to.
 render(
   () => (
     <MetaProvider>
-      <AuthProvider>
-        <ToastProvider>
-          <ConfirmProvider>
-            <Router>{routes}</Router>
-          </ConfirmProvider>
-        </ToastProvider>
-      </AuthProvider>
+      <AppErrorBoundary>
+        <AuthProvider>
+          <ToastProvider>
+            <ConfirmProvider>
+              <Router>{routes}</Router>
+            </ConfirmProvider>
+          </ToastProvider>
+        </AuthProvider>
+      </AppErrorBoundary>
     </MetaProvider>
   ),
   root!,
