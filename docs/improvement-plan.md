@@ -50,20 +50,33 @@ bounded one-shot pages.
     **Trigger to revisit:** the public catalog passing a few hundred rooms, or
     "Load more" measurably dragging on mobile.
 
-40. **The dashboard doesn't need live listeners.** `useMyRooms` opens two
-    `onSnapshot` queries; while a game is running, every `gameState` write
-    re-sends the whole room document — full `items[]` payload and all (#15) — to
-    any dashboard left open in another tab, and to every co-owner's. The list
-    only has to change after the viewer's own create / duplicate / delete. Move
-    it to one-shot reads behind the shared router `query` + `revalidate` that the
-    editor already uses. — S/M
+40. **Dashboard live listeners — mostly a non-issue; don't do this as written.**
+    `useMyRooms` does open two `onSnapshot` queries, and each `gameState` write
+    would re-send whole room documents (full `items[]` and all, #15) to a
+    dashboard that was listening. The premise was that one is listening during a
+    game — and it usually isn't: `RoomManageCard`'s **Start** button and
+    `RoomPreview`'s card link both navigate in the same tab, so the dashboard
+    unmounts and `onCleanup` drops both listeners before the first tile is
+    clicked. Reproducing the churn takes a deliberately-opened second tab.
 
-41. **Coalesce `gameState` writes.** Every tile click, every ±1 award and every
-    reveal toggle is its own write to the room document, echoed to every audience
-    listener. Firestore's sustained per-document write limit is roughly 1/s, and
-    awarding four teams in quick succession clears that easily. Debounce the
-    `gameState.scores` writes (~300–500 ms) while keeping tile clicks immediate —
-    it trades a little sync latency for a large drop in writes. — M
+    Against that, the fix as written trades a self-maintaining subscription for
+    manual `revalidate` calls at every mutation site (create, edit, duplicate ×2,
+    delete) — the same call-site-discipline liability that got #15's summary
+    collection rejected, for a saving that mostly doesn't occur. If the churn is
+    ever measured in practice, the cheap version is to detach the listeners on
+    `visibilitychange` and re-attach on focus: it kills exactly the
+    background-tab case, needs no call-site discipline, and costs a re-read per
+    return to the tab.
+
+41. **Coalesce `gameState` writes — weaker than it first looked.** Every tile
+    click, ±1 award and reveal toggle is its own write to the room document,
+    echoed to every audience listener; a full game is roughly 200 writes. That
+    part is real. But Firestore's ~1/s per-document limit is a _sustained_ rate
+    that absorbs bursts, and a host awarding four teams spreads those clicks over
+    seconds — so the limit isn't actually being hit. Debouncing would delay the
+    audience view and opens a window where a write is lost on navigation.
+    Revisit only if the write volume shows up on the bill or the audience view
+    starts lagging. — M
 
 42. **Firestore SDK bytes — investigated, not recommended.** At 457 KB raw /
     134 KB gzip it's by far the largest asset. `firebase/firestore/lite` is a
