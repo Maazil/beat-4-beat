@@ -112,22 +112,20 @@ bounded one-shot pages.
 
 ## Phase 6 — Larger investments
 
-24. **Sound effects** — buzz-in / correct / wrong / times-up. — M
-25. **Game history / results archive** — `gameState` is wiped on new game; nothing
-    persists for leaderboards or "last played". — M
+Sound effects (#24), a game history / results archive (#25) and phone join +
+buzz-in (#27) were **dropped 2026-07-25** as features the game doesn't need —
+not deferred. Don't reopen them.
+
 26. **Marketplace discovery** — tags/genre, play count, favorites; today
     `marketFilter` matches names only and sorts by date. — M
-27. **Phone join + buzz-in** — the `AudienceView` "QR join" TODO; player-side join,
-    buzz ordering, answer submission. — L
 
-46. **Decide about a backend before starting Phase 6.** Frontend-only is a real
-    strength of this app — PKCE with no token server, security rules as the whole
-    authorization layer — but it's now the binding constraint on the roadmap, and
-    every remaining large item runs into the same wall: #25 game history and #26
-    play counts / favorites need writes a client can't be trusted to make (a host
-    can inflate their own room's counters), #27 buzz-in needs a trusted ordering
-    of near-simultaneous writes from clients that must not read each other's
-    documents, and #15's rejected summary doc failed for exactly this reason.
-    Rules can't express any of them. Decide once whether Cloud Functions are on
-    the table — the answer changes the design of all four — rather than
-    rediscovering the constraint one item at a time. — decision, not code
+46. **Backend question, now scoped to #26.** Frontend-only is a real strength of
+    this app — PKCE with no token server, security rules as the whole
+    authorization layer. With #25 and #27 dropped, the only remaining item that
+    runs into it is #26: play counts and favorites need writes a client can't be
+    trusted to make (a host can inflate their own room's counters), and rules
+    can't express the constraint — the same wall #15's summary doc hit. Tags and
+    genre filtering carry no such problem and can ship on their own. So the
+    decision is no longer a roadmap blocker: build the parts of #26 that rules
+    _can_ authorize, and treat counters as the one thing that would need Cloud
+    Functions. — decision, not code
