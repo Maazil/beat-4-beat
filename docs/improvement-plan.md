@@ -50,13 +50,6 @@ bounded one-shot pages.
     **Trigger to revisit:** the public catalog passing a few hundred rooms, or
     "Load more" measurably dragging on mobile.
 
-38. **`index.html` is CDN-cached for an hour.** `curl -sI https://beat-4-beat.web.app/`
-    returns `cache-control: max-age=3600` — Firebase Hosting's default, because
-    `firebase.json` only sets headers for `/assets/**` (correctly `immutable`).
-    Asset filenames are hashed, so the HTML entry is the one document that must
-    revalidate; until it does, a returning visitor can run an hour-old build.
-    Add a `no-cache` (or `max-age=0, must-revalidate`) header for it. — S
-
 39. **Self-host the web fonts.** `index.html` loads a render-blocking
     cross-origin stylesheet from `fonts.googleapis.com` (9.3 KB, 20 `@font-face`
     blocks across three families) before any styled text can paint, then fetches

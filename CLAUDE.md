@@ -54,6 +54,22 @@ pnpm deploy       # Build + deploy to Firebase Hosting — HOSTING ONLY, see bel
 > `firestore:rules` before `hosting`); `pnpm deploy` is the hand-rolled path
 > that doesn't. Use `firebase deploy --only firestore:rules,hosting` instead.
 
+**Hosting cache headers.** JSON can't hold comments, so the reasoning lives here.
+`firebase.json` sets `Cache-Control: no-cache` on `**` and re-grants
+`immutable` to `/assets/**`. Every SPA route is rewritten to `index.html`, and
+Hosting's default for it is `max-age=3600` — a returning visitor could run an
+hour-old build. `no-cache` still lets the browser and CDN store the response and
+revalidate to a 304 off the etag; it only forbids serving it unasked. The hashed
+bundles under `/assets` are the only content safe to pin.
+
+⚠️ The two blocks both match `/assets/**`, and Firebase documents match ordering
+only for `redirects`/`rewrites` ("the first rule wins"), never for `headers`.
+This config assumes the **narrower, later** block wins for a repeated key. If a
+deploy ever shows `no-cache` on `/assets/**`
+(`curl -sI https://beat-4-beat.web.app/assets/<file>.js`), that assumption was
+wrong — swap the block order. The failure is benign either way: hashed assets
+would revalidate instead of being served from cache.
+
 ## Architecture
 
 ### Tech Stack
