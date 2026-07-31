@@ -4,9 +4,18 @@ Prioritized backlog from a full-codebase survey (features, optimization, design/
 One branch + PR per item, off `main`. Sizes: S ≈ hours, M ≈ a day, L ≈ multi-day.
 Completed items have been removed; numbering is kept stable for traceability.
 
-**Last reviewed 2026-07-25** (perf + architecture pass over the production build,
-hosting headers, the Firestore read/write paths and the render hot paths).
-Items #38–#46 came out of it. Checked and found in good shape — don't re-litigate
+**Last reviewed 2026-07-31** — a *measured* pass against production (resource
+timing per page, not a code read), after the 2026-07-25 code/architecture pass
+that produced items #38–#46. The measured pass found one thing and it was large:
+fonts were **68% of the landing page** (160 KB of 235 KB, against 64 KB for all
+JS), because self-hosting them in #39 fixed the render-blocking stylesheet but
+never touched the font bytes. Both the weight ranges and Bricolage's `opsz` axis
+are now instanced down — 160 KB → 108 KB — and the reasoning, the measured
+trade-off behind the pinned `opsz` value, and the refresh procedure that must not
+drop the instancing step all live in the `── Fonts ──` comment in `src/index.css`.
+Read that before touching a font file.
+
+Checked and found in good shape — don't re-litigate
 without new evidence: route-level code splitting and the lazy Firebase SDKs
 (entry chunk 34.9 KB), analytics deferred to `requestIdleCallback`,
 `solid-devtools` fully stripped from the production bundle, `/assets/**` served
@@ -84,29 +93,6 @@ bounded one-shot pages.
     views (and only once #40 lands) — while any user who then opens a board would
     download the full SDK _as well_, making the common path heavier. Revisit only
     if a browse-only audience shows up.
-
-47. **Fonts are now the payload — the rest of the win needs a design call.**
-    Measured on production 2026-07-31: the landing page transfers ~235 KB, of
-    which **160 KB (68%) was fonts** and all JS + CSS + document together only
-    75 KB. Instancing each file down to the weight range its `font-weight`
-    descriptor already declares took that to 134 KB with no visible change
-    (done — see the comment in `src/index.css`).
-
-    What's left is **Bricolage's `opsz` axis: 61.6 KB → ~35 KB**, the single
-    biggest remaining asset win in the app. It costs a real design change.
-    `font-optical-sizing: auto` is the CSS default, so today the hero at
-    `clamp(44px, 7.4vw, 84px)` renders at `opsz` ≈ 84 and a 14px label at
-    `opsz` 14 — a genuinely different, tighter face at display size. Pinning the
-    axis collapses all of it to one drawing; A/B'd at 84px the pinned face is
-    ~8% wider and noticeably rounder, and the hero would re-wrap.
-
-    Notes if it's ever taken: `fonttools` can pin `opsz` at *any* value (~35 KB
-    at 14/32/48/96 alike), whereas the Google Fonts API only serves an instance
-    at the axis default and returns the full file for anything else — so the
-    value can be chosen to match the sizes Bricolage is actually used at
-    (mostly `text-3xl`, with one `text-8xl`) rather than being stuck at 14.
-    Dropping the two `font-extrabold` uses would allow a single-weight static
-    cut to ~22 KB. — S, but a design decision first
 
 ## Phase 5 — Code quality / refactors
 
