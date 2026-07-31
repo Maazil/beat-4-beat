@@ -63,10 +63,25 @@
       fonttools varLib.instancer <file>-wght700-800.woff2 opsz=32 \
         --output <file>-wght700-800-opsz32.woff2
 
-  Note the Google Fonts API cannot do this for you: it only serves an instance
-  when a pinned axis sits at its *default* value (so `opsz=14` yields a real
-  build but `opsz=32` silently returns the full file), and narrowing a range
-  never instances at all.
+  The Google Fonts API cannot do this for you, and fails quietly when asked.
+  Narrowing a range never instances at all — `wght@700..800` returns the same
+  76,868-byte latin file as `wght@200..800`. Pinning `opsz` works only at values
+  Google happens to have prebuilt, with no documented rule and no error when it
+  doesn't: measured 2026-07-31, 12/14/16/18/20/24/28/36/48/96 each returned a
+  real instance while **30/32/40/44/64/80 silently returned the full file**. So
+  the API cannot produce this file at all. Even where it does instance, its build
+  is bigger than fonttools' (41.2 KB vs 35.8 KB at latin). Use fonttools, and
+  diff the byte size of anything pulled from the API before trusting it.
+
+  One more trap when verifying a deploy: a `/fonts` path that doesn't exist is
+  not a 404. It falls through the SPA rewrite in `firebase.json` and returns
+  `index.html` with a 200, `content-type: text/html`, and — because the header
+  block matches on path, not content — `/fonts/**`'s year-long `immutable`. A
+  stale `src:` here therefore fails invisibly: the browser rejects the HTML,
+  swaps in a system font, and the bad response is edge-cached for a year.
+  `src/lib/fontAssets.test.ts` is what actually guards this — it asserts every
+  URL here resolves to a file in `public/fonts` and that each filename's
+  `wght` suffix matches its `font-weight` descriptor. A curl cannot.
 
   Bump the vN in the filenames if the family version moved — /fonts is served
   `immutable`, so any changed file needs a changed name.
