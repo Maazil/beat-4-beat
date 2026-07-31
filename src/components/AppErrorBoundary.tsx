@@ -1,0 +1,139 @@
+import { ErrorBoundary, onCleanup, ParentComponent, Show } from "solid-js";
+import Button from "./forms/Button";
+
+/** Message to show for an error whose own message isn't worth reading. */
+const GENERIC = "Something went wrong.";
+
+const messageOf = (error: unknown): string =>
+  error instanceof Error ? error.message : String(error);
+
+/**
+ * A failed `lazy()` chunk usually means the deploy moved underneath a
+ * long-lived tab: the HTML this session loaded points at hashed files that no
+ * longer exist. Reloading is the actual fix, so say so instead of offering
+ * "try again", which would just re-request the same missing chunk.
+ *
+ * Every pattern requires words that name a *module or asset* load — Chrome
+ * throws "Failed to fetch dynamically imported module: <url>", Firefox "error
+ * loading dynamically imported module", Safari "Importing a module script
+ * failed", and Vite's own preload helper "Unable to preload CSS for <url>" when
+ * a chunk's stylesheet is the file that vanished. Matching a bare "Failed to
+ * fetch" would swallow every ordinary network failure that reaches render (a
+ * Firestore read, a Spotify call) and tell the user to reload for a stale build
+ * that isn't the problem, while hiding the "Try again" that would actually help
+ * a transient blip.
+ *
+ * The `cause` is read too: a loader that wraps the browser's error keeps the
+ * only wording we can match down there.
+ */
+function isChunkLoadError(error: unknown): boolean {
+  const message =
+    error instanceof Error && error.cause != null
+      ? `${error.message} ${messageOf(error.cause)}`
+      : messageOf(error);
+  return /dynamically imported module|Importing a module script failed|Unable to preload/i.test(
+    message,
+  );
+}
+
+/**
+ * Last-resort error boundary around the whole app.
+ *
+ * Without one, a throw while rendering takes the page to blank white with the
+ * error only in the console — no way back except the browser's reload button.
+ *
+ * Scope worth knowing: Solid's `ErrorBoundary` catches throws from rendering
+ * and from the computations beneath it. It does NOT catch rejected promises in
+ * event handlers or `setTimeout` callbacks — those still need their own
+ * try/catch at the call site, which is why the services and hooks keep theirs.
+ *
+ * And `reset` can never recover a failed `lazy()` route: Solid caches that
+ * import's promise for the life of the page, so a re-render re-awaits the same
+ * rejection. The stale-chunk branch below already hides "Try again" for the
+ * usual wordings; a chunk that loads but throws while evaluating is the case
+ * that slips through, and there the button is a no-op.
+ */
+const AppErrorBoundary: ParentComponent = (props) => (
+  <ErrorBoundary
+    fallback={(error: unknown, reset: () => void) => {
+      // The console entry is what a bug report gets pasted from — the panel
+      // deliberately shows very little.
+      console.error("[AppErrorBoundary] Unhandled error:", error);
+      const stale = isChunkLoadError(error);
+      // A chunk that won't load while the browser reports no network is a
+      // connection problem, not a deploy — blaming a new version would send
+      // the user to reload a page that can't load either.
+      const offline = stale && !navigator.onLine;
+
+      // Set directly rather than with meta's <Title>. MetaProvider is above
+      // this boundary so <Title> would work, but a throw *inside* this
+      // fallback is the one error nothing can catch — the last-resort panel
+      // shouldn't depend on a provider staying above it. Otherwise the tab
+      // keeps the dead route's title.
+      const previousTitle = document.title;
+      document.title = offline
+        ? "Offline — Beat 4 Beat"
+        : stale
+          ? "Out of date — Beat 4 Beat"
+          : "Error — Beat 4 Beat";
+      // The fallback runs under the boundary's own memo, which is disposed
+      // when `reset` re-renders the children — so a recovery puts the real
+      // title back. Most routes never set one of their own.
+      onCleanup(() => {
+        document.title = previousTitle;
+      });
+
+      return (
+        <main class="bg-stage relative flex min-h-screen flex-col items-center justify-center overflow-hidden p-6 text-center">
+          <div class="bg-halftone pointer-events-none absolute inset-0 opacity-60" />
+          {/* The role goes on the message, not on <main> — an explicit role
+              replaces the implicit landmark, and the page would lose its
+              `main` entirely. A real flex column rather than `display:
+              contents`, which browsers have dropped from the accessibility
+              tree and would take the alert with it. */}
+          <div role="alert" class="relative flex flex-col items-center">
+            <p class="font-mono text-xs font-semibold tracking-[0.35em] text-beat uppercase">
+              ♪ Needle skipped
+            </p>
+            <h1 class="font-display mt-4 text-4xl font-extrabold tracking-tight text-ink sm:text-5xl">
+              {offline ? "You're offline" : stale ? "This tab is out of date" : GENERIC}
+            </h1>
+            <p class="mt-4 max-w-sm text-muted">
+              {offline
+                ? "Part of the page couldn't be downloaded. Reconnect, then reload."
+                : stale
+                  ? "A new version shipped while this tab was open. Reloading picks it up."
+                  : "The page hit an error it couldn't recover from on its own."}
+            </p>
+          </div>
+
+          {/* Dev-only: production users get nothing they could act on, and the
+              message can carry internals worth not printing on screen. */}
+          <Show when={import.meta.env.DEV && error instanceof Error}>
+            <pre class="relative mt-6 max-w-xl overflow-x-auto rounded-xl border border-line bg-surface p-4 text-left font-mono text-xs text-muted">
+              {(error as Error).message}
+            </pre>
+          </Show>
+
+          <div class="relative mt-8 flex flex-wrap items-center justify-center gap-3">
+            <Button size="lg" onClick={() => window.location.reload()}>
+              Reload the page
+            </Button>
+            {/* `reset` re-renders the subtree that threw. Worth offering for a
+                transient failure, but not for a stale chunk — that would just
+                re-request the file that's already gone. */}
+            <Show when={!stale}>
+              <Button variant="secondary" size="lg" onClick={reset}>
+                Try again
+              </Button>
+            </Show>
+          </div>
+        </main>
+      );
+    }}
+  >
+    {props.children}
+  </ErrorBoundary>
+);
+
+export default AppErrorBoundary;

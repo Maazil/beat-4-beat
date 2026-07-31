@@ -90,11 +90,6 @@ bounded one-shot pages.
 23. **Test coverage** — `roomsService` (score migration, editor dedup,
     `duplicateRoom`), playback routing, PKCE flow. — M
 
-43. **No root `ErrorBoundary`.** Nothing catches a render throw — a malformed
-    snapshot or a bad lazy chunk takes the page to blank white. The only
-    `<Suspense>` is the one around `SimBoard` on the landing page. Wrap the
-    `Router` in an `ErrorBoundary` with a reload panel. — S
-
 44. **Split `roomsService.ts` (561 lines).** It carries four concerns: room CRUD
     and list subscriptions, the category-image asset document, the co-owner
     invite handshake, and the permission helpers. The co-owner block

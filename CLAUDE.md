@@ -183,7 +183,8 @@ kinds of test coexist:
 - **Pure logic** — `src/lib/*.test.ts`, `src/pages/dashboard/create/*.test.ts`
   (standings, boardLookup, categoryImages, headerScroll, spotify utils…).
 - **Components and primitives** — `*.test.tsx` via `@solidjs/testing-library`
-  (`Scoreboard`, `LandingNav`, `PageWrapper`, the contexts, and the `use*` hooks).
+  (`Scoreboard`, `LandingNav`, `PageWrapper`, `AppErrorBoundary`, the contexts,
+  and the `use*` hooks).
   `globals` is off, so each file imports its own `describe`/`expect` and registers
   `afterEach(cleanup)` itself.
 
