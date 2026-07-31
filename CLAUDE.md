@@ -75,10 +75,19 @@ from the `**` block still apply to both. Re-check with:
 # hashed asset — immutable
 curl -sI "https://beat-4-beat.web.app$(curl -s https://beat-4-beat.web.app/ \
   | grep -oE '/assets/[A-Za-z0-9._-]+\.js' | head -1)"
-curl -sI https://beat-4-beat.web.app/fonts/schibsted-grotesk-v7-latin.woff2  # immutable
+# preloaded font — immutable. Check content-type too: a /fonts path that
+# doesn't exist falls through the SPA rewrite and returns index.html with a
+# 200 and these same /fonts/** headers, so Cache-Control alone always passes.
+curl -sI "https://beat-4-beat.web.app$(curl -s https://beat-4-beat.web.app/ \
+  | grep -oE '/fonts/[A-Za-z0-9._-]+\.woff2' | head -1)" \
+  | grep -iE 'cache-control|content-type'   # immutable + font/woff2
 curl -sI https://beat-4-beat.web.app/           # no-cache
 curl -sI https://beat-4-beat.web.app/dashboard  # no-cache (SPA rewrite)
 ```
+
+Both the asset and font checks derive their URL from the live page rather than
+hardcoding a name — hashed bundles and font filenames both change on every
+rebuild. For the fonts see the `── Fonts ──` comment in `src/index.css`.
 
 If a deploy ever shows `no-cache` on `/assets/**`, swap the block order — the
 failure is benign either way: hashed assets revalidate instead of being served
