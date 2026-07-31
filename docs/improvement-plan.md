@@ -85,6 +85,29 @@ bounded one-shot pages.
     download the full SDK _as well_, making the common path heavier. Revisit only
     if a browse-only audience shows up.
 
+47. **Fonts are now the payload — the rest of the win needs a design call.**
+    Measured on production 2026-07-31: the landing page transfers ~235 KB, of
+    which **160 KB (68%) was fonts** and all JS + CSS + document together only
+    75 KB. Instancing each file down to the weight range its `font-weight`
+    descriptor already declares took that to 134 KB with no visible change
+    (done — see the comment in `src/index.css`).
+
+    What's left is **Bricolage's `opsz` axis: 61.6 KB → ~35 KB**, the single
+    biggest remaining asset win in the app. It costs a real design change.
+    `font-optical-sizing: auto` is the CSS default, so today the hero at
+    `clamp(44px, 7.4vw, 84px)` renders at `opsz` ≈ 84 and a 14px label at
+    `opsz` 14 — a genuinely different, tighter face at display size. Pinning the
+    axis collapses all of it to one drawing; A/B'd at 84px the pinned face is
+    ~8% wider and noticeably rounder, and the hero would re-wrap.
+
+    Notes if it's ever taken: `fonttools` can pin `opsz` at *any* value (~35 KB
+    at 14/32/48/96 alike), whereas the Google Fonts API only serves an instance
+    at the axis default and returns the full file for anything else — so the
+    value can be chosen to match the sizes Bricolage is actually used at
+    (mostly `text-3xl`, with one `text-8xl`) rather than being stuck at 14.
+    Dropping the two `font-extrabold` uses would allow a single-weight static
+    cut to ~22 KB. — S, but a design decision first
+
 ## Phase 5 — Code quality / refactors
 
 23. **Test coverage** — `roomsService` (score migration, editor dedup,

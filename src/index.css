@@ -24,9 +24,31 @@
   unicode-range descriptors are copied verbatim so a page of latin text never
   pulls latin-ext.
 
-  Refreshing these: re-request the css2 URL that used to be in index.html with
-  a modern browser UA, and bump the vN in the filenames if the family version
-  moved — /fonts is served `immutable`, so a changed file needs a changed name.
+  Google ships each family's *full* weight axis, which is wider than this app
+  ever asks for: Bricolage 200–800 when only 700/800 are used, Schibsted and
+  Spline Mono 400–900 / 300–700 when only 400–700 are. The `wght<min>-<max>`
+  suffix in each filename means the file has been instanced down to exactly the
+  range its `font-weight` descriptor declares — 160 KB of latin subsets became
+  134 KB. The descriptor already capped what the browser would ever render (a
+  request outside it clamps), so this is invisible: identical at axis endpoints,
+  and at interpolated weights within a sub-pixel (≤0.07px advance over a 475px
+  string, because an interpolated weight becomes a baked master and its deltas
+  round to a different font unit).
+
+  **Keep the filename range and the `font-weight` descriptor in step.** Widening
+  the descriptor without rebuilding the file would silently clamp the new weights
+  instead of rendering them.
+
+  Refreshing these: re-request the css2 URL that used to be in index.html with a
+  modern browser UA, then re-instance each file — dropping this step is what
+  would quietly put the 26 KB back:
+
+      pip install fonttools brotli
+      fonttools varLib.instancer <family>-<subset>.woff2 wght=700:800 \
+        --output <family>-<subset>-wght700-800.woff2
+
+  Bump the vN in the filenames if the family version moved — /fonts is served
+  `immutable`, so any changed file needs a changed name.
 */
 @font-face {
   font-family: "Bricolage Grotesque";
@@ -34,7 +56,7 @@
   font-weight: 700 800;
   font-stretch: 100%;
   font-display: swap;
-  src: url("/fonts/bricolage-grotesque-v9-latin.woff2") format("woff2");
+  src: url("/fonts/bricolage-grotesque-v9-latin-wght700-800.woff2") format("woff2");
   unicode-range:
     U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
     U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
@@ -45,7 +67,7 @@
   font-weight: 700 800;
   font-stretch: 100%;
   font-display: swap;
-  src: url("/fonts/bricolage-grotesque-v9-latin-ext.woff2") format("woff2");
+  src: url("/fonts/bricolage-grotesque-v9-latin-ext-wght700-800.woff2") format("woff2");
   unicode-range:
     U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
     U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F,
@@ -56,7 +78,7 @@
   font-style: normal;
   font-weight: 400 700;
   font-display: swap;
-  src: url("/fonts/schibsted-grotesk-v7-latin.woff2") format("woff2");
+  src: url("/fonts/schibsted-grotesk-v7-latin-wght400-700.woff2") format("woff2");
   unicode-range:
     U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
     U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
@@ -66,7 +88,7 @@
   font-style: normal;
   font-weight: 400 700;
   font-display: swap;
-  src: url("/fonts/schibsted-grotesk-v7-latin-ext.woff2") format("woff2");
+  src: url("/fonts/schibsted-grotesk-v7-latin-ext-wght400-700.woff2") format("woff2");
   unicode-range:
     U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
     U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F,
@@ -77,7 +99,7 @@
   font-style: normal;
   font-weight: 400 700;
   font-display: swap;
-  src: url("/fonts/spline-sans-mono-v10-latin.woff2") format("woff2");
+  src: url("/fonts/spline-sans-mono-v10-latin-wght400-700.woff2") format("woff2");
   unicode-range:
     U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
     U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
@@ -87,7 +109,7 @@
   font-style: normal;
   font-weight: 400 700;
   font-display: swap;
-  src: url("/fonts/spline-sans-mono-v10-latin-ext.woff2") format("woff2");
+  src: url("/fonts/spline-sans-mono-v10-latin-ext-wght400-700.woff2") format("woff2");
   unicode-range:
     U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
     U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F,
