@@ -56,19 +56,33 @@ pnpm deploy       # Build + deploy to Firebase Hosting — HOSTING ONLY, see bel
 
 **Hosting cache headers.** JSON can't hold comments, so the reasoning lives here.
 `firebase.json` sets `Cache-Control: no-cache` on `**` and re-grants
-`immutable` to `/assets/**`. Every SPA route is rewritten to `index.html`, and
-Hosting's default for it is `max-age=3600` — a returning visitor could run an
-hour-old build. `no-cache` still lets the browser and CDN store the response and
-revalidate to a 304 off the etag; it only forbids serving it unasked. The hashed
-bundles under `/assets` are the only content safe to pin.
+`immutable` to `/assets/**` and `/fonts/**`. Every SPA route is rewritten to
+`index.html`, and Hosting's default for it is `max-age=3600` — a returning
+visitor could run an hour-old build. `no-cache` still lets the browser and CDN
+store the response and revalidate to a 304 off the etag; it only forbids serving
+it unasked. The content-hashed bundles under `/assets` and the version-stamped
+fonts under `/fonts` are the only content safe to pin.
 
-⚠️ The two blocks both match `/assets/**`, and Firebase documents match ordering
-only for `redirects`/`rewrites` ("the first rule wins"), never for `headers`.
-This config assumes the **narrower, later** block wins for a repeated key. If a
-deploy ever shows `no-cache` on `/assets/**`
-(`curl -sI https://beat-4-beat.web.app/assets/<file>.js`), that assumption was
-wrong — swap the block order. The failure is benign either way: hashed assets
-would revalidate instead of being served from cache.
+The `**` block also matches `/assets/**` and `/fonts/**`, and Firebase documents
+match ordering only for `redirects`/`rewrites` ("the first rule wins") — never
+for `headers`. **Verified in production 2026-07-25: for a repeated key the
+narrower, later block wins.** Keep `/assets/**` and `/fonts/**` after the `**`
+block, or they'll inherit `no-cache`. Only the repeated key is overridden — the
+CSP and the `X-Frame-Options`/`X-Content-Type-Options`/`Referrer-Policy` headers
+from the `**` block still apply to both. Re-check with:
+
+```bash
+# hashed asset — immutable
+curl -sI "https://beat-4-beat.web.app$(curl -s https://beat-4-beat.web.app/ \
+  | grep -oE '/assets/[A-Za-z0-9._-]+\.js' | head -1)"
+curl -sI https://beat-4-beat.web.app/fonts/schibsted-grotesk-v7-latin.woff2  # immutable
+curl -sI https://beat-4-beat.web.app/           # no-cache
+curl -sI https://beat-4-beat.web.app/dashboard  # no-cache (SPA rewrite)
+```
+
+If a deploy ever shows `no-cache` on `/assets/**`, swap the block order — the
+failure is benign either way: hashed assets revalidate instead of being served
+from cache.
 
 ## Architecture
 
