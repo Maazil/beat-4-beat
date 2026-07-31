@@ -24,10 +24,12 @@ if (import.meta.env.DEV && !(root instanceof HTMLElement)) {
 // route it was asked from may have unmounted. Nesting them inside would tear
 // both down mid-flight.
 //
-// AppErrorBoundary wraps all of it rather than just the Router, so a throw in
-// AuthProvider's setup — the one provider doing async work — lands on the
-// fallback too instead of on a blank page. Its fallback renders in place of
-// the whole tree, so it can't reach useToast/useConfirm and doesn't try to.
+// AppErrorBoundary wraps all of it rather than just the Router, so a synchronous
+// throw in a provider's own render or mount lands on the fallback instead of on
+// a blank page. It does not cover AuthProvider's async init — a rejected promise
+// never reaches an ErrorBoundary, which is why that chain catches for itself.
+// The fallback renders in place of the whole tree, so it can't reach
+// useToast/useConfirm and doesn't try to.
 render(
   () => (
     <MetaProvider>

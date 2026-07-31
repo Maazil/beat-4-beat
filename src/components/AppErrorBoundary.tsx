@@ -10,16 +10,21 @@ const GENERIC = "Something went wrong.";
  * longer exist. Reloading is the actual fix, so say so instead of offering
  * "try again", which would just re-request the same missing chunk.
  *
- * Both patterns require the words that name a *module* load — Vite throws
- * "Failed to fetch dynamically imported module: <url>", Safari "Importing a
- * module script failed". Matching a bare "Failed to fetch" would swallow every
- * ordinary network failure that reaches render (a Firestore read, a Spotify
- * call) and tell the user to reload for a stale build that isn't the problem,
- * while hiding the "Try again" that would actually help a transient blip.
+ * Every pattern requires words that name a *module or asset* load — Chrome
+ * throws "Failed to fetch dynamically imported module: <url>", Firefox "error
+ * loading dynamically imported module", Safari "Importing a module script
+ * failed", and Vite's own preload helper "Unable to preload CSS for <url>" when
+ * a chunk's stylesheet is the file that vanished. Matching a bare "Failed to
+ * fetch" would swallow every ordinary network failure that reaches render (a
+ * Firestore read, a Spotify call) and tell the user to reload for a stale build
+ * that isn't the problem, while hiding the "Try again" that would actually help
+ * a transient blip.
  */
 function isChunkLoadError(error: unknown): boolean {
   const message = error instanceof Error ? error.message : String(error);
-  return /dynamically imported module|Importing a module script failed/i.test(message);
+  return /dynamically imported module|Importing a module script failed|Unable to preload/i.test(
+    message,
+  );
 }
 
 /**
@@ -40,6 +45,10 @@ const AppErrorBoundary: ParentComponent = (props) => (
       // deliberately shows very little.
       console.error("[AppErrorBoundary] Unhandled error:", error);
       const stale = isChunkLoadError(error);
+      // Set directly rather than with meta's <Title>: that needs MetaProvider
+      // in the tree, and a throw *inside* this fallback is the one error
+      // nothing can catch. Otherwise the tab keeps the dead route's title.
+      document.title = stale ? "Out of date — Beat 4 Beat" : "Error — Beat 4 Beat";
 
       return (
         <main class="bg-stage relative flex min-h-screen flex-col items-center justify-center overflow-hidden p-6 text-center">
