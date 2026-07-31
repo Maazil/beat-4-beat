@@ -20,6 +20,12 @@ const Boom = (props: { message: string }) => {
   throw new Error(props.message);
 };
 
+const BoomWithCause = () => {
+  throw new Error("Route load failed", {
+    cause: new Error("Failed to fetch dynamically imported module: /assets/RoomPlay-abc.js"),
+  });
+};
+
 describe("AppErrorBoundary", () => {
   test("renders its children when nothing throws", () => {
     const { getByText, queryByRole } = render(() => (
@@ -58,6 +64,36 @@ describe("AppErrorBoundary", () => {
     expect(queryByRole("button", { name: "Try again" })).toBeNull();
   });
 
+  test("a wrapped chunk error is matched through its cause", () => {
+    // A loader that re-throws its own error keeps the only wording we can
+    // match on the `cause`.
+    const { getByRole, queryByRole } = render(() => (
+      <AppErrorBoundary>
+        <BoomWithCause />
+      </AppErrorBoundary>
+    ));
+
+    expect(getByRole("heading", { name: "This tab is out of date" })).toBeInTheDocument();
+    expect(queryByRole("button", { name: "Try again" })).toBeNull();
+  });
+
+  test("a chunk that won't load with no network reads as offline, not a deploy", () => {
+    const onLine = vi.spyOn(navigator, "onLine", "get").mockReturnValue(false);
+
+    const { getByRole } = render(() => (
+      <AppErrorBoundary>
+        <Boom message="Failed to fetch dynamically imported module: /assets/RoomPlay-abc.js" />
+      </AppErrorBoundary>
+    ));
+
+    // Telling this user a new version shipped would send them to reload a page
+    // that can't load either.
+    expect(getByRole("heading", { name: "You're offline" })).toBeInTheDocument();
+    expect(document.title).toBe("Offline — Beat 4 Beat");
+
+    onLine.mockRestore();
+  });
+
   test("a failed CSS preload counts as a stale chunk too", () => {
     // Vite's preload helper throws this when a lazy chunk's stylesheet is the
     // file the deploy removed — same cause, same fix, so same panel.
@@ -85,7 +121,7 @@ describe("AppErrorBoundary", () => {
     expect(queryByRole("button", { name: "Try again" })).toBeInTheDocument();
   });
 
-  test("prints the error message in dev only", () => {
+  test("prints the error message in dev", () => {
     // vitest runs with DEV true, so this asserts the block renders at all —
     // the production half of the gate is what `import.meta.env.DEV` buys.
     const { getByText } = render(() => (
@@ -126,5 +162,28 @@ describe("AppErrorBoundary", () => {
     await userEvent.setup().click(getByRole("button", { name: "Try again" }));
 
     expect(await findByText("recovered")).toBeInTheDocument();
+  });
+
+  test("takes over the tab title, and gives it back on recovery", async () => {
+    document.title = "Dashboard — Beat 4 Beat";
+    const [broken, setBroken] = createSignal(true);
+
+    const { getByRole, findByText } = render(() => (
+      <AppErrorBoundary>
+        <Show when={broken()} fallback={<p>recovered</p>}>
+          <Boom message="transient" />
+        </Show>
+      </AppErrorBoundary>
+    ));
+
+    expect(document.title).toBe("Error — Beat 4 Beat");
+
+    setBroken(false);
+    await userEvent.setup().click(getByRole("button", { name: "Try again" }));
+    await findByText("recovered");
+
+    // Only two pages set a <Title> of their own, so without this the tab would
+    // read "Error" for the rest of the session.
+    expect(document.title).toBe("Dashboard — Beat 4 Beat");
   });
 });

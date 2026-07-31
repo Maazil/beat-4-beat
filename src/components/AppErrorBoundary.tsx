@@ -1,8 +1,11 @@
-import { ErrorBoundary, ParentComponent, Show } from "solid-js";
+import { ErrorBoundary, onCleanup, ParentComponent, Show } from "solid-js";
 import Button from "./forms/Button";
 
 /** Message to show for an error whose own message isn't worth reading. */
 const GENERIC = "Something went wrong.";
+
+const messageOf = (error: unknown): string =>
+  error instanceof Error ? error.message : String(error);
 
 /**
  * A failed `lazy()` chunk usually means the deploy moved underneath a
@@ -19,9 +22,15 @@ const GENERIC = "Something went wrong.";
  * Firestore read, a Spotify call) and tell the user to reload for a stale build
  * that isn't the problem, while hiding the "Try again" that would actually help
  * a transient blip.
+ *
+ * The `cause` is read too: a loader that wraps the browser's error keeps the
+ * only wording we can match down there.
  */
 function isChunkLoadError(error: unknown): boolean {
-  const message = error instanceof Error ? error.message : String(error);
+  const message =
+    error instanceof Error && error.cause != null
+      ? `${error.message} ${messageOf(error.cause)}`
+      : messageOf(error);
   return /dynamically imported module|Importing a module script failed|Unable to preload/i.test(
     message,
   );
@@ -37,6 +46,12 @@ function isChunkLoadError(error: unknown): boolean {
  * and from the computations beneath it. It does NOT catch rejected promises in
  * event handlers or `setTimeout` callbacks — those still need their own
  * try/catch at the call site, which is why the services and hooks keep theirs.
+ *
+ * And `reset` can never recover a failed `lazy()` route: Solid caches that
+ * import's promise for the life of the page, so a re-render re-awaits the same
+ * rejection. The stale-chunk branch below already hides "Try again" for the
+ * usual wordings; a chunk that loads but throws while evaluating is the case
+ * that slips through, and there the button is a no-op.
  */
 const AppErrorBoundary: ParentComponent = (props) => (
   <ErrorBoundary
@@ -45,10 +60,28 @@ const AppErrorBoundary: ParentComponent = (props) => (
       // deliberately shows very little.
       console.error("[AppErrorBoundary] Unhandled error:", error);
       const stale = isChunkLoadError(error);
-      // Set directly rather than with meta's <Title>: that needs MetaProvider
-      // in the tree, and a throw *inside* this fallback is the one error
-      // nothing can catch. Otherwise the tab keeps the dead route's title.
-      document.title = stale ? "Out of date — Beat 4 Beat" : "Error — Beat 4 Beat";
+      // A chunk that won't load while the browser reports no network is a
+      // connection problem, not a deploy — blaming a new version would send
+      // the user to reload a page that can't load either.
+      const offline = stale && !navigator.onLine;
+
+      // Set directly rather than with meta's <Title>. MetaProvider is above
+      // this boundary so <Title> would work, but a throw *inside* this
+      // fallback is the one error nothing can catch — the last-resort panel
+      // shouldn't depend on a provider staying above it. Otherwise the tab
+      // keeps the dead route's title.
+      const previousTitle = document.title;
+      document.title = offline
+        ? "Offline — Beat 4 Beat"
+        : stale
+          ? "Out of date — Beat 4 Beat"
+          : "Error — Beat 4 Beat";
+      // The fallback runs under the boundary's own memo, which is disposed
+      // when `reset` re-renders the children — so a recovery puts the real
+      // title back. Most routes never set one of their own.
+      onCleanup(() => {
+        document.title = previousTitle;
+      });
 
       return (
         <main class="bg-stage relative flex min-h-screen flex-col items-center justify-center overflow-hidden p-6 text-center">
@@ -63,12 +96,14 @@ const AppErrorBoundary: ParentComponent = (props) => (
               ♪ Needle skipped
             </p>
             <h1 class="font-display mt-4 text-4xl font-extrabold tracking-tight text-ink sm:text-5xl">
-              {stale ? "This tab is out of date" : GENERIC}
+              {offline ? "You're offline" : stale ? "This tab is out of date" : GENERIC}
             </h1>
             <p class="mt-4 max-w-sm text-muted">
-              {stale
-                ? "A new version shipped while this tab was open. Reloading picks it up."
-                : "The page hit an error it couldn't recover from on its own."}
+              {offline
+                ? "Part of the page couldn't be downloaded. Reconnect, then reload."
+                : stale
+                  ? "A new version shipped while this tab was open. Reloading picks it up."
+                  : "The page hit an error it couldn't recover from on its own."}
             </p>
           </div>
 
